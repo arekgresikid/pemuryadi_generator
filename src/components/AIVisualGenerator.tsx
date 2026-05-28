@@ -44,8 +44,9 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
 
       const prompt = `Educational ${type} about ${context.subject}: ${context.topic} for ${context.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
       const encodedPrompt = encodeURIComponent(prompt);
+      const randomSeed = Math.floor(Math.random() * 1000000);
 
-      const imageUrlStr = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedModel}`;
+      const imageUrlStr = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=${selectedModel}&nologo=true&seed=${randomSeed}`;
 
       const imageResponse = await fetch(imageUrlStr);
       if (!imageResponse.ok) {
