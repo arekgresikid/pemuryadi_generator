@@ -15,6 +15,7 @@ export default defineConfig(({mode}) => {
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
         workbox: {
           maximumFileSizeToCacheInBytes: 4000000,
+          navigateFallbackDenylist: [/^\/api/],
         },
         manifest: {
           name: 'Generator Pendidikan',
