@@ -9,10 +9,5 @@
 			"database_name": "pemuryadi-db",
 			"database_id": "0e34b7d0-dff1-43a9-a8e4-ec666422467a"
 		}
-	],
-	"vars": {
-		"GOOGLE_CLIENT_ID": "REPLACE_ME",
-		"GOOGLE_CLIENT_SECRET": "REPLACE_ME",
-		"JWT_SECRET": "c2a4b95f17d23a4b9f52e3c0f2a74c2e6840713bdf2d0981a5c6e91f03d9814c"
-	}
+	]
 }
