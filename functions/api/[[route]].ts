@@ -130,7 +130,7 @@ app.get('/auth/callback', async (c) => {
     return c.redirect('/');
   } catch (error: any) {
     console.error('OAuth error:', error);
-    return c.json({ error: 'OAuth failed', details: error.message }, 500);
+    return c.json({ error: 'OAuth failed', details: error.message, stack: error.stack }, 500);
   }
 });
 
