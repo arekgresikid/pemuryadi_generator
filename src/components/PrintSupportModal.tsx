@@ -12,7 +12,7 @@ export default function PrintSupportModal({ isOpen, onClose, onConfirm }: PrintS
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/80 " onClick={onClose}></div>
       <div className="gen-card relative w-full max-w-lg bg-slate-900 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-6 text-center relative overflow-hidden">
@@ -22,7 +22,7 @@ export default function PrintSupportModal({ isOpen, onClose, onConfirm }: PrintS
           </div>
           
           <div className="relative z-10">
-            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner backdrop-blur-sm">
+            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner ">
               🖨️
             </div>
             <h2 className="text-2xl font-bold text-white mb-1">Siap untuk Mencetak?</h2>
@@ -31,7 +31,7 @@ export default function PrintSupportModal({ isOpen, onClose, onConfirm }: PrintS
         </div>
 
         <div className="p-4 space-y-4">
-          <div className="gen-card bg-slate-800/50 rounded-2xl p-3 space-y-2">
+          <div className="gen-card bg-slate-800 rounded-2xl p-3 space-y-2">
             <div className="flex items-center gap-2 text-pink-400">
               <FaHeart className="fill-current" size={18} />
               <h3 className="font-bold text-sm">Dukung Pemuryadi</h3>

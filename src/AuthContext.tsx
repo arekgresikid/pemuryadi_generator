@@ -1,18 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { updateProfile } from './api';
 
 interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
   photoURL: string;
-  role?: 'owner' | 'guest'; // Keep role for backwards compatibility if needed, but primary is tier now
+  role?: 'owner' | 'guest'; 
   tier?: 'Free' | 'Essential' | 'Premium' | 'Ultimate' | 'SUPREME' | 'owner';
   createdAt: string;
   tokens?: number;
-  lastResetDate?: string; // Format: YYYY-MM-DD
+  lastResetDate?: string; 
   nip?: string;
   jenjang?: string;
   tahunPelajaran?: string;
@@ -25,10 +23,11 @@ interface UserProfile {
 }
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: any | null; // Simulating Firebase User structure
   profile: UserProfile | null;
   loading: boolean;
   consumeToken: () => Promise<boolean>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -36,100 +35,70 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   consumeToken: async () => false,
+  refreshProfile: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const consumeToken = async (): Promise<boolean> => {
-    if (!user) return false;
-    
+  const fetchSession = async () => {
     try {
-      const userRef = doc(db, 'users', user.uid);
-      const userSnap = await getDoc(userRef);
-      
-      if (!userSnap.exists()) return false;
-      
-      const userData = userSnap.data() as UserProfile;
-      const tier = userData.tier || userData.role || 'Free';
-      const today = new Date().toISOString().split('T')[0];
-      
-      if (tier === 'owner') return true;
-
-      let currentTokens = userData.tokens;
-      
-      // Handle Free Tier reset
-      if (tier === 'Free') {
-        if (userData.lastResetDate !== today) {
-          currentTokens = 2; // Reset to 2 max for free
-          await updateDoc(userRef, {
-            tokens: 2,
-            lastResetDate: today
-          });
-        } else if (currentTokens === undefined) {
-          currentTokens = 2; // initial
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          // Map to match the shape expected by components originally relying on Firebase User
+          setUser({ ...data.user, photoURL: data.profile?.photoURL });
+          setProfile(data.profile);
+        } else {
+          setUser(null);
+          setProfile(null);
         }
       }
+    } catch (e) {
+      console.error("Failed to fetch session", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      if (currentTokens && currentTokens > 0) {
-        await updateDoc(userRef, {
-          tokens: currentTokens - 1,
-          lastResetDate: today
-        });
+  useEffect(() => {
+    fetchSession();
+    
+    const handleTokenConsumed = (e: any) => {
+      setProfile(prev => prev ? { ...prev, tokens: e.detail } : null);
+    };
+    window.addEventListener('tokenConsumed', handleTokenConsumed);
+    return () => window.removeEventListener('tokenConsumed', handleTokenConsumed);
+  }, []);
+
+  const consumeToken = async (): Promise<boolean> => {
+    if (!user || !profile) return false;
+    
+    try {
+      const tier = profile.tier || profile.role || 'Free';
+      if (tier === 'owner' || tier !== 'Free') return true;
+
+      // Use the secure backend endpoint
+      const { useToken } = await import('./api');
+      const data = await useToken();
+      if (data.success) {
+        setProfile(prev => prev ? { ...prev, tokens: data.tokens } : null);
         return true;
       }
-      
-      return false; // Not enough tokens
+      return false;
     } catch (e) {
       console.error("Error consuming token", e);
       return false;
     }
   };
 
-  useEffect(() => {
-    let unsubscribeProfile: (() => void) | undefined;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      
-      if (unsubscribeProfile) {
-        unsubscribeProfile();
-        unsubscribeProfile = undefined;
-      }
-
-      if (currentUser) {
-        const userRef = doc(db, 'users', currentUser.uid);
-        unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setProfile(docSnap.data() as UserProfile);
-          } else {
-            setProfile(null);
-          }
-          setLoading(false);
-        }, (error) => {
-          console.error("Error fetching user profile:", error);
-          setLoading(false);
-        });
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-      if (unsubscribeProfile) {
-        unsubscribeProfile();
-      }
-    };
-  }, []);
-
   return (
-    <AuthContext.Provider value={{ user, profile, loading, consumeToken }}>
+    <AuthContext.Provider value={{ user, profile, loading, consumeToken, refreshProfile: fetchSession }}>
       {children}
     </AuthContext.Provider>
   );

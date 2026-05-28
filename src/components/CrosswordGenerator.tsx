@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
@@ -24,6 +25,7 @@ type GridCell = {
 export default function CrosswordGenerator() {
   const { profile } = useAuth();
   const [eduLevel, setEduLevel] = useState('sd');
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [fase, setFase] = useState('A');
   const [kelas, setKelas] = useState('1');
   const [subject, setSubject] = useState('bahasa-indonesia');
@@ -63,12 +65,7 @@ export default function CrosswordGenerator() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan. Pastikan sudah diatur di environment.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const jenjangLabel = educationLevels.find(l => l.id === eduLevel)?.label || eduLevel;
       const faseLabel = phaseClassMap[eduLevel]?.phases.find(p => p.id === fase)?.label || fase;
@@ -91,7 +88,7 @@ PENTING:
 ]`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -481,7 +478,7 @@ PENTING:
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">🤖 Generate Kata dengan AI</h4>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="col-span-2 md:col-span-1">
@@ -533,7 +530,10 @@ PENTING:
                 </select>
               </div>
             </div>
-            <button 
+            <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGeneratingAI} />
+          </div>
+          <button 
               onClick={generateWordsWithAI} 
               disabled={isGeneratingAI}
               className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -553,7 +553,7 @@ PENTING:
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Ekosistem dan Lingkungan"
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
             />
           </div>
 
@@ -565,7 +565,7 @@ PENTING:
               onChange={(e) => setInputText(e.target.value)}
               rows={10}
               placeholder="FOTOSINTESIS - Proses tumbuhan membuat makanan sendiri&#10;KARNIVORA - Hewan pemakan daging&#10;EKOSISTEM - Hubungan timbal balik antara makhluk hidup dan lingkungannya"
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white font-mono text-sm focus:border-green-500 transition-all custom-scrollbar"
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white font-mono text-sm focus:border-green-500 transition-all custom-scrollbar"
             />
           </div>
 

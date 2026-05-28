@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import Logo from './Logo';
 
@@ -33,26 +33,23 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key tidak ditemukan');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
-      const chat = ai.chats.create({
-        model: 'gemini-3-flash-preview',
+      const historyText = messages.map(m => `${m.role === 'user' ? 'User' : 'Bot'}: ${m.text}`).join('\n\n');
+      const prompt = `${historyText}\n\nUser: ${userMessage}\n\nBot:`;
+
+      const response = await ai.models.generateContent({
+        model: 'openai',
+        contents: prompt,
         config: {
           systemInstruction: 'Anda adalah Pemuryadi Bot, asisten AI yang ahli dalam bidang pendidikan di Indonesia, khususnya Kurikulum Merdeka, Modul Ajar, Capaian Pembelajaran, Profil Pelajar Pancasila, dan administrasi guru. Berikan jawaban yang ramah, informatif, dan terstruktur dengan baik menggunakan Markdown.',
         }
       });
       
-      const response = await chat.sendMessage({ message: userMessage });
-      
       setMessages(prev => [...prev, { role: 'model', text: response.text || 'Maaf, saya tidak dapat merespons saat ini.' }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'model', text: 'Maaf, terjadi kesalahan saat menghubungi server AI. Pastikan API Key sudah dikonfigurasi dengan benar.' }]);
+      setMessages(prev => [...prev, { role: 'model', text: error.message || 'Maaf, terjadi kesalahan saat menghubungi server AI.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -62,7 +59,7 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/60 " onClick={onClose}></div>
       <div className="gen-card relative w-full max-w-md h-[600px] max-h-[80vh] bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
         
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 flex items-center justify-between shadow-md z-10">
@@ -78,7 +75,7 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           </button>
         </div>
         
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900/50">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] p-3 rounded-2xl ${

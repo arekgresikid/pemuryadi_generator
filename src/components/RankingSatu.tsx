@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { Loader2, Play, Users, Phone, ShieldHalf, Volume2, VolumeX, CheckCircle, XCircle } from 'lucide-react';
 
@@ -18,6 +19,7 @@ type Question = {
 
 export default function RankingSatu() {
   const [eduLevel, setEduLevel] = useState('sd');
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [fase, setFase] = useState('A');
   const [kelas, setKelas] = useState('1');
   const [subject, setSubject] = useState('matematika');
@@ -101,10 +103,7 @@ export default function RankingSatu() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API key tidak ditemukan');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const jenjangLabel = educationLevels.find(l => l.id === eduLevel)?.label || eduLevel;
       const faseLabel = phaseClassMap[eduLevel]?.phases.find(p => p.id === fase)?.label || fase;
@@ -134,7 +133,7 @@ PENTING:
 ]`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -529,7 +528,7 @@ PENTING:
                   <select 
                     value={eduLevel}
                     onChange={(e) => setEduLevel(e.target.value)}
-                    className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                   >
                     {educationLevels.map(lvl => (
                       <option key={lvl.id} value={lvl.id}>{lvl.label}</option>
@@ -542,7 +541,7 @@ PENTING:
                   <select 
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                   >
                     {subjectsByLevel[eduLevel]?.map(sub => (
                       <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -555,7 +554,7 @@ PENTING:
                   <select 
                     value={fase}
                     onChange={(e) => setFase(e.target.value)}
-                    className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                   >
                     {phaseClassMap[eduLevel]?.phases.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
@@ -568,7 +567,7 @@ PENTING:
                   <select 
                     value={kelas}
                     onChange={(e) => setKelas(e.target.value)}
-                    className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                   >
                     {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
@@ -584,7 +583,7 @@ PENTING:
                     value={customTopic}
                     onChange={(e) => setCustomTopic(e.target.value)}
                     placeholder="Contoh: Tata Surya, Aljabar, dll..."
-                    className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
+                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                 />
             </div>
 
@@ -594,7 +593,10 @@ PENTING:
               </div>
             )}
 
-            <button 
+            <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
+          <button 
               onClick={handleGenerate}
               disabled={isGenerating}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-yellow-600 font-bold text-lg text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 btn-generate-animated"

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { cpData, pabProfilPelajar, mapelNames, modelNames, educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 
 export default function ModuleGenerator() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
 
   React.useEffect(() => {
     const saved = localStorage.getItem('ModuleGeneratorData');
@@ -103,12 +106,7 @@ export default function ModuleGenerator() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan. Pastikan sudah diatur di environment.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       const { jenjang, mapel, topik, fase } = formData;
       const jenjangLabel = educationLevels.find(l => l.id === jenjang)?.label || jenjang.toUpperCase();
       const faseLabel = phaseClassMap[jenjang]?.phases.find(p => p.id === fase)?.label || fase;
@@ -171,7 +169,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
 }`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -470,7 +468,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
       
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2">👨‍🏫 Data Profil Guru</h4>
             <div className="space-y-3">
               <input type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
@@ -507,7 +505,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang</label>
-              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
                 ))}
@@ -515,7 +513,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
-              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
                 ))}
@@ -526,7 +524,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Kelas</label>
-              <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
                 ))}
@@ -534,7 +532,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Semester</label>
-              <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
                 <option value="1">Semester 1</option><option value="2">Semester 2</option>
               </select>
             </div>
@@ -542,7 +540,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
-            <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+            <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
               {subjectsByLevel[formData.jenjang]?.map(s => (
                 <option key={s.id} value={s.id}>{s.label}</option>
               ))}
@@ -561,7 +559,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   setFormData({...formData, isCustomTopik: false, topik: val});
                 }
               }} 
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all"
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all"
             >
               {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                 <option key={idx} value={topic}>{topic}</option>
@@ -574,14 +572,14 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 placeholder="Masukkan Topik/Materi secara manual..." 
                 value={formData.topik} 
                 onChange={e => setFormData({...formData, topik: e.target.value})} 
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all mt-3" 
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all mt-3" 
               />
             )}
           </div>
           
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
-            <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+            <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
               <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
               <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
               <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -609,7 +607,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 <input 
                   type="number"
                   min="1"
-                  className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all"
+                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all"
                   placeholder="Masukkan jumlah siswa inklusi..."
                   value={formData.jumlahInklusi}
                   onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -672,6 +670,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             </div>
           </div>
           
+          <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}

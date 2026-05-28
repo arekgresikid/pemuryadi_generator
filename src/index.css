@@ -115,8 +115,7 @@ html, body {
 
 .cyber-card,
 .gen-card {
-  background: rgba(10, 10, 15, 0.8);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 15, 20, 0.95);
   position: relative;
   z-index: 1;
 }
@@ -260,4 +259,9 @@ body { top: 0 !important; }
 }
 .goog-te-gadget span {
   display: none;
+}
+
+select option {
+  background-color: #0f0f14;
+  color: white;
 }

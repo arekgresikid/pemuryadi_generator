@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Shield, Save, CheckCircle } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { updateProfile } from '../firebase';
+import { updateProfile } from '../api';
 
 export default function QuickProfile() {
   const { user, profile } = useAuth();

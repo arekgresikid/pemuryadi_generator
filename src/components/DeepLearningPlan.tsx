@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 
 export default function DeepLearningPlan() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
 
   React.useEffect(() => {
     const saved = localStorage.getItem('DeepLearningPlanData');
@@ -148,12 +151,7 @@ export default function DeepLearningPlan() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan. Pastikan sudah diatur di environment.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const subjectLabel = subjectsByLevel[formData.eduLevel]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       const faseLabel = phaseClassMap[formData.eduLevel]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
@@ -246,7 +244,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
 }`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -577,7 +575,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
           
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
@@ -717,7 +715,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">A. Identifikasi</h4>
             
             <div className="space-y-4">
@@ -775,7 +773,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">B. Desain Pembelajaran</h4>
             <div className="space-y-4">
               <div>
@@ -817,7 +815,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">C. Pengalaman Belajar</h4>
             <div className="space-y-4">
               <div>
@@ -892,7 +890,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">D. Asesmen dan Tindak Lanjut</h4>
             <div className="space-y-4">
               <div>
@@ -953,6 +951,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           )}
 
+          <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}

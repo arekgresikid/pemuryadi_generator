@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { motion, AnimatePresence } from 'motion/react';
 import { Globe, MapPin, Info, Coins, Landmark, Compass, ChevronRight, Map as MapIcon, Sparkles, X, Brain, Target, MessageCircle, Loader2, Users } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '../lib/genai';
 
 interface Pin {
   name: string;
@@ -334,6 +335,7 @@ const WORLD_DATA: Record<string, Record<string, CountryData>> = {
 
 export default function AdventureJourney() {
   const [selectedContinent, setSelectedContinent] = useState<string>('Asia');
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [selectedCountry, setSelectedCountry] = useState<string>('Indonesia');
   const [activePin, setActivePin] = useState<Pin | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -353,12 +355,7 @@ export default function AdventureJourney() {
     setIsGenerating(true);
     setChallenge(null); // Clear old challenge immediately
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
 
       const prompt = `Anda adalah ahli geografi dan budaya dunia. Berikan informasi mendalam tentang ${region ? region + ' di ' : ''}${country}. 
       Informasi ini akan digunakan oleh siswa dan guru, jadi pastikan bahasa yang digunakan edukatif dan menarik.
@@ -380,7 +377,7 @@ export default function AdventureJourney() {
       }`;
       
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -485,7 +482,7 @@ export default function AdventureJourney() {
 
       <div className="flex-1 flex flex-col lg:flex-row min-h-[800px]">
         {/* Map Stage */}
-        <div className="flex-1 relative bg-slate-900/50 p-6 flex items-center justify-center overflow-hidden">
+        <div className="flex-1 relative bg-slate-900 p-6 flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <div className="w-full h-full cyber-grid"></div>
           </div>
@@ -511,7 +508,7 @@ export default function AdventureJourney() {
                 />
 
                 {imageLoading && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 ">
                     <Loader2 size={48} className="text-cyber-blue animate-spin mb-4" />
                     <p className="text-cyber-blue font-bold tracking-widest text-sm animate-pulse">MEMBUAT DIORAMA 3D...</p>
                     <p className="text-slate-400 text-[10px] mt-2">Proses rendering menggunakan AI sedang berlangsung</p>
@@ -544,13 +541,13 @@ export default function AdventureJourney() {
                     style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
                   >
                     <div className="relative flex flex-col items-center">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${activePin?.name === pin.name ? 'bg-cyber-blue scale-125 ring-4 ring-cyber-blue/30' : 'bg-white/10 backdrop-blur-md border border-white/20 hover:bg-cyber-purple hover:scale-110'}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${activePin?.name === pin.name ? 'bg-cyber-blue scale-125 ring-4 ring-cyber-blue/30' : 'bg-white/10  border border-white/20 hover:bg-cyber-purple hover:scale-110'}`}>
                         <MapPin size={14} className={activePin?.name === pin.name ? 'text-black' : 'text-white'} />
                       </div>
                       {/* 3D Shadow */}
                       <div className="absolute -bottom-1 w-4 h-1 bg-black/40 blur-[2px] rounded-full -z-10"></div>
                       
-                      <div className="mt-1 px-2 py-0.5 bg-black/80 backdrop-blur-md rounded text-[8px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
+                      <div className="mt-1 px-2 py-0.5 bg-black/80  rounded text-[8px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-white/10">
                         {pin.name}
                       </div>
                       {/* 3D Stem */}
@@ -575,13 +572,13 @@ export default function AdventureJourney() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => setActivePin(null)}
-                  className="absolute inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+                  className="absolute inset-0 bg-black/20  z-40 lg:hidden"
                 />
                 <motion.div
                   initial={{ opacity: 0, x: 20, scale: 0.9 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                  className="absolute md:right-6 md:top-1/2 md:-translate-y-1/2 md:w-80 w-[90%] left-1/2 -translate-x-1/2 md:translate-x-0 top-1/2 -translate-y-1/2 bg-slate-900/95 backdrop-blur-2xl border border-cyber-blue/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,243,255,0.1)] z-50 max-h-[90%] overflow-y-auto custom-scrollbar"
+                  className="absolute md:right-6 md:top-1/2 md:-translate-y-1/2 md:w-80 w-[90%] left-1/2 -translate-x-1/2 md:translate-x-0 top-1/2 -translate-y-1/2 bg-slate-900/95  border border-cyber-blue/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(0,243,255,0.1)] z-50 max-h-[90%] overflow-y-auto custom-scrollbar"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
@@ -611,7 +608,7 @@ export default function AdventureJourney() {
                         { label: 'Bahasa', value: activePin.details.bahasa, icon: <MessageCircle size={12} /> },
                         { label: 'Kearifan Lokal', value: activePin.details.kearifanLokal, icon: <Brain size={12} /> },
                       ].map((item, i) => item.value && (
-                        <div key={i} className="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <div key={i} className="p-3 bg-slate-800 rounded-xl border border-white/5">
                           <p className="text-[9px] text-cyber-blue font-bold uppercase mb-1 flex items-center gap-1">
                             {item.icon} {item.label}
                           </p>
@@ -657,7 +654,7 @@ export default function AdventureJourney() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setShowChallengeModal(false)}
-                className="absolute inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-950/90 backdrop-blur-xl"
+                className="absolute inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-slate-950/90 "
               >
                 <motion.div
                   initial={{ scale: 0.8, rotateY: 20, y: 40 }}
@@ -715,7 +712,7 @@ export default function AdventureJourney() {
                     {!isGenerating && challenge && (
                       <div className="w-full space-y-6">
                         <details className="group">
-                          <summary className="w-full py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-300 hover:text-white font-bold rounded-2xl cursor-pointer transition-all list-none flex items-center justify-center gap-3 border border-white/5">
+                          <summary className="w-full py-4 bg-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white font-bold rounded-2xl cursor-pointer transition-all list-none flex items-center justify-center gap-3 border border-white/5">
                             <Info size={20} />
                             <span>LIHAT KUNCI JAWABAN</span>
                             <ChevronRight size={18} className="group-open:rotate-90 transition-transform" />
