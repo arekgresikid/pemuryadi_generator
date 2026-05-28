@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { supervisionIndicators, educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
@@ -9,6 +10,7 @@ import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save } from
 export default function Supervision() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [isGenerating, setIsGenerating] = useState(false);
 
   React.useEffect(() => {
@@ -134,12 +136,7 @@ export default function Supervision() {
     setError('');
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan. Pastikan sudah diatur di environment.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const prompt = `
         Anda adalah seorang Supervisor Pendidikan ahli. Tugas Anda adalah melakukan analisis supervisi pembelajaran berdasarkan dokumen yang disediakan.
@@ -176,7 +173,7 @@ export default function Supervision() {
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -384,14 +381,14 @@ export default function Supervision() {
                       <p>Guru yang Disupervisi,</p>
                       <br><br><br><br>
                       <p style="font-weight: bold; text-decoration: underline;">${formData.guru || '...........................................'}</p>
-                      <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '...........................................'}</p>
+                      <p>${formData.nipGuru || 'NIP'}. ${formData.nipGuru || '...........................................'}</p>
                   </div>
                   <div style="width: 45%;">
                       <p>${formData.tanggal || new Date().toLocaleDateString('id-ID')}</p>
                       <p>Supervisor,</p>
                       <br><br><br><br>
                       <p style="font-weight: bold; text-decoration: underline;">${formData.supervisor || '...........................................'}</p>
-                      <p>${formData.jenisNipSupervisor || 'NIP'}. ${formData.nipSupervisor || '...........................................'}</p>
+                      <p>${formData.nipSupervisor || 'NIP'}. ${formData.nipSupervisor || '...........................................'}</p>
                   </div>
               </div>
 
@@ -420,7 +417,7 @@ export default function Supervision() {
   };
 
   const renderSection = (title: string, id: string, items: string[]) => (
-    <div className="gen-card bg-slate-800/50 rounded-xl p-5 mb-4 shadow-sm">
+    <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
       <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">{title}</h3>
       <div className="space-y-3">
         {items.map((item, index) => (
@@ -464,7 +461,7 @@ export default function Supervision() {
       
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 mb-4 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Data Umum</h3>
             
             {error && (
@@ -528,7 +525,7 @@ export default function Supervision() {
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 mb-4 shadow-sm border border-blue-500/20">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm border border-blue-500/20">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">
               <Sparkles className="w-5 h-5 text-amber-400" />
               AI Supervision Generator (Sumber Data)
@@ -573,7 +570,10 @@ export default function Supervision() {
                   placeholder="Paste konten Modul Kokurikuler di sini..."
                 />
               </div>
-              <div className="flex gap-2 mt-4 w-full">
+              <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
+          <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
@@ -607,7 +607,7 @@ export default function Supervision() {
           {renderSection('📊 C. Asesmen dan Evaluasi', 'assessment', supervisionIndicators.assessment)}
           {renderSection('💭 D. Refleksi dan Tindak Lanjut', 'reflection', supervisionIndicators.reflection)}
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 mb-4 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Catatan Supervisor</h3>
             <textarea 
               rows={4} 
@@ -654,7 +654,7 @@ export default function Supervision() {
               {result ? result.grade : '-'}
             </div>
             
-            <div className="gen-card space-y-3 text-sm bg-slate-900/50 p-4 rounded-lg">
+            <div className="gen-card space-y-3 text-sm bg-slate-900 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="text-slate-400">Perencanaan:</span>
                 <span className="font-semibold text-white bg-slate-800 px-2 py-1 rounded">{result ? result.plan.toFixed(1) : 0}%</span>

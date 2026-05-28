@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, ChevronDown, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, School, MessageSquare, Menu, X, Bell, Search, Settings, User, Activity, Zap, Globe, Shield, Cpu, Share2, LogIn, LogOut, Coins } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
-import { collection, doc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
-import { db, loginWithGoogle, logout, incrementFavorites, addActivityLog } from './firebase';
+import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
 import GroupGenerator from './components/GroupGenerator';
 import WordSearch from './components/WordSearch';
@@ -70,6 +69,8 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [osName, setOsName] = useState('Unknown OS');
+  const [browserName, setBrowserName] = useState('Unknown Browser');
+  const [userAgentStr, setUserAgentStr] = useState('');
   const [ramInfo, setRamInfo] = useState('Unknown');
   const [usageTime, setUsageTime] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,6 +90,8 @@ export default function App() {
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
+    setUserAgentStr(userAgent);
+    
     let os = 'Unknown OS';
     if (userAgent.indexOf('Win') !== -1) os = 'Windows';
     if (userAgent.indexOf('Mac') !== -1) os = 'MacOS';
@@ -96,6 +99,15 @@ export default function App() {
     if (userAgent.indexOf('Android') !== -1) os = 'Android';
     if (userAgent.indexOf('like Mac') !== -1) os = 'iOS';
     setOsName(os);
+    
+    let browser = 'Unknown Browser';
+    if (userAgent.indexOf("Firefox") > -1) browser = "Mozilla Firefox";
+    else if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) browser = "Opera";
+    else if (userAgent.indexOf("Trident") > -1) browser = "Internet Explorer";
+    else if (userAgent.indexOf("Edge") > -1 || userAgent.indexOf("Edg") > -1) browser = "Microsoft Edge";
+    else if (userAgent.indexOf("Chrome") > -1) browser = "Google Chrome";
+    else if (userAgent.indexOf("Safari") > -1) browser = "Apple Safari";
+    setBrowserName(browser);
     
     const ram = (navigator as any).deviceMemory;
     if (ram) {
@@ -218,30 +230,37 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Listen to system stats (favorites)
-    const statsRef = doc(db, 'system', 'stats');
-    const unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setFavorites(docSnap.data().favorites || 0);
+    let mounted = true;
+    
+    const fetchStats = async () => {
+      try {
+        const resStats = await fetch('/api/stats');
+        if (resStats.ok && mounted) {
+          const data = await resStats.json();
+          setFavorites(data.favorites || 0);
+        }
+        
+        if (user) {
+          const resLogs = await fetch('/api/logs');
+          if (resLogs.ok && mounted) {
+            const logs = await resLogs.json();
+            setActivityLogs(logs);
+          }
+        }
+      } catch (e) {
+        console.error('API Error:', e);
       }
-    }, (error) => {
-      console.error('Firestore Error (Stats):', error);
-    });
+    };
 
-    // Listen to activity logs
-    const logsQuery = query(collection(db, 'activityLogs'), orderBy('timestamp', 'desc'), limit(5));
-    const unsubscribeLogs = onSnapshot(logsQuery, (snapshot) => {
-      const logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setActivityLogs(logs);
-    }, (error) => {
-      console.error('Firestore Error (Logs):', error);
-    });
+    fetchStats();
+    // Poll every 5 seconds instead of real-time websocket
+    const intervalId = setInterval(fetchStats, 5000);
 
     return () => {
-      unsubscribeStats();
-      unsubscribeLogs();
+      mounted = false;
+      clearInterval(intervalId);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -358,7 +377,7 @@ export default function App() {
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed top-0 left-0 h-full z-50 bg-black/95 backdrop-blur-xl border-r border-cyber-blue/30 transition-all duration-300 ${
+      <aside className={`fixed top-0 left-0 h-full z-50 bg-black/95 border-r border-cyber-blue/30 transition-all duration-300 ${
         isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'
       }`}>
         <div className="p-6 flex items-center justify-between border-b border-cyber-blue/20">
@@ -367,7 +386,7 @@ export default function App() {
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
                 <h1 className="text-lg font-bold text-cyber-blue tracking-tighter">PEMURYADI</h1>
-                <p className="text-[8px] text-cyber-purple uppercase tracking-widest font-bold">Cyber Education</p>
+                <p className="text-[8px] text-cyber-purple uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
               </div>
             )}
           </div>
@@ -439,7 +458,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className={`transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'} pb-20 min-h-screen flex flex-col w-full md:w-auto`}>
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 bg-black/60 backdrop-blur-md border-b border-cyber-blue/20 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between no-print w-full">
+        <header className="sticky top-0 z-30 bg-black/90 border-b border-cyber-blue/20 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between no-print w-full" style={{ willChange: 'transform' }}>
           <div className="flex items-center gap-3 md:hidden">
              <button onClick={() => setIsSidebarOpen(true)} className="text-cyber-blue p-1">
                <Menu size={24} />
@@ -718,11 +737,11 @@ export default function App() {
                     <span className="w-2 h-2 bg-cyber-blue rounded-full animate-pulse"></span> 
                     <span className="text-[10px] font-bold text-cyber-blue uppercase tracking-widest">System Online</span>
                   </div>
-                  <h2 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter leading-none italic">
-                    WELCOME TO THE <span className="text-cyber-blue">FUTURE</span> OF EDUCATION
+                  <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
+                    BROWSER: <span className="text-cyber-blue">{browserName.toUpperCase()}</span>
                   </h2>
-                  <p className="text-slate-400 text-sm md:text-base max-w-xl mb-8 font-medium italic">
-                    Empowering educators with next-gen AI tools for module generation, assessment planning, and school administration.
+                  <p className="text-slate-400 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-black/30 p-2 rounded border border-white/5">
+                    USER AGENT:<br/>{userAgentStr}
                   </p>
                   <div className="flex flex-wrap gap-4">
                     <button onClick={() => handleTabChange('modul')} className="cyber-button px-8 py-3 text-sm">
@@ -861,7 +880,11 @@ export default function App() {
         </div>
       </main>
 
-      {/* Social Floating Bar */}
+      {/* Social Floating Bar */}      
+      <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div className={`absolute top-0 -left-1/4 w-1/2 h-1/2 rounded-full transition-opacity duration-1000 ${gradientsEnabled ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(circle, rgba(188, 0, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%)' }}></div>
+        <div className={`absolute bottom-0 -right-1/4 w-1/2 h-1/2 rounded-full transition-opacity duration-1000 ${gradientsEnabled ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%)' }}></div>
+      </div>
       <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 no-print items-center">
         <div className={`flex flex-col gap-3 transition-all duration-300 origin-bottom ${isSocialOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
           <a href="https://www.facebook.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform">
@@ -900,7 +923,7 @@ export default function App() {
             <div className="h-[1px] w-12 bg-cyber-blue/30"></div>
           </div>
           <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
-            ©2026 <span className="text-white">PEMURYADI</span> - ADVANCING INDONESIAN EDUCATION THROUGH TECHNOLOGY
+            ©2026 <span className="text-white">PEMURYADI</span> - Cyber Education & RuangRiung
           </p>
         </div>
       </footer>

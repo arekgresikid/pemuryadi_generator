@@ -261,7 +261,7 @@ export default function DailyJournal() {
       
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">👨‍🏫 Data Guru</h4>
             <div className="space-y-3">
               <input type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
@@ -298,7 +298,7 @@ export default function DailyJournal() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang</label>
-              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
                 ))}
@@ -306,7 +306,7 @@ export default function DailyJournal() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
-              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
                 ))}
@@ -318,19 +318,19 @@ export default function DailyJournal() {
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Kelas / Semester</label>
               <div className="flex gap-2">
-                <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-1/2 bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+                <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-1/2 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
                   {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
                   ))}
                 </select>
-                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-1/2 bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-1/2 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
                   <option value="1">Semester 1</option><option value="2">Semester 2</option>
                 </select>
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
-              <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
                 {subjectsByLevel[formData.jenjang]?.map(s => (
                   <option key={s.id} value={s.id}>{s.label}</option>
                 ))}
@@ -349,7 +349,7 @@ export default function DailyJournal() {
                     setFormData({...formData, isCustomTopik: false, topik: val});
                   }
                 }} 
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all"
               >
                 {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                   <option key={idx} value={topic}>{topic}</option>
@@ -362,7 +362,7 @@ export default function DailyJournal() {
                   placeholder="Masukkan Topik/Materi secara manual..." 
                   value={formData.topik} 
                   onChange={e => setFormData({...formData, topik: e.target.value})} 
-                  className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all mt-3" 
+                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all mt-3" 
                 />
               )}
             </div>
@@ -370,53 +370,47 @@ export default function DailyJournal() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Tanggal</label>
-              <input type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
+              <input type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Jam</label>
-              <input type="time" value={formData.jam} onChange={e => setFormData({...formData, jam: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
+              <input type="time" value={formData.jam} onChange={e => setFormData({...formData, jam: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
             </div>
           </div>
           
           <div className="space-y-3">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">🎯 Capaian Pembelajaran (CP)</label>
-              <textarea rows={2} value={formData.cp} onChange={e => setFormData({...formData, cp: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Capaian pembelajaran..." />
+              <textarea rows={2} value={formData.cp} onChange={e => setFormData({...formData, cp: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Capaian pembelajaran..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">📌 Alur Tujuan Pembelajaran (ATP)</label>
-              <textarea rows={2} value={formData.atp} onChange={e => setFormData({...formData, atp: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Alur tujuan pembelajaran..." />
+              <textarea rows={2} value={formData.atp} onChange={e => setFormData({...formData, atp: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Alur tujuan pembelajaran..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">📝 Catatan Pembelajaran</label>
-              <textarea rows={3} value={formData.catatan} onChange={e => setFormData({...formData, catatan: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Catatan pelaksanaan..." />
+              <textarea rows={3} value={formData.catatan} onChange={e => setFormData({...formData, catatan: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Catatan pelaksanaan..." />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">🔍 Refleksi & Evaluasi</label>
-              <textarea rows={3} value={formData.refleksi} onChange={e => setFormData({...formData, refleksi: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Refleksi..." />
+              <textarea rows={3} value={formData.refleksi} onChange={e => setFormData({...formData, refleksi: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Refleksi..." />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Nama Kepala Sekolah</label>
-              <input type="text" value={formData.ttdKS} onChange={e => setFormData({...formData, ttdKS: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Kepala Sekolah" />
+              <input type="text" value={formData.ttdKS} onChange={e => setFormData({...formData, ttdKS: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Kepala Sekolah" />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Nama Guru (Tanda Tangan)</label>
-              <input type="text" value={formData.ttdGuru} onChange={e => setFormData({...formData, ttdGuru: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Guru" />
+              <input type="text" value={formData.ttdGuru} onChange={e => setFormData({...formData, ttdGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Guru" />
             </div>
           </div>
           
           <div className="flex gap-4">
             <div className="flex gap-2 mt-4 w-full">
-              <button 
-                onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-                title="Simpan Progress"
-              >
-                <Save size={18} /> Simpan
-              </button>
+              
               <button onClick={generateJurnal} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-lg text-white hover:opacity-90 transition-all shadow-lg hover:shadow-amber-500/25 btn-generate-animated">
               📔 Generate Jurnal
             </button>
@@ -459,11 +453,11 @@ export default function DailyJournal() {
                 <div className="space-y-4">
                   <div>
                     <h5 className="text-xs text-slate-500 mb-1">Catatan Pembelajaran</h5>
-                    <p className="text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">{result.catatan || '-'}</p>
+                    <p className="text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700/50">{result.catatan || '-'}</p>
                   </div>
                   <div>
                     <h5 className="text-xs text-slate-500 mb-1">Refleksi & Evaluasi</h5>
-                    <p className="text-slate-300 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">{result.refleksi || '-'}</p>
+                    <p className="text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700/50">{result.refleksi || '-'}</p>
                   </div>
                 </div>
               </div>

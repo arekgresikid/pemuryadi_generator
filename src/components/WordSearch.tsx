@@ -146,7 +146,7 @@ export default function WordSearch() {
               type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all" 
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all" 
               placeholder="Contoh: Mencari Kata Sains"
             />
           </div>
@@ -156,7 +156,7 @@ export default function WordSearch() {
               value={wordsText}
               onChange={(e) => setWordsText(e.target.value)}
               rows={6} 
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-4 text-white focus:border-green-500 transition-all" 
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-4 text-white focus:border-green-500 transition-all" 
               placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..."
             />
             <p className="text-xs text-slate-500 mt-1">Jumlah kata: <span>{Math.min(wordCount, 40)}</span>/40</p>
@@ -167,7 +167,7 @@ export default function WordSearch() {
               <select 
                 value={gridSize}
                 onChange={(e) => setGridSize(parseInt(e.target.value))}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white"
               >
                 <option value="15">15 x 15</option>
                 <option value="18">18 x 18</option>
@@ -180,7 +180,7 @@ export default function WordSearch() {
               <select 
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white"
               >
                 <option value="easy">Mudah (H/V)</option>
                 <option value="medium">Sedang (+Diagonal)</option>
@@ -235,7 +235,7 @@ export default function WordSearch() {
                   ))
                 )}
               </div>
-              <div className="gen-card mt-6 w-full p-4 bg-slate-800/50 rounded-lg">
+              <div className="gen-card mt-6 w-full p-4 bg-slate-800 rounded-lg">
                 <h4 className="font-semibold text-sm mb-3 text-white">Kata yang dicari:</h4>
                 <div className="flex flex-wrap gap-2">
                   {puzzleData.words.map((w, i) => (

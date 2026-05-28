@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import PrintSupportModal from './PrintSupportModal';
@@ -69,6 +70,7 @@ export default function MengajarHarian() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
 
   React.useEffect(() => {
     const saved = localStorage.getItem('MengajarHarianData');
@@ -119,10 +121,7 @@ export default function MengajarHarian() {
     setResult(null);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API Key Gemini tidak ditemukan.');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
 
       const requestedFeatures = Object.entries(selectedFeatures)
         .filter(([_, isSelected]) => isSelected)
@@ -162,7 +161,7 @@ ${selectedFeatures.rubrikHarian ? '- "rubrikHarian": Objek berisi "headers" (arr
 Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JSON VALID.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -208,7 +207,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     items: {
                       type: Type.OBJECT,
                       properties: {
-                        number: { type: Type.INTEGER },
+                        number: { type: Type.NUMBER },
                         text: { type: Type.STRING },
                         options: { type: Type.ARRAY, items: { type: Type.STRING } }
                       }
@@ -219,7 +218,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     items: {
                       type: Type.OBJECT,
                       properties: {
-                        number: { type: Type.INTEGER },
+                        number: { type: Type.NUMBER },
                         text: { type: Type.STRING }
                       }
                     }
@@ -378,7 +377,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jenis Guru</label>
                   <select 
-                    className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                     value={formData.jenisGuru}
                     onChange={(e) => setFormData({...formData, jenisGuru: e.target.value})}
                   >
@@ -389,7 +388,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Semester</label>
                   <select 
-                    className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                     value={formData.semester}
                     onChange={(e) => setFormData({...formData, semester: e.target.value})}
                   >
@@ -403,7 +402,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jenjang</label>
                   <select 
-                    className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                     value={formData.jenjang}
                     onChange={(e) => setFormData({...formData, jenjang: e.target.value, fase: 'Fase A', kelas: 'Kelas I'})}
                   >
@@ -413,7 +412,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fase</label>
                   <select 
-                    className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                     value={formData.fase}
                     onChange={(e) => setFormData({...formData, fase: e.target.value, kelas: KELAS_OPTIONS[e.target.value as keyof typeof KELAS_OPTIONS][0]})}
                   >
@@ -425,7 +424,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Kelas</label>
                 <select 
-                  className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                  className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                   value={formData.kelas}
                   onChange={(e) => setFormData({...formData, kelas: e.target.value})}
                 >
@@ -439,7 +438,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Mata Pelajaran</label>
                   <select 
-                    className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none mb-2"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none mb-2"
                     value={formData.mataPelajaran}
                     onChange={(e) => setFormData({...formData, mataPelajaran: e.target.value})}
                   >
@@ -450,7 +449,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                   {formData.mataPelajaran === 'Lainnya' && (
                     <input 
                       type="text"
-                      className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                       placeholder="Masukkan nama mata pelajaran..."
                       value={formData.customMapel}
                       onChange={(e) => setFormData({...formData, customMapel: e.target.value})}
@@ -463,7 +462,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Topik/Materi</label>
                 <input 
                   type="text"
-                  className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                  className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                   placeholder="Contoh: Teks Deskripsi, Fotosintesis..."
                   value={formData.topikMateri}
                   onChange={(e) => setFormData({...formData, topikMateri: e.target.value})}
@@ -487,7 +486,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     <input 
                       type="number"
                       min="1"
-                      className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
                       placeholder="Masukkan jumlah siswa inklusi..."
                       value={formData.jumlahInklusi}
                       onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -531,7 +530,9 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
               ))}
             </div>
 
-            <div className="flex gap-2 mt-4 w-full">
+            
+              <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+<div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
@@ -626,7 +627,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {result.slide.map((s: any, i: number) => (
-                        <div key={i} className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-lg">
+                        <div key={i} className="gen-card bg-slate-800 rounded-xl p-5 shadow-lg">
                           <h3 className="text-lg font-bold text-white mb-3 border-b border-slate-600 pb-2">Slide {i + 1}: {s.title}</h3>
                           <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
                             {s.content.map((c: string, j: number) => <li key={j}>{c}</li>)}
@@ -642,7 +643,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     <h2 className="text-xl font-bold text-green-400 flex items-center gap-2 border-b border-green-400/30 pb-2">
                       <Map size={20} /> Peta Pikiran (Mind Map)
                     </h2>
-                    <div className="gen-card bg-slate-900/50 p-6 rounded-xl">
+                    <div className="gen-card bg-slate-900 p-6 rounded-xl">
                       <div className="flex flex-col space-y-6">
                         {result.petaPikiran.map((node: any, i: number) => (
                           <div key={i} className="relative pl-8">
@@ -745,7 +746,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                         </thead>
                         <tbody>
                           {result.rubrikSikap.rows.map((row: any, i: number) => (
-                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800/50">
+                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800">
                               <td className="px-4 py-3 font-medium text-white">{row.aspect}</td>
                               {row.criteria.map((c: string, j: number) => <td key={j} className="px-4 py-3">{c}</td>)}
                             </tr>
@@ -771,7 +772,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                         </thead>
                         <tbody>
                           {result.rubrikHarian.rows.map((row: any, i: number) => (
-                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800/50">
+                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800">
                               <td className="px-4 py-3 font-medium text-white">{row.aspect}</td>
                               {row.criteria.map((c: string, j: number) => <td key={j} className="px-4 py-3">{c}</td>)}
                             </tr>

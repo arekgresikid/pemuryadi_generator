@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { BookOpen, CheckCircle, Sparkles, Printer, Loader2, Save } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { marked } from 'marked';
@@ -45,6 +46,7 @@ const SUBTEMA_OPTIONS: Record<string, string[]> = {
 export default function ModulKokurikuler() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [tema, setTema] = useState('');
   const [praktik, setPraktik] = useState('');
   const [lingkungan, setLingkungan] = useState('');
@@ -107,20 +109,6 @@ export default function ModulKokurikuler() {
   const [isCustomSumatif, setIsCustomSumatif] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('ModulKokurikulerData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
-
-  const saveProgress = () => {
-    localStorage.setItem('ModulKokurikulerData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
-  };
 
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -194,10 +182,7 @@ export default function ModulKokurikuler() {
     setResult(null);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API Key Gemini tidak ditemukan.');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const subjectLabel = subjectsByLevel[eduLevel]?.find(s => s.id === mapel)?.label || mapel;
       const faseLabel = phaseClassMap[eduLevel]?.phases.find(p => p.id === fase)?.label || fase;
@@ -259,7 +244,7 @@ L. INSTRUMEN REFLEKSI GURU (Refleksi Umum Kegiatan, Refleksi Berdasarkan Prinsip
 Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintaks Markdown.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
       });
 
@@ -408,7 +393,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="gen-card bg-slate-800/50 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
+      <div className="gen-card bg-slate-800  p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-blue-500/20 rounded-xl">
             <BookOpen className="w-6 h-6 text-blue-400" />
@@ -421,7 +406,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
 
         <div className="space-y-6">
           {/* Identitas */}
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">👨‍🏫 Data Guru & Sekolah</h4>
             <div className="space-y-3">
               <input type="text" placeholder="Nama Guru" value={namaGuru} onChange={e => setNamaGuru(e.target.value)} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
@@ -579,7 +564,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
           </div>
 
           {/* Konten Modul */}
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">🏕️ Konten Modul</h4>
             <div className="space-y-4">
               {/* Tema */}
@@ -588,7 +573,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                 <select 
                   value={tema}
                   onChange={(e) => setTema(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Pilih tema</option>
                   {TEMA_OPTIONS.map(opt => (
@@ -619,7 +604,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           onChange={() => handleDimensiChange(item.id as keyof typeof dimensiProfil)}
                           className="peer sr-only" 
                         />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                         <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{item.label}</span>
@@ -643,7 +628,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                       setSubtema(val);
                     }
                   }}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Pilih subtema</option>
                   {Array.from(new Set(
@@ -661,7 +646,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                     placeholder="Masukkan Subtema secara manual..." 
                     value={subtema} 
                     onChange={e => setSubtema(e.target.value)} 
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
                   />
                 )}
               </div>
@@ -687,7 +672,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           onChange={() => handleGerakanChange(item.id as keyof typeof gerakan7Kaih)}
                           className="peer sr-only" 
                         />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                         <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{item.label}</span>
@@ -704,14 +689,14 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                   placeholder="Contoh: Penggunaan Canva untuk poster, Google Forms untuk survei..." 
                   value={pemanfaatanDigital} 
                   onChange={e => setPemanfaatanDigital(e.target.value)} 
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
                 />
               </div>
             </div>
           </div>
 
           {/* Strategi & Lingkungan */}
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">⚙️ Strategi & Lingkungan</h4>
             <div className="space-y-4">
               {/* Praktik Pedagogis */}
@@ -720,7 +705,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                 <select 
                   value={praktik}
                   onChange={(e) => setPraktik(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Pilih praktik</option>
                   <option value="Pembelajaran Berbasis Proyek (PjBL)">Pembelajaran Berbasis Proyek (PjBL)</option>
@@ -737,7 +722,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                 <select 
                   value={lingkungan}
                   onChange={(e) => setLingkungan(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 >
                   <option value="">Pilih lingkungan</option>
                   <option value="Dalam Ruangan (Indoor)">Dalam Ruangan (Indoor)</option>
@@ -759,7 +744,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                         onChange={() => handleKemitraanChange('satuanPendidikan')}
                         className="peer sr-only" 
                       />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                       <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                     </div>
                     <span className="text-slate-300 group-hover:text-white transition-colors">Satuan Pendidikan</span>
@@ -773,7 +758,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                         onChange={() => handleKemitraanChange('keluarga')}
                         className="peer sr-only" 
                       />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                       <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                     </div>
                     <span className="text-slate-300 group-hover:text-white transition-colors">Keluarga</span>
@@ -787,7 +772,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                         onChange={() => handleKemitraanChange('masyarakat')}
                         className="peer sr-only" 
                       />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                       <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                     </div>
                     <span className="text-slate-300 group-hover:text-white transition-colors">Masyarakat</span>
@@ -799,7 +784,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
 
           {/* Konfigurasi Asesmen */}
           <div className="border border-slate-700 rounded-xl overflow-hidden bg-slate-800/30">
-            <div className="p-4 border-b border-slate-700 bg-slate-800/50">
+            <div className="p-4 border-b border-slate-700 bg-slate-800">
               <h3 className="text-lg font-medium text-white">Konfigurasi Asesmen</h3>
             </div>
             
@@ -832,7 +817,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           onChange={() => handleTeknikChange('observasi')}
                           className="peer sr-only" 
                         />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                         <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-slate-300 group-hover:text-white transition-colors">Teknik observasi (Catatan Anekdotal)</span>
@@ -846,7 +831,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           onChange={() => handleTeknikChange('checklist')}
                           className="peer sr-only" 
                         />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900/50 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-slate-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
                         <CheckCircle className="absolute w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                       </div>
                       <span className="text-slate-300 group-hover:text-white transition-colors">Instrumen checklist (Daftar Periksa)</span>
@@ -862,7 +847,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           <div className="bg-slate-800 px-4 py-2 border-b border-slate-700">
                             <span className="text-xs font-medium text-slate-300">Teknik Observasi (Catatan Anekdotal)</span>
                           </div>
-                          <div className="bg-slate-900/50 p-4">
+                          <div className="bg-slate-900 p-4">
                             <div className="grid grid-cols-2 gap-4 text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
                               <div>Nama Murid</div>
                               <div>Catatan Guru</div>
@@ -880,7 +865,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                           <div className="bg-slate-800 px-4 py-2 border-b border-slate-700">
                             <span className="text-xs font-medium text-slate-300">Instrumen Checklist (Daftar Periksa)</span>
                           </div>
-                          <div className="bg-slate-900/50 p-4">
+                          <div className="bg-slate-900 p-4">
                             <div className="grid grid-cols-3 gap-4 text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
                               <div>Nama Murid</div>
                               <div>Hasil Pengamatan (Checklist)</div>
@@ -916,7 +901,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                         setTeknikSumatif(val);
                       }
                     }}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   >
                     <option value="">Pilih teknik asesmen sumatif</option>
                     <option value="Poster kampanye yang dibuat murid dalam proyek kolaboratif">Poster kampanye yang dibuat murid dalam proyek kolaboratif</option>
@@ -932,7 +917,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                       placeholder="Masukkan bentuk penilaian lainnya..." 
                       value={teknikSumatif} 
                       onChange={e => setTeknikSumatif(e.target.value)} 
-                      className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
                     />
                   )}
                   <p className="text-xs text-slate-500 mt-2">Instrumen detail akan dibuat di modul yang dihasilkan.</p>
@@ -942,14 +927,11 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
           </div>
 
           <div className="flex gap-2 mt-4 w-full">
-              <button 
-                onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-                title="Simpan Progress"
-              >
-                <Save size={18} /> Simpan
-              </button>
-              <button 
+              
+              <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
+          <button 
             onClick={generateModul}
             disabled={isGenerating}
             className="flex-1 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 btn-generate-animated"

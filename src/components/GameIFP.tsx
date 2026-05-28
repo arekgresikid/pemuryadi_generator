@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI } from '../lib/genai';
 import { Play, Loader2, Trophy, Users, BookOpen, Settings } from 'lucide-react';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({});
 
 const GAME_TYPES = [
   { id: 'action', name: 'Action & Shooter (FPS/TPS)', desc: 'Menekankan aksi cepat dan ketangkasan' },
@@ -38,6 +39,7 @@ export default function GameIFP() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [gameHtml, setGameHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -81,7 +83,7 @@ Persyaratan Wajib:
 Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri dengan </html>). Jangan berikan penjelasan atau teks markdown lainnya.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           temperature: 0.7,
@@ -127,7 +129,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Form Section */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="gen-card bg-slate-800/50 backdrop-blur-sm p-5 rounded-2xl">
+              <div className="gen-card bg-slate-800  p-5 rounded-2xl">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Settings size={18} className="text-indigo-400" /> Pengaturan Game
                 </h3>
@@ -140,7 +142,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                       placeholder="Contoh: Tata Surya, Pecahan, Sejarah Kemerdekaan..." 
                       value={formData.topik}
                       onChange={e => setFormData({...formData, topik: e.target.value})}
-                      className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                     />
                   </div>
 
@@ -149,7 +151,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     <select 
                       value={formData.jenjang}
                       onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                      className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {JENJANG.map(j => <option key={j} value={j}>{j}</option>)}
                     </select>
@@ -160,7 +162,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     <select 
                       value={formData.jenisGame}
                       onChange={e => setFormData({...formData, jenisGame: e.target.value})}
-                      className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {GAME_TYPES.map(g => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -181,7 +183,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                           className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
                             formData.difficulty === level.id 
                               ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
-                              : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-500'
+                              : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
                           }`}
                         >
                           <span className={level.color}>{level.name}</span>
@@ -192,7 +194,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/50 backdrop-blur-sm p-5 rounded-2xl">
+              <div className="gen-card bg-slate-800  p-5 rounded-2xl">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                   <Users size={18} className="text-indigo-400" /> Pengaturan Pemain
                 </h3>
@@ -208,7 +210,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                           className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                             formData.jumlahPemain === num 
                               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
-                              : 'bg-slate-900/50 text-slate-400 hover:bg-slate-700'
+                              : 'bg-slate-900 text-slate-400 hover:bg-slate-700'
                           }`}
                         >
                           {num}
@@ -226,7 +228,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                         placeholder={`Nama Pemain ${i + 1}`}
                         value={(formData as any)[`pemain${i + 1}`]}
                         onChange={e => setFormData({...formData, [`pemain${i + 1}`]: e.target.value})}
-                        className="w-full bg-slate-900/50 border border-slate-600 rounded-xl p-2.5 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                        className="w-full bg-slate-900 border border-slate-600 rounded-xl p-2.5 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
                       />
                     ))}
                   </div>
@@ -297,7 +299,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     />
                   ) : (
                     <div className="text-center p-8">
-                      <div className="gen-card w-24 h-24 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="gen-card w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Play size={40} className="text-slate-600" />
                       </div>
                       <h4 className="text-xl font-bold text-slate-400 mb-2">Layar Game Kosong</h4>

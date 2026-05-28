@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
 import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save } from 'lucide-react';
 import { useAuth } from '../AuthContext';
@@ -7,8 +8,9 @@ import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 
 export default function BuatSoal() {
-  const { profile, consumeToken } = useAuth();
+  const { profile } = useAuth();
   const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu'>('kisi-kisi');
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [printTypeToProceed, setPrintTypeToProceed] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | null>(null);
@@ -121,21 +123,13 @@ export default function BuatSoal() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
       const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       const cp = getCP();
 
-      const hasTokens = await consumeToken();
-      if (!hasTokens) {
-        throw new Error('Token Anda telah habis. Silakan langganan atau top up token untuk fitur ini.');
-      }
+      // Token limit is now securely enforced centrally in lib/genai.ts
 
       let prompt = '';
       let responseSchema: any = {};
@@ -295,7 +289,7 @@ Berikan output dalam format JSON murni:
       }
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           tools: [{ googleSearch: {} }],
@@ -731,7 +725,7 @@ Berikan output dalam format JSON murni:
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Capaian Pembelajaran (Otomatis)</label>
-                  <div className="p-3 bg-slate-800/50 rounded-lg text-xs text-slate-300 h-24 overflow-y-auto border border-slate-700">
+                  <div className="p-3 bg-slate-800 rounded-lg text-xs text-slate-300 h-24 overflow-y-auto border border-slate-700">
                     {getCP()}
                   </div>
                 </div>
@@ -762,7 +756,7 @@ Berikan output dalam format JSON murni:
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                     {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
                       <div key={bentuk} className="flex flex-col gap-1">
-                        <label className="flex items-center gap-2 cursor-pointer bg-slate-800/50 p-2 rounded border border-slate-700 hover:border-cyber-blue/30 transition-colors">
+                        <label className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-cyber-blue/30 transition-colors">
                           <input
                             type="checkbox"
                             checked={formData.bentukSoal.includes(bentuk)}
@@ -790,7 +784,7 @@ Berikan output dalam format JSON murni:
                   <label className="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Level Kognitif</label>
                   <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">
                     {['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'HOTS', 'Kombinasi'].map(lvl => (
-                      <label key={lvl} className="flex items-center gap-2 cursor-pointer bg-slate-800/50 p-2 rounded border border-slate-700 hover:border-cyber-blue/30 transition-colors">
+                      <label key={lvl} className="flex items-center gap-2 cursor-pointer bg-slate-800 p-2 rounded border border-slate-700 hover:border-cyber-blue/30 transition-colors">
                         <input
                           type="checkbox"
                           checked={formData.levelKognitif.includes(lvl)}
@@ -906,7 +900,10 @@ Berikan output dalam format JSON murni:
                 <h2 className="text-lg font-bold text-white tracking-wide">
                   Pratinjau {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : activeSubTab === 'naskah' ? 'Naskah Soal' : activeSubTab === 'kunci' ? 'Kunci Jawaban' : 'Kartu Soal'}
                 </h2>
-                <div className="flex gap-2">
+                <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
+          <div className="flex gap-2">
                   <button
                     onClick={saveProgress}
                     className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-2"
@@ -937,7 +934,7 @@ Berikan output dalam format JSON murni:
               {activeSubTab === 'kisi-kisi' && (
                 resultKisiKisi ? (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                    <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
                       <p className="text-sm font-bold text-cyber-blue mb-1 uppercase tracking-wider">Tujuan Pembelajaran:</p>
                       <p className="text-sm text-slate-300">{resultKisiKisi.tujuanPembelajaran}</p>
                     </div>
@@ -957,7 +954,7 @@ Berikan output dalam format JSON murni:
                         </thead>
                         <tbody className="divide-y divide-slate-800">
                           {resultKisiKisi.kisiKisi?.map((k: any, i: number) => (
-                            <tr key={i} className="hover:bg-slate-800/50 transition-colors">
+                            <tr key={i} className="hover:bg-slate-800 transition-colors">
                               <td className="p-3 text-center text-slate-400">{i + 1}</td>
                               <td className="p-3 text-slate-300">{k.elemen}</td>
                               <td className="p-3 text-slate-300">{k.tujuanPembelajaran}</td>

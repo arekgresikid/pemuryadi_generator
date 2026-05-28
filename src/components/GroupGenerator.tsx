@@ -78,7 +78,7 @@ export default function GroupGenerator() {
               value={studentNames}
               onChange={(e) => setStudentNames(e.target.value)}
               rows={8} 
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
               placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..."
             />
           </div>
@@ -90,7 +90,7 @@ export default function GroupGenerator() {
                 value={groupCount}
                 onChange={(e) => handleGroupCountChange(parseInt(e.target.value) || 2)}
                 min="2" max="20" 
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
               />
             </div>
             <div>
@@ -98,7 +98,7 @@ export default function GroupGenerator() {
               <select 
                 value={groupType}
                 onChange={(e) => setGroupType(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
               >
                 <option value="random">Acak Total</option>
                 <option value="balanced">Seimbang Gender</option>
@@ -116,7 +116,7 @@ export default function GroupGenerator() {
                   value={groupNames[i] || ''}
                   onChange={(e) => handleGroupNameChange(i, e.target.value)}
                   placeholder={`Kelompok ${i + 1}`}
-                  className="w-full bg-slate-800/50 border border-slate-600 rounded-lg p-2 text-sm text-white focus:border-blue-500 transition-all"
+                  className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:border-blue-500 transition-all"
                 />
               ))}
             </div>
@@ -140,7 +140,7 @@ export default function GroupGenerator() {
                   <h4 className="font-bold text-lg mb-2 text-white">{group.name}</h4>
                   <ul className="space-y-1">
                     {group.members.map((name, j) => (
-                      <li key={j} className="text-sm bg-black/20 text-white rounded px-2 py-1 backdrop-blur-sm">
+                      <li key={j} className="text-sm bg-black/20 text-white rounded px-2 py-1 ">
                         {j + 1}. {name}
                       </li>
                     ))}

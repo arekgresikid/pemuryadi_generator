@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Type } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { eduQuestions, snakes, ladders, educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 
 type Player = {
@@ -17,6 +18,7 @@ type Question = {
 
 export default function SnakeLadder() {
   const [eduLevel, setEduLevel] = useState('sd');
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [fase, setFase] = useState('A');
   const [kelas, setKelas] = useState('1');
   const [subject, setSubject] = useState('matematika');
@@ -100,10 +102,7 @@ export default function SnakeLadder() {
     setBoardGenerated(false);
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API key tidak ditemukan');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const jenjangLabel = educationLevels.find(l => l.id === eduLevel)?.label || eduLevel;
       const faseLabel = phaseClassMap[eduLevel]?.phases.find(p => p.id === fase)?.label || fase;
@@ -152,7 +151,7 @@ PENTING:
       }
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -394,7 +393,7 @@ PENTING:
             <select 
               value={eduLevel}
               onChange={(e) => setEduLevel(e.target.value)}
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
             >
               {educationLevels.map(level => (
                 <option key={level.id} value={level.id}>{level.label}</option>
@@ -408,7 +407,7 @@ PENTING:
               <select 
                 value={fase}
                 onChange={(e) => setFase(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
@@ -420,7 +419,7 @@ PENTING:
               <select 
                 value={kelas}
                 onChange={(e) => setKelas(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
@@ -435,7 +434,7 @@ PENTING:
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
               >
                 {subjectsByLevel[eduLevel]?.map(sub => (
                   <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -448,7 +447,7 @@ PENTING:
               <select 
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value)}
-                className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
               >
                 <option value="isian">Isian Singkat</option>
                 <option value="pg">Pilihan Ganda</option>
@@ -462,7 +461,7 @@ PENTING:
               value={numPlayers}
               onChange={handleNumPlayersChange}
               disabled={gameStarted}
-              className="w-full bg-slate-800/50 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all disabled:opacity-50"
+              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all disabled:opacity-50"
             >
               <option value={2}>2 Pemain</option>
               <option value={3}>3 Pemain</option>
@@ -512,7 +511,7 @@ PENTING:
         <div className="lg:col-span-2">
           <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[500px] flex items-center justify-center relative">
             {winner && (
-              <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
+              <div className="absolute inset-0 z-20 bg-black/80  rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
                 <div className="text-6xl mb-4 animate-bounce">🏆</div>
                 <h2 className="text-3xl font-bold text-white mb-2">Pemain {winner.id} Menang!</h2>
                 <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]`}>
@@ -570,7 +569,7 @@ PENTING:
       {/* Modal */}
       {modalContent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-black/80 "></div>
           <div className="gen-card relative bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-blue-400 flex items-center gap-2">
@@ -585,7 +584,7 @@ PENTING:
               </div>
             </div>
             
-            <div className="gen-card bg-slate-900/50 rounded-xl p-4 mb-6">
+            <div className="gen-card bg-slate-900 rounded-xl p-4 mb-6">
               <p className="text-lg text-white font-medium mb-4">{modalContent.question.q}</p>
               
               <div className="space-y-3">
@@ -619,13 +618,13 @@ PENTING:
       {/* Character Selection Modal */}
       {showCharacterSelection && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-black/80 "></div>
           <div className="gen-card relative bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
             <h3 className="text-xl font-bold text-white mb-4 text-center">Pilih Karakter Pemain</h3>
             
             <div className="space-y-4 mb-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
               {players.map((player, idx) => (
-                <div key={player.id} className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+                <div key={player.id} className="bg-slate-900 p-4 rounded-xl border border-slate-700">
                   <h4 className="text-sm font-semibold text-slate-300 mb-3">Pemain {player.id}</h4>
                   <div className="flex flex-wrap gap-2">
                     {pawns.map((pawn, pIdx) => (

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Image, Download, Sparkles, Loader2, FileText, Layout, Map, CreditCard } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { Image, Download, Loader2, FileText, Layout, Map, CreditCard } from 'lucide-react';
+import { useToken } from '../api';
+import ModelSelector from './ModelSelector';
 
 interface AIVisualGeneratorProps {
   context: {
@@ -14,6 +15,11 @@ interface AIVisualGeneratorProps {
 
 type VisualType = 'poster' | 'infographic' | 'mindmap' | 'flashcard';
 
+interface ModelInfo {
+  name: string;
+  description: string;
+}
+
 const VISUAL_TYPES: { id: VisualType; label: string; icon: any; description: string }[] = [
   { id: 'poster', label: 'Poster', icon: Layout, description: 'Poster edukatif yang menarik' },
   { id: 'infographic', label: 'Infografis', icon: FileText, description: 'Visualisasi data dan informasi' },
@@ -26,6 +32,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<VisualType | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string>('flux');
 
   const generateVisual = async (type: VisualType) => {
     setIsGenerating(true);
@@ -33,56 +40,21 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
     setSelectedType(type);
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API Key tidak ditemukan.');
+      await useToken(); // Potong token
 
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const prompt = `Generate a professional, high-quality educational ${type} for the following context:
-      Subject: ${context.subject}
-      Topic: ${context.topic}
-      Level: ${context.level}
-      Phase: ${context.phase}
-      Class: ${context.class}
-      
-      Requirements:
-      1. The ${type} must be visually stunning, clear, and highly educational.
-      2. Use a modern, clean layout suitable for ${context.level} students.
-      3. ALL TEXT within the image MUST be in correct, formal Indonesian (Bahasa Indonesia).
-      4. Ensure there are NO typos or spelling errors in the Indonesian text.
-      5. The content should be accurate and relevant to the topic "${context.topic}".
-      6. Use vibrant and engaging colors that match the subject matter.`;
+      const prompt = `Educational ${type} about ${context.subject}: ${context.topic} for ${context.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
+      const encodedPrompt = encodeURIComponent(prompt);
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-        config: {
-          imageConfig: {
-            aspectRatio: "1:1",
-          },
-        },
-      });
+      const imageUrlStr = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedModel}`;
 
-      let imageUrl = null;
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          const base64EncodeString = part.inlineData.data;
-          imageUrl = `data:image/png;base64,${base64EncodeString}`;
-          break;
-        }
-      }
-
-      if (imageUrl) {
-        setGeneratedImage(imageUrl);
-      } else {
+      const imageResponse = await fetch(imageUrlStr);
+      if (!imageResponse.ok) {
         throw new Error('Gagal menghasilkan gambar. Silakan coba lagi.');
       }
+
+      const blob = await imageResponse.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      setGeneratedImage(objectUrl);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Terjadi kesalahan saat menghasilkan gambar.');
@@ -99,6 +71,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
     link.click();
   };
 
+
   return (
     <div className="gen-card bg-slate-800/50 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-slate-700/50">
       <div className="flex items-center gap-3 mb-6">
@@ -109,6 +82,11 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
           <h2 className="text-xl font-bold text-white">Media Pembelajaran AI</h2>
           <p className="text-sm text-slate-400">Hasilkan media visual otomatis untuk materi {context.topic}</p>
         </div>
+      </div>
+
+      {/* Model Selector */}
+      <div className="mb-6">
+        <ModelSelector modality="image" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -136,6 +114,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
           <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
           <p className="text-slate-300 animate-pulse">Sedang merancang {selectedType} terbaik untuk Anda...</p>
+          <p className="text-xs text-slate-500">Model: {selectedModel}</p>
         </div>
       )}
 
@@ -148,9 +127,9 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
       {generatedImage && !isGenerating && (
         <div className="space-y-4">
           <div className="relative group rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
-            <img 
-              src={generatedImage} 
-              alt="Generated Visual" 
+            <img
+              src={generatedImage}
+              alt="Generated Visual"
               className="w-full h-auto"
               referrerPolicy="no-referrer"
             />

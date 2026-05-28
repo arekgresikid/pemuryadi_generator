@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI } from '../lib/genai';
 import { Leaf, Shield, Users, BarChart, BookOpen, FileText, Loader2, Save, Crown, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import DocumentUpload, { UploadedFile } from './DocumentUpload';
@@ -14,6 +15,7 @@ const SNP: React.FC<SNPProps> = ({ subTab }) => {
   const [inputData, setInputData] = useState('');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
 
@@ -126,10 +128,7 @@ const SNP: React.FC<SNPProps> = ({ subTab }) => {
     setResult('');
 
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API Key Gemini tidak ditemukan.');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
 
       const prompt = `Anda adalah ${config.agentName}.
 Fokus Anda: ${config.focus}
@@ -169,7 +168,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
       }
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: selectedModel,
         contents: contents,
         config: { 
           temperature: 0.7,
@@ -225,7 +224,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
         </a>
       </div>
 
-      <div className="gen-card bg-slate-800/50 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
+      <div className="gen-card bg-slate-800  p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-4 mb-6">
           <div className={`p-3 bg-gradient-to-br ${config.color} rounded-xl shadow-lg`}>
             {config.icon}
@@ -245,7 +244,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
               value={inputData}
               onChange={(e) => setInputData(e.target.value)}
               placeholder={config.placeholder}
-              className="w-full h-40 bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none"
+              className="w-full h-40 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none"
             />
           </div>
 
@@ -257,7 +256,9 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
             </div>
           )}
 
-          <div className="flex gap-2 w-full">
+          
+              <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+<div className="flex gap-2 w-full">
             <button 
               onClick={saveProgress}
               className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
@@ -284,7 +285,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
       </div>
 
       {result && (
-        <div className="gen-card bg-slate-800/50 backdrop-blur-xl p-6 md:p-8 rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4">
+        <div className="gen-card bg-slate-800  p-6 md:p-8 rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4">
           <div className="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
               {config.icon}

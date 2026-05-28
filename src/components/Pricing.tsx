@@ -1,9 +1,11 @@
-import React from 'react';
-import { Shield, Check, Star, Zap, Crown, Award } from 'lucide-react';
+import React, { useState } from 'react';
+import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 export default function Pricing() {
   const { user, profile } = useAuth();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
   
   const currentTier = profile?.tier || profile?.role || (user ? 'Free' : null);
 
@@ -116,10 +118,16 @@ export default function Pricing() {
     }
   ];
 
-  const handleUpgrade = (planName: string) => {
-    const phoneNumber = "628xxxxxxxxxx"; // This should be configured
-    const message = encodeURIComponent(`Halo Admin Pemuryadi, saya tertarik untuk upgrade akun saya (${profile?.email || ''}) ke paket ${planName}. Bagaimana instruksi pembayarannya?`);
+  const handleUpgrade = (plan: any) => {
+    setSelectedPlan(plan);
+    setShowModal(true);
+  };
+
+  const confirmPayment = () => {
+    const phoneNumber = "6281330763633"; // E-wallet / WA number
+    const message = encodeURIComponent(`Halo Admin Pemuryadi, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    setShowModal(false);
   };
 
   return (
@@ -215,7 +223,7 @@ export default function Pricing() {
                 
                 <div className="mt-auto">
                   <button 
-                    onClick={() => handleUpgrade(plan.name)}
+                    onClick={() => handleUpgrade(plan)}
                     disabled={isCurrent && plan.name === 'Free'}
                     className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest transition-all ${
                       isCurrent && plan.name === 'Free' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' :
@@ -242,6 +250,69 @@ export default function Pricing() {
           Satu token setara dengan satu kali tekan tombol Generate. Pembuatan soal, perangkat ajar, atau kegiatan di tab apa pun akan memakan 1 Token. Jika token habis, Anda bisa membeli paket token secara terpisah kapan pun.
         </p>
       </div>
+
+      {/* Payment Modal */}
+      {showModal && selectedPlan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80  animate-in fade-in duration-300">
+          <div className="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
+            <button 
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-2">Pilih Metode Pembayaran</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Selesaikan pembayaran untuk paket <strong className="text-white">{selectedPlan.name}</strong> sebesar <strong className="text-cyber-green">{selectedPlan.price}</strong>.
+            </p>
+
+            <div className="space-y-4 mb-8">
+              <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                <div className="flex items-center gap-3 mb-3 text-white font-semibold">
+                  <CreditCard size={20} className="text-cyber-blue" />
+                  Transfer E-Wallet
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <span className="text-xs text-slate-400 block mb-1">GoPay</span>
+                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <span className="text-xs text-slate-400 block mb-1">OVO</span>
+                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <span className="text-xs text-slate-400 block mb-1">DANA</span>
+                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
+                    <span className="text-xs text-slate-400 block mb-1">ShopeePay</span>
+                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-slate-400 text-center">
+                  A.n. P.E Muryadi
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-emerald-900/30 border border-emerald-500/30 p-4 rounded-xl mb-6">
+              <p className="text-sm text-emerald-200">
+                Setelah melakukan transfer, silakan klik tombol di bawah untuk mengonfirmasi pembayaran melalui WhatsApp. Admin akan segera mengaktifkan paket Anda.
+              </p>
+            </div>
+
+            <button 
+              onClick={confirmPayment}
+              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+            >
+              <Send size={18} />
+              Konfirmasi via WA
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

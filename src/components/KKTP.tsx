@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { Printer, Plus, Trash2, Sparkles, AlertCircle, Save } from 'lucide-react';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '../lib/genai';
 import { useAuth } from '../AuthContext';
 
 export default function KKTP() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
 
   React.useEffect(() => {
     const saved = localStorage.getItem('KKTPData');
@@ -97,10 +99,7 @@ export default function KKTP() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) throw new Error('API Key Gemini tidak ditemukan.');
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const subjectLabel = subjectsByLevel[formData.eduLevel]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       const faseLabel = phaseClassMap[formData.eduLevel]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
@@ -122,7 +121,7 @@ Berikan hasil dalam format JSON array of objects dengan properti "kode" (string,
 Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -343,7 +342,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
           
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
@@ -431,7 +430,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">👨‍🏫 Data Guru & Kepala Sekolah</h4>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -468,6 +467,9 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
             </div>
           </div>
 
+          <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
@@ -504,7 +506,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
         </div>
 
         <div className="space-y-6">
-          <div className="gen-card bg-slate-900/50 rounded-2xl p-6 border border-slate-700/50 h-[700px] overflow-y-auto custom-scrollbar">
+          <div className="gen-card bg-slate-900 rounded-2xl p-6 border border-slate-700/50 h-[700px] overflow-y-auto custom-scrollbar">
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-bold text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -538,7 +540,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                         type="text" 
                         value={tp.kode} 
                         onChange={e => handleTPChange(index, 'kode', e.target.value)} 
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-amber-500 transition-all" 
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-amber-500 transition-all" 
                       />
                     </div>
                     <div className="flex-1">
@@ -546,7 +548,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                       <textarea 
                         value={tp.deskripsi} 
                         onChange={e => handleTPChange(index, 'deskripsi', e.target.value)} 
-                        className="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-amber-500 transition-all min-h-[80px]" 
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-amber-500 transition-all min-h-[80px]" 
                       />
                     </div>
                     <button 

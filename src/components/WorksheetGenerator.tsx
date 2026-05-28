@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Type } from '../lib/genai';
 import Markdown from 'react-markdown';
 import PrintSupportModal from './PrintSupportModal';
 import PDFRemixUpload from './PDFRemixUpload';
@@ -39,6 +40,7 @@ Rules:
 export default function WorksheetGenerator() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -114,12 +116,7 @@ export default function WorksheetGenerator() {
     setError('');
     
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error('API Key Gemini tidak ditemukan. Pastikan sudah diatur di environment.');
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
+      const ai = new GoogleGenAI({});
       
       const subjectLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       const faseLabel = phaseClassMap[formData.jenjang]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
@@ -165,7 +162,7 @@ Gunakan elemen HTML seperti <input type="text"> untuk isian, <input type="radio"
 Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tanpa embel-embel teks lain.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: selectedModel,
         contents: prompt,
       });
 
@@ -321,7 +318,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
           
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">⚙️ Pengaturan Worksheet</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
@@ -363,7 +360,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">📝 Detail Soal</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
@@ -415,7 +412,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
             </div>
           </div>
           
-          <div className="gen-card bg-slate-800/50 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">🎨 Gaya Desain</h4>
             <div className="grid grid-cols-1 gap-4">
               <div>
@@ -435,6 +432,9 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
             </div>
           )}
 
+          <div className="mb-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          </div>
           <button 
             onClick={generateWorksheet} 
             disabled={isGenerating}
