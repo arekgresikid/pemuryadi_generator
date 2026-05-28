@@ -922,6 +922,10 @@ export default function App() {
             <p className="text-xs font-mono text-cyber-blue uppercase tracking-widest">System Version 2.0.77</p>
             <div className="h-[1px] w-12 bg-cyber-blue/30"></div>
           </div>
+          <div className="flex justify-center gap-6 mb-4">
+            <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-cyber-blue transition-colors">Privacy Policy</a>
+            <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-cyber-blue transition-colors">Terms of Service</a>
+          </div>
           <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
             ©2026 <span className="text-white">PEMURYADI</span> - Cyber Education & RuangRiung
           </p>
