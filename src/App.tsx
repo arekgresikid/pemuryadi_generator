@@ -385,7 +385,7 @@ export default function App() {
             <Logo className="w-10 h-10" />
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
-                <h1 className="text-lg font-bold text-cyber-blue tracking-tighter">PEMURYADI</h1>
+                <h1 className="text-lg font-bold text-cyber-blue tracking-tighter">Pemuryadi Generator</h1>
                 <p className="text-[8px] text-cyber-purple uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
               </div>
             )}
@@ -464,7 +464,7 @@ export default function App() {
                <Menu size={24} />
              </button>
              <Logo className="w-8 h-8" />
-             <h1 className="text-sm font-bold text-cyber-blue">PEMURYADI</h1>
+             <h1 className="text-sm font-bold text-cyber-blue">Pemuryadi Generator</h1>
           </div>
 
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-md mx-4 lg:mx-8 relative" ref={searchDropdownRef}>
