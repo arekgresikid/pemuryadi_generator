@@ -8,8 +8,11 @@ export const getWatermarkHtml = (profileOrRole?: any) => {
     role = profileOrRole.role || 'siswa';
   }
   
-  const isPrivileged = tier === 'Titan' || role === 'owner' || role === 'admin';
-  if (isPrivileged || (tier !== 'Free' && tier !== 'guest')) {
+  tier = tier.toLowerCase();
+  role = role.toLowerCase();
+  
+  const isPrivileged = tier === 'titan' || role === 'owner' || role === 'admin';
+  if (isPrivileged || (tier !== 'free' && tier !== 'guest')) {
     return '';
   }
   return `
