@@ -323,9 +323,9 @@ export default function App() {
       icon: <Gamepad2 size={20} />, 
       label: 'Games',
       dropdown: [
-        { id: 'adventure-journey', icon: <Map size={16} />, label: 'Adventure Journey' },
-        { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata' },
-        { id: 'snake', icon: <Dices size={16} />, label: 'Snake & Ladder' },
+        { id: 'adventure-journey', icon: <Map size={16} />, label: 'Adventure Journey', premiumOnly: true },
+        { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata', premiumOnly: true },
+        { id: 'snake', icon: <Dices size={16} />, label: 'Snake & Ladder', premiumOnly: true },
         { id: 'ranking-satu', icon: <Trophy size={16} />, label: 'Ranking #1' },
         { id: 'crossword', icon: <Grid size={16} />, label: 'Teka Teki Silang' }
       ]
@@ -694,14 +694,20 @@ export default function App() {
                           <div className="overflow-hidden">
                             <div className="text-sm font-bold text-black tracking-tight truncate">{profile.displayName || user.email}</div>
                             <div className="text-[10px] text-blue-600 font-mono uppercase mt-1 flex items-center gap-1">
-                              <Shield size={10} /> TIER: {profile.tier || profile.role || 'Free'}
+                              <Shield size={10} /> ROLE: {profile.role?.toUpperCase() || 'SISWA'} | TIER: {profile.tier || 'Free'}
                             </div>
                             <div className="text-[10px] text-blue-300 font-mono uppercase mt-1 flex items-center gap-1">
-                              <Coins size={10} /> TOKEN: {(profile.tier || profile.role) === 'owner' ? 'Unlimited' : profile.tokens !== undefined ? profile.tokens : '2 / hari'}
+                              <Coins size={10} /> TOKEN: {['owner', 'admin'].includes(profile.role?.toLowerCase()) || profile.tier?.toLowerCase() === 'titan' ? 'Unlimited' : profile.tokens !== undefined ? profile.tokens : '2 / hari'}
                             </div>
-                            <button onClick={() => { handleTabChange('pricing'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-black font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1">
-                              <Zap size={10} /> Upgrade Tier
-                            </button>
+                            {['owner', 'admin'].includes(profile.role?.toLowerCase()) || profile.tier?.toLowerCase() === 'titan' ? (
+                              <div className="mt-2 text-[10px] bg-gradient-to-r from-emerald-400 to-emerald-500 text-white font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1 cursor-default shadow-sm">
+                                <Shield size={10} /> Akses Unlimited
+                              </div>
+                            ) : (
+                              <button onClick={() => { handleTabChange('pricing'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-black font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1 hover:brightness-105 transition-all shadow-sm">
+                                <Zap size={10} /> Upgrade Tier
+                              </button>
+                            )}
                           </div>
                         </div>
                       ) : (
@@ -748,7 +754,7 @@ export default function App() {
                     <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
                   </div>
                   <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
-                    BROWSER: <span className="text-blue-600">{browserName.toUpperCase()}</span>
+                    welcome to <span className="text-blue-600">the future education.</span>
                   </h2>
                   <p className="text-gray-600 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-gray-100 p-2 rounded border border-gray-100">
                     USER AGENT:<br/>{userAgentStr}
@@ -949,7 +955,7 @@ export default function App() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
-            <p className="text-xs font-mono text-blue-600 uppercase tracking-widest">System Version 2.0.77</p>
+            <p className="text-xs font-mono text-blue-600 uppercase tracking-widest">System Version 5.1.6</p>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
           <div className="flex justify-center gap-6 mb-4">

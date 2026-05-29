@@ -55,7 +55,7 @@ export default function QuickProfile() {
       <div className="flex items-center gap-2 mb-3 border-b border-red-500/10 pb-2">
         <User size={16} className="text-red-500" />
         <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest">Identitas Profil</h3>
-        {profile?.role === 'owner' && <Shield size={12} className="text-red-200 ml-auto" />}
+        {['owner', 'admin'].includes(profile?.role?.toLowerCase()) && <Shield size={12} className="text-red-200 ml-auto" />}
       </div>
 
       <div className="grid grid-cols-2 gap-3">

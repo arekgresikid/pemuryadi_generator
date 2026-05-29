@@ -121,7 +121,7 @@ export default function AdminPanel() {
     (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (profile?.role !== 'owner' && profile?.role !== 'admin') {
+  if (profile?.role?.toLowerCase() !== 'owner' && profile?.role?.toLowerCase() !== 'admin') {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-red-100 shadow-sm animate-in fade-in">
         <ShieldAlert size={48} className="text-red-500 mb-4" />
