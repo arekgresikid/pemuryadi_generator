@@ -12,15 +12,15 @@ export default function Pricing() {
   const plans = [
     {
       name: 'Free',
-      description: 'Layanan dasar untuk eksplorasi',
+      description: 'Akses pengenalan untuk mengeksplorasi fitur dasar',
       price: 'Rp 0',
-      period: '/ bulan',
+      period: ' Selamanya',
       tokens: 2,
       tokenDesc: 'x generate / hari',
       features: [
-        'Ada Watermark (WM)',
-        'Reset otomatis setiap hari',
-        'Akses fitur dasar'
+        'Hasil dokumen menyertakan Watermark',
+        'Pembaruan otomatis kuota setiap hari',
+        'Akses ke fitur generator standar'
       ],
       icon: <Shield size={24} className="text-gray-600" />,
       color: 'slate',
@@ -30,12 +30,12 @@ export default function Pricing() {
       name: 'Essential',
       description: 'Cukup untuk kebutuhan ngajar bulanan',
       price: 'Rp 170.000',
-      period: '',
+      period: ' / 1 Bulan',
       tokens: 85,
       tokenDesc: 'x generate total',
       features: [
         'Tanpa Watermark (WM)',
-        'Tanpa expired',
+        'Masa Aktif 1 Bulan',
         'Prioritas generate dasar',
         'Akses fitur RPP & Modul'
       ],
@@ -47,12 +47,12 @@ export default function Pricing() {
       name: 'Premium',
       description: 'Cocok untuk penyusunan materi padat',
       price: 'Rp 408.000',
-      period: '',
+      period: ' / 3 Bulan',
       tokens: 250,
       tokenDesc: 'x generate total',
       features: [
         'Tanpa Watermark (WM)',
-        'Tanpa expired',
+        'Masa Aktif 3 Bulan',
         'Kecepatan AI Premium',
         'Akses semua modul premium',
         'Dukungan customer service'
@@ -66,15 +66,15 @@ export default function Pricing() {
       name: 'Ultimate',
       description: 'Paket super untuk sekolah / pengawas',
       price: 'Rp 816.000',
-      period: '',
+      period: ' / 6 Bulan',
       tokens: 600,
       tokenDesc: 'x generate total',
       features: [
         'Tanpa Watermark (WM)',
+        'Masa Aktif 6 Bulan',
         'Akses prioritas tertinggi',
         'Sistem manajemen lanjutan',
-        'Termasuk pembuatan soal adaptif',
-        'Layanan 24/7'
+        'Termasuk pembuatan soal adaptif'
       ],
       icon: <Crown size={24} className="text-red-500" />,
       color: 'blue',
@@ -84,14 +84,14 @@ export default function Pricing() {
       name: 'SUPREME',
       description: 'Tak terbatas dengan segala kemampuan full power.',
       price: 'Rp 1.000.000',
-      period: '',
+      period: ' / 1 Tahun',
       tokens: 1000,
       tokenDesc: 'x generate total',
       features: [
         'Tanpa Watermark (WM)',
+        'Masa Aktif 1 Tahun',
         'Teknologi AI Terbaru 2026',
         'Generate Kilat Tanpa Antre',
-        'Dukungan Integrasi Eksklusif',
         'Spesial badge SUPREME'
       ],
       icon: <Award size={24} className="text-yellow-300" />,
@@ -102,15 +102,15 @@ export default function Pricing() {
       name: 'Titan',
       description: 'Paket Ultimate Terkuat untuk Instansi Skala Besar',
       price: 'Rp 2.000.000',
-      period: '',
+      period: ' Selamanya',
       tokens: 'Unlimited',
       tokenDesc: 'Akses tanpa batas',
       features: [
         'Tanpa Watermark (WM)',
+        'Akses Lifetime (Selamanya)',
         'Server Eksklusif Dedicated',
         'Whitelist semua fitur VIP',
-        'Custom Fitur Sistem',
-        'Dukungan VIP 24/7'
+        'Custom Fitur Sistem'
       ],
       icon: <Crown size={24} className="text-rose-500" />,
       color: 'rose',
