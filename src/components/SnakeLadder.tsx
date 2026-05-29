@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { eduQuestions, snakes, ladders, educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
+import { Dices, FileText, Gamepad2, Trophy, Loader2, Info, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
 
 type Player = {
   id: number;
@@ -279,7 +280,7 @@ PENTING:
   };
 
   const renderDiceFace = (result: number | '❓') => {
-    if (result === '❓') return <div className="text-7xl">🎲</div>;
+    if (result === '❓') return <div className="text-gray-400 opacity-50"><Dices size={72} /></div>;
     
     const dot = <div className="w-5 h-5 bg-white rounded-full shadow-sm"></div>;
     
@@ -356,8 +357,8 @@ PENTING:
             className={`aspect-square flex flex-col items-center justify-center text-[10px] p-[2px] rounded relative ${bgClass} text-black shadow-sm border border-black`}
           >
             <span className="font-bold opacity-50 absolute top-1 left-1">{num}</span>
-            {isSnake && <div className="absolute top-1 right-1 flex flex-col items-center leading-none opacity-50"><span className="text-xs">🐍</span><span className="text-[6px]">{isSnake.tail}</span></div>}
-            {isLadder && <div className="absolute top-1 right-1 flex flex-col items-center leading-none opacity-50"><span className="text-xs">🪜</span><span className="text-[6px]">{isLadder.top}</span></div>}
+            {isSnake && <div className="absolute top-1 right-1 flex flex-col items-center leading-none opacity-50 text-red-700 font-bold"><span className="text-[10px]">▼</span><span className="text-[8px]">{isSnake.tail}</span></div>}
+            {isLadder && <div className="absolute top-1 right-1 flex flex-col items-center leading-none opacity-50 text-green-700 font-bold"><span className="text-[10px]">▲</span><span className="text-[8px]">{isLadder.top}</span></div>}
             
             {/* Pawns */}
             <div className="flex flex-wrap justify-center items-center gap-0.5 w-full h-full z-10 pt-3">
@@ -377,8 +378,8 @@ PENTING:
   return (
     <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl relative">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-2xl shadow-lg">
-          🎲
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white shadow-lg">
+          <Dices size={28} />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">Snake & Ladder Edukatif</h3>
@@ -476,9 +477,9 @@ PENTING:
               className="flex-1 py-4 rounded-xl bg-red-100 font-bold text-black hover:bg-slate-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 btn-generate-animated"
             >
               {isGenerating ? (
-                <><span className="animate-spin">⏳</span> Menyiapkan...</>
+                <><Loader2 size={16} className="animate-spin" /> Menyiapkan...</>
               ) : (
-                <><span>📝</span> Buat Soal</>
+                <><FileText size={16} /> Buat Soal</>
               )}
             </button>
             <button 
@@ -486,7 +487,7 @@ PENTING:
               disabled={!boardGenerated || isGenerating}
               className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 font-bold text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 disabled:opacity-50"
             >
-              <span>🎮</span> {gameStarted ? 'Mulai Ulang' : 'Mulai Main'}
+              <Gamepad2 size={20} /> {gameStarted ? 'Mulai Ulang' : 'Mulai Main'}
             </button>
           </div>
           
@@ -497,13 +498,13 @@ PENTING:
           )}
           
           <div className="gen-card bg-red-50 rounded-xl p-4">
-            <h4 className="font-semibold mb-3 flex items-center gap-2 text-black">🎯 Cara Main</h4>
+            <h4 className="font-semibold mb-3 flex items-center gap-2 text-black"><Info size={20} /> Cara Main</h4>
             <ol className="text-sm text-gray-600 space-y-2">
               <li>1. Buat soal lalu klik Mulai Main</li>
               <li>2. Pemain bergiliran melempar dadu</li>
               <li>3. Jawab pertanyaan dengan benar untuk maju</li>
               <li>4. Salah jawab = tidak maju</li>
-              <li>5. 🐍 Ular = turun, 🪜 Tangga = naik</li>
+              <li>5. Ular = turun, Tangga = naik</li>
             </ol>
           </div>
         </div>
@@ -512,8 +513,8 @@ PENTING:
           <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[500px] flex items-center justify-center relative">
             {winner && (
               <div className="absolute inset-0 z-20 bg-black/80  rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
-                <div className="text-6xl mb-4 animate-bounce">🏆</div>
-                <h2 className="text-3xl font-bold text-black mb-2">Pemain {winner.id} Menang!</h2>
+                <Trophy size={64} className="mb-4 animate-bounce text-yellow-500" />
+                <h2 className="text-3xl font-bold text-white mb-2">Pemain {winner.id} Menang!</h2>
                 <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} flex items-center justify-center mb-6 shadow-sm`}>
                   {winner.pawn}
                 </div>
@@ -558,7 +559,9 @@ PENTING:
               </div>
             ) : (
               <div className="text-center text-gray-500 py-16">
-                <div className="text-6xl mb-4 opacity-50">🎲</div>
+                <div className="mb-4 opacity-50 flex justify-center text-gray-400">
+                  <Dices size={64} />
+                </div>
                 <p>Papan permainan akan muncul di sini</p>
               </div>
             )}
@@ -601,16 +604,16 @@ PENTING:
             </div>
             
             <div className="flex gap-4 text-sm">
-              {modalContent.isSnake && (
-                <div className="flex-1 bg-red-500/10 border border-red-500/30 rounded-lg p-3 text-red-400">
-                  🐍 Awas! Jika benar, kamu akan turun ke kotak {modalContent.isSnake.tail}
-                </div>
-              )}
-              {modalContent.isLadder && (
-                <div className="flex-1 bg-green-500/10 border border-green-500/30 rounded-lg p-3 text-green-400">
-                  🪜 Mantap! Jika benar, kamu akan naik ke kotak {modalContent.isLadder.top}
-                </div>
-              )}
+                {modalContent.isSnake && (
+                  <p className="text-red-500 font-bold mb-2 flex items-center gap-2">
+                    <ArrowDownCircle size={16} /> Awas! Jika benar, kamu akan turun ke kotak {modalContent.isSnake.tail}
+                  </p>
+                )}
+                {modalContent.isLadder && (
+                  <p className="text-green-500 font-bold mb-2 flex items-center gap-2">
+                    <ArrowUpCircle size={16} /> Mantap! Jika benar, kamu akan naik ke kotak {modalContent.isLadder.top}
+                  </p>
+                )}
             </div>
           </div>
         </div>

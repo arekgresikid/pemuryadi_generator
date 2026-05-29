@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { Users, Dices } from 'lucide-react';
 
 export default function GroupGenerator() {
   const [studentNames, setStudentNames] = useState('');
@@ -63,8 +64,8 @@ export default function GroupGenerator() {
   return (
     <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl shadow-lg">
-          👥
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg">
+          <Users size={28} />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">Generator Kelompok Belajar</h3>
@@ -127,7 +128,7 @@ export default function GroupGenerator() {
             onClick={generateGroups} 
             className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/25 btn-generate-animated"
           >
-            <span>🎲</span> Generate Kelompok
+            <span><Dices size={24} /></span> Generate Kelompok
           </button>
         </div>
         
@@ -149,7 +150,9 @@ export default function GroupGenerator() {
             </div>
           ) : (
             <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
-              <div className="text-6xl mb-4 opacity-50">👥</div>
+              <div className="mb-4 opacity-50 flex justify-center text-gray-400">
+                <Users size={64} />
+              </div>
               <p>Hasil kelompok akan muncul di sini</p>
             </div>
           )}

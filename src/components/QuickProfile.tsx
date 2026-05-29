@@ -5,7 +5,7 @@ import { updateProfile } from '../api';
 import AIAssistedInput from './AIAssistedInput';
 
 export default function QuickProfile() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [formData, setFormData] = useState({
     displayName: '',
     nip: '',
@@ -37,6 +37,9 @@ export default function QuickProfile() {
     setIsSaving(true);
     try {
       await updateProfile(user.uid, formData);
+      if (typeof refreshProfile === 'function') {
+        await refreshProfile();
+      }
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
