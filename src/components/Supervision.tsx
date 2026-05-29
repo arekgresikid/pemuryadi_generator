@@ -537,8 +537,11 @@ export default function Supervision() {
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                  <Layout className="w-3 h-3" /> Alur RPM (Deep Learning Plan)
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  <div className="flex items-center gap-1">
+                    <Layout className="w-3 h-3" /> Alur RPM (Rencana Pembelajaran Mendalam)
+                  </div>
+                  <div className="text-[10px] text-red-500 mt-0.5 ml-4">(Deep Learning Plan)</div>
                 </label>
                 <AIAssistedTextarea rows={2}
                   value={sources.rpm}
