@@ -79,8 +79,8 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
 
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+      <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+        <Sparkles className="w-3.5 h-3.5 text-red-500" />
         Model AI
       </label>
       <div className="relative">
@@ -88,16 +88,16 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
           value={value}
           onChange={e => onChange(e.target.value)}
           disabled={disabled || loading}
-          className="w-full appearance-none bg-slate-900 text-white text-sm rounded-lg px-3 py-2 pr-8 border border-slate-700 outline-none focus:border-indigo-500 transition-colors disabled:opacity-50 cursor-pointer"
+          className="w-full appearance-none bg-white text-black text-sm rounded-lg px-3 py-2 pr-8 border border-black outline-none focus:border-black transition-colors disabled:opacity-50 cursor-pointer"
         >
           {models.map(m => (
             <option key={m.name} value={m.name}>{m.name}</option>
           ))}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
       </div>
       {selectedInfo && (
-        <p className="text-[11px] text-slate-500 italic truncate">{selectedInfo.description}</p>
+        <p className="text-[11px] text-gray-500 italic truncate">{selectedInfo.description}</p>
       )}
     </div>
   );

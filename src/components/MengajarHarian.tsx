@@ -8,6 +8,7 @@ import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
 
 const JENJANG_OPTIONS = ['SD/MI', 'SMP/MTs', 'SMA/MA', 'SMK/MAK'];
 const FASE_OPTIONS = ['Fase A', 'Fase B', 'Fase C', 'Fase D', 'Fase E', 'Fase F'];
@@ -346,7 +347,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
   const renderMarkdown = (text: string) => {
     if (!text) return null;
     return (
-      <div className="markdown-body prose prose-invert max-w-none text-slate-300">
+      <div className="markdown-body prose prose-invert max-w-none text-gray-700">
         <ReactMarkdown>{text}</ReactMarkdown>
       </div>
     );
@@ -356,100 +357,99 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-3">
-            <BookOpen className="text-cyber-blue" size={28} />
+          <h2 className="text-2xl font-black text-black tracking-tight flex items-center gap-3">
+            <BookOpen className="text-red-500" size={28} />
             Mengajar Harian
           </h2>
-          <p className="text-slate-400 text-sm mt-1">Generate perangkat mengajar harian lengkap dengan AI.</p>
+          <p className="text-gray-600 text-sm mt-1">Generate perangkat mengajar harian lengkap dengan AI.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <div className="cyber-card p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Info size={18} className="text-cyber-blue" />
+          <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl">
+            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
+              <Info size={18} className="text-red-500" />
               Informasi Umum
             </h3>
             
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jenis Guru</label>
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenis Guru</label>
                   <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.jenisGuru}
                     onChange={(e) => setFormData({...formData, jenisGuru: e.target.value})}
                   >
-                    <option className="bg-slate-900 text-white" value="Guru Kelas">Guru Kelas</option>
-                    <option className="bg-slate-900 text-white" value="Guru Mapel">Guru Mapel</option>
+                    <option className="bg-white text-black" value="Guru Kelas">Guru Kelas</option>
+                    <option className="bg-white text-black" value="Guru Mapel">Guru Mapel</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Semester</label>
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Semester</label>
                   <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.semester}
                     onChange={(e) => setFormData({...formData, semester: e.target.value})}
                   >
-                    <option className="bg-slate-900 text-white" value="Ganjil (1)">Ganjil (1)</option>
-                    <option className="bg-slate-900 text-white" value="Genap (2)">Genap (2)</option>
+                    <option className="bg-white text-black" value="Ganjil (1)">Ganjil (1)</option>
+                    <option className="bg-white text-black" value="Genap (2)">Genap (2)</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jenjang</label>
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenjang</label>
                   <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.jenjang}
                     onChange={(e) => setFormData({...formData, jenjang: e.target.value, fase: 'Fase A', kelas: 'Kelas I'})}
                   >
-                    {JENJANG_OPTIONS.map(j => <option className="bg-slate-900 text-white" key={j} value={j}>{j}</option>)}
+                    {JENJANG_OPTIONS.map(j => <option className="bg-white text-black" key={j} value={j}>{j}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Fase</label>
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Fase</label>
                   <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.fase}
                     onChange={(e) => setFormData({...formData, fase: e.target.value, kelas: KELAS_OPTIONS[e.target.value as keyof typeof KELAS_OPTIONS][0]})}
                   >
-                    {FASE_OPTIONS.map(f => <option className="bg-slate-900 text-white" key={f} value={f}>{f}</option>)}
+                    {FASE_OPTIONS.map(f => <option className="bg-white text-black" key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Kelas</label>
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Kelas</label>
                 <select 
-                  className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                  className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                   value={formData.kelas}
                   onChange={(e) => setFormData({...formData, kelas: e.target.value})}
                 >
                   {(KELAS_OPTIONS[formData.fase as keyof typeof KELAS_OPTIONS] || []).map(k => (
-                    <option className="bg-slate-900 text-white" key={k} value={k}>{k}</option>
+                    <option className="bg-white text-black" key={k} value={k}>{k}</option>
                   ))}
                 </select>
               </div>
 
               {formData.jenisGuru === 'Guru Mapel' && (
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Mata Pelajaran</label>
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Mata Pelajaran</label>
                   <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none mb-2"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none mb-2"
                     value={formData.mataPelajaran}
                     onChange={(e) => setFormData({...formData, mataPelajaran: e.target.value})}
                   >
-                    <option className="bg-slate-900 text-white" value="">-- Pilih Mata Pelajaran --</option>
-                    {MAPEL_UMUM.map(m => <option className="bg-slate-900 text-white" key={m} value={m}>{m}</option>)}
-                    <option className="bg-slate-900 text-white" value="Lainnya">+ Tambah Mapel Lainnya</option>
+                    <option className="bg-white text-black" value="">-- Pilih Mata Pelajaran --</option>
+                    {MAPEL_UMUM.map(m => <option className="bg-white text-black" key={m} value={m}>{m}</option>)}
+                    <option className="bg-white text-black" value="Lainnya">+ Tambah Mapel Lainnya</option>
                   </select>
                   {formData.mataPelajaran === 'Lainnya' && (
-                    <input 
-                      type="text"
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                    <AIAssistedInput type="text"
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                       placeholder="Masukkan nama mata pelajaran..."
                       value={formData.customMapel}
                       onChange={(e) => setFormData({...formData, customMapel: e.target.value})}
@@ -459,10 +459,9 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
               )}
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Topik/Materi</label>
-                <input 
-                  type="text"
-                  className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Topik/Materi</label>
+                <AIAssistedInput type="text"
+                  className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                   placeholder="Contoh: Teks Deskripsi, Fotosintesis..."
                   value={formData.topikMateri}
                   onChange={(e) => setFormData({...formData, topikMateri: e.target.value})}
@@ -475,18 +474,18 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     type="checkbox" 
                     checked={formData.hasInklusi}
                     onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-600 text-cyber-blue focus:ring-cyber-blue focus:ring-offset-slate-900 bg-slate-900"
+                    className="w-4 h-4 rounded border-black text-red-500 focus:ring-red-500 focus:ring-offset-white bg-white"
                   />
-                  <span className="text-sm font-medium text-slate-300">Terdapat Anak Inklusi</span>
+                  <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
                 </label>
                 
                 {formData.hasInklusi && (
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Jumlah Siswa Inklusi</label>
+                    <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jumlah Siswa Inklusi</label>
                     <input 
                       type="number"
                       min="1"
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyber-blue transition-all outline-none"
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                       placeholder="Masukkan jumlah siswa inklusi..."
                       value={formData.jumlahInklusi}
                       onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -502,9 +501,9 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
             </div>
           </div>
 
-          <div className="cyber-card p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <CheckSquare size={18} className="text-cyber-purple" />
+          <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl">
+            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
+              <CheckSquare size={18} className="text-red-400" />
               Pilih Fitur Generate
             </h3>
             <div className="space-y-3">
@@ -520,12 +519,12 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 <label key={feature.id} className="flex items-center gap-3 p-3 rounded-lg border border-white/5 hover:bg-white/5 cursor-pointer transition-colors">
                   <input 
                     type="checkbox" 
-                    className="w-4 h-4 rounded border-slate-600 text-cyber-purple focus:ring-cyber-purple bg-slate-800"
+                    className="w-4 h-4 rounded border-black text-red-400 focus:ring-red-400 bg-red-50"
                     checked={selectedFeatures[feature.id as keyof typeof selectedFeatures]}
                     onChange={() => handleFeatureToggle(feature.id as keyof typeof selectedFeatures)}
                   />
                   <feature.icon size={16} className={feature.color} />
-                  <span className="text-sm text-slate-300">{feature.label}</span>
+                  <span className="text-sm text-gray-700">{feature.label}</span>
                 </label>
               ))}
             </div>
@@ -535,7 +534,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
 <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
@@ -543,7 +542,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
               <button 
               onClick={generateContent}
               disabled={isGenerating}
-              className="cyber-button btn-generate-animated flex-1 py-3 flex items-center justify-center gap-2"
+              className="bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors btn-generate-animated flex-1 py-3 flex items-center justify-center gap-2"
             >
               {isGenerating ? (
                 <>
@@ -580,17 +579,17 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                   class: formData.kelas,
                 }}
               />
-              <div className="cyber-card p-6 md:p-8 rounded-2xl relative">
+              <div className="bg-white border border-gray-200 shadow-sm p-6 md:p-8 rounded-2xl relative">
               <div className="absolute top-6 right-6 flex gap-2 no-print">
-                <button onClick={handlePrint} className="p-2 rounded-lg bg-cyber-blue/10 text-cyber-blue hover:bg-cyber-blue hover:text-black transition-colors">
+                <button onClick={handlePrint} className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-black transition-colors">
                   <Printer size={20} />
                 </button>
               </div>
 
               <div id="print-content" className="space-y-8">
                 <div className="text-center border-b border-white/10 pb-6">
-                  <h1 className="text-2xl md:text-3xl font-black text-white mb-2">Perangkat Mengajar Harian: {formData.topikMateri}</h1>
-                  <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-400">
+                  <h1 className="text-2xl md:text-3xl font-black text-black mb-2">Perangkat Mengajar Harian: {formData.topikMateri}</h1>
+                  <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
                     <span><strong>Jenis:</strong> {formData.jenisGuru}</span>
                     {formData.jenisGuru === 'Guru Mapel' && <span><strong>Mapel:</strong> {formData.mataPelajaran === 'Lainnya' ? formData.customMapel : formData.mataPelajaran}</span>}
                     <span><strong>Fase/Kelas:</strong> {formData.fase} / {formData.kelas}</span>
@@ -600,7 +599,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
 
                 {result.ringkasan && (
                   <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-cyber-blue flex items-center gap-2 border-b border-cyber-blue/30 pb-2">
+                    <h2 className="text-xl font-bold text-red-500 flex items-center gap-2 border-b border-red-500/30 pb-2">
                       <FileText size={20} /> Ringkasan Materi Ajar
                     </h2>
                     {renderMarkdown(result.ringkasan)}
@@ -609,10 +608,10 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
 
                 {result.outOfTopic && Array.isArray(result.outOfTopic) && (
                   <div className="space-y-4">
-                    <h2 className="text-xl font-bold text-cyber-yellow flex items-center gap-2 border-b border-cyber-yellow/30 pb-2">
+                    <h2 className="text-xl font-bold text-red-200 flex items-center gap-2 border-b border-red-200/30 pb-2">
                       <Star size={20} /> Ide Out Of Topic (Ice Breaker / Intermezzo)
                     </h2>
-                    <ul className="list-disc pl-5 space-y-2 text-slate-300">
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
                       {result.outOfTopic.map((idea: string, i: number) => (
                         <li key={i}>{idea}</li>
                       ))}
@@ -627,9 +626,9 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {result.slide.map((s: any, i: number) => (
-                        <div key={i} className="gen-card bg-slate-800 rounded-xl p-5 shadow-lg">
-                          <h3 className="text-lg font-bold text-white mb-3 border-b border-slate-600 pb-2">Slide {i + 1}: {s.title}</h3>
-                          <ul className="list-disc pl-5 space-y-1 text-slate-300 text-sm">
+                        <div key={i} className="gen-card bg-red-50 rounded-xl p-5 shadow-lg">
+                          <h3 className="text-lg font-bold text-black mb-3 border-b border-black pb-2">Slide {i + 1}: {s.title}</h3>
+                          <ul className="list-disc pl-5 space-y-1 text-gray-700 text-sm">
                             {s.content.map((c: string, j: number) => <li key={j}>{c}</li>)}
                           </ul>
                         </div>
@@ -643,19 +642,19 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     <h2 className="text-xl font-bold text-green-400 flex items-center gap-2 border-b border-green-400/30 pb-2">
                       <Map size={20} /> Peta Pikiran (Mind Map)
                     </h2>
-                    <div className="gen-card bg-slate-900 p-6 rounded-xl">
+                    <div className="gen-card bg-white p-6 rounded-xl">
                       <div className="flex flex-col space-y-6">
                         {result.petaPikiran.map((node: any, i: number) => (
                           <div key={i} className="relative pl-8">
                             {/* Vertical Line */}
                             <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-green-500/30"></div>
                             {/* Node Dot */}
-                            <div className="absolute left-[9px] top-2 w-3 h-3 rounded-full bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]"></div>
+                            <div className="absolute left-[9px] top-2 w-3 h-3 rounded-full bg-green-400 shadow-sm"></div>
                             
                             <h3 className="text-lg font-bold text-green-300 mb-2">{node.topic}</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               {node.subtopics.map((sub: string, j: number) => (
-                                <div key={j} className="gen-card bg-slate-800/80 px-4 py-2 rounded-lg text-sm text-slate-300 flex items-center gap-2">
+                                <div key={j} className="gen-card bg-red-50 px-4 py-2 rounded-lg text-sm text-gray-700 flex items-center gap-2">
                                   <div className="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
                                   {sub}
                                 </div>
@@ -675,13 +674,13 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     </h2>
                     <div className="flex flex-col gap-4">
                       {result.infographic.map((info: any, i: number) => (
-                        <div key={i} className="gen-card flex flex-col md:flex-row gap-4 bg-slate-800/40 rounded-xl p-4 /20">
+                        <div key={i} className="gen-card flex flex-col md:flex-row gap-4 bg-red-50 rounded-xl p-4 /20">
                           <div className="md:w-1/3">
                             <div className="bg-pink-500/10 text-pink-400 font-bold px-4 py-2 rounded-lg inline-block border border-pink-500/30">
                               {info.section}
                             </div>
                           </div>
-                          <div className="md:w-2/3 text-slate-300 text-sm flex items-center">
+                          <div className="md:w-2/3 text-gray-700 text-sm flex items-center">
                             {info.content}
                           </div>
                         </div>
@@ -697,16 +696,16 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                     </h2>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       {/* Kolom Soal */}
-                      <div className="gen-card bg-slate-800/30 rounded-xl p-5">
-                        <h3 className="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Soal Latihan</h3>
+                      <div className="gen-card bg-red-50 rounded-xl p-5">
+                        <h3 className="text-lg font-bold text-black mb-4 border-b border-black pb-2">Soal Latihan</h3>
                         <div className="space-y-4">
                           {result.asesmen.questions.map((q: any, i: number) => (
                             <div key={i} className="text-sm">
-                              <p className="text-slate-200 font-medium mb-2">{q.number}. {q.text}</p>
+                              <p className="text-gray-900 font-medium mb-2">{q.number}. {q.text}</p>
                               {q.options && q.options.length > 0 && (
                                 <ul className="space-y-1 pl-4">
                                   {q.options.map((opt: string, j: number) => (
-                                    <li key={j} className="text-slate-400">{String.fromCharCode(65 + j)}. {opt}</li>
+                                    <li key={j} className="text-gray-600">{String.fromCharCode(65 + j)}. {opt}</li>
                                   ))}
                                 </ul>
                               )}
@@ -716,13 +715,13 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                       </div>
                       
                       {/* Kolom Jawaban */}
-                      <div className="gen-card bg-slate-800/30 rounded-xl p-5">
-                        <h3 className="text-lg font-bold text-white mb-4 border-b border-slate-600 pb-2">Kunci Jawaban</h3>
+                      <div className="gen-card bg-red-50 rounded-xl p-5">
+                        <h3 className="text-lg font-bold text-black mb-4 border-b border-black pb-2">Kunci Jawaban</h3>
                         <div className="space-y-2">
                           {result.asesmen.answers.map((a: any, i: number) => (
-                            <div key={i} className="flex gap-3 text-sm border-b border-slate-700/50 pb-2 last:border-0">
+                            <div key={i} className="flex gap-3 text-sm border-b border-black pb-2 last:border-0">
                               <span className="font-bold text-red-400 w-6">{a.number}.</span>
-                              <span className="text-slate-300">{a.text}</span>
+                              <span className="text-gray-700">{a.text}</span>
                             </div>
                           ))}
                         </div>
@@ -737,8 +736,8 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                       <Star size={20} /> Rubrik Penilaian Sikap
                     </h2>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left text-slate-300">
-                        <thead className="text-xs text-white uppercase bg-slate-800/80 border-b border-slate-600">
+                      <table className="w-full text-sm text-left text-gray-700">
+                        <thead className="text-xs text-black uppercase bg-red-50 border-b border-black">
                           <tr>
                             <th className="px-4 py-3">Aspek</th>
                             {result.rubrikSikap.headers.map((h: string, i: number) => <th key={i} className="px-4 py-3">{h}</th>)}
@@ -746,8 +745,8 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                         </thead>
                         <tbody>
                           {result.rubrikSikap.rows.map((row: any, i: number) => (
-                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800">
-                              <td className="px-4 py-3 font-medium text-white">{row.aspect}</td>
+                            <tr key={i} className="bg-white border-b border-black hover:bg-red-50">
+                              <td className="px-4 py-3 font-medium text-black">{row.aspect}</td>
                               {row.criteria.map((c: string, j: number) => <td key={j} className="px-4 py-3">{c}</td>)}
                             </tr>
                           ))}
@@ -763,8 +762,8 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                       <Activity size={20} /> Rubrik Penilaian Harian
                     </h2>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left text-slate-300">
-                        <thead className="text-xs text-white uppercase bg-slate-800/80 border-b border-slate-600">
+                      <table className="w-full text-sm text-left text-gray-700">
+                        <thead className="text-xs text-black uppercase bg-red-50 border-b border-black">
                           <tr>
                             <th className="px-4 py-3">Aspek</th>
                             {result.rubrikHarian.headers.map((h: string, i: number) => <th key={i} className="px-4 py-3">{h}</th>)}
@@ -772,8 +771,8 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                         </thead>
                         <tbody>
                           {result.rubrikHarian.rows.map((row: any, i: number) => (
-                            <tr key={i} className="bg-slate-900/30 border-b border-slate-700/50 hover:bg-slate-800">
-                              <td className="px-4 py-3 font-medium text-white">{row.aspect}</td>
+                            <tr key={i} className="bg-white border-b border-black hover:bg-red-50">
+                              <td className="px-4 py-3 font-medium text-black">{row.aspect}</td>
                               {row.criteria.map((c: string, j: number) => <td key={j} className="px-4 py-3">{c}</td>)}
                             </tr>
                           ))}
@@ -786,12 +785,12 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
             </div>
           </>
         ) : (
-            <div className="cyber-card p-12 rounded-2xl flex flex-col items-center justify-center text-center h-full min-h-[400px]">
-              <div className="w-20 h-20 rounded-full bg-cyber-blue/10 flex items-center justify-center mb-6">
-                <BookOpen size={40} className="text-cyber-blue opacity-50" />
+            <div className="bg-white border border-gray-200 shadow-sm p-12 rounded-2xl flex flex-col items-center justify-center text-center h-full min-h-[400px]">
+              <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
+                <BookOpen size={40} className="text-red-500 opacity-50" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Belum Ada Perangkat</h3>
-              <p className="text-slate-400 max-w-md">
+              <h3 className="text-xl font-bold text-black mb-2">Belum Ada Perangkat</h3>
+              <p className="text-gray-600 max-w-md">
                 Isi informasi umum di samping, pilih fitur yang ingin di-generate, lalu klik tombol "Generate Perangkat" untuk membuat perangkat mengajar harian Anda.
               </p>
             </div>

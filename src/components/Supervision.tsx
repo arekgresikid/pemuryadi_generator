@@ -6,6 +6,8 @@ import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save } from 'lucide-react';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function Supervision() {
   const { profile } = useAuth();
@@ -417,14 +419,14 @@ export default function Supervision() {
   };
 
   const renderSection = (title: string, id: string, items: string[]) => (
-    <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
+    <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
       <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">{title}</h3>
       <div className="space-y-3">
         {items.map((item, index) => (
-          <div key={index} className="gen-card flex items-start gap-3 p-3 bg-slate-800/80 rounded-lg hover:/30 transition-colors">
-            <span className="text-slate-500 text-sm font-medium w-6">{index + 1}.</span>
+          <div key={index} className="gen-card flex items-start gap-3 p-3 bg-red-50 rounded-lg hover:/30 transition-colors">
+            <span className="text-gray-500 text-sm font-medium w-6">{index + 1}.</span>
             <div className="flex-1">
-              <p className="text-sm text-slate-300 mb-3 leading-relaxed">{item}</p>
+              <p className="text-sm text-gray-700 mb-3 leading-relaxed">{item}</p>
               <div className="flex gap-4">
                 {[4, 3, 2, 1].map(val => (
                   <label key={val} className="flex items-center gap-2 cursor-pointer group">
@@ -434,9 +436,9 @@ export default function Supervision() {
                       value={val}
                       checked={scores[`${id}_${index}`] === val}
                       onChange={() => handleScoreChange(id, index, val)}
-                      className="w-4 h-4 text-blue-500 bg-slate-700 border-slate-600 focus:ring-blue-500 focus:ring-offset-slate-800"
+                      className="w-4 h-4 text-blue-500 bg-red-100 border-black focus:ring-blue-500 focus:ring-offset-slate-800"
                     />
-                    <span className="text-xs text-slate-400 group-hover:text-slate-200 transition-colors">{val}</span>
+                    <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">{val}</span>
                   </label>
                 ))}
               </div>
@@ -448,20 +450,20 @@ export default function Supervision() {
   );
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl shadow-lg">
           📋
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Instrumen Supervisi Pembelajaran</h3>
-          <p className="text-slate-400">Berdasarkan Permendikdasmen No. 1 Tahun 2026</p>
+          <h3 className="text-2xl font-bold text-black">Instrumen Supervisi Pembelajaran</h3>
+          <p className="text-gray-600">Berdasarkan Permendikdasmen No. 1 Tahun 2026</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
+          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Data Umum</h3>
             
             {error && (
@@ -472,18 +474,18 @@ export default function Supervision() {
             )}
 
             <div className="grid md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all md:col-span-2" />
+              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all md:col-span-2" />
               
-              <input type="text" placeholder="Nama Guru" value={formData.guru} onChange={e => setFormData({...formData, guru: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" />
-              <input type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Guru" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.guru} onChange={e => setFormData({...formData, guru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Guru" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
               
-              <input type="text" placeholder="Nama Supervisor" value={formData.supervisor} onChange={e => setFormData({...formData, supervisor: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" />
-              <input type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Supervisor" value={formData.nipSupervisor} onChange={e => setFormData({...formData, nipSupervisor: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Supervisor" value={formData.supervisor} onChange={e => setFormData({...formData, supervisor: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Supervisor" value={formData.nipSupervisor} onChange={e => setFormData({...formData, nipSupervisor: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
               
               <select 
                 value={eduLevel}
                 onChange={(e) => setEduLevel(e.target.value)}
-                className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all"
+                className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
               >
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
@@ -494,7 +496,7 @@ export default function Supervision() {
                 <select 
                   value={fase}
                   onChange={(e) => setFase(e.target.value)}
-                  className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all"
+                  className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
                 >
                   {phaseClassMap[eduLevel]?.phases.map(p => (
                     <option key={p.id} value={p.id}>{p.label}</option>
@@ -503,7 +505,7 @@ export default function Supervision() {
                 <select 
                   value={kelas}
                   onChange={(e) => setKelas(e.target.value)}
-                  className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all"
+                  className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
                 >
                   {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
@@ -514,61 +516,55 @@ export default function Supervision() {
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all"
+                className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
               >
                 {subjectsByLevel[eduLevel]?.map(sub => (
                   <option key={sub.id} value={sub.id}>{sub.label}</option>
                 ))}
               </select>
 
-              <input type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm border border-blue-500/20">
+          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm border border-blue-500/20">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+              <Sparkles className="w-5 h-5 text-amber-600" />
               AI Supervision Generator (Sumber Data)
             </h3>
-            <p className="text-xs text-slate-400 mb-4 italic">
+            <p className="text-xs text-gray-600 mb-4 italic">
               Masukkan konten dokumen Anda di bawah ini agar AI dapat menganalisis dan mengisi instrumen secara otomatis.
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                   <Layout className="w-3 h-3" /> Alur RPM (Deep Learning Plan)
                 </label>
-                <textarea 
-                  rows={2}
+                <AIAssistedTextarea rows={2}
                   value={sources.rpm}
                   onChange={e => setSources({...sources, rpm: e.target.value})}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:border-blue-500 transition-all"
-                  placeholder="Paste konten RPM di sini..."
-                />
+                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  placeholder="Paste konten RPM di sini..." />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                   <BookOpen className="w-3 h-3" /> Modul Ajar
                 </label>
-                <textarea 
-                  rows={2}
+                <AIAssistedTextarea rows={2}
                   value={sources.modulAjar}
                   onChange={e => setSources({...sources, modulAjar: e.target.value})}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:border-blue-500 transition-all"
-                  placeholder="Paste konten Modul Ajar di sini..."
-                />
+                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  placeholder="Paste konten Modul Ajar di sini..." />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                   <FileText className="w-3 h-3" /> Modul Kokurikuler
                 </label>
-                <textarea 
-                  rows={2}
+                <AIAssistedTextarea rows={2}
                   value={sources.modulKokurikuler}
                   onChange={e => setSources({...sources, modulKokurikuler: e.target.value})}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:border-blue-500 transition-all"
-                  placeholder="Paste konten Modul Kokurikuler di sini..."
-                />
+                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  placeholder="Paste konten Modul Kokurikuler di sini..." />
               </div>
               <div className="mb-4">
             <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
@@ -576,7 +572,7 @@ export default function Supervision() {
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
@@ -584,7 +580,7 @@ export default function Supervision() {
               <button 
                 onClick={generateWithAI}
                 disabled={isGenerating}
-                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-white hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-black hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isGenerating ? (
                   <>
@@ -607,27 +603,25 @@ export default function Supervision() {
           {renderSection('📊 C. Asesmen dan Evaluasi', 'assessment', supervisionIndicators.assessment)}
           {renderSection('💭 D. Refleksi dan Tindak Lanjut', 'reflection', supervisionIndicators.reflection)}
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 mb-4 shadow-sm">
+          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
             <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Catatan Supervisor</h3>
-            <textarea 
-              rows={4} 
+            <AIAssistedTextarea rows={4} 
               value={formData.catatan}
               onChange={e => setFormData({...formData, catatan: e.target.value})}
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 transition-all" 
-              placeholder="Catatan, saran, dan rekomendasi..."
-            />
+              className="w-full bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" 
+              placeholder="Catatan, saran, dan rekomendasi..." />
           </div>
           
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
-              <button onClick={calculateScore} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-white hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25 btn-generate-animated">
+              <button onClick={calculateScore} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-red-500/20 btn-generate-animated">
                 📊 Hitung Nilai
               </button>
-              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
                 🖨️ Print
               </button>
             </div>
-            <p className="text-[10px] text-slate-500 italic text-center">
+            <p className="text-[10px] text-gray-500 italic text-center">
               * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
               * Jangan lupa support saya agar makin berusaha dalam memperbaiki website ini.
             </p>
@@ -635,46 +629,46 @@ export default function Supervision() {
         </div>
         
         <div className="space-y-4">
-          <div className="gen-card bg-slate-800/80 rounded-xl p-6 sticky top-24 shadow-xl">
-            <h4 className="text-lg font-semibold mb-6 text-center text-white">📊 Hasil Supervisi</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-6 sticky top-24 shadow-xl">
+            <h4 className="text-lg font-semibold mb-6 text-center text-black">📊 Hasil Supervisi</h4>
             
             <div className="flex justify-center mb-8">
               <div 
                 className="w-[140px] h-[140px] rounded-full flex flex-col items-center justify-center relative shadow-inner"
                 style={{ background: `conic-gradient(#3b82f6 ${result ? result.total * 3.6 : 0}deg, #1e293b 0)` }}
               >
-                <div className="w-[120px] h-[120px] rounded-full bg-slate-900 flex flex-col items-center justify-center absolute shadow-lg">
-                  <span className="text-4xl font-bold text-white">{result ? result.total : 0}</span>
-                  <span className="text-xs text-slate-400 mt-1">dari 100</span>
+                <div className="w-[120px] h-[120px] rounded-full bg-white flex flex-col items-center justify-center absolute shadow-lg">
+                  <span className="text-4xl font-bold text-black">{result ? result.total : 0}</span>
+                  <span className="text-xs text-gray-600 mt-1">dari 100</span>
                 </div>
               </div>
             </div>
             
-            <div className={`text-center text-2xl font-bold mb-6 ${result ? (result.total >= 90 ? 'text-green-500' : result.total >= 80 ? 'text-blue-500' : result.total >= 70 ? 'text-yellow-500' : 'text-red-500') : 'text-slate-500'}`}>
+            <div className={`text-center text-2xl font-bold mb-6 ${result ? (result.total >= 90 ? 'text-green-500' : result.total >= 80 ? 'text-blue-500' : result.total >= 70 ? 'text-yellow-500' : 'text-red-500') : 'text-gray-500'}`}>
               {result ? result.grade : '-'}
             </div>
             
-            <div className="gen-card space-y-3 text-sm bg-slate-900 p-4 rounded-lg">
+            <div className="gen-card space-y-3 text-sm bg-white p-4 rounded-lg">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Perencanaan:</span>
-                <span className="font-semibold text-white bg-slate-800 px-2 py-1 rounded">{result ? result.plan.toFixed(1) : 0}%</span>
+                <span className="text-gray-600">Perencanaan:</span>
+                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.plan.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Pelaksanaan:</span>
-                <span className="font-semibold text-white bg-slate-800 px-2 py-1 rounded">{result ? result.exec.toFixed(1) : 0}%</span>
+                <span className="text-gray-600">Pelaksanaan:</span>
+                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.exec.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Asesmen:</span>
-                <span className="font-semibold text-white bg-slate-800 px-2 py-1 rounded">{result ? result.ass.toFixed(1) : 0}%</span>
+                <span className="text-gray-600">Asesmen:</span>
+                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.ass.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Refleksi:</span>
-                <span className="font-semibold text-white bg-slate-800 px-2 py-1 rounded">{result ? result.ref.toFixed(1) : 0}%</span>
+                <span className="text-gray-600">Refleksi:</span>
+                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.ref.toFixed(1) : 0}%</span>
               </div>
             </div>
             
-            <div className="gen-card mt-6 p-4 bg-slate-800 rounded-lg text-xs text-slate-400">
-              <p className="font-semibold text-slate-300 mb-2">Keterangan Nilai:</p>
+            <div className="gen-card mt-6 p-4 bg-red-50 rounded-lg text-xs text-gray-600">
+              <p className="font-semibold text-gray-700 mb-2">Keterangan Nilai:</p>
               <ul className="space-y-1">
                 <li className="flex justify-between"><span className="text-green-400">A (Amat Baik)</span> <span>90-100</span></li>
                 <li className="flex justify-between"><span className="text-blue-400">B (Baik)</span> <span>80-89</span></li>

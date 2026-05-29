@@ -51,6 +51,11 @@ export const addActivityLog = async (msg: string, status: string, color: string)
 
 export const useToken = async () => {
   try {
+    // Bypass token check for local development
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return { success: true, tokens: 999 };
+    }
+
     const response = await fetch('/api/tokens/use', { method: 'POST' });
     let data: any = {};
     try { data = await response.json(); } catch(e) {}

@@ -50,7 +50,7 @@ export default function SnakeLadder() {
     { icon: '🏍️', color: 'bg-yellow-500' },
     { icon: '🚀', color: 'bg-purple-500' },
     { icon: '🚁', color: 'bg-teal-500' },
-    { icon: '🛸', color: 'bg-indigo-500' },
+    { icon: '🛸', color: 'bg-red-400 border border-black' },
     { icon: '🚂', color: 'bg-orange-500' },
     { icon: '🚜', color: 'bg-lime-500' },
     { icon: '🛵', color: 'bg-pink-500' }
@@ -281,7 +281,7 @@ PENTING:
   const renderDiceFace = (result: number | '❓') => {
     if (result === '❓') return <div className="text-7xl">🎲</div>;
     
-    const dot = <div className="w-5 h-5 bg-white rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"></div>;
+    const dot = <div className="w-5 h-5 bg-white rounded-full shadow-sm"></div>;
     
     return (
       <div className="w-full h-full relative p-4">
@@ -344,7 +344,7 @@ PENTING:
         const isSnake = snakes.find(s => s.head === num);
         const isLadder = ladders.find(l => l.bottom === num);
         
-        let bgClass = num % 2 === 0 ? 'bg-slate-700' : 'bg-slate-600';
+        let bgClass = num % 2 === 0 ? 'bg-red-100' : 'bg-slate-600';
         if (isSnake) bgClass = 'bg-gradient-to-br from-red-500 to-red-600';
         if (isLadder) bgClass = 'bg-gradient-to-br from-green-500 to-green-600';
 
@@ -353,7 +353,7 @@ PENTING:
         cells.push(
           <div 
             key={num}
-            className={`aspect-square flex flex-col items-center justify-center text-[10px] p-[2px] rounded relative ${bgClass} text-white shadow-sm border border-slate-800/50`}
+            className={`aspect-square flex flex-col items-center justify-center text-[10px] p-[2px] rounded relative ${bgClass} text-black shadow-sm border border-black`}
           >
             <span className="font-bold opacity-50 absolute top-1 left-1">{num}</span>
             {isSnake && <div className="absolute top-1 right-1 flex flex-col items-center leading-none opacity-50"><span className="text-xs">🐍</span><span className="text-[6px]">{isSnake.tail}</span></div>}
@@ -371,29 +371,29 @@ PENTING:
         );
       }
     }
-    return <div className="gen-card grid grid-cols-10 gap-[2px] p-2 bg-slate-800 rounded-xl">{cells}</div>;
+    return <div className="gen-card grid grid-cols-10 gap-[2px] p-2 bg-red-50 rounded-xl">{cells}</div>;
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl relative">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl relative">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-2xl shadow-lg">
           🎲
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Snake & Ladder Edukatif</h3>
-          <p className="text-slate-400">Permainan ular tangga dengan pertanyaan edukatif</p>
+          <h3 className="text-2xl font-bold text-black">Snake & Ladder Edukatif</h3>
+          <p className="text-gray-600">Permainan ular tangga dengan pertanyaan edukatif</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang Pendidikan</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang Pendidikan</label>
             <select 
               value={eduLevel}
               onChange={(e) => setEduLevel(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
             >
               {educationLevels.map(level => (
                 <option key={level.id} value={level.id}>{level.label}</option>
@@ -403,11 +403,11 @@ PENTING:
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
               <select 
                 value={fase}
                 onChange={(e) => setFase(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
@@ -415,11 +415,11 @@ PENTING:
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Kelas</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
               <select 
                 value={kelas}
                 onChange={(e) => setKelas(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
@@ -430,11 +430,11 @@ PENTING:
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {subjectsByLevel[eduLevel]?.map(sub => (
                   <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -443,11 +443,11 @@ PENTING:
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Bentuk Soal</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bentuk Soal</label>
               <select 
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 <option value="isian">Isian Singkat</option>
                 <option value="pg">Pilihan Ganda</option>
@@ -456,12 +456,12 @@ PENTING:
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Jumlah Pemain</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Pemain</label>
             <select 
               value={numPlayers}
               onChange={handleNumPlayersChange}
               disabled={gameStarted}
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-orange-500 transition-all disabled:opacity-50"
+              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all disabled:opacity-50"
             >
               <option value={2}>2 Pemain</option>
               <option value={3}>3 Pemain</option>
@@ -473,7 +473,7 @@ PENTING:
             <button 
               onClick={() => setShowCharacterSelection(true)} 
               disabled={isGenerating || gameStarted}
-              className="flex-1 py-4 rounded-xl bg-slate-700 font-bold text-white hover:bg-slate-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 btn-generate-animated"
+              className="flex-1 py-4 rounded-xl bg-red-100 font-bold text-black hover:bg-slate-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50 btn-generate-animated"
             >
               {isGenerating ? (
                 <><span className="animate-spin">⏳</span> Menyiapkan...</>
@@ -484,21 +484,21 @@ PENTING:
             <button 
               onClick={startGame} 
               disabled={!boardGenerated || isGenerating}
-              className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 font-bold text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 disabled:opacity-50"
+              className="flex-1 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 font-bold text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-orange-500/25 disabled:opacity-50"
             >
               <span>🎮</span> {gameStarted ? 'Mulai Ulang' : 'Mulai Main'}
             </button>
           </div>
           
           {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
             </div>
           )}
           
-          <div className="gen-card bg-slate-800/80 rounded-xl p-4">
-            <h4 className="font-semibold mb-3 flex items-center gap-2 text-white">🎯 Cara Main</h4>
-            <ol className="text-sm text-slate-400 space-y-2">
+          <div className="gen-card bg-red-50 rounded-xl p-4">
+            <h4 className="font-semibold mb-3 flex items-center gap-2 text-black">🎯 Cara Main</h4>
+            <ol className="text-sm text-gray-600 space-y-2">
               <li>1. Buat soal lalu klik Mulai Main</li>
               <li>2. Pemain bergiliran melempar dadu</li>
               <li>3. Jawab pertanyaan dengan benar untuk maju</li>
@@ -509,17 +509,17 @@ PENTING:
         </div>
         
         <div className="lg:col-span-2">
-          <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[500px] flex items-center justify-center relative">
+          <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[500px] flex items-center justify-center relative">
             {winner && (
               <div className="absolute inset-0 z-20 bg-black/80  rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
                 <div className="text-6xl mb-4 animate-bounce">🏆</div>
-                <h2 className="text-3xl font-bold text-white mb-2">Pemain {winner.id} Menang!</h2>
-                <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(255,255,255,0.3)]`}>
+                <h2 className="text-3xl font-bold text-black mb-2">Pemain {winner.id} Menang!</h2>
+                <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} flex items-center justify-center mb-6 shadow-sm`}>
                   {winner.pawn}
                 </div>
                 <button 
                   onClick={startGame}
-                  className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-white font-bold rounded-xl transition-all"
+                  className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-black font-bold rounded-xl transition-all"
                 >
                   Main Lagi
                 </button>
@@ -532,16 +532,16 @@ PENTING:
                   {renderBoard()}
                 </div>
                 {gameStarted && (
-                  <div className="w-full md:w-64 bg-slate-900/80 rounded-xl p-4 border border-slate-700 flex-shrink-0 shadow-xl">
+                  <div className="w-full md:w-64 bg-white rounded-xl p-4 border border-black flex-shrink-0 shadow-xl">
                     <div className="flex flex-col items-center justify-between mb-4 gap-2">
-                      <span className="font-semibold text-slate-300 uppercase tracking-widest text-xs">Giliran Pemain</span>
-                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${players[currentPlayerIndex].color} text-white text-sm font-bold shadow-lg`}>
+                      <span className="font-semibold text-gray-700 uppercase tracking-widest text-xs">Giliran Pemain</span>
+                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${players[currentPlayerIndex].color} text-black text-sm font-bold shadow-lg`}>
                         <span className="text-2xl">{players[currentPlayerIndex].pawn}</span> Pemain {players[currentPlayerIndex].id}
                       </div>
                     </div>
                     <div className="flex items-center justify-center py-6 perspective-1000">
                       <div 
-                        className={`w-[135px] h-[155px] bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl border-2 border-slate-600 shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.2)] flex items-center justify-center transition-all duration-100 ${isRolling ? 'animate-dice-roll' : ''}`}
+                        className={`w-[135px] h-[155px] bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl border-2 border-black shadow-sm flex items-center justify-center transition-all duration-100 ${isRolling ? 'animate-dice-roll' : ''}`}
                       >
                         {renderDiceFace(diceResult)}
                       </div>
@@ -549,7 +549,7 @@ PENTING:
                     <button 
                       onClick={rollDice} 
                       disabled={isRolling || !!winner}
-                      className="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm"
+                      className="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-black font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm"
                     >
                       {isRolling ? 'Melempar...' : 'Lempar Dadu!'}
                     </button>
@@ -557,7 +557,7 @@ PENTING:
                 )}
               </div>
             ) : (
-              <div className="text-center text-slate-500 py-16">
+              <div className="text-center text-gray-500 py-16">
                 <div className="text-6xl mb-4 opacity-50">🎲</div>
                 <p>Papan permainan akan muncul di sini</p>
               </div>
@@ -570,7 +570,7 @@ PENTING:
       {modalContent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 "></div>
-          <div className="gen-card relative bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="gen-card relative bg-red-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-blue-400 flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full ${players[currentPlayerIndex].color} flex items-center justify-center text-sm`}>
@@ -579,20 +579,20 @@ PENTING:
                 {modalContent.title}
               </h3>
               <div className="text-right">
-                <div className="text-xs text-slate-400">Menuju Kotak</div>
-                <div className="text-xl font-bold text-white">{modalContent.targetCell}</div>
+                <div className="text-xs text-gray-600">Menuju Kotak</div>
+                <div className="text-xl font-bold text-black">{modalContent.targetCell}</div>
               </div>
             </div>
             
-            <div className="gen-card bg-slate-900 rounded-xl p-4 mb-6">
-              <p className="text-lg text-white font-medium mb-4">{modalContent.question.q}</p>
+            <div className="gen-card bg-white rounded-xl p-4 mb-6">
+              <p className="text-lg text-black font-medium mb-4">{modalContent.question.q}</p>
               
               <div className="space-y-3">
                 {modalContent.question.options.map((opt, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleAnswer(opt, modalContent.targetCell, modalContent.isSnake, modalContent.isLadder)}
-                    className="w-full text-left p-4 rounded-xl bg-slate-800 hover:bg-blue-600/20 border border-slate-600 hover:border-blue-500 transition-all text-slate-200"
+                    className="w-full text-left p-4 rounded-xl bg-red-50 hover:bg-red-100 transition-colors"
                   >
                     {opt}
                   </button>
@@ -619,13 +619,13 @@ PENTING:
       {showCharacterSelection && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 "></div>
-          <div className="gen-card relative bg-slate-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">Pilih Karakter Pemain</h3>
+          <div className="gen-card relative bg-red-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 className="text-xl font-bold text-black mb-4 text-center">Pilih Karakter Pemain</h3>
             
             <div className="space-y-4 mb-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
               {players.map((player, idx) => (
-                <div key={player.id} className="bg-slate-900 p-4 rounded-xl border border-slate-700">
-                  <h4 className="text-sm font-semibold text-slate-300 mb-3">Pemain {player.id}</h4>
+                <div key={player.id} className="bg-white p-4 rounded-xl border border-black">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Pemain {player.id}</h4>
                   <div className="flex flex-wrap gap-2">
                     {pawns.map((pawn, pIdx) => (
                       <button
@@ -635,7 +635,7 @@ PENTING:
                           newPlayers[idx] = { ...newPlayers[idx], pawn: pawn.icon, color: pawn.color };
                           setPlayers(newPlayers);
                         }}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${player.pawn === pawn.icon ? `${pawn.color} shadow-lg scale-110` : 'bg-slate-800 hover:bg-slate-700 border border-slate-600'}`}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${player.pawn === pawn.icon ? `${pawn.color} shadow-lg scale-110` : 'bg-red-50 hover:bg-red-100 border border-black'}`}
                       >
                         {pawn.icon}
                       </button>
@@ -648,7 +648,7 @@ PENTING:
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowCharacterSelection(false)}
-                className="flex-1 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all"
+                className="flex-1 py-3 rounded-xl bg-red-100 hover:bg-slate-600 text-black font-bold transition-all"
               >
                 Batal
               </button>
@@ -657,7 +657,7 @@ PENTING:
                   setShowCharacterSelection(false);
                   generateBoard();
                 }}
-                className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-lg"
+                className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-black font-bold transition-all shadow-lg"
               >
                 Mulai Buat Soal
               </button>

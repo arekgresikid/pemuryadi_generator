@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function WordSearch() {
   const { profile } = useAuth();
@@ -127,47 +129,44 @@ export default function WordSearch() {
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg">
           🔤
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Generator Word Search Puzzle</h3>
-          <p className="text-slate-400">Buat puzzle mencari kata untuk pembelajaran (maks. 40 kata)</p>
+          <h3 className="text-2xl font-bold text-black">Generator Word Search Puzzle</h3>
+          <p className="text-gray-600">Buat puzzle mencari kata untuk pembelajaran (maks. 40 kata)</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Judul Puzzle</label>
-            <input 
-              type="text" 
+            <label className="block text-sm font-medium text-gray-700 mb-2">Judul Puzzle</label>
+            <AIAssistedInput type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all" 
+              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-green-500 transition-all" 
               placeholder="Contoh: Mencari Kata Sains"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Daftar Kata (satu kata per baris, maks 40)</label>
-            <textarea 
-              value={wordsText}
+            <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Kata (satu kata per baris, maks 40)</label>
+            <AIAssistedTextarea value={wordsText}
               onChange={(e) => setWordsText(e.target.value)}
               rows={6} 
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-4 text-white focus:border-green-500 transition-all" 
-              placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..."
-            />
-            <p className="text-xs text-slate-500 mt-1">Jumlah kata: <span>{Math.min(wordCount, 40)}</span>/40</p>
+              className="w-full bg-red-50 border border-black rounded-xl p-4 text-black focus:border-green-500 transition-all" 
+              placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..." />
+            <p className="text-xs text-gray-500 mt-1">Jumlah kata: <span>{Math.min(wordCount, 40)}</span>/40</p>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Ukuran Grid</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ukuran Grid</label>
               <select 
                 value={gridSize}
                 onChange={(e) => setGridSize(parseInt(e.target.value))}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black"
               >
                 <option value="15">15 x 15</option>
                 <option value="18">18 x 18</option>
@@ -176,11 +175,11 @@ export default function WordSearch() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Tingkat Kesulitan</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
               <select 
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black"
               >
                 <option value="easy">Mudah (H/V)</option>
                 <option value="medium">Sedang (+Diagonal)</option>
@@ -193,7 +192,7 @@ export default function WordSearch() {
           
           <button 
             onClick={generatePuzzle} 
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 font-bold text-lg text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/25 btn-generate-animated"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/25 btn-generate-animated"
           >
             <span>🧩</span> Generate Puzzle
           </button>
@@ -201,19 +200,19 @@ export default function WordSearch() {
           <div className="flex gap-2">
             <button 
               onClick={printPuzzle} 
-              className="flex-1 py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-medium transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl bg-red-100 hover:bg-slate-600 text-black font-medium transition-all flex items-center justify-center gap-2"
             >
               <span>🖨️</span> Print / Download PDF
             </button>
           </div>
         </div>
         
-        <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[400px] overflow-auto flex flex-col items-center">
+        <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[400px] overflow-auto flex flex-col items-center">
           {puzzleData ? (
             <>
               <div className="text-center mb-4">
-                <h3 className="text-xl font-bold text-white">{puzzleData.title}</h3>
-                <p className="text-sm text-slate-400">Temukan {puzzleData.words.length} kata tersembunyi!</p>
+                <h3 className="text-xl font-bold text-black">{puzzleData.title}</h3>
+                <p className="text-sm text-gray-600">Temukan {puzzleData.words.length} kata tersembunyi!</p>
               </div>
               <div 
                 className="grid gap-[2px] font-mono mx-auto" 
@@ -223,7 +222,7 @@ export default function WordSearch() {
                   row.map((cell, j) => (
                     <div 
                       key={`${i}-${j}`} 
-                      className="gen-card flex items-center justify-center font-bold bg-slate-800 text-white rounded-[4px] transition-all hover:bg-blue-500 hover:scale-110 cursor-default"
+                      className="gen-card flex items-center justify-center font-bold bg-red-50 text-black rounded-[4px] transition-all hover:bg-blue-500 hover:scale-110 cursor-default"
                       style={{ 
                         width: puzzleData.gridSize > 20 ? 24 : 28, 
                         height: puzzleData.gridSize > 20 ? 24 : 28, 
@@ -235,17 +234,17 @@ export default function WordSearch() {
                   ))
                 )}
               </div>
-              <div className="gen-card mt-6 w-full p-4 bg-slate-800 rounded-lg">
-                <h4 className="font-semibold text-sm mb-3 text-white">Kata yang dicari:</h4>
+              <div className="gen-card mt-6 w-full p-4 bg-red-50 rounded-lg">
+                <h4 className="font-semibold text-sm mb-3 text-black">Kata yang dicari:</h4>
                 <div className="flex flex-wrap gap-2">
                   {puzzleData.words.map((w, i) => (
-                    <span key={i} className="px-3 py-1 bg-slate-700 text-white rounded-md text-xs font-medium border border-slate-600">{w}</span>
+                    <span key={i} className="px-3 py-1 bg-red-100 text-black rounded-md text-xs font-medium border border-black">{w}</span>
                   ))}
                 </div>
               </div>
             </>
           ) : (
-            <div className="text-center text-slate-500 py-16 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">🔤</div>
               <p>Puzzle akan muncul di sini</p>
             </div>

@@ -8,6 +8,8 @@ import PDFRemixUpload from './PDFRemixUpload';
 import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function DeepLearningPlan() {
   const { profile } = useAuth();
@@ -561,76 +563,76 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg">
           🧠
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Rencana Pembelajaran Mendalam</h3>
-          <p className="text-slate-400">Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka</p>
+          <h3 className="text-2xl font-bold text-black">Rencana Pembelajaran Mendalam</h3>
+          <p className="text-gray-600">Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
           
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
-                <input type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="Negeri">Negeri</option>
                   <option value="Swasta">Swasta</option>
                   <option value="Islam Terpadu">Islam Terpadu</option>
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <input type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1 flex gap-2">
-                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <input type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1 flex gap-2">
-                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-xs font-medium text-slate-400 mb-1">Jenis Guru</label>
-                <select value={formData.jenisGuru} onChange={e => setFormData({...formData, jenisGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Jenis Guru</label>
+                <select value={formData.jenisGuru} onChange={e => setFormData({...formData, jenisGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="Guru Kelas">Guru Kelas</option>
                   <option value="Guru Mapel (PJOK, PAdDP)">Guru Mapel (PJOK, PAdDP)</option>
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-xs font-medium text-slate-400 mb-1">Semester</label>
-                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="1">Ganjil (1)</option>
                   <option value="2">Genap (2)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Jenjang</label>
-                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
+                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   {educationLevels.map(level => (
                     <option key={level.id} value={level.id}>{level.label}</option>
                   ))}
@@ -638,16 +640,16 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Fase</label>
-                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
+                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.phases.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Kelas</label>
-                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
+                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.classes[formData.fase]?.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -655,15 +657,15 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </div>
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-slate-400 mb-1">Mata Pelajaran</label>
-                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
+                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   {subjectsByLevel[formData.eduLevel]?.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.label}</option>
                   ))}
                 </select>
               </div>
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-slate-400 mb-1">Topik/Materi</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi</label>
                 <select 
                   value={formData.isCustomTopik ? 'lainnya' : formData.topikMateri} 
                   onChange={e => {
@@ -674,7 +676,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                       setFormData({...formData, isCustomTopik: false, topikMateri: val});
                     }
                   }} 
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all"
+                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
                 >
                   {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                     <option key={idx} value={topic}>{topic}</option>
@@ -682,20 +684,19 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="lainnya">Lainnya (+)</option>
                 </select>
                 {formData.isCustomTopik && (
-                  <input 
-                    type="text" 
+                  <AIAssistedInput type="text" 
                     placeholder="Masukkan Topik/Materi secara manual..." 
                     value={formData.topikMateri} 
                     onChange={e => setFormData({...formData, topikMateri: e.target.value})} 
-                    className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mt-3" 
+                    className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
                   />
                 )}
               </div>
               <div className="col-span-2 md:col-span-1">
-                <input type="text" placeholder="Alokasi Waktu (Contoh: 4 Pertemuan / 8 JP)" value={formData.alokasiWaktu} onChange={e => setFormData({...formData, alokasiWaktu: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Alokasi Waktu (Contoh: 4 Pertemuan / 8 JP)" value={formData.alokasiWaktu} onChange={e => setFormData({...formData, alokasiWaktu: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
                   <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
                   <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -715,13 +716,13 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">A. Identifikasi</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">A. Identifikasi</h4>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Peserta Didik</label>
-                <textarea rows={2} value={formData.pesertaDidik} onChange={e => setFormData({...formData, pesertaDidik: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Peserta didik kelas 1 dengan gaya belajar beragam..." />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Peserta Didik</label>
+                <AIAssistedTextarea rows={2} value={formData.pesertaDidik} onChange={e => setFormData({...formData, pesertaDidik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Peserta didik kelas 1 dengan gaya belajar beragam..." />
               </div>
               
               <div className="space-y-3">
@@ -730,18 +731,18 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     type="checkbox" 
                     checked={formData.hasInklusi}
                     onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                    className="w-4 h-4 rounded border-slate-600 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 bg-slate-900"
+                    className="w-4 h-4 rounded border-black text-emerald-500 focus:ring-emerald-500 focus:ring-offset-white bg-white"
                   />
-                  <span className="text-sm font-medium text-slate-300">Terdapat Anak Inklusi</span>
+                  <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
                 </label>
                 
                 {formData.hasInklusi && (
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Jumlah Siswa Inklusi</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
                     <input 
                       type="number"
                       min="1"
-                      className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all"
+                      className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
                       placeholder="Masukkan jumlah siswa inklusi..."
                       value={formData.jumlahInklusi}
                       onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -751,11 +752,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Topik Pelajaran</label>
-                <textarea rows={2} value={formData.topikPelajaran} onChange={e => setFormData({...formData, topikPelajaran: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Membaca suku kata 'ba, bi, bu, be, bo'..." />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Topik Pelajaran</label>
+                <AIAssistedTextarea rows={2} value={formData.topikPelajaran} onChange={e => setFormData({...formData, topikPelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Membaca suku kata 'ba, bi, bu, be, bo'..." />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Dimensi Profil Lulusan</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Dimensi Profil Lulusan</label>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.keys(profilLulusan).map((key) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer">
@@ -763,9 +764,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                         type="checkbox" 
                         checked={profilLulusan[key as keyof typeof profilLulusan]} 
                         onChange={() => handleProfilChange(key as keyof typeof profilLulusan)}
-                        className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500"
+                        className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500"
                       />
-                      <span className="text-xs text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <span className="text-xs text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                     </label>
                   ))}
                 </div>
@@ -773,24 +774,24 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">B. Desain Pembelajaran</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">B. Desain Pembelajaran</h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Capaian Pembelajaran</label>
-                <textarea rows={2} value={formData.capaianPembelajaran} onChange={e => setFormData({...formData, capaianPembelajaran: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Capaian Pembelajaran</label>
+                <AIAssistedTextarea rows={2} value={formData.capaianPembelajaran} onChange={e => setFormData({...formData, capaianPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Lintas Disiplin Ilmu</label>
-                <textarea rows={2} value={formData.lintasDisiplin} onChange={e => setFormData({...formData, lintasDisiplin: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lintas Disiplin Ilmu</label>
+                <AIAssistedTextarea rows={2} value={formData.lintasDisiplin} onChange={e => setFormData({...formData, lintasDisiplin: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Tujuan Pembelajaran</label>
-                <textarea rows={2} value={formData.tujuanPembelajaran} onChange={e => setFormData({...formData, tujuanPembelajaran: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Pembelajaran</label>
+                <AIAssistedTextarea rows={2} value={formData.tujuanPembelajaran} onChange={e => setFormData({...formData, tujuanPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Praktik Pedagogis</label>
-                <select value={formData.praktikPedagogis} onChange={e => setFormData({...formData, praktikPedagogis: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Praktik Pedagogis</label>
+                <select value={formData.praktikPedagogis} onChange={e => setFormData({...formData, praktikPedagogis: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Pembelajaran Berbasis Masalah (Problem Based Learning)">Pembelajaran Berbasis Masalah (Problem Based Learning)</option>
                   <option value="Pembelajaran Berbasis Proyek (Project Based Learning)">Pembelajaran Berbasis Proyek (Project Based Learning)</option>
                   <option value="Pembelajaran Inkuiri (Inquiry Learning)">Pembelajaran Inkuiri (Inquiry Learning)</option>
@@ -801,112 +802,112 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Lingkungan Pembelajaran</label>
-                <textarea rows={2} value={formData.lingkunganBelajar} onChange={e => setFormData({...formData, lingkunganBelajar: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lingkungan Pembelajaran</label>
+                <AIAssistedTextarea rows={2} value={formData.lingkunganBelajar} onChange={e => setFormData({...formData, lingkunganBelajar: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Kemitraan Pembelajaran</label>
-                <textarea rows={2} value={formData.kemitraanPembelajaran} onChange={e => setFormData({...formData, kemitraanPembelajaran: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kemitraan Pembelajaran</label>
+                <AIAssistedTextarea rows={2} value={formData.kemitraanPembelajaran} onChange={e => setFormData({...formData, kemitraanPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Pemanfaatan Digital</label>
-                <textarea rows={2} value={formData.pemanfaatanDigital} onChange={e => setFormData({...formData, pemanfaatanDigital: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pemanfaatan Digital</label>
+                <AIAssistedTextarea rows={2} value={formData.pemanfaatanDigital} onChange={e => setFormData({...formData, pemanfaatanDigital: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">C. Pengalaman Belajar</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">C. Pengalaman Belajar</h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">AWAL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">AWAL</label>
                 <div className="flex gap-4 mb-2">
                   {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                     <label key={prinsip} className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={formData.prinsipAwal.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipAwal', prinsip)} className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500" />
-                      <span className="text-xs text-slate-300">{prinsip}</span>
+                      <input type="checkbox" checked={formData.prinsipAwal.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipAwal', prinsip)} className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500" />
+                      <span className="text-xs text-gray-700">{prinsip}</span>
                     </label>
                   ))}
                 </div>
-                <textarea rows={3} value={formData.awal} onChange={e => setFormData({...formData, awal: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={3} value={formData.awal} onChange={e => setFormData({...formData, awal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               
-              <div className="pt-4 border-t border-slate-700">
-                <h5 className="font-medium text-slate-400 mb-3">INTI</h5>
+              <div className="pt-4 border-t border-black">
+                <h5 className="font-medium text-gray-600 mb-3">INTI</h5>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Memahami</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Memahami</label>
                     <div className="flex gap-4 mb-2">
                       {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                         <label key={prinsip} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={formData.prinsipMemahami.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMemahami', prinsip)} className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500" />
-                          <span className="text-xs text-slate-300">{prinsip}</span>
+                          <input type="checkbox" checked={formData.prinsipMemahami.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMemahami', prinsip)} className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500" />
+                          <span className="text-xs text-gray-700">{prinsip}</span>
                         </label>
                       ))}
                     </div>
-                    <textarea rows={3} value={formData.memahami} onChange={e => setFormData({...formData, memahami: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.memahami} onChange={e => setFormData({...formData, memahami: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Mengaplikasi</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mengaplikasi</label>
                     <div className="flex gap-4 mb-2">
                       {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                         <label key={prinsip} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={formData.prinsipMengaplikasi.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMengaplikasi', prinsip)} className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500" />
-                          <span className="text-xs text-slate-300">{prinsip}</span>
+                          <input type="checkbox" checked={formData.prinsipMengaplikasi.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMengaplikasi', prinsip)} className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500" />
+                          <span className="text-xs text-gray-700">{prinsip}</span>
                         </label>
                       ))}
                     </div>
-                    <textarea rows={3} value={formData.mengaplikasi} onChange={e => setFormData({...formData, mengaplikasi: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.mengaplikasi} onChange={e => setFormData({...formData, mengaplikasi: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Merefleksi</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Merefleksi</label>
                     <div className="flex gap-4 mb-2">
                       {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                         <label key={prinsip} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" checked={formData.prinsipMerefleksi.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMerefleksi', prinsip)} className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500" />
-                          <span className="text-xs text-slate-300">{prinsip}</span>
+                          <input type="checkbox" checked={formData.prinsipMerefleksi.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipMerefleksi', prinsip)} className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500" />
+                          <span className="text-xs text-gray-700">{prinsip}</span>
                         </label>
                       ))}
                     </div>
-                    <textarea rows={3} value={formData.merefleksi} onChange={e => setFormData({...formData, merefleksi: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.merefleksi} onChange={e => setFormData({...formData, merefleksi: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-700">
+              <div className="pt-4 border-t border-black">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">PENUTUP</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">PENUTUP</label>
                   <div className="flex gap-4 mb-2">
                     {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                       <label key={prinsip} className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={formData.prinsipPenutup.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipPenutup', prinsip)} className="w-4 h-4 text-emerald-500 bg-slate-700 border-slate-600 rounded focus:ring-emerald-500" />
-                        <span className="text-xs text-slate-300">{prinsip}</span>
+                        <input type="checkbox" checked={formData.prinsipPenutup.includes(prinsip)} onChange={() => handlePrinsipChange('prinsipPenutup', prinsip)} className="w-4 h-4 text-emerald-500 bg-red-100 border-black rounded focus:ring-emerald-500" />
+                        <span className="text-xs text-gray-700">{prinsip}</span>
                       </label>
                     ))}
                   </div>
-                  <textarea rows={3} value={formData.penutup} onChange={e => setFormData({...formData, penutup: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                  <AIAssistedTextarea rows={3} value={formData.penutup} onChange={e => setFormData({...formData, penutup: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-400 mb-4 flex items-center gap-2">D. Asesmen dan Tindak Lanjut</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">D. Asesmen dan Tindak Lanjut</h4>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Asesmen Awal</label>
-                <select value={formData.jenisAsesmenAwal} onChange={e => setFormData({...formData, jenisAsesmenAwal: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Awal</label>
+                <select value={formData.jenisAsesmenAwal} onChange={e => setFormData({...formData, jenisAsesmenAwal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Tes Tertulis">Tes Tertulis</option>
                   <option value="Wawancara">Wawancara</option>
                   <option value="Observasi">Observasi</option>
                   <option value="Kuesioner/Angket">Kuesioner/Angket</option>
                   <option value="Diskusi Kelas">Diskusi Kelas</option>
                 </select>
-                <textarea rows={2} value={formData.asesmenAwal} onChange={e => setFormData({...formData, asesmenAwal: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenAwal} onChange={e => setFormData({...formData, asesmenAwal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Asesmen Formatif</label>
-                <select value={formData.jenisAsesmenFormatif} onChange={e => setFormData({...formData, jenisAsesmenFormatif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Formatif</label>
+                <select value={formData.jenisAsesmenFormatif} onChange={e => setFormData({...formData, jenisAsesmenFormatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Observasi">Observasi</option>
                   <option value="Penilaian Diri (Self Assessment)">Penilaian Diri (Self Assessment)</option>
                   <option value="Penilaian Antar Teman (Peer Assessment)">Penilaian Antar Teman (Peer Assessment)</option>
@@ -915,11 +916,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Tanya Jawab">Tanya Jawab</option>
                   <option value="Penugasan">Penugasan</option>
                 </select>
-                <textarea rows={2} value={formData.asesmenFormatif} onChange={e => setFormData({...formData, asesmenFormatif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenFormatif} onChange={e => setFormData({...formData, asesmenFormatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Asesmen Sumatif</label>
-                <select value={formData.jenisAsesmenSumatif} onChange={e => setFormData({...formData, jenisAsesmenSumatif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Sumatif</label>
+                <select value={formData.jenisAsesmenSumatif} onChange={e => setFormData({...formData, jenisAsesmenSumatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Tes Tertulis">Tes Tertulis</option>
                   <option value="Tes Lisan">Tes Lisan</option>
                   <option value="Penilaian Praktik/Kinerja">Penilaian Praktik/Kinerja</option>
@@ -927,11 +928,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Penilaian Portofolio">Penilaian Portofolio</option>
                   <option value="Penilaian Produk">Penilaian Produk</option>
                 </select>
-                <textarea rows={2} value={formData.asesmenSumatif} onChange={e => setFormData({...formData, asesmenSumatif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenSumatif} onChange={e => setFormData({...formData, asesmenSumatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Jenis Rubrik Penilaian</label>
-                <select value={formData.jenisRubrik} onChange={e => setFormData({...formData, jenisRubrik: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Rubrik Penilaian</label>
+                <select value={formData.jenisRubrik} onChange={e => setFormData({...formData, jenisRubrik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Rubrik Analitik">Rubrik Analitik</option>
                   <option value="Rubrik Holistik">Rubrik Holistik</option>
                   <option value="Rubrik Skala Penilaian">Rubrik Skala Penilaian</option>
@@ -939,14 +940,14 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Indikator dan Keterangan Rubrik (Opsional)</label>
-                <textarea rows={2} placeholder="Contoh: Indikator 1: Keaktifan (Siswa aktif bertanya dan menjawab)..." value={formData.indikatorRubrik || ''} onChange={e => setFormData({...formData, indikatorRubrik: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Indikator dan Keterangan Rubrik (Opsional)</label>
+                <AIAssistedTextarea rows={2} placeholder="Contoh: Indikator 1: Keaktifan (Siswa aktif bertanya dan menjawab)..." value={formData.indikatorRubrik || ''} onChange={e => setFormData({...formData, indikatorRubrik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
             </div>
           </div>
           
           {error && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-xl text-sm">
+            <div className="bg-red-50 border border-red-200 rounded-lg text-red-700 p-4 rounded-xl text-sm">
               {error}
             </div>
           )}
@@ -957,7 +958,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
@@ -965,7 +966,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <button 
             onClick={generatePlan} 
             disabled={isGenerating}
-            className={`flex-1 py-4 rounded-xl font-bold text-lg text-white transition-all flex items-center justify-center gap-2 shadow-lg btn-generate-animated ${
+            className={`flex-1 py-4 rounded-xl font-bold text-lg text-black transition-all flex items-center justify-center gap-2 shadow-lg btn-generate-animated ${
               isGenerating 
                 ? 'bg-slate-600 cursor-not-allowed' 
                 : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 hover:shadow-emerald-500/25'
@@ -985,7 +986,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
         </div>
         
-        <div className="gen-card bg-slate-800/30 rounded-xl p-4 h-[700px] overflow-y-auto custom-scrollbar space-y-6">
+        <div className="gen-card bg-red-50 rounded-xl p-4 h-[700px] overflow-y-auto custom-scrollbar space-y-6">
           {result ? (
             <>
               <AIVisualGenerator 
@@ -999,31 +1000,31 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               />
               <div className="space-y-6 text-sm">
               <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-xl p-6 border border-emerald-500/30 text-center shadow-inner">
-                <h3 className="text-xl font-bold text-white mb-2 tracking-wide">RENCANA PEMBELAJARAN MENDALAM</h3>
-                <h4 className="text-emerald-400 font-medium">{result.subjectLabel}</h4>
+                <h3 className="text-xl font-bold text-black mb-2 tracking-wide">RENCANA PEMBELAJARAN MENDALAM</h3>
+                <h4 className="text-emerald-600 font-medium">{result.subjectLabel}</h4>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
-                <div className="grid grid-cols-2 gap-y-3 text-slate-300 text-sm">
-                  <p><span className="text-slate-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-white">{result.sekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Fase/Kelas/Semester</span> <span className="font-medium text-white">{result.faseLabel} / {result.kelasLabel} / {result.semester}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Mata Pelajaran</span> <span className="font-medium text-white">{result.subjectLabel}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Alokasi Waktu</span> <span className="font-medium text-white">{result.alokasiWaktu || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Nama Kepala Sekolah</span> <span className="font-medium text-white">{result.kepalaSekolah || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-white">{result.nipKepalaSekolah || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Nama Guru</span> <span className="font-medium text-white">{result.namaGuru || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-white">{result.nip || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Jenis Guru</span> <span className="font-medium text-white">{result.jenisGuru || '-'}</span></p>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+                <div className="grid grid-cols-2 gap-y-3 text-gray-700 text-sm">
+                  <p><span className="text-gray-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-black">{result.sekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Fase/Kelas/Semester</span> <span className="font-medium text-black">{result.faseLabel} / {result.kelasLabel} / {result.semester}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Mata Pelajaran</span> <span className="font-medium text-black">{result.subjectLabel}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Alokasi Waktu</span> <span className="font-medium text-black">{result.alokasiWaktu || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Nama Kepala Sekolah</span> <span className="font-medium text-black">{result.kepalaSekolah || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-black">{result.nipKepalaSekolah || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Nama Guru</span> <span className="font-medium text-black">{result.namaGuru || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-black">{result.nip || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Jenis Guru</span> <span className="font-medium text-black">{result.jenisGuru || '-'}</span></p>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
-                <h4 className="font-semibold text-emerald-400 mb-3">A. Identifikasi</h4>
-                <div className="space-y-3 text-slate-300">
-                  <div><span className="text-slate-500 text-xs">Peserta Didik:</span><p className="mt-1 whitespace-pre-line">{result.pesertaDidik || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Topik Pelajaran:</span><p className="mt-1 whitespace-pre-line">{result.topikPelajaran || '-'}</p></div>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+                <h4 className="font-semibold text-emerald-600 mb-3">A. Identifikasi</h4>
+                <div className="space-y-3 text-gray-700">
+                  <div><span className="text-gray-500 text-xs">Peserta Didik:</span><p className="mt-1 whitespace-pre-line">{result.pesertaDidik || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Topik Pelajaran:</span><p className="mt-1 whitespace-pre-line">{result.topikPelajaran || '-'}</p></div>
                   <div>
-                    <span className="text-slate-500 text-xs">Dimensi Profil Lulusan:</span>
+                    <span className="text-gray-500 text-xs">Dimensi Profil Lulusan:</span>
                     <ul className="list-disc list-inside mt-1">
                       {result.selectedProfil?.length > 0 ? result.selectedProfil.map((p: string, i: number) => <li key={i}>{p}</li>) : <li>-</li>}
                     </ul>
@@ -1031,45 +1032,45 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
-                <h4 className="font-semibold text-emerald-400 mb-3">B. Desain Pembelajaran</h4>
-                <div className="space-y-3 text-slate-300">
-                  <div><span className="text-slate-500 text-xs">Capaian Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.capaianPembelajaran || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Lintas Disiplin Ilmu:</span><p className="mt-1">{result.lintasDisiplin || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Tujuan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.tujuanPembelajaran || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Praktik Pedagogis:</span><p className="mt-1 whitespace-pre-line">{result.praktikPedagogis || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Kemitraan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.kemitraanPembelajaran || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Lingkungan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.lingkunganBelajar || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Pemanfaatan Digital:</span><p className="mt-1 whitespace-pre-line">{result.pemanfaatanDigital || '-'}</p></div>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+                <h4 className="font-semibold text-emerald-600 mb-3">B. Desain Pembelajaran</h4>
+                <div className="space-y-3 text-gray-700">
+                  <div><span className="text-gray-500 text-xs">Capaian Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.capaianPembelajaran || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Lintas Disiplin Ilmu:</span><p className="mt-1">{result.lintasDisiplin || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Tujuan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.tujuanPembelajaran || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Praktik Pedagogis:</span><p className="mt-1 whitespace-pre-line">{result.praktikPedagogis || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Kemitraan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.kemitraanPembelajaran || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Lingkungan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.lingkunganBelajar || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Pemanfaatan Digital:</span><p className="mt-1 whitespace-pre-line">{result.pemanfaatanDigital || '-'}</p></div>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
-                <h4 className="font-semibold text-emerald-400 mb-3">C. Pengalaman Belajar</h4>
-                <div className="space-y-3 text-slate-300">
-                  <div><span className="text-slate-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.awal || '-'}</p></div>
-                  <div className="pt-2 border-t border-slate-700"><span className="text-slate-400 font-semibold text-xs">INTI</span></div>
-                  <div><span className="text-slate-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.memahami || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.mengaplikasi || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.merefleksi || '-'}</p></div>
-                  <div className="pt-2 border-t border-slate-700"><span className="text-slate-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.penutup || '-'}</p></div>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+                <h4 className="font-semibold text-emerald-600 mb-3">C. Pengalaman Belajar</h4>
+                <div className="space-y-3 text-gray-700">
+                  <div><span className="text-gray-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.awal || '-'}</p></div>
+                  <div className="pt-2 border-t border-black"><span className="text-gray-600 font-semibold text-xs">INTI</span></div>
+                  <div><span className="text-gray-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.memahami || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.mengaplikasi || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.merefleksi || '-'}</p></div>
+                  <div className="pt-2 border-t border-black"><span className="text-gray-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.penutup || '-'}</p></div>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
-                <h4 className="font-semibold text-emerald-400 mb-3">D. Asesmen Pembelajaran</h4>
-                <div className="space-y-3 text-slate-300">
-                  <div><span className="text-slate-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenAwal || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenFormatif || '-'}</p></div>
-                  <div><span className="text-slate-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenSumatif || '-'}</p></div>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+                <h4 className="font-semibold text-emerald-600 mb-3">D. Asesmen Pembelajaran</h4>
+                <div className="space-y-3 text-gray-700">
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenAwal || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenFormatif || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenSumatif || '-'}</p></div>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm overflow-x-auto">
-                <h4 className="font-semibold text-emerald-400 mb-3">Rubrik Penilaian ({result.jenisRubrik || 'Rubrik'})</h4>
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm overflow-x-auto">
+                <h4 className="font-semibold text-emerald-600 mb-3">Rubrik Penilaian ({result.jenisRubrik || 'Rubrik'})</h4>
                 {result.rubrik && result.rubrik.length > 0 ? (
-                  <table className="w-full text-sm text-left text-slate-300">
-                    <thead className="text-xs text-slate-400 uppercase bg-slate-700/50">
+                  <table className="w-full text-sm text-left text-gray-700">
+                    <thead className="text-xs text-gray-600 uppercase bg-red-100/50">
                       <tr>
                         <th className="px-4 py-3">Indikator</th>
                         <th className="px-4 py-3">Keterangan</th>
@@ -1081,9 +1082,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     </thead>
                     <tbody>
                       {result.rubrik.map((r: any, i: number) => (
-                        <tr key={i} className="border-b border-slate-700">
-                          <td className="px-4 py-3 font-medium text-white">{r.indikator}</td>
-                          <td className="px-4 py-3 text-slate-400">{r.keterangan || '-'}</td>
+                        <tr key={i} className="border-b border-black">
+                          <td className="px-4 py-3 font-medium text-black">{r.indikator}</td>
+                          <td className="px-4 py-3 text-gray-600">{r.keterangan || '-'}</td>
                           <td className="px-4 py-3">{r.baruMemulai}</td>
                           <td className="px-4 py-3">{r.berkembang}</td>
                           <td className="px-4 py-3">{r.cakap}</td>
@@ -1093,17 +1094,17 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     </tbody>
                   </table>
                 ) : (
-                  <p className="text-slate-500 text-sm">Tidak ada rubrik</p>
+                  <p className="text-gray-500 text-sm">Tidak ada rubrik</p>
                 )}
               </div>
 
-              <button onClick={() => setIsPrintModalOpen(true)} className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2">
+              <button onClick={() => setIsPrintModalOpen(true)} className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-black font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2">
                 <span>🖨️</span> Print / Download PDF
               </button>
             </div>
           </>
         ) : (
-            <div className="text-center text-slate-500 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">🧠</div>
               <p>Rencana Pembelajaran Mendalam akan muncul di sini</p>
             </div>

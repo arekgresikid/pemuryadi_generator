@@ -45,10 +45,15 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
       const prompt = `Educational ${type} about ${context.subject}: ${context.topic} for ${context.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
       const encodedPrompt = encodeURIComponent(prompt);
       const randomSeed = Math.floor(Math.random() * 1000000);
+      const apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || "";
 
-      const imageUrlStr = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=${selectedModel}&nologo=true&seed=${randomSeed}`;
+      const imageUrlStr = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedModel}&nologo=true&seed=${randomSeed}`;
 
-      const imageResponse = await fetch(imageUrlStr);
+      const imageResponse = await fetch(imageUrlStr, {
+        headers: apiKey ? {
+          'Authorization': `Bearer ${apiKey}`
+        } : {}
+      });
       if (!imageResponse.ok) {
         throw new Error('Gagal menghasilkan gambar. Silakan coba lagi.');
       }
@@ -74,14 +79,14 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
 
 
   return (
-    <div className="gen-card bg-slate-800/50 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-slate-700/50">
+    <div className="gen-card bg-red-50 backdrop-blur-xl p-6 rounded-2xl shadow-xl border border-black">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-indigo-500/20 rounded-xl">
-          <Image className="w-6 h-6 text-indigo-400" />
+        <div className="p-3 bg-red-100 border border-black rounded-xl">
+          <Image className="w-6 h-6 text-red-500" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white">Media Pembelajaran AI</h2>
-          <p className="text-sm text-slate-400">Hasilkan media visual otomatis untuk materi {context.topic}</p>
+          <h2 className="text-xl font-bold text-black">Media Pembelajaran AI</h2>
+          <p className="text-sm text-gray-600">Hasilkan media visual otomatis untuk materi {context.topic}</p>
         </div>
       </div>
 
@@ -98,8 +103,8 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
             disabled={isGenerating}
             className={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all ${
               selectedType === type.id && !generatedImage
-                ? 'bg-indigo-500/20 border-indigo-500 text-white'
-                : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
+                ? 'bg-red-100 border border-black border-black text-black'
+                : 'bg-white border-black text-gray-600 hover:border-slate-500 hover:text-black'
             } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <type.icon className="w-8 h-8" />
@@ -113,9 +118,9 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
 
       {isGenerating && (
         <div className="flex flex-col items-center justify-center py-12 space-y-4">
-          <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
-          <p className="text-slate-300 animate-pulse">Sedang merancang {selectedType} terbaik untuk Anda...</p>
-          <p className="text-xs text-slate-500">Model: {selectedModel}</p>
+          <Loader2 className="w-12 h-12 text-red-600 animate-spin" />
+          <p className="text-gray-700 animate-pulse">Sedang merancang {selectedType} terbaik untuk Anda...</p>
+          <p className="text-xs text-gray-500">Model: {selectedModel}</p>
         </div>
       )}
 
@@ -127,7 +132,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
 
       {generatedImage && !isGenerating && (
         <div className="space-y-4">
-          <div className="relative group rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
+          <div className="relative group rounded-2xl overflow-hidden border border-black shadow-2xl">
             <img
               src={generatedImage}
               alt="Generated Visual"
@@ -137,7 +142,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <button
                 onClick={downloadImage}
-                className="p-4 bg-white text-slate-900 rounded-full shadow-xl hover:scale-110 transition-transform"
+                className="p-4 bg-white text-gray-900 rounded-full shadow-xl hover:scale-110 transition-transform"
               >
                 <Download className="w-6 h-6" />
               </button>
@@ -146,14 +151,14 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
           <div className="flex justify-center gap-4">
             <button
               onClick={downloadImage}
-              className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-all shadow-lg shadow-indigo-500/20"
+              className="flex items-center gap-2 px-6 py-3 bg-red-500 border border-black hover:bg-red-600 text-black rounded-xl font-semibold transition-all shadow-lg shadow-red-500/20"
             >
               <Download className="w-5 h-5" />
               Unduh {selectedType}
             </button>
             <button
               onClick={() => setGeneratedImage(null)}
-              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-semibold transition-all"
+              className="px-6 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-semibold transition-all"
             >
               Buat Baru
             </button>

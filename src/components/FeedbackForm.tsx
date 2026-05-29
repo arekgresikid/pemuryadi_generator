@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Star, Send, MessageSquarePlus, X } from 'lucide-react';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 interface FeedbackFormProps {
   inline?: boolean;
@@ -107,13 +108,13 @@ export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
               </div>
             </div>
 
-            <textarea
+            <AIAssistedTextarea
               rows={2}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tambahkan masukan atau saran..."
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl p-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none text-[11px] leading-relaxed transition-colors"
-            ></textarea>
+              className="w-full bg-red-50 border border-black rounded-xl p-2 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none text-[11px] leading-relaxed transition-colors"
+            />
 
             <button
               type="submit"

@@ -22,7 +22,7 @@ export default function Pricing() {
         'Reset otomatis setiap hari',
         'Akses fitur dasar'
       ],
-      icon: <Shield size={24} className="text-slate-400" />,
+      icon: <Shield size={24} className="text-gray-600" />,
       color: 'slate',
       buttonText: 'Paket Saat Ini'
     },
@@ -39,7 +39,7 @@ export default function Pricing() {
         'Prioritas generate dasar',
         'Akses fitur RPP & Modul'
       ],
-      icon: <Star size={24} className="text-amber-400" />,
+      icon: <Star size={24} className="text-amber-600" />,
       color: 'amber',
       buttonText: 'Pilih Essential'
     },
@@ -57,7 +57,7 @@ export default function Pricing() {
         'Akses semua modul premium',
         'Dukungan customer service'
       ],
-      icon: <Zap size={24} className="text-cyber-green" />,
+      icon: <Zap size={24} className="text-red-300" />,
       color: 'emerald',
       buttonText: 'Sangat Direkomendasikan',
       popular: true
@@ -76,7 +76,7 @@ export default function Pricing() {
         'Termasuk pembuatan soal adaptif',
         'Layanan 24/7'
       ],
-      icon: <Crown size={24} className="text-cyber-blue" />,
+      icon: <Crown size={24} className="text-red-500" />,
       color: 'blue',
       buttonText: 'Pilih Ultimate'
     },
@@ -134,9 +134,9 @@ export default function Pricing() {
     <div className="p-6 md:p-8 animate-in fade-in zoom-in-95 duration-500">
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tighter">
-          Tingkatkan <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-blue to-cyber-purple">Performa Mengajar</span> Anda
+          Tingkatkan <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-400">Performa Mengajar</span> Anda
         </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
+        <p className="text-gray-600 max-w-2xl mx-auto">
           Pilih paket yang sesuai dengan kebutuhan mengajar dan persiapkan materi jauh lebih cepat dengan kekuatan penuh Pemuryadi.
         </p>
       </div>
@@ -151,10 +151,10 @@ export default function Pricing() {
             <div 
               key={i} 
               className={`relative gen-card rounded-2xl overflow-hidden shadow-2xl flex flex-col transition-all duration-300 hover:-translate-y-2 ${
-                plan.popular ? 'border-2 border-cyber-green scale-105 z-10' : 
+                plan.popular ? 'border-2 border-red-300 scale-105 z-10' : 
                 isSupreme ? 'border-2 border-transparent bg-gradient-to-b from-purple-600/30 to-amber-500/20' : 
-                isTitan ? 'border-2 border-rose-500/50 bg-gradient-to-b from-rose-900/40 to-slate-900/80 shadow-[0_0_20px_rgba(244,63,94,0.3)]' :
-                'border border-slate-800 bg-slate-900'
+                isTitan ? 'border-2 border-rose-500/50 bg-gradient-to-b from-rose-900/40 to-slate-900/80 shadow-sm' :
+                'border border-black bg-white'
               }`}
             >
               {isSupreme && (
@@ -164,7 +164,7 @@ export default function Pricing() {
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-red-500/10 z-0 pointer-events-none"></div>
               )}
               {plan.popular && (
-                <div className="bg-cyber-green text-black text-xs font-bold uppercase tracking-widest text-center py-1 absolute top-0 w-full z-20">
+                <div className="bg-red-300 text-black text-xs font-bold uppercase tracking-widest text-center py-1 absolute top-0 w-full z-20">
                   Best Offer
                 </div>
               )}
@@ -177,44 +177,44 @@ export default function Pricing() {
                     plan.name === 'Premium' ? 'bg-emerald-500/20' :
                     plan.name === 'Ultimate' ? 'bg-blue-500/20' :
                     plan.name === 'Essential' ? 'bg-amber-500/20' :
-                    'bg-slate-800'
+                    'bg-red-50'
                   }`}>
                     {plan.icon}
                   </div>
                   <h3 className={`text-xl font-bold uppercase tracking-widest ${
-                    isTitan ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-red-500 drop-shadow-[0_0_10px_rgba(244,63,94,0.5)]' :
-                    isSupreme ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#8A2BE2] to-[#FFD700] drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]' :
-                    plan.name === 'Premium' ? 'text-cyber-green' :
+                    isTitan ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-red-500 drop-shadow-sm' :
+                    isSupreme ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#8A2BE2] to-[#FFD700] drop-shadow-sm' :
+                    plan.name === 'Premium' ? 'text-red-300' :
                     plan.name === 'Ultimate' ? 'text-red-400' :
-                    plan.name === 'Essential' ? 'text-amber-400' :
-                    'text-white'
+                    plan.name === 'Essential' ? 'text-amber-600' :
+                    'text-black'
                   }`}>
                     {plan.name}
                   </h3>
                 </div>
                 
-                <p className="text-xs text-slate-400 mb-6 h-8">{plan.description}</p>
+                <p className="text-xs text-gray-600 mb-6 h-8">{plan.description}</p>
                 
                 <div className="mb-6 pb-6 border-b border-white/10">
-                  <span className="text-3xl font-bold tracking-tighter text-white">{plan.price}</span>
-                  <span className="text-slate-400 text-sm">{plan.period}</span>
+                  <span className="text-3xl font-bold tracking-tighter text-black">{plan.price}</span>
+                  <span className="text-gray-600 text-sm">{plan.period}</span>
                 </div>
 
                 <div className="mb-6">
                   <div className="flex items-end gap-2 mb-1">
-                    <span className={`text-4xl font-bold ${isTitan ? 'text-rose-400' : isSupreme ? 'text-amber-400' : 'text-white'}`}>{plan.tokens}</span>
-                    <span className="text-xs text-slate-400 pb-1">{plan.tokenDesc}</span>
+                    <span className={`text-4xl font-bold ${isTitan ? 'text-rose-400' : isSupreme ? 'text-amber-600' : 'text-black'}`}>{plan.tokens}</span>
+                    <span className="text-xs text-gray-600 pb-1">{plan.tokenDesc}</span>
                   </div>
                 </div>
 
                 <ul className="space-y-3 mb-8 flex-1">
                   {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-slate-300">
+                    <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
                       <Check size={16} className={`mt-0.5 shrink-0 ${
                         isTitan ? 'text-rose-400' :
-                        isSupreme ? 'text-amber-400' :
-                        plan.name === 'Premium' ? 'text-cyber-green' :
-                        'text-cyber-blue'
+                        isSupreme ? 'text-amber-600' :
+                        plan.name === 'Premium' ? 'text-red-300' :
+                        'text-red-500'
                       }`} />
                       <span>{feature}</span>
                     </li>
@@ -226,13 +226,13 @@ export default function Pricing() {
                     onClick={() => handleUpgrade(plan)}
                     disabled={isCurrent && plan.name === 'Free'}
                     className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest transition-all ${
-                      isCurrent && plan.name === 'Free' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' :
-                      isTitan ? 'bg-gradient-to-r from-rose-600 to-red-600 text-white hover:shadow-[0_0_20px_rgba(225,29,72,0.5)] shadow-lg hover:scale-105' :
-                      isSupreme ? 'bg-gradient-to-r from-violet-600 to-amber-500 text-white hover:shadow-[0_0_20px_rgba(138,43,226,0.5)] shadow-lg hover:scale-105' :
-                      plan.popular ? 'bg-cyber-green text-black hover:bg-cyber-green/90 shadow-lg shadow-cyber-green/20' :
+                      isCurrent && plan.name === 'Free' ? 'bg-red-50 text-gray-500 cursor-not-allowed' :
+                      isTitan ? 'bg-gradient-to-r from-rose-600 to-red-600 text-black hover:shadow-sm shadow-lg hover:scale-105' :
+                      isSupreme ? 'bg-gradient-to-r from-violet-600 to-amber-500 text-black hover:shadow-sm shadow-lg hover:scale-105' :
+                      plan.popular ? 'bg-red-300 text-black hover:bg-red-300/90 shadow-lg shadow-red-300/20' :
                       plan.name === 'Ultimate' ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30' :
-                      plan.name === 'Essential' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/50 hover:bg-amber-500/30' :
-                      'bg-slate-800 text-white hover:bg-slate-700'
+                      plan.name === 'Essential' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/50 hover:bg-amber-500/30' :
+                      'bg-red-50 text-black hover:bg-red-100'
                     }`}
                   >
                     {isCurrent ? (plan.name === 'Free' ? 'Paket Saat Ini' : 'Beli Lagi') : plan.buttonText}
@@ -244,9 +244,9 @@ export default function Pricing() {
         })}
       </div>
       
-      <div className="mt-12 text-center max-w-2xl mx-auto p-6 bg-slate-900 border border-slate-800 rounded-2xl">
-        <h4 className="text-white font-bold mb-2 flex justify-center items-center gap-2"><Shield size={18} className="text-cyber-blue"/> Bagaimana sistem Tokens bekerja?</h4>
-        <p className="text-sm text-slate-400">
+      <div className="mt-12 text-center max-w-2xl mx-auto p-6 bg-white border border-black rounded-2xl">
+        <h4 className="text-black font-bold mb-2 flex justify-center items-center gap-2"><Shield size={18} className="text-red-500"/> Bagaimana sistem Tokens bekerja?</h4>
+        <p className="text-sm text-gray-600">
           Satu token setara dengan satu kali tekan tombol Generate. Pembuatan soal, perangkat ajar, atau kegiatan di tab apa pun akan memakan 1 Token. Jika token habis, Anda bisa membeli paket token secara terpisah kapan pun.
         </p>
       </div>
@@ -254,44 +254,44 @@ export default function Pricing() {
       {/* Payment Modal */}
       {showModal && selectedPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80  animate-in fade-in duration-300">
-          <div className="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
+          <div className="bg-white border border-black p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
             <button 
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors"
             >
               <X size={24} />
             </button>
             
-            <h3 className="text-2xl font-bold text-white mb-2">Pilih Metode Pembayaran</h3>
-            <p className="text-slate-400 text-sm mb-6">
-              Selesaikan pembayaran untuk paket <strong className="text-white">{selectedPlan.name}</strong> sebesar <strong className="text-cyber-green">{selectedPlan.price}</strong>.
+            <h3 className="text-2xl font-bold text-black mb-2">Pilih Metode Pembayaran</h3>
+            <p className="text-gray-600 text-sm mb-6">
+              Selesaikan pembayaran untuk paket <strong className="text-black">{selectedPlan.name}</strong> sebesar <strong className="text-red-300">{selectedPlan.price}</strong>.
             </p>
 
             <div className="space-y-4 mb-8">
-              <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                <div className="flex items-center gap-3 mb-3 text-white font-semibold">
-                  <CreditCard size={20} className="text-cyber-blue" />
+              <div className="bg-red-50 rounded-xl p-4 border border-black">
+                <div className="flex items-center gap-3 mb-3 text-black font-semibold">
+                  <CreditCard size={20} className="text-red-500" />
                   Transfer E-Wallet
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <span className="text-xs text-slate-400 block mb-1">GoPay</span>
-                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  <div className="bg-white p-3 rounded-lg border border-black">
+                    <span className="text-xs text-gray-600 block mb-1">GoPay</span>
+                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
                   </div>
-                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <span className="text-xs text-slate-400 block mb-1">OVO</span>
-                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  <div className="bg-white p-3 rounded-lg border border-black">
+                    <span className="text-xs text-gray-600 block mb-1">OVO</span>
+                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
                   </div>
-                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <span className="text-xs text-slate-400 block mb-1">DANA</span>
-                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  <div className="bg-white p-3 rounded-lg border border-black">
+                    <span className="text-xs text-gray-600 block mb-1">DANA</span>
+                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
                   </div>
-                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    <span className="text-xs text-slate-400 block mb-1">ShopeePay</span>
-                    <span className="font-mono font-bold text-white">0813 3076 3633 (a.n. Arif Tirtana)</span>
+                  <div className="bg-white p-3 rounded-lg border border-black">
+                    <span className="text-xs text-gray-600 block mb-1">ShopeePay</span>
+                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
                   </div>
                 </div>
-                <div className="mt-3 text-xs text-slate-400 text-center">
+                <div className="mt-3 text-xs text-gray-600 text-center">
                   A.n. P.E Muryadi
                 </div>
               </div>
@@ -305,7 +305,7 @@ export default function Pricing() {
 
             <button 
               onClick={confirmPayment}
-              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-black py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
             >
               <Send size={18} />
               Konfirmasi via WA

@@ -8,6 +8,8 @@ import PDFRemixUpload from './PDFRemixUpload';
 import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function ModuleGenerator() {
   const { profile } = useAuth();
@@ -455,65 +457,65 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-2xl shadow-lg">
           📖
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Modul Ajar</h3>
-          <p className="text-slate-400">Sesuai Capaian Pembelajaran Kurikulum Merdeka</p>
+          <h3 className="text-2xl font-bold text-black">Modul Ajar</h3>
+          <p className="text-gray-600">Sesuai Capaian Pembelajaran Kurikulum Merdeka</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2">👨‍🏫 Data Profil Guru</h4>
             <div className="space-y-3">
-              <input type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
               <div className="flex gap-2">
-                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all">
+                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
               </div>
-              <input type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
-              <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all">
+              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+              <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
                 <option value="Negeri">Negeri</option>
                 <option value="Swasta">Swasta</option>
                 <option value="Islam Terpadu">Islam Terpadu</option>
               </select>
-              <input type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
               <div className="flex gap-2">
-                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all">
+                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
               </div>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang</label>
-              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
+              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
-              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
+              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
                 ))}
@@ -523,24 +525,24 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Kelas</label>
-              <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+              <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Semester</label>
-              <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Semester</label>
+              <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
                 <option value="1">Semester 1</option><option value="2">Semester 2</option>
               </select>
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
-            <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+            <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
               {subjectsByLevel[formData.jenjang]?.map(s => (
                 <option key={s.id} value={s.id}>{s.label}</option>
               ))}
@@ -548,7 +550,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Topik/Materi</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Topik/Materi</label>
             <select 
               value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
               onChange={e => {
@@ -559,7 +561,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   setFormData({...formData, isCustomTopik: false, topik: val});
                 }
               }} 
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all"
+              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all"
             >
               {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                 <option key={idx} value={topic}>{topic}</option>
@@ -567,19 +569,18 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
               <option value="lainnya">Lainnya (+)</option>
             </select>
             {formData.isCustomTopik && (
-              <input 
-                type="text" 
+              <AIAssistedInput type="text" 
                 placeholder="Masukkan Topik/Materi secara manual..." 
                 value={formData.topik} 
                 onChange={e => setFormData({...formData, topik: e.target.value})} 
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all mt-3" 
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all mt-3" 
               />
             )}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
-            <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyan-500 transition-all">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
+            <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
               <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
               <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
               <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -596,18 +597,18 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 type="checkbox" 
                 checked={formData.hasInklusi}
                 onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                className="w-4 h-4 rounded border-slate-600 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900 bg-slate-900"
+                className="w-4 h-4 rounded border-black text-cyan-500 focus:ring-cyan-500 focus:ring-offset-white bg-white"
               />
-              <span className="text-sm font-medium text-slate-300">Terdapat Anak Inklusi</span>
+              <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
             </label>
             
             {formData.hasInklusi && (
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Jumlah Siswa Inklusi</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
                 <input 
                   type="number"
                   min="1"
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-cyan-500 transition-all"
+                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all"
                   placeholder="Masukkan jumlah siswa inklusi..."
                   value={formData.jumlahInklusi}
                   onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -625,34 +626,34 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             <h4 className="font-semibold text-orange-400 mb-4 flex items-center gap-2">⚙️ Opsi Penyesuaian Manual</h4>
             <div className="space-y-3">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" checked={custom.cp} onChange={e => setCustom({...custom, cp: e.target.checked})} className="w-4 h-4 text-orange-500 bg-slate-700 border-slate-600 rounded focus:ring-orange-500" />
-                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Gunakan Capaian Pembelajaran Manual</span>
+                <input type="checkbox" checked={custom.cp} onChange={e => setCustom({...custom, cp: e.target.checked})} className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" />
+                <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Gunakan Capaian Pembelajaran Manual</span>
               </label>
               {custom.cp && (
-                <textarea rows={3} value={customData.cpText} onChange={e => handleCustomChange('cpText', e.target.value)} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-orange-500 transition-all mt-2" placeholder="Masukkan Capaian Pembelajaran..." />
+                <AIAssistedTextarea rows={3} value={customData.cpText} onChange={e => handleCustomChange('cpText', e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-orange-500 transition-all mt-2" placeholder="Masukkan Capaian Pembelajaran..." />
               )}
               
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" checked={custom.tp} onChange={e => setCustom({...custom, tp: e.target.checked})} className="w-4 h-4 text-orange-500 bg-slate-700 border-slate-600 rounded focus:ring-orange-500" />
-                <span className="text-sm text-slate-300 group-hover:text-white transition-colors">Gunakan Tujuan Pembelajaran Manual</span>
+                <input type="checkbox" checked={custom.tp} onChange={e => setCustom({...custom, tp: e.target.checked})} className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" />
+                <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Gunakan Tujuan Pembelajaran Manual</span>
               </label>
               {custom.tp && (
                 <div className="space-y-2 mt-2">
                   {customData.tpList.map((tp, i) => (
                     <div key={i} className="flex gap-2">
-                      <input type="text" value={tp} onChange={e => {
+                      <AIAssistedInput type="text" value={tp} onChange={e => {
                         const newList = [...customData.tpList];
                         newList[i] = e.target.value;
                         handleCustomChange('tpList', newList);
-                      }} className="flex-1 bg-slate-800 border border-slate-600 rounded-lg p-2 text-white text-sm focus:border-orange-500 transition-all" placeholder="Tujuan Pembelajaran..." />
+                      }} className="flex-1 bg-red-50 border border-black rounded-lg p-2 text-black text-sm focus:border-orange-500 transition-all" placeholder="Tujuan Pembelajaran..." />
                     </div>
                   ))}
-                  <button onClick={() => handleCustomChange('tpList', [...customData.tpList, ''])} className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-all">+ Tambah Tujuan</button>
+                  <button onClick={() => handleCustomChange('tpList', [...customData.tpList, ''])} className="w-full py-2 bg-red-100 hover:bg-slate-600 text-black rounded-lg text-sm font-medium transition-all">+ Tambah Tujuan</button>
                 </div>
               )}
               
-              <div className="pt-2 border-t border-slate-700/50">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Prinsip Kegiatan Inti</label>
+              <div className="pt-2 border-t border-black">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Prinsip Kegiatan Inti</label>
                 <div className="flex flex-wrap gap-3">
                   {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
                     <label key={prinsip} className="flex items-center gap-2 cursor-pointer group">
@@ -660,9 +661,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                         type="checkbox" 
                         checked={prinsipInti.includes(prinsip)} 
                         onChange={() => handlePrinsipIntiChange(prinsip)} 
-                        className="w-4 h-4 text-orange-500 bg-slate-700 border-slate-600 rounded focus:ring-orange-500" 
+                        className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" 
                       />
-                      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{prinsip}</span>
+                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{prinsip}</span>
                     </label>
                   ))}
                 </div>
@@ -676,12 +677,12 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
               </button>
-              <button onClick={generateModul} disabled={isGenerating} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 font-bold text-lg text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-teal-500/25 disabled:opacity-50 disabled:cursor-not-allowed btn-generate-animated">
+              <button onClick={generateModul} disabled={isGenerating} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-teal-500/25 disabled:opacity-50 disabled:cursor-not-allowed btn-generate-animated">
             {isGenerating ? (
               <>
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -694,12 +695,12 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             )}
           </button>
             </div>
-          {error && <div className="mt-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">{error}</div>}
+          {error && <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
         </div>
         
-        <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[400px] overflow-auto space-y-6">
+        <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[400px] overflow-auto space-y-6">
           {isGenerating ? (
-            <div className="text-center text-slate-500 py-16 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-4"></div>
               <p className="text-teal-400 font-medium animate-pulse">AI sedang menyusun Modul Ajar...</p>
             </div>
@@ -716,122 +717,122 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
               />
               <div className="space-y-6 text-sm">
               <div className="bg-gradient-to-r from-teal-500/20 to-cyan-500/20 rounded-xl p-6 border border-teal-500/30 text-center shadow-inner">
-                <h3 className="text-xl font-bold text-white mb-2 tracking-wide">MODUL AJAR</h3>
+                <h3 className="text-xl font-bold text-black mb-2 tracking-wide">MODUL AJAR</h3>
                 <h4 className="text-teal-400 font-medium">{result.mapelName}</h4>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">1. INFORMASI UMUM</h4>
                 <div className="space-y-4">
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">A. Identitas Modul</h5>
-                    <div className="grid grid-cols-2 gap-y-3 text-slate-300 text-sm">
-                      <p><span className="text-slate-500 block text-xs mb-1">Nama Penyusun</span> <span className="font-medium text-white">{result.namaGuru || '-'}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-white">{result.nip || '-'}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Kepala Sekolah</span> <span className="font-medium text-white">{result.kepalaSekolah || '-'}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-white">{result.nipKepalaSekolah || '-'}</span></p>
-                      <p className="col-span-2"><span className="text-slate-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-white">{result.namaSekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Jenjang / Kelas / Fase</span> <span className="font-medium text-white">{result.jenjangLabel} / {result.kelasLabel} / {result.faseLabel}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Semester / Tahun Ajaran</span> <span className="font-medium text-white">{result.semester} / {result.tahunAjaran}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Mata Pelajaran</span> <span className="font-medium text-white">{result.mapelName}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Topik/Materi</span> <span className="font-medium text-white">{result.topik || '-'}</span></p>
-                      <p><span className="text-slate-500 block text-xs mb-1">Alokasi Waktu</span> <span className="font-medium text-white">{result.waktu || '-'}</span></p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">A. Identitas Modul</h5>
+                    <div className="grid grid-cols-2 gap-y-3 text-gray-700 text-sm">
+                      <p><span className="text-gray-500 block text-xs mb-1">Nama Penyusun</span> <span className="font-medium text-black">{result.namaGuru || '-'}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-black">{result.nip || '-'}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Kepala Sekolah</span> <span className="font-medium text-black">{result.kepalaSekolah || '-'}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-black">{result.nipKepalaSekolah || '-'}</span></p>
+                      <p className="col-span-2"><span className="text-gray-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-black">{result.namaSekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Jenjang / Kelas / Fase</span> <span className="font-medium text-black">{result.jenjangLabel} / {result.kelasLabel} / {result.faseLabel}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Semester / Tahun Ajaran</span> <span className="font-medium text-black">{result.semester} / {result.tahunAjaran}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Mata Pelajaran</span> <span className="font-medium text-black">{result.mapelName}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Topik/Materi</span> <span className="font-medium text-black">{result.topik || '-'}</span></p>
+                      <p><span className="text-gray-500 block text-xs mb-1">Alokasi Waktu</span> <span className="font-medium text-black">{result.waktu || '-'}</span></p>
                     </div>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">B. Kompetensi Awal</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">{result.capaianPembelajaran}</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">B. Kompetensi Awal</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">{result.capaianPembelajaran}</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">C. Profil Pelajar Pancasila</h5>
-                    <ul className="list-disc list-inside text-slate-300 text-sm space-y-1">
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">C. Profil Pelajar Pancasila</h5>
+                    <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
                       {result.profilPelajar?.map((pp: string, i: number) => <li key={i} className="pl-2">{pp}</li>)}
                     </ul>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">D. Sarana dan Prasarana</h5>
-                    <ul className="list-disc list-inside text-slate-300 text-sm space-y-1">
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">D. Sarana dan Prasarana</h5>
+                    <ul className="list-disc list-inside text-gray-700 text-sm space-y-1">
                       {result.sumberBelajar?.map((sb: string, i: number) => <li key={i} className="pl-2">{sb}</li>)}
                     </ul>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">E. Target Peserta Didik</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Peserta didik reguler/tipikal: umum, tidak ada kesulitan dalam mencerna dan memahami materi ajar.</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">E. Target Peserta Didik</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Peserta didik reguler/tipikal: umum, tidak ada kesulitan dalam mencerna dan memahami materi ajar.</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">F. Model Pembelajaran</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">{result.modelName}</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">F. Model Pembelajaran</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">{result.modelName}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">2. KOMPONEN INTI</h4>
                 <div className="space-y-4">
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">A. Tujuan Pembelajaran</h5>
-                    <ol className="list-decimal list-inside text-slate-300 text-sm space-y-1">
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">A. Tujuan Pembelajaran</h5>
+                    <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1">
                       {result.tujuanPembelajaran?.map((tp: string, i: number) => <li key={i} className="pl-2">{tp}</li>)}
                     </ol>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">B. Pemahaman Bermakna</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Peserta didik dapat memahami manfaat materi {result.topik || 'ini'} dan menerapkannya dalam kehidupan sehari-hari.</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">B. Pemahaman Bermakna</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Peserta didik dapat memahami manfaat materi {result.topik || 'ini'} dan menerapkannya dalam kehidupan sehari-hari.</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">C. Pertanyaan Pemantik</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Apa yang kalian ketahui tentang {result.topik || 'materi ini'}?</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">C. Pertanyaan Pemantik</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Apa yang kalian ketahui tentang {result.topik || 'materi ini'}?</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">D. Kegiatan Pembelajaran</h5>
-                    <div className="space-y-2 text-sm text-slate-300">
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">D. Kegiatan Pembelajaran</h5>
+                    <div className="space-y-2 text-sm text-gray-700">
                       <p><strong>Kegiatan Pendahuluan:</strong> {result.kegiatanPembelajaran?.pembuka || '-'}</p>
                       <p><strong>Kegiatan Inti:</strong> {result.kegiatanPembelajaran?.inti || '-'}</p>
                       <p><strong>Kegiatan Penutup:</strong> {result.kegiatanPembelajaran?.penutup || '-'}</p>
                     </div>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">E. Asesmen</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Rubrik Penilaian (Terlampir di hasil cetak)</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">E. Asesmen</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Rubrik Penilaian (Terlampir di hasil cetak)</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">F. Pengayaan dan Remedial</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed"><strong>Pengayaan:</strong> Diberikan kepada peserta didik dengan capaian tinggi untuk mengembangkan potensinya secara optimal.<br/>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">F. Pengayaan dan Remedial</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed"><strong>Pengayaan:</strong> Diberikan kepada peserta didik dengan capaian tinggi untuk mengembangkan potensinya secara optimal.<br/>
                     <strong>Remedial:</strong> Diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang.</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">G. Refleksi Peserta Didik dan Guru</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Refleksi dilakukan untuk mengevaluasi proses pembelajaran dan merencanakan perbaikan.</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">G. Refleksi Peserta Didik dan Guru</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Refleksi dilakukan untuk mengevaluasi proses pembelajaran dan merencanakan perbaikan.</p>
                   </div>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-purple-400 mb-4 flex items-center gap-2">3. LAMPIRAN</h4>
                 <div className="space-y-4">
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">A. Ringkasan Materi</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result.ringkasanMateri || '-'}</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">A. Ringkasan Materi</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{result.ringkasanMateri || '-'}</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">B. Contoh Penerapan di Kehidupan Nyata</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result.contohNyata || '-'}</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">B. Contoh Penerapan di Kehidupan Nyata</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{result.contohNyata || '-'}</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">C. Lembar Kerja Peserta Didik (LKPD)</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed"><em>(Terlampir)</em></p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">C. Lembar Kerja Peserta Didik (LKPD)</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed"><em>(Terlampir)</em></p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">D. Bahan Bacaan Guru & Peserta Didik</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Buku Teks Utama Kemendikbudristek, Platform Merdeka Mengajar (PMM)</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">D. Bahan Bacaan Guru & Peserta Didik</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Buku Teks Utama Kemendikbudristek, Platform Merdeka Mengajar (PMM)</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">E. Glosarium</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Daftar istilah penting terkait materi {result.topik || 'pembelajaran'}.</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">E. Glosarium</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Daftar istilah penting terkait materi {result.topik || 'pembelajaran'}.</p>
                   </div>
                   <div>
-                    <h5 className="text-sm font-semibold text-slate-300 mb-2">F. Daftar Pustaka</h5>
-                    <p className="text-slate-300 text-sm leading-relaxed">Buku Panduan Guru dan Siswa Kurikulum Merdeka.</p>
+                    <h5 className="text-sm font-semibold text-gray-700 mb-2">F. Daftar Pustaka</h5>
+                    <p className="text-gray-700 text-sm leading-relaxed">Buku Panduan Guru dan Siswa Kurikulum Merdeka.</p>
                   </div>
                 </div>
               </div>
@@ -839,11 +840,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
               <div className="space-y-4">
                 <button 
                   onClick={() => setIsPrintModalOpen(true)} 
-                  className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-black font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-2"
                 >
                   <span>🖨️</span> Print / Download PDF
                 </button>
-                <p className="text-[10px] text-slate-500 italic text-center">
+                <p className="text-[10px] text-gray-500 italic text-center">
                   * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
                   * Jangan lupa support saya agar makin berusaha dalam memperbaiki website ini.
                 </p>
@@ -851,7 +852,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             </div>
           </>
         ) : (
-            <div className="text-center text-slate-500 py-16 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">📖</div>
               <p>Modul Ajar akan muncul di sini</p>
             </div>

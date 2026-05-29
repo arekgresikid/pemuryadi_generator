@@ -6,8 +6,8 @@ interface UserProfile {
   email: string;
   displayName: string;
   photoURL: string;
-  role?: 'owner' | 'guest'; 
-  tier?: 'Free' | 'Essential' | 'Premium' | 'Ultimate' | 'SUPREME' | 'owner';
+  role?: 'owner' | 'guest' | 'admin'; 
+  tier?: 'Free' | 'Essential' | 'Premium' | 'Ultimate' | 'SUPREME' | 'owner' | 'admin';
   createdAt: string;
   tokens?: number;
   lastResetDate?: string; 

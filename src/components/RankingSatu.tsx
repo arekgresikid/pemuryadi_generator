@@ -378,7 +378,7 @@ PENTING:
                     <div className="absolute inset-0 bg-blue-900/20 blur-xl rounded-[100%]"></div>
                     <div className="bg-[#000033] border-4 border-blue-500/50 rounded-[4rem] text-center p-8 relative overflow-hidden shadow-[0_0_30px_rgba(0,100,255,0.4)]">
                         <div className="absolute top-0 left-0 w-full h-full bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.02)_10px,rgba(255,255,255,0.02)_20px)]"></div>
-                        <h3 className="text-2xl md:text-3xl font-bold text-white relative z-10 leading-relaxed shadow-black drop-shadow-md">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white relative z-10 leading-relaxed drop-shadow-md">
                             {q.q}
                         </h3>
                     </div>

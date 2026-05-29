@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Play, Loader2, Trophy, Users, BookOpen, Settings } from 'lucide-react';
+import AIAssistedInput from './AIAssistedInput';
 
 const ai = new GoogleGenAI({});
 
@@ -112,15 +113,15 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="gen-card bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl /30 relative overflow-hidden">
         {/* Background Decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-red-100 border border-black rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
 
         <div className="relative z-10">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 mb-4">
-              <Play size={32} className="text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-red-500/20 mb-4">
+              <Play size={32} className="text-black" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Game IFP Generator</h2>
+            <h2 className="text-3xl font-bold text-black mb-2">Game IFP Generator</h2>
             <p className="text-indigo-200 max-w-2xl mx-auto">
               Buat game edukatif interaktif multiplayer dengan berbagai genre untuk Interactive Flat Panel (IFP) di kelas Anda.
             </p>
@@ -129,40 +130,39 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Form Section */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="gen-card bg-slate-800  p-5 rounded-2xl">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Settings size={18} className="text-indigo-400" /> Pengaturan Game
+              <div className="gen-card bg-red-50  p-5 rounded-2xl">
+                <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
+                  <Settings size={18} className="text-red-500" /> Pengaturan Game
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Topik Pembelajaran</label>
-                    <input 
-                      type="text" 
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Topik Pembelajaran</label>
+                    <AIAssistedInput type="text" 
                       placeholder="Contoh: Tata Surya, Pecahan, Sejarah Kemerdekaan..." 
                       value={formData.topik}
                       onChange={e => setFormData({...formData, topik: e.target.value})}
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Jenjang Sekolah</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang Sekolah</label>
                     <select 
                       value={formData.jenjang}
                       onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {JENJANG.map(j => <option key={j} value={j}>{j}</option>)}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Jenis Game</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Jenis Game</label>
                     <select 
                       value={formData.jenisGame}
                       onChange={e => setFormData({...formData, jenisGame: e.target.value})}
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {GAME_TYPES.map(g => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -174,7 +174,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Tingkat Kesulitan</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Tingkat Kesulitan</label>
                     <div className="grid grid-cols-2 gap-2">
                       {DIFFICULTY_LEVELS.map(level => (
                         <button
@@ -182,8 +182,8 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                           onClick={() => setFormData({...formData, difficulty: level.id})}
                           className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
                             formData.difficulty === level.id 
-                              ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.2)]' 
-                              : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                              ? 'bg-red-500 border border-black/20 border-black text-black shadow-sm' 
+                              : 'bg-white border-black text-gray-600 hover:border-slate-500'
                           }`}
                         >
                           <span className={level.color}>{level.name}</span>
@@ -194,14 +194,14 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800  p-5 rounded-2xl">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Users size={18} className="text-indigo-400" /> Pengaturan Pemain
+              <div className="gen-card bg-red-50  p-5 rounded-2xl">
+                <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
+                  <Users size={18} className="text-red-500" /> Pengaturan Pemain
                 </h3>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Jumlah Pemain (Maks 4)</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Pemain (Maks 4)</label>
                     <div className="flex gap-2">
                       {[1, 2, 3, 4].map(num => (
                         <button
@@ -209,8 +209,8 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                           onClick={() => setFormData({...formData, jumlahPemain: num})}
                           className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                             formData.jumlahPemain === num 
-                              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
-                              : 'bg-slate-900 text-slate-400 hover:bg-slate-700'
+                              ? 'bg-red-500 border border-black text-black shadow-lg shadow-red-500/20' 
+                              : 'bg-white text-gray-600 hover:bg-red-100'
                           }`}
                         >
                           {num}
@@ -220,31 +220,30 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-xs font-medium text-slate-400 mb-1">Nama Pemain</label>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Nama Pemain</label>
                     {Array.from({ length: formData.jumlahPemain }).map((_, i) => (
-                      <input 
-                        key={i}
+                      <AIAssistedInput key={i}
                         type="text" 
                         placeholder={`Nama Pemain ${i + 1}`}
                         value={(formData as any)[`pemain${i + 1}`]}
                         onChange={e => setFormData({...formData, [`pemain${i + 1}`]: e.target.value})}
-                        className="w-full bg-slate-900 border border-slate-600 rounded-xl p-2.5 text-white text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                        className="w-full bg-white border border-black rounded-xl p-2.5 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                       />
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="bg-indigo-500/10 border border-indigo-500/30 rounded-xl p-3 text-center">
+              <div className="bg-red-100 border border-black border border-black rounded-xl p-3 text-center">
                 <p className="text-xs text-indigo-200">
-                  💡 Suka dengan fitur ini? Dukung pengembangan aplikasi ini melalui <a href="https://saweria.co/pemuryadi" target="_blank" rel="noopener noreferrer" className="text-amber-400 font-bold hover:underline">Saweria</a>
+                  💡 Suka dengan fitur ini? Dukung pengembangan aplikasi ini melalui <a href="https://saweria.co/pemuryadi" target="_blank" rel="noopener noreferrer" className="text-amber-600 font-bold hover:underline">Saweria</a>
                 </p>
               </div>
 
               <button 
                 onClick={generateGame}
                 disabled={isGenerating}
-                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold text-lg shadow-xl shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-generate-animated"
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-black rounded-xl font-bold text-lg shadow-xl shadow-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-generate-animated"
               >
                 {isGenerating ? (
                   <>
@@ -268,16 +267,16 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
 
             {/* Preview Section */}
             <div className="lg:col-span-2">
-              <div className="bg-slate-950 rounded-2xl border border-slate-700/50 h-full min-h-[600px] flex flex-col overflow-hidden relative shadow-inner">
+              <div className="bg-gray-50 rounded-2xl border border-black h-full min-h-[600px] flex flex-col overflow-hidden relative shadow-inner">
                 {/* Browser Chrome */}
-                <div className="bg-slate-900 px-4 py-3 border-b border-slate-800 flex items-center gap-2">
+                <div className="bg-white px-4 py-3 border-b border-black flex items-center gap-2">
                   <div className="flex gap-1.5">
                     <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
                     <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
                     <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
                   </div>
-                  <div className="mx-auto bg-slate-950 px-4 py-1 rounded-md text-xs text-slate-500 font-mono flex items-center gap-2">
-                    <Trophy size={12} className="text-amber-400" />
+                  <div className="mx-auto bg-gray-50 px-4 py-1 rounded-md text-xs text-gray-500 font-mono flex items-center gap-2">
+                    <Trophy size={12} className="text-amber-600" />
                     IFP EduGame Player
                   </div>
                 </div>
@@ -286,9 +285,9 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                 <div className="flex-1 relative bg-black flex items-center justify-center">
                   {isGenerating ? (
                     <div className="text-center">
-                      <div className="w-20 h-20 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
+                      <div className="w-20 h-20 border-4 border-black border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
                       <p className="text-indigo-300 font-medium animate-pulse">AI sedang memprogram game Anda...</p>
-                      <p className="text-slate-500 text-sm mt-2">Ini mungkin memakan waktu hingga 1 menit.</p>
+                      <p className="text-gray-500 text-sm mt-2">Ini mungkin memakan waktu hingga 1 menit.</p>
                     </div>
                   ) : gameHtml ? (
                     <iframe 
@@ -299,11 +298,11 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     />
                   ) : (
                     <div className="text-center p-8">
-                      <div className="gen-card w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <div className="gen-card w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Play size={40} className="text-slate-600" />
                       </div>
-                      <h4 className="text-xl font-bold text-slate-400 mb-2">Layar Game Kosong</h4>
-                      <p className="text-slate-500 max-w-sm mx-auto">
+                      <h4 className="text-xl font-bold text-gray-600 mb-2">Layar Game Kosong</h4>
+                      <p className="text-gray-500 max-w-sm mx-auto">
                         Isi pengaturan di sebelah kiri dan klik "Generate Game" untuk membuat game edukatif kustom Anda.
                       </p>
                     </div>

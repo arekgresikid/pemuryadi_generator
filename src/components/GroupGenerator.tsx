@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function GroupGenerator() {
   const [studentNames, setStudentNames] = useState('');
@@ -59,46 +61,44 @@ export default function GroupGenerator() {
   ];
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-2xl shadow-lg">
           👥
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Generator Kelompok Belajar</h3>
-          <p className="text-slate-400">Buat kelompok belajar secara acak dengan mudah</p>
+          <h3 className="text-2xl font-bold text-black">Generator Kelompok Belajar</h3>
+          <p className="text-gray-600">Buat kelompok belajar secara acak dengan mudah</p>
         </div>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Daftar Nama Siswa (satu nama per baris)</label>
-            <textarea 
-              value={studentNames}
+            <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Nama Siswa (satu nama per baris)</label>
+            <AIAssistedTextarea value={studentNames}
               onChange={(e) => setStudentNames(e.target.value)}
               rows={8} 
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-4 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
-              placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..."
-            />
+              className="w-full bg-red-50 border border-black rounded-xl p-4 text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..." />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Jumlah Kelompok</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Kelompok</label>
               <input 
                 type="number" 
                 value={groupCount}
                 onChange={(e) => handleGroupCountChange(parseInt(e.target.value) || 2)}
                 min="2" max="20" 
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Jenis Pengelompokan</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Jenis Pengelompokan</label>
               <select 
                 value={groupType}
                 onChange={(e) => setGroupType(e.target.value)}
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-blue-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all"
               >
                 <option value="random">Acak Total</option>
                 <option value="balanced">Seimbang Gender</option>
@@ -107,16 +107,15 @@ export default function GroupGenerator() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Nama Kelompok (Opsional)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Nama Kelompok (Opsional)</label>
             <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
               {Array.from({ length: groupCount }).map((_, i) => (
-                <input
-                  key={i}
+                <AIAssistedInput key={i}
                   type="text"
                   value={groupNames[i] || ''}
                   onChange={(e) => handleGroupNameChange(i, e.target.value)}
                   placeholder={`Kelompok ${i + 1}`}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-sm text-white focus:border-blue-500 transition-all"
+                  className="w-full bg-red-50 border border-black rounded-lg p-2 text-sm text-black focus:border-blue-500 transition-all"
                 />
               ))}
             </div>
@@ -126,21 +125,21 @@ export default function GroupGenerator() {
           
           <button 
             onClick={generateGroups} 
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 font-bold text-lg text-white hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/25 btn-generate-animated"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-purple-500/25 btn-generate-animated"
           >
             <span>🎲</span> Generate Kelompok
           </button>
         </div>
         
-        <div className="gen-card bg-slate-800/30 rounded-xl p-6 min-h-[300px]">
+        <div className="gen-card bg-red-50 rounded-xl p-6 min-h-[300px]">
           {resultGroups.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
               {resultGroups.map((group, i) => (
                 <div key={i} className={`bg-gradient-to-br ${colors[i % colors.length]} rounded-xl p-4 shadow-lg`}>
-                  <h4 className="font-bold text-lg mb-2 text-white">{group.name}</h4>
+                  <h4 className="font-bold text-lg mb-2 text-black">{group.name}</h4>
                   <ul className="space-y-1">
                     {group.members.map((name, j) => (
-                      <li key={j} className="text-sm bg-black/20 text-white rounded px-2 py-1 ">
+                      <li key={j} className="text-sm bg-black/20 text-black rounded px-2 py-1 ">
                         {j + 1}. {name}
                       </li>
                     ))}
@@ -149,7 +148,7 @@ export default function GroupGenerator() {
               ))}
             </div>
           ) : (
-            <div className="text-center text-slate-500 py-16 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">👥</div>
               <p>Hasil kelompok akan muncul di sini</p>
             </div>

@@ -3,6 +3,8 @@ import { mapelNames, cpData, atpData, educationLevels, phaseClassMap, subjectsBy
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 export default function DailyJournal() {
   const { profile } = useAuth();
@@ -248,65 +250,65 @@ export default function DailyJournal() {
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-2xl shadow-lg">
           📔
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Jurnal Harian Pembelajaran</h3>
-          <p className="text-slate-400">Terintegrasi dengan Modul Ajar & Sesuai Kurikulum Merdeka</p>
+          <h3 className="text-2xl font-bold text-black">Jurnal Harian Pembelajaran</h3>
+          <p className="text-gray-600">Terintegrasi dengan Modul Ajar & Sesuai Kurikulum Merdeka</p>
         </div>
       </div>
       
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-400 mb-4 flex items-center gap-2">👨‍🏫 Data Guru</h4>
+          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">👨‍🏫 Data Guru</h4>
             <div className="space-y-3">
-              <input type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               <div className="flex gap-2">
-                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all">
+                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               </div>
-              <input type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
-              <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all">
+              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+              <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                 <option value="Negeri">Negeri</option>
                 <option value="Swasta">Swasta</option>
                 <option value="Islam Terpadu">Islam Terpadu</option>
               </select>
-              <input type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               <div className="flex gap-2">
-                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all">
+                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <input type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               </div>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang</label>
-              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
+              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all">
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
-              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
+              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all">
                 {phaseClassMap[formData.jenjang]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
                 ))}
@@ -316,21 +318,21 @@ export default function DailyJournal() {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Kelas / Semester</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Kelas / Semester</label>
               <div className="flex gap-2">
-                <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-1/2 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+                <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-1/2 bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all">
                   {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
                   ))}
                 </select>
-                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-1/2 bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-1/2 bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all">
                   <option value="1">Semester 1</option><option value="2">Semester 2</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
-              <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+              <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all">
                 {subjectsByLevel[formData.jenjang]?.map(s => (
                   <option key={s.id} value={s.id}>{s.label}</option>
                 ))}
@@ -338,7 +340,7 @@ export default function DailyJournal() {
             </div>
           </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Topik/Materi</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Topik/Materi</label>
               <select 
                 value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
                 onChange={e => {
@@ -349,7 +351,7 @@ export default function DailyJournal() {
                     setFormData({...formData, isCustomTopik: false, topik: val});
                   }
                 }} 
-                className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all"
+                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all"
               >
                 {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                   <option key={idx} value={topic}>{topic}</option>
@@ -357,113 +359,112 @@ export default function DailyJournal() {
                 <option value="lainnya">Lainnya (+)</option>
               </select>
               {formData.isCustomTopik && (
-                <input 
-                  type="text" 
+                <AIAssistedInput type="text" 
                   placeholder="Masukkan Topik/Materi secara manual..." 
                   value={formData.topik} 
                   onChange={e => setFormData({...formData, topik: e.target.value})} 
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all mt-3" 
+                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all mt-3" 
                 />
               )}
             </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Tanggal</label>
-              <input type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
+              <AIAssistedInput type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Jam</label>
-              <input type="time" value={formData.jam} onChange={e => setFormData({...formData, jam: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Jam</label>
+              <AIAssistedInput type="time" value={formData.jam} onChange={e => setFormData({...formData, jam: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all" />
             </div>
           </div>
           
           <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">🎯 Capaian Pembelajaran (CP)</label>
-              <textarea rows={2} value={formData.cp} onChange={e => setFormData({...formData, cp: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Capaian pembelajaran..." />
+              <label className="block text-sm font-medium text-gray-700 mb-2">🎯 Capaian Pembelajaran (CP)</label>
+              <AIAssistedTextarea rows={2} value={formData.cp} onChange={e => setFormData({...formData, cp: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" placeholder="Capaian pembelajaran..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">📌 Alur Tujuan Pembelajaran (ATP)</label>
-              <textarea rows={2} value={formData.atp} onChange={e => setFormData({...formData, atp: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Alur tujuan pembelajaran..." />
+              <label className="block text-sm font-medium text-gray-700 mb-2">📌 Alur Tujuan Pembelajaran (ATP)</label>
+              <AIAssistedTextarea rows={2} value={formData.atp} onChange={e => setFormData({...formData, atp: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" placeholder="Alur tujuan pembelajaran..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">📝 Catatan Pembelajaran</label>
-              <textarea rows={3} value={formData.catatan} onChange={e => setFormData({...formData, catatan: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Catatan pelaksanaan..." />
+              <label className="block text-sm font-medium text-gray-700 mb-2">📝 Catatan Pembelajaran</label>
+              <AIAssistedTextarea rows={3} value={formData.catatan} onChange={e => setFormData({...formData, catatan: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" placeholder="Catatan pelaksanaan..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">🔍 Refleksi & Evaluasi</label>
-              <textarea rows={3} value={formData.refleksi} onChange={e => setFormData({...formData, refleksi: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-amber-500 transition-all" placeholder="Refleksi..." />
+              <label className="block text-sm font-medium text-gray-700 mb-2">🔍 Refleksi & Evaluasi</label>
+              <AIAssistedTextarea rows={3} value={formData.refleksi} onChange={e => setFormData({...formData, refleksi: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" placeholder="Refleksi..." />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Nama Kepala Sekolah</label>
-              <input type="text" value={formData.ttdKS} onChange={e => setFormData({...formData, ttdKS: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Kepala Sekolah" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Kepala Sekolah</label>
+              <AIAssistedInput type="text" value={formData.ttdKS} onChange={e => setFormData({...formData, ttdKS: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all" placeholder="Nama Kepala Sekolah" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Nama Guru (Tanda Tangan)</label>
-              <input type="text" value={formData.ttdGuru} onChange={e => setFormData({...formData, ttdGuru: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-amber-500 transition-all" placeholder="Nama Guru" />
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nama Guru (Tanda Tangan)</label>
+              <AIAssistedInput type="text" value={formData.ttdGuru} onChange={e => setFormData({...formData, ttdGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-amber-500 transition-all" placeholder="Nama Guru" />
             </div>
           </div>
           
           <div className="flex gap-4">
             <div className="flex gap-2 mt-4 w-full">
               
-              <button onClick={generateJurnal} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-lg text-white hover:opacity-90 transition-all shadow-lg hover:shadow-amber-500/25 btn-generate-animated">
+              <button onClick={generateJurnal} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-amber-500/25 btn-generate-animated">
               📔 Generate Jurnal
             </button>
             </div>
             <button 
               onClick={() => setIsPrintModalOpen(true)} 
               disabled={!result} 
-              className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               🖨️ Print
             </button>
           </div>
-          <p className="text-[10px] text-slate-500 italic text-center mt-2">
+          <p className="text-[10px] text-gray-500 italic text-center mt-2">
             * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
             * Jangan lupa support saya agar makin berusaha dalam memperbaiki website ini.
           </p>
         </div>
         
-        <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[600px] overflow-auto">
+        <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[600px] overflow-auto">
           {result ? (
             <div className="space-y-4 text-sm">
               <div className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-xl p-6 border border-amber-500/30 text-center shadow-inner">
-                <h3 className="text-xl font-bold text-white mb-2 tracking-wide">JURNAL HARIAN PEMBELAJARAN</h3>
-                <h4 className="text-amber-400 font-medium">Kurikulum Merdeka</h4>
+                <h3 className="text-xl font-bold text-black mb-2 tracking-wide">JURNAL HARIAN PEMBELAJARAN</h3>
+                <h4 className="text-amber-600 font-medium">Kurikulum Merdeka</h4>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">👨‍🏫 IDENTITAS</h4>
-                <div className="grid grid-cols-2 gap-y-3 text-slate-300 text-sm">
-                  <p><span className="text-slate-500 block text-xs mb-1">Nama Guru</span> <span className="font-medium text-white">{result.namaGuru || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-white">{result.nip || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">Kepala Sekolah</span> <span className="font-medium text-white">{result.kepalaSekolah || '-'}</span></p>
-                  <p><span className="text-slate-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-white">{result.nipKepalaSekolah || '-'}</span></p>
-                  <p className="col-span-2"><span className="text-slate-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-white">{result.namaSekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
+                <div className="grid grid-cols-2 gap-y-3 text-gray-700 text-sm">
+                  <p><span className="text-gray-500 block text-xs mb-1">Nama Guru</span> <span className="font-medium text-black">{result.namaGuru || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipGuru || 'NIP'} Guru</span> <span className="font-medium text-black">{result.nip || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">Kepala Sekolah</span> <span className="font-medium text-black">{result.kepalaSekolah || '-'}</span></p>
+                  <p><span className="text-gray-500 block text-xs mb-1">{result.jenisNipKepalaSekolah || 'NIP'} Kepsek</span> <span className="font-medium text-black">{result.nipKepalaSekolah || '-'}</span></p>
+                  <p className="col-span-2"><span className="text-gray-500 block text-xs mb-1">Sekolah</span> <span className="font-medium text-black">{result.namaSekolah || '-'} ({result.jenisSekolah || 'Negeri'})</span></p>
                 </div>
               </div>
 
-              <div className="gen-card bg-slate-800/80 rounded-xl p-5 shadow-sm">
+              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-green-400 mb-3 flex items-center gap-2">📝 CATATAN & REFLEKSI</h4>
                 <div className="space-y-4">
                   <div>
-                    <h5 className="text-xs text-slate-500 mb-1">Catatan Pembelajaran</h5>
-                    <p className="text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700/50">{result.catatan || '-'}</p>
+                    <h5 className="text-xs text-gray-500 mb-1">Catatan Pembelajaran</h5>
+                    <p className="text-gray-700 bg-white p-3 rounded-lg border border-black">{result.catatan || '-'}</p>
                   </div>
                   <div>
-                    <h5 className="text-xs text-slate-500 mb-1">Refleksi & Evaluasi</h5>
-                    <p className="text-slate-300 bg-slate-900 p-3 rounded-lg border border-slate-700/50">{result.refleksi || '-'}</p>
+                    <h5 className="text-xs text-gray-500 mb-1">Refleksi & Evaluasi</h5>
+                    <p className="text-gray-700 bg-white p-3 rounded-lg border border-black">{result.refleksi || '-'}</p>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-center text-slate-500 py-16 h-full flex flex-col items-center justify-center">
+            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">📔</div>
               <p>Jurnal Harian akan muncul di sini</p>
             </div>
