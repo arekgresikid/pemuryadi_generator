@@ -197,11 +197,11 @@ export default function App() {
     }
 
     if (isPremiumTab) {
-      const tier = profile?.tier || 'Free';
-      const role = profile?.role || 'siswa';
-      const isPrivileged = tier === 'Titan' || role === 'owner' || role === 'admin';
+      const tier = (profile?.tier || 'Free').toLowerCase();
+      const role = (profile?.role || 'siswa').toLowerCase();
+      const isPrivileged = tier === 'titan' || role === 'owner' || role === 'admin';
       
-      if (!isPrivileged && (tier === 'Free' || tier === 'guest')) {
+      if (!isPrivileged && (tier === 'free' || tier === 'guest')) {
         alert('Fitur ini khusus untuk pengguna berbayar. Silakan upgrade akun Anda ke plan Essential, Premium, atau lainnya.');
         return;
       }
@@ -367,7 +367,8 @@ export default function App() {
     { id: 'pricing', icon: <Coins size={20} className="text-amber-400" />, label: 'Langganan' }
   ];
 
-  if (profile?.role === 'owner' || profile?.role === 'admin') {
+  const userRole = (profile?.role || 'siswa').toLowerCase();
+  if (userRole === 'owner' || userRole === 'admin') {
     menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
   }
 
