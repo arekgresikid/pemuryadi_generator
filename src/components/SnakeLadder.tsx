@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { eduQuestions, snakes, ladders, educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
-import { Dices, FileText, Gamepad2, Trophy, Loader2, Info, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import { Dices, FileText, Gamepad2, Trophy, Loader2, Info, ArrowDownCircle, ArrowUpCircle, Car, Ship, Plane, Bike, Rocket, Truck, Train, Tractor, Sailboat, Anchor } from 'lucide-react';
 
 type Player = {
   id: number;
   position: number;
-  pawn: string;
+  pawn: React.ReactNode;
   color: string;
 };
 
@@ -35,8 +35,8 @@ export default function SnakeLadder() {
   // New Game State
   const [numPlayers, setNumPlayers] = useState(2);
   const [players, setPlayers] = useState<Player[]>([
-    { id: 1, position: 1, pawn: '🚗', color: 'bg-blue-500' },
-    { id: 2, position: 1, pawn: '🚢', color: 'bg-red-500' }
+    { id: 1, position: 1, pawn: <Car className="w-[1em] h-[1em]" />, color: 'bg-blue-500' },
+    { id: 2, position: 1, pawn: <Ship className="w-[1em] h-[1em]" />, color: 'bg-red-500' }
   ]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
@@ -45,16 +45,16 @@ export default function SnakeLadder() {
   const [showCharacterSelection, setShowCharacterSelection] = useState(false);
 
   const pawns = [
-    { icon: '🚗', color: 'bg-blue-500' },
-    { icon: '🚢', color: 'bg-red-500' },
-    { icon: '✈️', color: 'bg-green-500' },
-    { icon: '🏍️', color: 'bg-yellow-500' },
-    { icon: '🚀', color: 'bg-purple-500' },
-    { icon: '🚁', color: 'bg-teal-500' },
-    { icon: '🛸', color: 'bg-red-400 border border-black' },
-    { icon: '🚂', color: 'bg-orange-500' },
-    { icon: '🚜', color: 'bg-lime-500' },
-    { icon: '🛵', color: 'bg-pink-500' }
+    { icon: <Car className="w-[1em] h-[1em]" />, color: 'bg-blue-500' },
+    { icon: <Ship className="w-[1em] h-[1em]" />, color: 'bg-red-500' },
+    { icon: <Plane className="w-[1em] h-[1em]" />, color: 'bg-green-500' },
+    { icon: <Bike className="w-[1em] h-[1em]" />, color: 'bg-yellow-500' },
+    { icon: <Rocket className="w-[1em] h-[1em]" />, color: 'bg-purple-500' },
+    { icon: <Truck className="w-[1em] h-[1em]" />, color: 'bg-teal-500' },
+    { icon: <Sailboat className="w-[1em] h-[1em]" />, color: 'bg-slate-800' },
+    { icon: <Train className="w-[1em] h-[1em]" />, color: 'bg-orange-500' },
+    { icon: <Tractor className="w-[1em] h-[1em]" />, color: 'bg-lime-600' },
+    { icon: <Anchor className="w-[1em] h-[1em]" />, color: 'bg-pink-500' }
   ];
 
   // Update fase, kelas, and subject when eduLevel changes
@@ -279,10 +279,22 @@ PENTING:
     });
   };
 
+  const getDiceRotation = (result: number | '❓') => {
+    switch(result) {
+      case 1: return 'rotateX(0deg) rotateY(0deg)';
+      case 6: return 'rotateX(180deg) rotateY(0deg)';
+      case 2: return 'rotateX(-90deg) rotateY(0deg)';
+      case 5: return 'rotateX(90deg) rotateY(0deg)';
+      case 3: return 'rotateX(0deg) rotateY(-90deg)';
+      case 4: return 'rotateX(0deg) rotateY(90deg)';
+      default: return 'rotateX(25deg) rotateY(25deg)';
+    }
+  };
+
   const renderDiceFace = (result: number | '❓') => {
-    if (result === '❓') return <div className="text-gray-400 opacity-50"><Dices size={72} /></div>;
+    if (result === '❓') return <div className="text-white/50"><Dices size={48} /></div>;
     
-    const dot = <div className="w-5 h-5 bg-white rounded-full shadow-sm"></div>;
+    const dot = <div className="w-5 h-5 bg-white rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.6),0_1px_1px_rgba(255,255,255,0.8)]"></div>;
     
     return (
       <div className="w-full h-full relative p-4">
@@ -515,7 +527,7 @@ PENTING:
               <div className="absolute inset-0 z-20 bg-black/80  rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
                 <Trophy size={64} className="mb-4 animate-bounce text-yellow-500" />
                 <h2 className="text-3xl font-bold text-white mb-2">Pemain {winner.id} Menang!</h2>
-                <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} flex items-center justify-center mb-6 shadow-sm`}>
+                <div className={`text-4xl w-16 h-16 rounded-full ${winner.color} text-white flex items-center justify-center mb-6 shadow-sm`}>
                   {winner.pawn}
                 </div>
                 <button 
@@ -536,15 +548,27 @@ PENTING:
                   <div className="w-full md:w-64 bg-white rounded-xl p-4 border border-black flex-shrink-0 shadow-xl">
                     <div className="flex flex-col items-center justify-between mb-4 gap-2">
                       <span className="font-semibold text-gray-700 uppercase tracking-widest text-xs">Giliran Pemain</span>
-                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${players[currentPlayerIndex].color} text-black text-sm font-bold shadow-lg`}>
+                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${players[currentPlayerIndex].color} text-white text-sm font-bold shadow-lg`}>
                         <span className="text-2xl">{players[currentPlayerIndex].pawn}</span> Pemain {players[currentPlayerIndex].id}
                       </div>
                     </div>
-                    <div className="flex items-center justify-center py-6 perspective-1000">
+                    <div className="flex items-center justify-center py-10 perspective-1000">
                       <div 
-                        className={`w-[135px] h-[155px] bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl border-2 border-black shadow-sm flex items-center justify-center transition-all duration-100 ${isRolling ? 'animate-dice-roll' : ''}`}
+                        className={`relative w-24 h-24 transition-transform duration-700 ease-in-out ${isRolling ? 'animate-real-dice-roll' : ''}`}
+                        style={{ 
+                          transformStyle: 'preserve-3d',
+                          transform: isRolling ? undefined : getDiceRotation(diceResult)
+                        }}
                       >
-                        {renderDiceFace(diceResult)}
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateY(0deg) translateZ(48px)' }}>{renderDiceFace(1)}</div>
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateY(180deg) translateZ(48px)' }}>{renderDiceFace(6)}</div>
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateY(90deg) translateZ(48px)' }}>{renderDiceFace(3)}</div>
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateY(-90deg) translateZ(48px)' }}>{renderDiceFace(4)}</div>
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateX(90deg) translateZ(48px)' }}>{renderDiceFace(2)}</div>
+                        <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateX(-90deg) translateZ(48px)' }}>{renderDiceFace(5)}</div>
+                        {diceResult === '❓' && !isRolling && (
+                          <div className="absolute inset-0 bg-red-600 border-[3px] border-red-800 rounded-xl shadow-[inset_0_0_20px_rgba(0,0,0,0.6)] flex items-center justify-center" style={{ transform: 'rotateY(0deg) translateZ(48.5px)' }}>{renderDiceFace('❓')}</div>
+                        )}
                       </div>
                     </div>
                     <button 
@@ -576,7 +600,7 @@ PENTING:
           <div className="gen-card relative bg-red-50 rounded-2xl p-6 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-blue-400 flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full ${players[currentPlayerIndex].color} flex items-center justify-center text-sm`}>
+                <div className={`w-8 h-8 rounded-full ${players[currentPlayerIndex].color} text-white flex items-center justify-center text-sm`}>
                   {players[currentPlayerIndex].pawn}
                 </div>
                 {modalContent.title}
@@ -638,7 +662,7 @@ PENTING:
                           newPlayers[idx] = { ...newPlayers[idx], pawn: pawn.icon, color: pawn.color };
                           setPlayers(newPlayers);
                         }}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${player.pawn === pawn.icon ? `${pawn.color} shadow-lg scale-110` : 'bg-red-50 hover:bg-red-100 border border-black'}`}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all ${player.color === pawn.color ? `${pawn.color} text-white shadow-lg scale-110` : 'bg-red-50 hover:bg-red-100 border border-black text-slate-800'}`}
                       >
                         {pawn.icon}
                       </button>

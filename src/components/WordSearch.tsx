@@ -223,11 +223,25 @@ export default function WordSearch() {
                   row.map((cell, j) => (
                     <div 
                       key={`${i}-${j}`} 
-                      className="gen-card flex items-center justify-center font-bold bg-red-50 text-black rounded-[4px] transition-all hover:bg-blue-500 hover:scale-110 cursor-default"
+                      className="flex items-center justify-center font-bold bg-white text-black rounded-[4px] transition-all cursor-default border-2 border-black"
                       style={{ 
                         width: puzzleData.gridSize > 20 ? 24 : 28, 
                         height: puzzleData.gridSize > 20 ? 24 : 28, 
-                        fontSize: puzzleData.gridSize > 24 ? 12 : 14 
+                        fontSize: puzzleData.gridSize > 24 ? 12 : 14,
+                        boxShadow: '3px 3px 0px #000',
+                        transform: 'translate(-2px, -2px)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translate(1px, 1px)';
+                        e.currentTarget.style.boxShadow = '0px 0px 0px #000';
+                        e.currentTarget.style.backgroundColor = '#3b82f6';
+                        e.currentTarget.style.color = 'white';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translate(-2px, -2px)';
+                        e.currentTarget.style.boxShadow = '3px 3px 0px #000';
+                        e.currentTarget.style.backgroundColor = 'white';
+                        e.currentTarget.style.color = 'black';
                       }}
                     >
                       {cell}
