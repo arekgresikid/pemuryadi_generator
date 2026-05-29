@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { Type, Puzzle, Printer } from 'lucide-react';
 
 export default function WordSearch() {
   const { profile } = useAuth();
@@ -131,8 +132,8 @@ export default function WordSearch() {
   return (
     <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg">
-          🔤
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg">
+          <Type size={28} />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">Generator Word Search Puzzle</h3>
@@ -194,7 +195,7 @@ export default function WordSearch() {
             onClick={generatePuzzle} 
             className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/25 btn-generate-animated"
           >
-            <span>🧩</span> Generate Puzzle
+            <Puzzle size={24} /> Generate Puzzle
           </button>
           
           <div className="flex gap-2">
@@ -202,7 +203,7 @@ export default function WordSearch() {
               onClick={printPuzzle} 
               className="flex-1 py-3 rounded-xl bg-red-100 hover:bg-slate-600 text-black font-medium transition-all flex items-center justify-center gap-2"
             >
-              <span>🖨️</span> Print / Download PDF
+              <Printer size={20} /> Print / Download PDF
             </button>
           </div>
         </div>
@@ -245,7 +246,9 @@ export default function WordSearch() {
             </>
           ) : (
             <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
-              <div className="text-6xl mb-4 opacity-50">🔤</div>
+              <div className="mb-4 opacity-50 flex justify-center text-gray-400">
+                <Type size={64} />
+              </div>
               <p>Puzzle akan muncul di sini</p>
             </div>
           )}

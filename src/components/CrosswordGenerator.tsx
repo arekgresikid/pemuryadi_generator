@@ -6,6 +6,7 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { FileText, Bot, Loader2, Sparkles, Printer } from 'lucide-react';
 
 type WordClue = {
   word: string;
@@ -437,7 +438,7 @@ PENTING:
                   <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   <p>Guru Pengampu</p>
                   <br><br><br><br>
-                  <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || '................................'}</p>
+                  <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
                   <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
               </div>
           </div>
@@ -469,8 +470,8 @@ PENTING:
   return (
     <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 md:p-8">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-2xl shadow-sm">
-          📝
+        <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+          <FileText size={28} />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-gray-900">Teka Teki Silang</h3>
@@ -481,7 +482,7 @@ PENTING:
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">🤖 Generate Kata dengan AI</h4>
+            <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2"><Bot size={20} className="text-green-500" /> Generate Kata dengan AI</h4>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
@@ -541,9 +542,9 @@ PENTING:
               className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isGeneratingAI ? (
-                <><span className="animate-spin">⏳</span> Membuat Kata...</>
+                <><Loader2 size={16} className="animate-spin" /> Membuat Kata...</>
               ) : (
-                <><span>✨</span> Buat Kata Otomatis</>
+                <><Sparkles size={16} /> Buat Kata Otomatis</>
               )}
             </button>
           </div>
@@ -586,7 +587,7 @@ PENTING:
               disabled={!puzzleData}
               className="flex-1 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <span>🖨️</span> Print PDF
+              <Printer size={20} /> Print PDF
             </button>
           </div>
         </div>
@@ -626,7 +627,9 @@ PENTING:
             </div>
           ) : (
             <div className="text-center text-gray-500">
-              <div className="text-6xl mb-4 opacity-50">📝</div>
+              <div className="mb-4 opacity-50 flex justify-center text-gray-400">
+                <FileText size={64} />
+              </div>
               <p>Preview Teka Teki Silang akan muncul di sini</p>
             </div>
           )}

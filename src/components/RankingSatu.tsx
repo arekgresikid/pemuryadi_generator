@@ -3,6 +3,7 @@ import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { Loader2, Play, Users, Phone, ShieldHalf, Volume2, VolumeX, CheckCircle, XCircle } from 'lucide-react';
+import AIAssistedInput from './AIAssistedInput';
 
 const PRIZE_TREE = [
   'Rp 100.000', 'Rp 200.000', 'Rp 300.000', 'Rp 500.000', 'Rp 1.000.000', // Safe Haven 1
@@ -301,7 +302,7 @@ PENTING:
     const q = questions[currentQIndex];
     
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6 text-white">
         <div className="flex justify-between items-center bg-slate-900 border border-slate-700 p-4 rounded-xl">
             <h2 className="text-xl font-black text-cyber-blue uppercase italic">RANKING #1</h2>
             <div className="flex items-center gap-4">
@@ -357,7 +358,7 @@ PENTING:
                                                     style={{ height: `${audienceVotes[idx]}%` }}
                                                 ></div>
                                             </div>
-                                            <div className="text-xs font-bold mt-1">{lbl}</div>
+                                            <div className="text-xs font-bold mt-1 text-slate-300">{lbl}</div>
                                             <div className="text-[10px] text-slate-400">{audienceVotes[idx]}%</div>
                                         </div>
                                     ))}
@@ -512,7 +513,7 @@ PENTING:
 
   // Setup Form Mode
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in">
+    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in text-white">
         <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 md:p-8">
             <h2 className="text-2xl md:text-3xl font-black text-cyber-yellow tracking-tighter italic mb-2 flex items-center gap-3">
                RANKING #1 🏆
@@ -578,10 +579,10 @@ PENTING:
 
             <div className="mb-8">
                 <label className="block text-sm font-medium text-slate-300 mb-2">Topik Spesifik (Opsional)</label>
-                <input 
+                <AIAssistedInput 
                     type="text" 
                     value={customTopic}
-                    onChange={(e) => setCustomTopic(e.target.value)}
+                    onChange={(e: any) => setCustomTopic(e.target.value)}
                     placeholder="Contoh: Tata Surya, Aljabar, dll..."
                     className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-cyber-yellow transition-all"
                 />

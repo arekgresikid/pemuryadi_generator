@@ -109,11 +109,11 @@ export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
             </div>
 
             <AIAssistedTextarea
-              rows={2}
+              rows={3}
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tambahkan masukan atau saran..."
-              className="w-full bg-red-50 border border-black rounded-xl p-2 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-none text-[11px] leading-relaxed transition-colors"
+              className="w-full bg-red-50 border border-black rounded-xl p-2 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-y min-h-[80px] text-[11px] leading-relaxed transition-colors"
             />
 
             <button

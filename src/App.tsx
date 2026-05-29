@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, ChevronDown, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, School, MessageSquare, Menu, X, Bell, Search, Settings, User, Activity, Zap, Globe, Shield, Cpu, Share2, LogIn, LogOut, Coins } from 'lucide-react';
+import { Heart, ChevronDown, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, School, MessageSquare, Menu, X, Bell, Search, Settings, User, Activity, Zap, Globe, Shield, Cpu, Share2, LogIn, LogOut, Coins, Map, Puzzle, Dices, Trophy, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coffee, ShoppingCart } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
@@ -319,11 +319,11 @@ export default function App() {
       icon: <Gamepad2 size={20} />, 
       label: 'Games',
       dropdown: [
-        { id: 'adventure-journey', icon: '🗺️', label: 'Adventure Journey' },
-        { id: 'puzzle', icon: '🧩', label: 'Puzzle Kata' },
-        { id: 'snake', icon: '🎲', label: 'Snake & Ladder' },
-        { id: 'ranking-satu', icon: '🏆', label: 'Ranking #1' },
-        { id: 'crossword', icon: '📝', label: 'Teka Teki Silang' }
+        { id: 'adventure-journey', icon: <Map size={16} />, label: 'Adventure Journey' },
+        { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata' },
+        { id: 'snake', icon: <Dices size={16} />, label: 'Snake & Ladder' },
+        { id: 'ranking-satu', icon: <Trophy size={16} />, label: 'Ranking #1' },
+        { id: 'crossword', icon: <Grid size={16} />, label: 'Teka Teki Silang' }
       ]
     },
     { 
@@ -331,18 +331,18 @@ export default function App() {
       icon: <BookOpen size={20} />, 
       label: 'Administrasi',
       dropdown: [
-        { id: 'mengajar-harian', icon: '📝', label: 'Mengajar Harian' },
-        { id: 'kalender-pendidikan', icon: '📅', label: 'Kalender Pendidikan' },
-        { id: 'analisis-hari-efektif', icon: '🧮', label: 'Analisis Hari Efektif' },
-        { id: 'program-tahunan', icon: '📋', label: 'Program Tahunan', premiumOnly: true },
-        { id: 'program-semester', icon: '📑', label: 'Program Semester', premiumOnly: true },
-        { id: 'deeplearning', icon: '📋', label: 'RPM', premiumOnly: true },
-        { id: 'modul', icon: '📘', label: 'Modul Ajar', premiumOnly: true },
-        { id: 'jurnal', icon: '📓', label: 'Jurnal' },
-        { id: 'supervisi', icon: '🔍', label: 'Supervisi' },
-        { id: 'kktp', icon: '🎯', label: 'KKTP' },
-        { id: 'modul-kokurikuler', icon: '🏕️', label: 'Modul Kokurikuler', premiumOnly: true },
-        { id: 'buat-soal', icon: '📝', label: 'Buat Soal', premiumOnly: true }
+        { id: 'mengajar-harian', icon: <Clipboard size={16} />, label: 'Mengajar Harian' },
+        { id: 'kalender-pendidikan', icon: <Calendar size={16} />, label: 'Kalender Pendidikan' },
+        { id: 'analisis-hari-efektif', icon: <Calculator size={16} />, label: 'Analisis Hari Efektif' },
+        { id: 'program-tahunan', icon: <ClipboardList size={16} />, label: 'Program Tahunan', premiumOnly: true },
+        { id: 'program-semester', icon: <ClipboardCheck size={16} />, label: 'Program Semester', premiumOnly: true },
+        { id: 'deeplearning', icon: <Clipboard size={16} />, label: 'RPM', premiumOnly: true },
+        { id: 'modul', icon: <BookMarked size={16} />, label: 'Modul Ajar', premiumOnly: true },
+        { id: 'jurnal', icon: <BookText size={16} />, label: 'Jurnal' },
+        { id: 'supervisi', icon: <Search size={16} />, label: 'Supervisi' },
+        { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
+        { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
+        { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
       ]
     },
     {
@@ -350,12 +350,12 @@ export default function App() {
       icon: <FileText size={20} />,
       label: 'SNP',
       dropdown: [
-        { id: 'snp-adiwiyata', icon: '🌱', label: 'Adiwiyata' },
-        { id: 'snp-sra', icon: '🧒', label: 'Sekolah Ramah Anak' },
-        { id: 'snp-ssk', icon: '👨‍👩‍👧‍👦', label: 'Sekolah Siaga Kependudukan' },
-        { id: 'snp-rapor', icon: '📊', label: 'Rapor Pendidikan' },
-        { id: 'snp-spmi', icon: '📘', label: 'SPMI' },
-        { id: 'snp-ksp', icon: '📚', label: 'KSP' }
+        { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Adiwiyata' },
+        { id: 'snp-sra', icon: <Smile size={16} />, label: 'Sekolah Ramah Anak' },
+        { id: 'snp-ssk', icon: <Users size={16} />, label: 'Sekolah Siaga Kependudukan' },
+        { id: 'snp-rapor', icon: <BarChart size={16} />, label: 'Rapor Pendidikan' },
+        { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI' },
+        { id: 'snp-ksp', icon: <Library size={16} />, label: 'KSP' }
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
@@ -730,10 +730,11 @@ export default function App() {
         <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
           {activeTab === 'beranda' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {/* Hero Dashboard Section */}
-              <div className="flex flex-col lg:flex-row gap-8 mb-8">
-                <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-gray-200 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                
+                {/* Hero Dashboard Section */}
+                <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex flex-col justify-center col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 h-full">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-gray-200 mb-6 w-max">
                     <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span> 
                     <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
                   </div>
@@ -743,7 +744,7 @@ export default function App() {
                   <p className="text-gray-600 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-gray-100 p-2 rounded border border-gray-100">
                     USER AGENT:<br/>{userAgentStr}
                   </p>
-                  <div className="flex flex-wrap gap-4">
+                  <div className="flex flex-wrap gap-4 mt-auto">
                     <button onClick={() => handleTabChange('modul')} className="bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors px-8 py-3 text-sm">
                       Operation System: {osName} | RAM: {ramInfo}
                     </button>
@@ -752,20 +753,21 @@ export default function App() {
                     </button>
                   </div>
                 </div>
-                
-                <div className="shrink-0">
-                  <QuickProfile />
-                </div>
-              </div>
 
-              {/* Analytics & Logs Row */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-6">
-                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
+                {/* Quick Profile */}
+                <div className="col-span-1 md:col-span-2 lg:col-span-1 flex items-stretch h-full">
+                  <div className="w-full flex-1">
+                    <QuickProfile />
+                  </div>
+                </div>
+
+                {/* Traffic Analytics */}
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col h-full col-span-1 md:col-span-1 lg:col-span-1">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest">Traffic Analytics</h3>
                     <Activity size={16} className="text-blue-500" />
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-4 flex-1 flex flex-col">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">Daily Access</span>
                       <span className="text-lg font-mono font-bold text-blue-600">{visitors.today}</span>
@@ -777,10 +779,10 @@ export default function App() {
                       <span className="text-xs text-gray-500">Monthly Load</span>
                       <span className="text-lg font-mono font-bold text-blue-500">{visitors.month}</span>
                     </div>
-                    <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                    <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden mb-4">
                       <div className="bg-blue-500 h-full w-1/2 shadow-sm"></div>
                     </div>
-                    <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
+                    <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2">
                         <Heart size={14} className="text-blue-300" />
                         <span className="text-xs text-gray-500">Favorites</span>
@@ -795,14 +797,15 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
+                {/* Aktivitas Paling Sering Diklik */}
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col h-full col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-1">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-600 animate-pulse rounded-full"></div>
                       Aktivitas Paling Sering Diklik
                     </h3>
                   </div>
-                  <div className="space-y-4 font-mono text-[10px]">
+                  <div className="space-y-4 font-mono text-[10px] flex-1 overflow-y-auto">
                     {Object.entries(activityClicks).length > 0 ? (
                       Object.entries(activityClicks)
                         .sort(([, a], [, b]) => b - a)
@@ -825,29 +828,46 @@ export default function App() {
                     )}
                   </div>
                 </div>
-              </div>
 
-              {/* Feedback & Support */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex items-center justify-center" style={{ width: '300px', height: '300px', margin: '0 auto' }}>
+                {/* Support Network */}
+                <div className="bg-white border border-gray-200 shadow-sm p-6 lg:p-8 rounded-2xl flex flex-col justify-between bg-gradient-to-br from-blue-50 to-transparent hover:shadow-md transition-shadow h-full col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1">
+                    <div>
+                      <h3 className="text-lg font-black italic text-blue-600 mb-3 uppercase tracking-tight flex items-center gap-2">
+                         <Coffee size={20} /> Support Network
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">
+                        Kontribusi Anda menjaga sistem ini tetap online dan gratis bagi seluruh pendidik. Mari wujudkan ekosistem pendidikan yang lebih baik.
+                      </p>
+                    </div>
+                    <a href="https://saweria.co/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 w-full bg-blue-100 text-blue-700 font-bold uppercase text-xs tracking-wider rounded-xl hover:scale-[1.02] transition-transform mt-auto">
+                      Donate via Saweria
+                    </a>
+                </div>
+
+                {/* Premium Assets */}
+                <div className="bg-white border border-gray-200 shadow-sm p-6 lg:p-8 rounded-2xl flex flex-col justify-between bg-gradient-to-br from-red-50 to-transparent hover:shadow-md transition-shadow h-full col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-1">
+                    <div>
+                      <h3 className="text-lg font-black italic text-red-600 mb-3 uppercase tracking-tight flex items-center gap-2">
+                         <ShoppingCart size={20} /> Premium Assets
+                      </h3>
+                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">
+                        Dapatkan akses ke materi ajar eksklusif, template premium, dan sumber daya tingkat lanjut untuk kebutuhan mengajar kelas Anda.
+                      </p>
+                    </div>
+                    <a href="https://lynk.id/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 w-full bg-red-600 text-white font-bold uppercase text-xs tracking-wider rounded-xl hover:scale-[1.02] transition-transform shadow-sm mt-auto">
+                      Buka Marketplace
+                    </a>
+                </div>
+
+                {/* Feedback */}
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col justify-center h-full col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+                   <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+                     <MessageSquare size={18} className="text-blue-600" /> Masukan & Saran
+                   </h3>
+                   <p className="text-xs text-gray-500 mb-4">Punya ide fitur atau kendala? Beritahu kami agar aplikasi ini terus berkembang!</p>
                    <FeedbackForm inline={true} />
                 </div>
-                <div className="space-y-6">
-                   <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl bg-gradient-to-br from-red-200/5 to-transparent">
-                      <h3 className="text-xl font-black italic text-blue-300 mb-4 uppercase tracking-tighter">Support the Network</h3>
-                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">Your contributions keep the system online and free for all educators. Join the mission to advance Indonesian education.</p>
-                      <a href="https://saweria.co/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-blue-100 text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
-                        ☕ Donate via Saweria
-                      </a>
-                   </div>
-                   <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl bg-gradient-to-br from-red-500/5 to-transparent">
-                      <h3 className="text-xl font-black italic text-blue-600 mb-4 uppercase tracking-tighter">Premium Assets</h3>
-                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">Access high-end teaching materials and exclusive module templates in our digital marketplace.</p>
-                      <a href="https://lynk.id/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
-                        🛒 Marketplace
-                      </a>
-                   </div>
-                </div>
+
               </div>
             </div>
           )}
@@ -885,7 +905,7 @@ export default function App() {
         <div className={`absolute top-0 -left-1/4 w-1/2 h-1/2 rounded-full transition-opacity duration-1000 ${gradientsEnabled ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(circle, rgba(188, 0, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%)' }}></div>
         <div className={`absolute bottom-0 -right-1/4 w-1/2 h-1/2 rounded-full transition-opacity duration-1000 ${gradientsEnabled ? 'opacity-100' : 'opacity-0'}`} style={{ background: 'radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%)' }}></div>
       </div>
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 no-print items-center">
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 no-print items-center animate-float">
         <div className={`flex flex-col gap-3 transition-all duration-300 origin-bottom ${isSocialOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
           <a href="https://www.facebook.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform">
             <FaFacebook size={18} />

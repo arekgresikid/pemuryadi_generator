@@ -276,7 +276,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
                       <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                       <p>Guru Pengampu</p>
                       <br><br><br><br>
-                      <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || '................................'}</p>
+                      <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
                       <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
                   </div>
               </div>
