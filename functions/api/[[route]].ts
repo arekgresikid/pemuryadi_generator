@@ -315,8 +315,8 @@ app.post('/tokens/use', async (c) => {
     
     if (!profile) return c.json({ error: 'User not found' }, 404);
     
-    // Owner and Pro tier bypass token limits
-    if (profile.role === 'owner' || profile.tier !== 'Free') {
+    // Privileged roles and premium tiers bypass token limits
+    if (profile.role === 'owner' || profile.role === 'admin' || profile.tier !== 'Free') {
       return c.json({ success: true, tokens: profile.tokens });
     }
 

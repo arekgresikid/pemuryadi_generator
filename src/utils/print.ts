@@ -1,12 +1,15 @@
 export const getWatermarkHtml = (profileOrRole?: any) => {
   let tier = 'Free';
+  let role = 'siswa';
   if (typeof profileOrRole === 'string') {
     tier = profileOrRole;
   } else if (profileOrRole) {
-    tier = profileOrRole.tier || profileOrRole.role || 'Free';
+    tier = profileOrRole.tier || 'Free';
+    role = profileOrRole.role || 'siswa';
   }
   
-  if (tier && tier !== 'Free' && tier !== 'guest') {
+  const isPrivileged = tier === 'Titan' || role === 'owner' || role === 'admin';
+  if (isPrivileged || (tier !== 'Free' && tier !== 'guest')) {
     return '';
   }
   return `

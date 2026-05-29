@@ -197,8 +197,11 @@ export default function App() {
     }
 
     if (isPremiumTab) {
-      const tier = profile?.tier || profile?.role || 'Free';
-      if (tier === 'Free' || tier === 'guest') {
+      const tier = profile?.tier || 'Free';
+      const role = profile?.role || 'siswa';
+      const isPrivileged = tier === 'Titan' || role === 'owner' || role === 'admin';
+      
+      if (!isPrivileged && (tier === 'Free' || tier === 'guest')) {
         alert('Fitur ini khusus untuk pengguna berbayar. Silakan upgrade akun Anda ke plan Essential, Premium, atau lainnya.');
         return;
       }
