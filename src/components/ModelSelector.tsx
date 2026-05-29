@@ -11,9 +11,10 @@ interface ModelSelectorProps {
   value: string;
   onChange: (model: string) => void;
   disabled?: boolean;
+  label?: string;
 }
 
-export default function ModelSelector({ modality = 'text', value, onChange, disabled }: ModelSelectorProps) {
+export default function ModelSelector({ modality = 'text', value, onChange, disabled, label = 'Model AI' }: ModelSelectorProps) {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +57,6 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
           .filter(m =>
             m.output_modalities &&
             m.output_modalities.includes(modality) &&
-            !m.paid_only &&
             !excludeTypes.some((t: string) => m.output_modalities.length === 1 && m.output_modalities[0] === t)
           )
           .map(m => ({ name: m.name, description: m.description || m.name }));
@@ -81,7 +81,7 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
     <div className="space-y-1.5">
       <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-red-500" />
-        Model AI
+        {label}
       </label>
       <div className="relative">
         <select

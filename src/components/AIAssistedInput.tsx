@@ -18,14 +18,17 @@ export default function AIAssistedInput({ onValueChange, contextPrompt, classNam
       const ai = new GoogleGenAI({});
       const promptContext = contextPrompt || placeholder || 'ide acak yang sesuai untuk form pendidikan';
       
-      const prompt = `Berikan 1 contoh isian singkat, kreatif, dan relevan untuk input dengan konteks: "${promptContext}".
+      const randomSeed = Math.floor(Math.random() * 10000);
+      const prompt = `Berikan 1 contoh isian acak, unik, kreatif, dan relevan untuk input dengan konteks: "${promptContext}". 
+Pastikan ide ini berbeda dari yang biasa muncul (Seed: ${randomSeed}).
 Jawab LANGSUNG dengan isinya saja (maksimal 5-7 kata), tanpa tanda kutip, tanpa kata pengantar, tanpa penjelasan.`;
 
       const response = await ai.models.generateContent({
         model: 'openai',
         contents: prompt,
         config: {
-          systemInstruction: 'Anda adalah asisten pendidikan pembuat ide. Berikan jawaban super singkat dan langsung.',
+          temperature: 0.9,
+          systemInstruction: 'Anda adalah asisten pendidikan pembuat ide kreatif. Berikan ide yang selalu bervariasi, super singkat, dan langsung pada intinya.',
         }
       });
       

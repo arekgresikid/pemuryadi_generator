@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Play, Loader2, Trophy, Users, BookOpen, Settings } from 'lucide-react';
@@ -41,8 +41,57 @@ export default function GameIFP() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
   const [gameHtml, setGameHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [terminalLines, setTerminalLines] = useState<string[]>([]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      const startTime = Date.now();
+      interval = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 43); // fast update
+    } else {
+      setElapsedTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (isGenerating) {
+      const logs = [
+        "> Menginisialisasi AI Game Engine...",
+        "> Membaca parameter topik dan jenjang...",
+        "> Mengatur sistem multiplayer lokal...",
+        "> Menggenerate mekanik game...",
+        "> Mengkompilasi aset visual dan UI...",
+        "> Menambahkan leaderboard dinamis...",
+        "> Merakit kode HTML, CSS, dan JavaScript...",
+        "> Memvalidasi sintaks game...",
+        "> Menunggu respons final dari model AI..."
+      ];
+      
+      let index = 0;
+      setTerminalLines([]);
+      
+      const addLog = () => {
+        if (index < logs.length) {
+          setTerminalLines(prev => [...prev, logs[index]]);
+          index++;
+          timeout = setTimeout(addLog, Math.random() * 800 + 400);
+        }
+      };
+      
+      timeout = setTimeout(addLog, 500);
+    } else {
+      setTerminalLines([]);
+    }
+    return () => clearTimeout(timeout);
+  }, [isGenerating]);
 
   const generateGame = async () => {
     if (!formData.topik) {
@@ -74,7 +123,7 @@ Spesifikasi Game:
 
 Persyaratan Wajib:
 1. Game harus memiliki antarmuka pengguna (UI) yang menarik, berwarna, dan ramah anak (user-friendly).
-2. Gunakan elemen visual. Jika butuh gambar, gunakan URL gambar placeholder gratis seperti \`https://picsum.photos/seed/game/200/200\` atau avatar dari \`https://api.dicebear.com/7.x/avataaars/svg?seed=NamaPemain\`.
+2. Gunakan elemen visual. Jika butuh gambar, hasilkan URL gambar dengan format \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}&nologo=true\` (ganti [DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS] dengan deskripsi gambar yang diinginkan).
 3. Mekanik game harus menggabungkan genre yang dipilih dengan pertanyaan/tantangan edukatif terkait topik "${formData.topik}". (Misal: Jika RPG, pemain menyerang monster dengan menjawab soal. Jika Simulasi, buatlah simulasi sederhana yang interaktif di mana pemain membuat keputusan berbasis materi).
 4. Tingkat kesulitan "${DIFFICULTY_LEVELS.find(d => d.id === formData.difficulty)?.name}" harus tercermin dalam kompleksitas soal, kecepatan permainan, atau rintangan yang ada.
 5. WAJIB ada sistem Leaderboard (Papan Peringkat) yang terus diperbarui selama game berjalan dan ditampilkan di akhir permainan, menunjukkan skor masing-masing siswa.
@@ -240,6 +289,11 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                 </p>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <ModelSelector label="Model Teks AI" modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+                <ModelSelector label="Model Gambar AI" modality="image" value={selectedImageModel} onChange={setSelectedImageModel} disabled={isGenerating} />
+              </div>
+
               <button 
                 onClick={generateGame}
                 disabled={isGenerating}
@@ -284,10 +338,25 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                 {/* Game Container */}
                 <div className="flex-1 relative bg-black flex items-center justify-center">
                   {isGenerating ? (
-                    <div className="text-center">
-                      <div className="w-20 h-20 border-4 border-black border-t-indigo-500 rounded-full animate-spin mx-auto mb-4"></div>
-                      <p className="text-indigo-300 font-medium animate-pulse">AI sedang memprogram game Anda...</p>
-                      <p className="text-gray-500 text-sm mt-2">Ini mungkin memakan waktu hingga 1 menit.</p>
+                    <div className="w-full h-full bg-[#0a0a0a] text-green-400 font-mono p-6 flex flex-col justify-start text-left absolute inset-0 z-10">
+                      <div className="flex justify-between items-center border-b border-green-900/50 pb-2 mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span className="text-sm font-bold text-green-500">AI GAME TERMINAL</span>
+                        </div>
+                        <div className="text-xs text-green-600 bg-green-950/30 px-2 py-1 rounded border border-green-900/50 tabular-nums">
+                          {elapsedTime} ms
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-y-auto flex flex-col">
+                        <p className="text-green-300 font-bold mb-4">{'>'} AI Sedang Memprogram Game Anda...</p>
+                        <div className="space-y-1.5 text-xs sm:text-sm text-green-500/80">
+                          {terminalLines.map((line, i) => (
+                            <p key={i}>{line}</p>
+                          ))}
+                          <p className="animate-pulse">_</p>
+                        </div>
+                      </div>
                     </div>
                   ) : gameHtml ? (
                     <iframe 
