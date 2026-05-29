@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
@@ -15,6 +15,8 @@ export default function ModuleGenerator() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [formatPerangkat, setFormatPerangkat] = useState<'standar'|'kemenag'>('standar');
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('ModuleGeneratorData');
@@ -30,7 +32,6 @@ export default function ModuleGenerator() {
     alert('Progress berhasil disimpan!');
   };
 
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
@@ -116,7 +117,11 @@ export default function ModuleGenerator() {
       const mapelLabel = subjectsByLevel[jenjang]?.find(s => s.id === mapel)?.label || mapelNames[mapel] || mapel;
       const modelName = modelNames[formData.model] || formData.model;
 
-      const prompt = `Buatkan Modul Ajar Kurikulum Merdeka untuk:
+      const formatInstruction = formatPerangkat === 'kemenag' 
+        ? "Kemenag RPM (Rencana Pelaksanaan Pembelajaran/Modul Ajar) Berbasis Cinta"
+        : "Modul Ajar/RPP+ Kurikulum Merdeka";
+
+      const prompt = `Buatkan ${formatInstruction} dengan format ${formData.mediaStyle === 'outline' ? 'Outline/Ringkasan' : 'Lengkap/Penuh'} untuk:
 Mata Pelajaran: ${mapelLabel}
 Topik/Materi: ${topik || 'Topik umum sesuai mata pelajaran'}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
@@ -151,6 +156,10 @@ Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
 3. Pendekatan TPACK & STEAM:
    - TPACK (Technological Pedagogical Content Knowledge): Tunjukkan bagaimana guru menggunakan teknologi dan pedagogi yang tepat untuk menyampaikan konten materi.
    - STEAM (Science, Technology, Engineering, Art, Mathematics): Integrasikan elemen STEAM dalam aktivitas siswa untuk melatih berpikir kritis, kreatif, dan pemecahan masalah.
+${formatPerangkat === 'kemenag' ? `4. Konteks Kemenag & Berbasis Cinta (WAJIB ADA):
+   - Tambahkan nilai Profil Pelajar Rahmatan Lil 'Alamin (PPRA) ke dalam "profilPelajar" (misal: Berkeadaban, Keteladanan, dll).
+   - Integrasikan "Pendekatan Cinta/Heartful Learning" (sapaan kasih sayang, empati, doa, kelembutan, bonding emosional) dalam "kegiatanPembelajaran" (pembuka, inti, penutup).
+   - Selipkan nilai-nilai spiritual, akhlak, dan moderasi beragama dalam "ringkasanMateri" dan "contohNyata".` : ''}
 
 Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian terisi secara otomatis dan komprehensif. Gunakan sumber resmi dari Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) atau website pendidikan yang kredibel sebagai acuan pengisian konten:
 {
@@ -460,18 +469,34 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
     <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-2xl shadow-lg">
-          📖
+          <BookOpen className="w-8 h-8 text-white" />
         </div>
-        <div>
-          <h3 className="text-2xl font-bold text-black">Modul Ajar</h3>
-          <p className="text-gray-600">Sesuai Capaian Pembelajaran Kurikulum Merdeka</p>
+        <div className="flex-1">
+          <h3 className="text-2xl font-bold text-black">{formatPerangkat === 'standar' ? 'Modul Ajar' : 'Kemenag Modul Ajar'}</h3>
+          <p className="text-gray-600">{formatPerangkat === 'standar' ? 'Sesuai Capaian Pembelajaran Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
         </div>
       </div>
       
+      {/* Sub Tab Menu */}
+      <div className="flex bg-gray-200 p-1 rounded-xl mb-6 shadow-inner border border-gray-300">
+        <button 
+          onClick={() => setFormatPerangkat('standar')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-cyan-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
+        >
+          Standar Kemendikbudristek
+        </button>
+        <button 
+          onClick={() => setFormatPerangkat('kemenag')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-cyan-50 text-cyan-700 shadow-md border-cyan-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
+        >
+          Kemenag Modul Ajar Berbasis Cinta
+        </button>
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2">👨‍🏫 Data Profil Guru</h4>
+            <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2"><User className="w-5 h-5" /> Data Profil Guru</h4>
             <div className="space-y-3">
               <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
               <div className="flex gap-2">
