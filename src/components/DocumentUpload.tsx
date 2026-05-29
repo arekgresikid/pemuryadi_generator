@@ -60,7 +60,7 @@ export default function DocumentUpload({ onFileUploaded, label = "Upload Dokumen
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</label>
+        <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest">{label}</label>
         {fileName && (
           <button 
             onClick={() => {
@@ -79,7 +79,7 @@ export default function DocumentUpload({ onFileUploaded, label = "Upload Dokumen
       <div 
         onClick={() => fileInputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-xl p-4 transition-all cursor-pointer flex flex-col items-center justify-center gap-2
-          ${fileName ? 'border-cyber-blue/50 bg-cyber-blue/5' : 'border-slate-700 hover:border-cyber-blue/50 hover:bg-white/5'}
+          ${fileName ? 'border-red-500/50 bg-red-500/5' : 'border-black hover:border-red-500/50 hover:bg-white/5'}
           ${error ? 'border-red-500/50 bg-red-500/5' : ''}
         `}
       >
@@ -94,17 +94,17 @@ export default function DocumentUpload({ onFileUploaded, label = "Upload Dokumen
         {fileName ? (
           <>
             {fileName.endsWith('.pdf') || fileName.includes('.doc') || fileName.includes('.xls') ? (
-              <FileText className="text-cyber-green" size={24} />
+              <FileText className="text-red-300" size={24} />
             ) : (
-              <ImageIcon className="text-cyber-green" size={24} />
+              <ImageIcon className="text-red-300" size={24} />
             )}
-            <span className="text-xs text-slate-300 font-medium truncate max-w-full px-2">{fileName}</span>
-            <span className="text-[10px] text-cyber-green font-bold">File siap digunakan</span>
+            <span className="text-xs text-gray-700 font-medium truncate max-w-full px-2">{fileName}</span>
+            <span className="text-[10px] text-red-300 font-bold">File siap digunakan</span>
           </>
         ) : (
           <>
-            <Upload className="text-slate-500" size={24} />
-            <span className="text-xs text-slate-400 font-medium text-center">Klik untuk Upload PDF, Word, Excel, PNG, JPG</span>
+            <Upload className="text-gray-500" size={24} />
+            <span className="text-xs text-gray-600 font-medium text-center">Klik untuk Upload PDF, Word, Excel, PNG, JPG</span>
           </>
         )}
       </div>

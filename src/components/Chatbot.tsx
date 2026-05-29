@@ -60,28 +60,27 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6">
       <div className="absolute inset-0 bg-black/60 " onClick={onClose}></div>
-      <div className="gen-card relative w-full max-w-md h-[600px] max-h-[80vh] bg-slate-900 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
+      <div className="gen-card relative w-full max-w-md h-[600px] max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300">
         
         <div className="bg-gradient-to-r from-blue-600 to-cyan-500 p-4 flex items-center justify-between shadow-md z-10">
           <div className="flex items-center gap-3">
             <Logo className="w-10 h-10 rounded-full" />
             <div>
-              <h3 className="font-bold text-white">Pemuryadi Bot</h3>
+              <h3 className="font-bold text-black">Pemuryadi Bot</h3>
               <p className="text-xs text-blue-100">Powered by Gemini AI</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-black transition-colors">
             ✕
           </button>
         </div>
         
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-900">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] p-3 rounded-2xl ${
                 msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-sm' 
-                  : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-sm'
+                  ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-gray-100 text-gray-900 rounded-tl-sm'
               }`}>
                 <div className="prose prose-sm prose-invert max-w-none">
                   <Markdown>{msg.text}</Markdown>
@@ -91,7 +90,7 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="gen-card bg-slate-800 text-slate-300 p-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
+              <div className="gen-card bg-red-50 text-gray-700 p-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <span className="text-sm">Sedang mengetik...</span>
               </div>
@@ -100,13 +99,13 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           <div ref={messagesEndRef} />
         </div>
         
-        <div className="p-4 border-t border-slate-800 bg-slate-900">
+        <div className="p-4 border-t border-black bg-white">
           <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
             {['Kurikulum Merdeka', 'Modul Ajar', 'Capaian Pembelajaran'].map(topic => (
               <button 
                 key={topic}
                 onClick={() => handleSend(`Apa itu ${topic}?`)}
-                className="whitespace-nowrap px-3 py-1.5 text-xs rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+                className="whitespace-nowrap px-3 py-1.5 text-xs rounded-full bg-red-50 hover:bg-red-100 text-gray-700 border border-black transition-colors"
               >
                 {topic}
               </button>
@@ -118,13 +117,13 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" 
+              className="flex-1 bg-red-50 border border-black rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" 
               placeholder="Tanya seputar pendidikan..." 
             />
             <button 
               onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-all shadow-md"
+              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold transition-all shadow-md"
             >
               Kirim
             </button>

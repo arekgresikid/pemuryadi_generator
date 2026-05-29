@@ -40,12 +40,28 @@ export class GoogleGenAI {
         const { model, contents, config } = params;
         
         let response_format;
+        let isArrayRoot = false;
+        
         if (config?.responseSchema) {
+          let actualSchema = config.responseSchema;
+          
+          if (actualSchema.type === 'array' || actualSchema.type === Type.ARRAY) {
+            isArrayRoot = true;
+            actualSchema = {
+              type: "object",
+              properties: {
+                items: actualSchema
+              },
+              required: ["items"],
+              additionalProperties: false
+            };
+          }
+          
           response_format = {
             type: "json_schema",
             json_schema: {
               name: "response",
-              schema: config.responseSchema,
+              schema: actualSchema,
               strict: false
             }
           };
@@ -88,8 +104,22 @@ export class GoogleGenAI {
             response_format: response_format
           });
 
+          let responseText = completion.choices[0].message.content || "";
+          
+          // Unwrap array if we wrapped it earlier
+          if (isArrayRoot && responseText) {
+            try {
+              const parsed = JSON.parse(responseText);
+              if (parsed && Array.isArray(parsed.items)) {
+                responseText = JSON.stringify(parsed.items);
+              }
+            } catch (e) {
+              console.warn("Failed to unwrap array response from AI:", e);
+            }
+          }
+
           return {
-            text: completion.choices[0].message.content || ""
+            text: responseText
           };
         } catch (error) {
           console.error("AI Generation Error:", error);

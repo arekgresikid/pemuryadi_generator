@@ -6,6 +6,7 @@ import PrintSupportModal from './PrintSupportModal';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
 
 const ai = new GoogleGenAI({});
 
@@ -203,32 +204,32 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="gen-card bg-slate-900  rounded-3xl p-6 md:p-8 shadow-2xl">
+      <div className="gen-card bg-white  rounded-3xl p-6 md:p-8 shadow-2xl">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <LayoutList size={24} className="text-white" />
+            <LayoutList size={24} className="text-black" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Program Semester (Promes)</h2>
-            <p className="text-slate-400 text-sm">Generate Program Semester Kurikulum Merdeka 2026</p>
+            <h2 className="text-2xl font-bold text-black">Program Semester (Promes)</h2>
+            <p className="text-gray-600 text-sm">Generate Program Semester Kurikulum Merdeka 2026</p>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
-            <div className="gen-card bg-slate-800 p-5 rounded-2xl space-y-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                <Settings size={18} className="text-emerald-400" /> Pengaturan
+            <div className="gen-card bg-red-50 p-5 rounded-2xl space-y-4">
+              <h3 className="text-lg font-semibold text-black flex items-center gap-2 mb-4">
+                <Settings size={18} className="text-emerald-600" /> Pengaturan
               </h3>
               
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Tahun Ajaran</label>
-                  <input type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
+                  <AIAssistedInput type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Semester</label>
-                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
+                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     <option value="Ganjil">Ganjil</option>
                     <option value="Genap">Genap</option>
                   </select>
@@ -237,16 +238,16 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Jenjang</label>
-                  <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
+                  <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {educationLevels.map(level => (
                       <option key={level.id} value={level.id}>{level.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Fase</label>
-                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
+                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.jenjang]?.phases.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
@@ -256,23 +257,23 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Kelas</label>
-                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
+                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Mata Pelajaran</label>
-                  <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
+                  <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {subjectsByLevel[formData.jenjang]?.map(sub => (
                       <option key={sub.id} value={sub.id}>{sub.label}</option>
                     ))}
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-400 mb-1">Topik/Materi Khusus (Opsional)</label>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi Khusus (Opsional)</label>
                   <select 
                     value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
                     onChange={e => {
@@ -283,7 +284,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                         setFormData({...formData, isCustomTopik: false, topik: val});
                       }
                     }} 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all"
+                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
                   >
                     <option value="">-- Semua Topik/Materi --</option>
                     {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
@@ -292,20 +293,19 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <option value="lainnya">Lainnya (+)</option>
                   </select>
                   {formData.isCustomTopik && (
-                    <input 
-                      type="text" 
+                    <AIAssistedInput type="text" 
                       placeholder="Masukkan Topik/Materi secara manual..." 
                       value={formData.topik} 
                       onChange={e => setFormData({...formData, topik: e.target.value})} 
-                      className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all mt-3" 
+                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
                     />
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
+                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
                   <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
                   <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -317,51 +317,51 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nama Sekolah</label>
-                <input type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nama Sekolah</label>
+                <AIAssistedInput type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nama Guru</label>
-                <input type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nama Guru</label>
+                <AIAssistedInput type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nomor Induk Guru</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Guru</label>
                 <div className="flex gap-2">
-                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <input type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                  <AIAssistedInput type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Kepala Sekolah</label>
-                <input type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Kepala Sekolah</label>
+                <AIAssistedInput type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Nomor Induk Kepala Sekolah</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Kepala Sekolah</label>
                 <div className="flex gap-2">
-                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all">
+                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <input type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                  <AIAssistedInput type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                 </div>
               </div>
               
               <div>
-                <label className="block text-xs font-medium text-slate-400 mb-1">Tempat, Tanggal Penetapan</label>
-                <input type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 transition-all" />
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
+                <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
             </div>
 
@@ -370,7 +370,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 <div className="flex gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
@@ -378,7 +378,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               <button 
               onClick={generatePromes}
               disabled={isGenerating}
-              className="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-bold text-lg shadow-xl shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 btn-generate-animated"
+              className="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-black rounded-xl font-bold text-lg shadow-xl shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2 btn-generate-animated"
             >
               {isGenerating ? <><Loader2 className="animate-spin" /> Menyusun...</> : <><FileText /> Buat Promes</>}
             </button>
@@ -395,7 +395,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 </span>
                 {resultHtml && (
                   <div className="flex flex-col items-end gap-1">
-                    <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
+                    <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
                       <Printer size={16} /> Cetak A4 Landscape
                     </button>
                     <p className="text-[9px] text-slate-600 italic text-right">
@@ -407,14 +407,14 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               </div>
               <div className="flex-1 overflow-auto p-8 bg-white text-black">
                 {isGenerating ? (
-                  <div className="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
                     <Loader2 size={48} className="animate-spin text-emerald-500" />
                     <p>Menyusun Program Semester 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
                   <div ref={printRef} dangerouslySetInnerHTML={{ __html: resultHtml }} className="print-container" />
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                  <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <LayoutList size={64} className="mb-4 opacity-20" />
                     <p>Belum ada dokumen. Silakan klik "Buat Promes".</p>
                   </div>

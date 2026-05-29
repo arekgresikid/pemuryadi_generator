@@ -44,7 +44,7 @@ export default function PDFRemixUpload({ onTextExtracted, label = "Remix dari PD
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">{label}</label>
+        <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest">{label}</label>
         {fileName && (
           <button 
             onClick={() => {
@@ -61,7 +61,7 @@ export default function PDFRemixUpload({ onTextExtracted, label = "Remix dari PD
       <div 
         onClick={() => !isExtracting && fileInputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-xl p-4 transition-all cursor-pointer flex flex-col items-center justify-center gap-2
-          ${isExtracting ? 'border-cyber-blue/50 bg-cyber-blue/5' : 'border-slate-700 hover:border-cyber-blue/50 hover:bg-white/5'}
+          ${isExtracting ? 'border-red-500/50 bg-red-500/5' : 'border-black hover:border-red-500/50 hover:bg-white/5'}
           ${error ? 'border-red-500/50 bg-red-500/5' : ''}
         `}
       >
@@ -75,22 +75,22 @@ export default function PDFRemixUpload({ onTextExtracted, label = "Remix dari PD
         
         {isExtracting ? (
           <>
-            <Loader2 className="animate-spin text-cyber-blue" size={24} />
-            <span className="text-xs text-cyber-blue font-bold animate-pulse">Mengekstrak Teks...</span>
+            <Loader2 className="animate-spin text-red-500" size={24} />
+            <span className="text-xs text-red-500 font-bold animate-pulse">Mengekstrak Teks...</span>
           </>
         ) : fileName ? (
           <>
-            <FileText className="text-cyber-green" size={24} />
-            <span className="text-xs text-slate-300 font-medium truncate max-w-full px-2">{fileName}</span>
-            <span className="text-[10px] text-cyber-green font-bold flex items-center gap-1">
+            <FileText className="text-red-300" size={24} />
+            <span className="text-xs text-gray-700 font-medium truncate max-w-full px-2">{fileName}</span>
+            <span className="text-[10px] text-red-300 font-bold flex items-center gap-1">
               <RefreshCw size={10} /> Siap untuk di-Remix
             </span>
           </>
         ) : (
           <>
-            <Upload className="text-slate-500" size={24} />
-            <span className="text-xs text-slate-400 font-medium">Klik untuk Upload PDF</span>
-            <span className="text-[10px] text-slate-500">Sistem akan membaca & memberikan Remix AI</span>
+            <Upload className="text-gray-500" size={24} />
+            <span className="text-xs text-gray-600 font-medium">Klik untuk Upload PDF</span>
+            <span className="text-[10px] text-gray-500">Sistem akan membaca & memberikan Remix AI</span>
           </>
         )}
       </div>

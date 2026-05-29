@@ -5,6 +5,7 @@ import { Leaf, Shield, Users, BarChart, BookOpen, FileText, Loader2, Save, Crown
 import ReactMarkdown from 'react-markdown';
 import DocumentUpload, { UploadedFile } from './DocumentUpload';
 import { useAuth } from '../AuthContext';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 interface SNPProps {
   subTab: string;
@@ -19,7 +20,7 @@ const SNP: React.FC<SNPProps> = ({ subTab }) => {
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
 
-  const isTitan = profile?.role === 'owner' || profile?.tier?.toLowerCase() === 'titan' || profile?.role?.toLowerCase() === 'titan';
+  const isTitan = profile?.role === 'owner' || profile?.role === 'admin' || profile?.tier?.toLowerCase() === 'titan' || profile?.role?.toLowerCase() === 'titan';
 
   useEffect(() => {
     const saved = localStorage.getItem(`SNPData_${subTab}`);
@@ -191,12 +192,12 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
         <div className="w-24 h-24 bg-rose-500/10 rounded-full flex items-center justify-center border border-rose-500/30 mb-4">
           <Crown className="w-12 h-12 text-rose-500" />
         </div>
-        <h2 className="text-3xl font-bold text-white tracking-widest">AKSES DITOLAK</h2>
-        <p className="text-slate-400 max-w-lg">
+        <h2 className="text-3xl font-bold text-black tracking-widest">AKSES DITOLAK</h2>
+        <p className="text-gray-600 max-w-lg">
           Fitur Standar Nasional Pendidikan (SNP) ini adalah fitur eksklusif untuk pengguna dengan status 
           <span className="text-rose-500 font-bold mx-2">TITAN</span>.
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-gray-500">
           Silakan upgrade paket akun Anda ke Titan melalui menu Pengaturan Pembayaran.
         </p>
       </div>
@@ -210,7 +211,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
         <div className="flex items-center gap-3">
           <Crown className="w-8 h-8 text-rose-500" />
           <div>
-            <h3 className="text-white font-bold tracking-widest text-sm uppercase">Mode Pengawas / Supervisor (Titan)</h3>
+            <h3 className="text-black font-bold tracking-widest text-sm uppercase">Mode Pengawas / Supervisor (Titan)</h3>
             <p className="text-xs text-rose-400">Pemberdayaan Google Search untuk Standardisasi Dokumen</p>
           </div>
         </div>
@@ -218,34 +219,32 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
           href="https://ai.studio/apps/8f9760ce-cddb-4e61-b8e6-5cb47ef8eb17" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-bold transition-all shadow-[0_0_15px_rgba(244,63,94,0.4)] flex items-center gap-2"
+          className="px-3 py-2 bg-rose-500 hover:bg-rose-600 text-black rounded-lg text-xs font-bold transition-all shadow-sm flex items-center gap-2"
         >
           Buka SNP Legacy <ExternalLink size={14} />
         </a>
       </div>
 
-      <div className="gen-card bg-slate-800  p-6 rounded-2xl shadow-xl">
+      <div className="gen-card bg-red-50  p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-4 mb-6">
           <div className={`p-3 bg-gradient-to-br ${config.color} rounded-xl shadow-lg`}>
             {config.icon}
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">{config.title}</h2>
-            <p className="text-slate-400 text-sm">{config.agentName} - {config.focus}</p>
+            <h2 className="text-2xl font-bold text-black">{config.title}</h2>
+            <p className="text-gray-600 text-sm">{config.agentName} - {config.focus}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Input Form (Observasi, Survey, Nilai, Rekapan Kegiatan)
             </label>
-            <textarea
-              value={inputData}
+            <AIAssistedTextarea value={inputData}
               onChange={(e) => setInputData(e.target.value)}
               placeholder={config.placeholder}
-              className="w-full h-40 bg-slate-900 border border-slate-700 rounded-xl p-4 text-white placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none"
-            />
+              className="w-full h-40 bg-white border border-black rounded-xl p-4 text-black placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none" />
           </div>
 
           <DocumentUpload onFileUploaded={setUploadedFile} label="Upload Dokumen / Formulir Sebelumnya (Wajib Lampirkan)" />
@@ -261,7 +260,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
 <div className="flex gap-2 w-full">
             <button 
               onClick={saveProgress}
-              className="px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+              className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
               title="Simpan Progress"
             >
               <Save size={18} /> Simpan
@@ -269,7 +268,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
             <button
               onClick={handleAnalyze}
               disabled={isGenerating}
-              className="flex-1 py-4 bg-gradient-to-r from-rose-500 to-red-600 shadow-[0_0_15px_rgba(244,63,94,0.3)] text-white font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-gradient-to-r from-rose-500 to-red-600 shadow-sm text-black font-bold rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {isGenerating ? (
                 <>
@@ -285,9 +284,9 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
       </div>
 
       {result && (
-        <div className="gen-card bg-slate-800  p-6 md:p-8 rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex items-center justify-between mb-6 border-b border-slate-700 pb-4">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+        <div className="gen-card bg-red-50  p-6 md:p-8 rounded-2xl shadow-xl animate-in fade-in slide-in-from-bottom-4">
+          <div className="flex items-center justify-between mb-6 border-b border-black pb-4">
+            <h3 className="text-xl font-bold text-black flex items-center gap-2">
               {config.icon}
               Draft Dokumen {config.agentName}
             </h3>

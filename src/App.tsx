@@ -44,10 +44,10 @@ function Clock() {
 
   return (
     <div className="flex flex-col items-end font-mono">
-      <div className="text-xl font-bold text-cyber-blue tracking-tighter">
+      <div className="text-xl font-bold text-blue-600 tracking-tighter">
         {timeString}
       </div>
-      <div className="text-[10px] uppercase tracking-widest text-cyber-purple font-medium">
+      <div className="text-[10px] uppercase tracking-widest text-blue-500 font-medium">
         {dateString}
       </div>
     </div>
@@ -167,19 +167,19 @@ export default function App() {
   const handleLogin = async () => {
     try {
       await loginWithGoogle();
-      addActivityLog('User logged in', 'SUCCESS', 'text-cyber-green');
+      addActivityLog('User logged in', 'SUCCESS', 'text-blue-400');
       incrementFavorites();
     } catch (error) {
-      addActivityLog('Login failed', 'ERROR', 'text-red-500');
+      addActivityLog('Login failed', 'ERROR', 'text-blue-600');
     }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
-      addActivityLog('User logged out', 'INFO', 'text-cyber-blue');
+      addActivityLog('User logged out', 'INFO', 'text-blue-600');
     } catch (error) {
-      addActivityLog('Logout failed', 'ERROR', 'text-red-500');
+      addActivityLog('Logout failed', 'ERROR', 'text-blue-600');
     }
   };
 
@@ -205,7 +205,7 @@ export default function App() {
 
     setActiveTab(tabId);
     trackClick(tabId);
-    addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-cyber-purple');
+    addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-blue-500');
     incrementFavorites();
   };
 
@@ -365,35 +365,35 @@ export default function App() {
 
   return (
     <div 
-      className={`app-wrapper min-h-screen font-sans text-white cyber-grid overflow-x-hidden ${animationsEnabled ? '' : 'disable-animations'} ${gradientsEnabled ? '' : 'disable-gradients'}`}
-      style={{ filter: `brightness(${brightness}%)` }}
+      className={`app-wrapper min-h-screen font-sans bg-gray-50 text-gray-900 overflow-x-hidden ${animationsEnabled ? '' : 'disable-animations'} ${gradientsEnabled ? '' : 'disable-gradients'}`}
+      style={brightness !== 100 ? { filter: `brightness(${brightness}%)` } : undefined}
     >
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+          className="fixed inset-0 bg-gray-1000 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed top-0 left-0 h-full z-50 bg-black/95 border-r border-cyber-blue/30 transition-all duration-300 ${
+      <aside className={`fixed top-0 left-0 h-full z-50 bg-white border-r border-gray-200 transition-all duration-300 ${
         isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'
       }`}>
-        <div className="p-6 flex items-center justify-between border-b border-cyber-blue/20">
+        <div className="p-6 flex items-center justify-between border-b border-gray-200">
           <div className="flex items-center gap-3">
             <Logo className="w-10 h-10" />
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
-                <h1 className="text-lg font-bold text-cyber-blue tracking-tighter">Pemuryadi Generator</h1>
-                <p className="text-[8px] text-cyber-purple uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
+                <h1 className="text-lg font-bold text-blue-600 tracking-tighter">Pemuryadi Generator</h1>
+                <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
               </div>
             )}
           </div>
           {isSidebarOpen && (
             <button 
               onClick={() => setIsSidebarOpen(false)}
-              className="lg:hidden p-2 text-slate-400 hover:text-white transition-colors"
+              className="lg:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
             >
               <X size={20} />
             </button>
@@ -415,17 +415,17 @@ export default function App() {
                 }}
                 className={`w-full flex items-center gap-4 p-3 rounded-lg transition-all group ${
                   activeTab === item.id || (item.dropdown && item.dropdown.some(d => d.id === activeTab))
-                    ? 'bg-cyber-blue/20 text-cyber-blue border border-cyber-blue/50 shadow-[0_0_10px_rgba(0,243,255,0.2)]'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
               >
                 <span className="shrink-0 group-hover:scale-110 transition-transform">{item.icon}</span>
-                {isSidebarOpen && <span className="text-sm font-bold tracking-tight uppercase flex items-center gap-2">{item.label} {item.premiumOnly && <span className="text-[8px] bg-cyber-yellow text-black px-1 rounded">PRO</span>}</span>}
+                {isSidebarOpen && <span className="text-sm font-bold tracking-tight uppercase flex items-center gap-2">{item.label} {item.premiumOnly && <span className="text-[8px] bg-blue-100 text-black px-1 rounded">PRO</span>}</span>}
                 {isSidebarOpen && item.dropdown && <ChevronDown size={14} className={`ml-auto transition-transform ${activeDropdown === item.id ? 'rotate-180' : ''}`} />}
               </button>
 
               {isSidebarOpen && item.dropdown && activeDropdown === item.id && (
-                <div className="mt-2 ml-8 space-y-1 border-l border-cyber-blue/20 pl-4 animate-in fade-in slide-in-from-top-2">
+                <div className="mt-2 ml-8 space-y-1 border-l border-gray-200 pl-4 animate-in fade-in slide-in-from-top-2">
                   {item.dropdown.map(sub => (
                     <button
                       key={sub.id}
@@ -434,11 +434,11 @@ export default function App() {
                         if (window.innerWidth < 768) setIsSidebarOpen(false);
                       }}
                       className={`w-full text-left p-2 text-xs font-medium rounded-md transition-all flex items-center justify-between ${
-                        activeTab === sub.id ? 'text-cyber-blue bg-cyber-blue/10' : 'text-slate-500 hover:text-cyber-purple'
+                        activeTab === sub.id ? 'text-white bg-blue-500' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                       }`}
                     >
                       <span>{sub.label}</span>
-                      {sub.premiumOnly && <span className="text-[8px] bg-cyber-yellow text-black px-1 rounded ml-2">PRO</span>}
+                      {sub.premiumOnly && <span className="text-[8px] bg-blue-100 text-black px-1 rounded ml-2">PRO</span>}
                     </button>
                   ))}
                 </div>
@@ -449,7 +449,7 @@ export default function App() {
 
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute top-20 right-[-12px] w-6 h-6 bg-cyber-blue rounded-full hidden md:flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform z-50"
+          className="absolute top-20 right-[-12px] w-6 h-6 bg-blue-600 rounded-full hidden md:flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform z-50"
         >
           {isSidebarOpen ? <X size={14} /> : <Menu size={14} />}
         </button>
@@ -458,18 +458,18 @@ export default function App() {
       {/* Main Content Area */}
       <main className={`transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'} pb-20 min-h-screen flex flex-col w-full md:w-auto`}>
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-30 bg-black/90 border-b border-cyber-blue/20 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between no-print w-full" style={{ willChange: 'transform' }}>
+        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between no-print w-full" style={{ willChange: 'transform' }}>
           <div className="flex items-center gap-3 md:hidden">
-             <button onClick={() => setIsSidebarOpen(true)} className="text-cyber-blue p-1">
+             <button onClick={() => setIsSidebarOpen(true)} className="text-blue-600 p-1">
                <Menu size={24} />
              </button>
              <Logo className="w-8 h-8" />
-             <h1 className="text-sm font-bold text-cyber-blue">Pemuryadi Generator</h1>
+             <h1 className="text-sm font-bold text-blue-600">Pemuryadi Generator</h1>
           </div>
 
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-md mx-4 lg:mx-8 relative" ref={searchDropdownRef}>
             <div className="relative w-full">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
               <input 
                 type="text" 
                 placeholder="Search modules, games, documents..." 
@@ -479,11 +479,11 @@ export default function App() {
                   setIsSearchFocused(true);
                 }}
                 onFocus={() => setIsSearchFocused(true)}
-                className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs focus:border-cyber-blue outline-none transition-all"
+                className="w-full bg-gray-100 border border-gray-200 rounded-full py-2 pl-10 pr-4 text-xs focus:border-blue-500 outline-none transition-all"
               />
             </div>
             {isSearchFocused && searchQuery && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-cyber-blue/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 max-h-64 overflow-y-auto custom-scrollbar">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 max-h-64 overflow-y-auto custom-scrollbar">
                 {menuItems.flatMap(item => [
                   item,
                   ...(item.dropdown || [])
@@ -499,14 +499,14 @@ export default function App() {
                         setSearchQuery('');
                         setIsSearchFocused(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 flex items-center gap-3 transition-colors"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-100 border-b border-gray-100 last:border-0 flex items-center gap-3 transition-colors"
                     >
-                      <span className="text-cyber-blue">{typeof item.icon === 'string' ? item.icon : <Search size={14} />}</span>
-                      <span className="text-sm text-slate-300">{item.label}</span>
+                      <span className="text-blue-600">{typeof item.icon === 'string' ? item.icon : <Search size={14} />}</span>
+                      <span className="text-sm text-gray-700">{item.label}</span>
                     </button>
                   ))
                 ) : (
-                  <div className="p-4 text-center text-sm text-slate-500">No results found</div>
+                  <div className="p-4 text-center text-sm text-gray-500">No results found</div>
                 )}
               </div>
             )}
@@ -516,33 +516,33 @@ export default function App() {
             <div className="hidden sm:block">
               <Clock />
             </div>
-            <div className="h-8 w-[1px] bg-white/10 hidden sm:block"></div>
+            <div className="h-8 w-[1px] bg-gray-200 hidden sm:block"></div>
             <div className="flex items-center gap-1 sm:gap-3">
               
               {/* Notifications */}
               <div className="relative" ref={notifDropdownRef}>
                 <button 
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                  className={`p-2 rounded-lg transition-colors relative ${isNotificationsOpen ? 'bg-cyber-purple/20 text-cyber-purple' : 'bg-white/5 text-slate-400 hover:text-cyber-blue'}`}
+                  className={`p-2 rounded-lg transition-colors relative ${isNotificationsOpen ? 'bg-blue-50 text-blue-500' : 'bg-gray-100 text-gray-600 hover:text-blue-600'}`}
                 >
                   <Bell size={18} />
-                  {usageTime > 7200 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>}
-                  {usageTime > 7200 && <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>}
+                  {usageTime > 7200 && <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full animate-ping"></span>}
+                  {usageTime > 7200 && <span className="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full"></span>}
                 </button>
                 
                 {isNotificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-black/95 backdrop-blur-xl border border-cyber-purple/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-cyber-purple/20 bg-cyber-purple/5 flex justify-between items-center">
-                      <h3 className="text-xs font-bold text-cyber-purple uppercase tracking-widest">Peringatan Sistem</h3>
+                  <div className="absolute right-0 mt-2 w-80 bg-white backdrop-blur-xl border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="p-3 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                      <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest">Peringatan Sistem</h3>
                     </div>
                     <div className="max-h-64 overflow-y-auto custom-scrollbar p-2">
                       {usageTime > 7200 ? (
-                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                          <h4 className="text-sm font-bold text-red-400 mb-1">Peringatan Kesehatan</h4>
-                          <p className="text-xs text-slate-300">Anda telah menggunakan perangkat ini lebih dari 2 jam. Harap istirahatkan mata dan tubuh Anda sejenak untuk menjaga kesehatan.</p>
+                        <div className="p-3 bg-blue-50 border border-gray-200 rounded-lg">
+                          <h4 className="text-sm font-bold text-blue-500 mb-1">Peringatan Kesehatan</h4>
+                          <p className="text-xs text-gray-700">Anda telah menggunakan perangkat ini lebih dari 2 jam. Harap istirahatkan mata dan tubuh Anda sejenak untuk menjaga kesehatan.</p>
                         </div>
                       ) : (
-                        <div className="p-4 text-center text-xs text-slate-500 italic">Tidak ada peringatan. Waktu penggunaan: {Math.floor(usageTime / 60)} menit.</div>
+                        <div className="p-4 text-center text-xs text-gray-500 italic">Tidak ada peringatan. Waktu penggunaan: {Math.floor(usageTime / 60)} menit.</div>
                       )}
                     </div>
                   </div>
@@ -553,39 +553,39 @@ export default function App() {
               <div className="relative hidden sm:block" ref={settingsDropdownRef}>
                 <button 
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                  className={`p-2 rounded-lg transition-colors ${isSettingsOpen ? 'bg-cyber-blue/20 text-cyber-blue' : 'bg-white/5 text-slate-400 hover:text-cyber-blue'}`}
+                  className={`p-2 rounded-lg transition-colors ${isSettingsOpen ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600 hover:text-blue-600'}`}
                 >
                   <Settings size={18} className={isSettingsOpen ? 'animate-spin-slow' : ''} />
                 </button>
                 
                 {isSettingsOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-black/95 backdrop-blur-xl border border-cyber-blue/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-3 border-b border-cyber-blue/20 bg-cyber-blue/5">
-                      <h3 className="text-xs font-bold text-cyber-blue uppercase tracking-widest">System Settings</h3>
+                  <div className="absolute right-0 mt-2 w-64 bg-white backdrop-blur-xl border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="p-3 border-b border-gray-200 bg-blue-600/5">
+                      <h3 className="text-xs font-bold text-blue-600 uppercase tracking-widest">System Settings</h3>
                     </div>
                     <div className="p-4 space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-300 font-medium">UI Animations</span>
+                        <span className="text-xs text-gray-700 font-medium">UI Animations</span>
                         <button 
                           onClick={() => setAnimationsEnabled(!animationsEnabled)}
-                          className={`w-10 h-5 rounded-full transition-colors relative ${animationsEnabled ? 'bg-cyber-blue' : 'bg-slate-700'}`}
+                          className={`w-10 h-5 rounded-full transition-colors relative ${animationsEnabled ? 'bg-blue-600' : 'bg-red-100'}`}
                         >
                           <span className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${animationsEnabled ? 'left-6' : 'left-1'}`}></span>
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-300 font-medium">Moving Gradients</span>
+                        <span className="text-xs text-gray-700 font-medium">Moving Gradients</span>
                         <button 
                           onClick={() => setGradientsEnabled(!gradientsEnabled)}
-                          className={`w-10 h-5 rounded-full transition-colors relative ${gradientsEnabled ? 'bg-cyber-blue' : 'bg-slate-700'}`}
+                          className={`w-10 h-5 rounded-full transition-colors relative ${gradientsEnabled ? 'bg-blue-600' : 'bg-red-100'}`}
                         >
                           <span className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${gradientsEnabled ? 'left-6' : 'left-1'}`}></span>
                         </button>
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-300 font-medium">Brightness</span>
-                          <span className="text-[10px] text-cyber-blue font-mono">{brightness}%</span>
+                          <span className="text-xs text-gray-700 font-medium">Brightness</span>
+                          <span className="text-[10px] text-blue-600 font-mono">{brightness}%</span>
                         </div>
                         <input 
                           type="range" 
@@ -593,37 +593,37 @@ export default function App() {
                           max="150" 
                           value={brightness} 
                           onChange={(e) => setBrightness(parseInt(e.target.value))}
-                          className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyber-blue"
+                          className="w-full h-1 bg-red-100 rounded-lg appearance-none cursor-pointer accent-red-500"
                         />
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-300 font-medium">Fullscreen Mode</span>
+                        <span className="text-xs text-gray-700 font-medium">Fullscreen Mode</span>
                         <button 
                           onClick={toggleFullscreen}
-                          className={`w-10 h-5 rounded-full transition-colors relative ${isFullscreen ? 'bg-cyber-blue' : 'bg-slate-700'}`}
+                          className={`w-10 h-5 rounded-full transition-colors relative ${isFullscreen ? 'bg-blue-600' : 'bg-red-100'}`}
                         >
                           <span className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${isFullscreen ? 'left-6' : 'left-1'}`}></span>
                         </button>
                       </div>
                       {deferredPrompt && (
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-300 font-medium">Install App (IFP/Desktop)</span>
+                          <span className="text-xs text-gray-700 font-medium">Install App (IFP/Desktop)</span>
                           <button 
                             onClick={handleInstallClick}
-                            className="px-3 py-1 bg-cyber-blue/10 text-cyber-blue hover:bg-cyber-blue hover:text-black border border-cyber-blue/30 rounded text-[10px] font-bold uppercase tracking-widest transition-colors"
+                            className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-gray-200 rounded text-[10px] font-bold uppercase tracking-widest transition-colors"
                           >
                             Install
                           </button>
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-300 font-medium">Clear Local Cache</span>
+                        <span className="text-xs text-gray-700 font-medium">Clear Local Cache</span>
                         <button 
                           onClick={() => {
                             localStorage.clear();
                             window.location.reload();
                           }}
-                          className="px-3 py-1 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/30 rounded text-[10px] font-bold uppercase tracking-widest transition-colors"
+                          className="px-3 py-1 bg-blue-50 text-blue-500 hover:bg-blue-600 hover:text-white border border-gray-200 rounded text-[10px] font-bold uppercase tracking-widest transition-colors"
                         >
                           Clear
                         </button>
@@ -637,9 +637,9 @@ export default function App() {
               <div className="relative" ref={profileDropdownRef}>
                 <button 
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="w-8 h-8 rounded-full bg-gradient-to-br from-cyber-blue to-cyber-purple p-[1px] hover:scale-110 transition-transform focus:outline-none"
+                  className="w-8 h-8 rounded-full bg-blue-500 p-[1px] hover:scale-110 transition-transform focus:outline-none"
                 >
-                  <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                     {profile?.photoURL || user?.photoURL ? (
                       <img 
                         src={profile?.photoURL || user?.photoURL || ''} 
@@ -649,25 +649,25 @@ export default function App() {
                         crossOrigin="anonymous"
                       />
                     ) : (
-                      <User size={16} className={user ? "text-cyber-green" : "text-cyber-blue"} />
+                      <User size={16} className={user ? "text-blue-400" : "text-blue-600"} />
                     )}
                   </div>
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-72 bg-black/95 backdrop-blur-xl border border-cyber-blue/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                    <div className="p-4 border-b border-cyber-blue/20 bg-gradient-to-b from-cyber-blue/10 to-transparent">
+                  <div className="absolute right-0 mt-2 w-72 bg-white backdrop-blur-xl border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                    <div className="p-4 border-b border-gray-200 bg-gray-50">
                       {loading ? (
                         <div className="animate-pulse flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-slate-800"></div>
+                          <div className="w-12 h-12 rounded-full bg-red-50"></div>
                           <div className="space-y-2">
-                            <div className="h-3 w-20 bg-slate-800 rounded"></div>
-                            <div className="h-2 w-16 bg-slate-800 rounded"></div>
+                            <div className="h-3 w-20 bg-red-50 rounded"></div>
+                            <div className="h-2 w-16 bg-red-50 rounded"></div>
                           </div>
                         </div>
                       ) : user && profile ? (
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full border-2 border-cyber-blue p-0.5 shrink-0">
+                          <div className="w-12 h-12 rounded-full border-2 border-blue-500 p-0.5 shrink-0">
                             {profile.photoURL || user.photoURL ? (
                               <img 
                                 src={profile.photoURL || user.photoURL || ''} 
@@ -677,29 +677,29 @@ export default function App() {
                                 crossOrigin="anonymous"
                               />
                             ) : (
-                              <div className="gen-card w-full h-full bg-slate-800 rounded-full flex items-center justify-center text-cyber-blue">
+                              <div className="gen-card w-full h-full bg-red-50 rounded-full flex items-center justify-center text-blue-600">
                                 <User size={24} />
                               </div>
                             )}
                           </div>
                           <div className="overflow-hidden">
-                            <div className="text-sm font-bold text-white tracking-tight truncate">{profile.displayName || user.email}</div>
-                            <div className="text-[10px] text-cyber-blue font-mono uppercase mt-1 flex items-center gap-1">
+                            <div className="text-sm font-bold text-black tracking-tight truncate">{profile.displayName || user.email}</div>
+                            <div className="text-[10px] text-blue-600 font-mono uppercase mt-1 flex items-center gap-1">
                               <Shield size={10} /> TIER: {profile.tier || profile.role || 'Free'}
                             </div>
-                            <div className="text-[10px] text-cyber-yellow font-mono uppercase mt-1 flex items-center gap-1">
+                            <div className="text-[10px] text-blue-300 font-mono uppercase mt-1 flex items-center gap-1">
                               <Coins size={10} /> TOKEN: {(profile.tier || profile.role) === 'owner' ? 'Unlimited' : profile.tokens !== undefined ? profile.tokens : '2 / hari'}
                             </div>
-                            <button onClick={() => { handleTabChange('pricing'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-black font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1">
+                            <button onClick={() => { handleTabChange('pricing'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-black font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1">
                               <Zap size={10} /> Upgrade Tier
                             </button>
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center py-2">
-                          <User size={24} className="text-slate-500 mb-2" />
-                          <span className="text-xs text-slate-400 mb-3">Guest User</span>
-                          <button onClick={handleLogin} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-cyber-blue/10 hover:bg-cyber-blue text-cyber-blue hover:text-black border border-cyber-blue/50 rounded-lg transition-colors text-xs font-bold uppercase tracking-widest">
+                          <User size={24} className="text-gray-500 mb-2" />
+                          <span className="text-xs text-gray-600 mb-3">Guest User</span>
+                          <button onClick={handleLogin} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-200 rounded-lg transition-colors text-xs font-bold uppercase tracking-widest">
                             <LogIn size={14} />
                             Login with Google
                           </button>
@@ -709,11 +709,11 @@ export default function App() {
                     
                     {user && (
                       <div className="p-2">
-                        <div className="px-3 py-2 text-[10px] uppercase font-bold text-slate-500 flex justify-between items-center">
+                        <div className="px-3 py-2 text-[10px] uppercase font-bold text-gray-500 flex justify-between items-center">
                           <span>System Access</span>
-                          <span className="text-cyber-green">GRANTED</span>
+                          <span className="text-blue-400">GRANTED</span>
                         </div>
-                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-slate-300 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-700 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors">
                           <LogOut size={14} />
                           Sign Out
                         </button>
@@ -732,22 +732,22 @@ export default function App() {
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Hero Dashboard Section */}
               <div className="flex flex-col lg:flex-row gap-8 mb-8">
-                <div className="cyber-card p-8 rounded-2xl flex-1">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-blue/10 border border-cyber-blue/20 mb-6">
-                    <span className="w-2 h-2 bg-cyber-blue rounded-full animate-pulse"></span> 
-                    <span className="text-[10px] font-bold text-cyber-blue uppercase tracking-widest">System Online</span>
+                <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-gray-200 mb-6">
+                    <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span> 
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
                   </div>
                   <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
-                    BROWSER: <span className="text-cyber-blue">{browserName.toUpperCase()}</span>
+                    BROWSER: <span className="text-blue-600">{browserName.toUpperCase()}</span>
                   </h2>
-                  <p className="text-slate-400 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-black/30 p-2 rounded border border-white/5">
+                  <p className="text-gray-600 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-gray-100 p-2 rounded border border-gray-100">
                     USER AGENT:<br/>{userAgentStr}
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    <button onClick={() => handleTabChange('modul')} className="cyber-button px-8 py-3 text-sm">
+                    <button onClick={() => handleTabChange('modul')} className="bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors px-8 py-3 text-sm">
                       Operation System: {osName} | RAM: {ramInfo}
                     </button>
-                    <button onClick={() => setIsChatOpen(true)} className="px-8 py-3 text-sm font-bold uppercase tracking-widest border border-cyber-purple text-cyber-purple hover:bg-cyber-purple hover:text-white transition-all italic">
+                    <button onClick={() => setIsChatOpen(true)} className="px-8 py-3 text-sm font-bold uppercase tracking-widest border border-gray-300 text-blue-500 hover:bg-blue-500 hover:text-white transition-all italic">
                       Consult AI Assistant
                     </button>
                   </div>
@@ -760,34 +760,34 @@ export default function App() {
 
               {/* Analytics & Logs Row */}
               <div className="flex flex-wrap justify-center lg:justify-start gap-6">
-                <div className="cyber-card p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xs font-bold text-cyber-purple uppercase tracking-widest">Traffic Analytics</h3>
-                    <Activity size={16} className="text-cyber-purple" />
+                    <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest">Traffic Analytics</h3>
+                    <Activity size={16} className="text-blue-500" />
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-500">Daily Access</span>
-                      <span className="text-lg font-mono font-bold text-cyber-blue">{visitors.today}</span>
+                      <span className="text-xs text-gray-500">Daily Access</span>
+                      <span className="text-lg font-mono font-bold text-blue-600">{visitors.today}</span>
                     </div>
-                    <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
-                      <div className="bg-cyber-blue h-full w-3/4 shadow-[0_0_10px_var(--color-cyber-blue)]"></div>
+                    <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                      <div className="bg-blue-600 h-full w-3/4 shadow-sm"></div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-500">Monthly Load</span>
-                      <span className="text-lg font-mono font-bold text-cyber-purple">{visitors.month}</span>
+                      <span className="text-xs text-gray-500">Monthly Load</span>
+                      <span className="text-lg font-mono font-bold text-blue-500">{visitors.month}</span>
                     </div>
-                    <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
-                      <div className="bg-cyber-purple h-full w-1/2 shadow-[0_0_10px_var(--color-cyber-purple)]"></div>
+                    <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                      <div className="bg-blue-500 h-full w-1/2 shadow-sm"></div>
                     </div>
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Heart size={14} className="text-cyber-yellow" />
-                        <span className="text-xs text-slate-500">Favorites</span>
+                        <Heart size={14} className="text-blue-300" />
+                        <span className="text-xs text-gray-500">Favorites</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-mono font-bold text-cyber-yellow">{favorites}</span>
-                        <button onClick={incrementFavorites} className="p-1.5 rounded bg-cyber-yellow/10 text-cyber-yellow hover:bg-cyber-yellow hover:text-black transition-colors" title="Favorite this app">
+                        <span className="text-lg font-mono font-bold text-blue-300">{favorites}</span>
+                        <button onClick={incrementFavorites} className="p-1.5 rounded bg-blue-50 text-blue-300 hover:bg-blue-100 hover:text-white transition-colors" title="Favorite this app">
                           <Heart size={14} />
                         </button>
                       </div>
@@ -795,10 +795,10 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="cyber-card p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl overflow-y-auto custom-scrollbar flex-shrink-0 w-full sm:w-[318px] min-h-[160px]">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xs font-bold text-cyber-blue uppercase tracking-widest flex items-center gap-2">
-                      <div className="w-2 h-2 bg-cyber-blue animate-pulse rounded-full"></div>
+                    <h3 className="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 animate-pulse rounded-full"></div>
                       Aktivitas Paling Sering Diklik
                     </h3>
                   </div>
@@ -811,17 +811,17 @@ export default function App() {
                           const menuItem = menuItems.flatMap(item => [item, ...(item.dropdown || [])]).find(item => item.id === activity);
                           const label = menuItem ? menuItem.label : activity;
                           return (
-                            <div key={activity} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-2 gap-1 sm:gap-4">
+                            <div key={activity} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-2 gap-1 sm:gap-4">
                               <div className="flex items-start sm:items-center gap-2 sm:gap-4 overflow-hidden">
                                 <span className="text-slate-600 shrink-0">#{index + 1}</span>
-                                <span className="text-slate-300 truncate sm:whitespace-normal sm:break-words">{label}</span>
+                                <span className="text-gray-700 truncate sm:whitespace-normal sm:break-words">{label}</span>
                               </div>
-                              <span className="text-cyber-blue font-bold self-end sm:self-auto shrink-0">{count} klik</span>
+                              <span className="text-blue-600 font-bold self-end sm:self-auto shrink-0">{count} klik</span>
                             </div>
                           );
                         })
                     ) : (
-                      <div className="text-slate-500 italic">Belum ada aktivitas...</div>
+                      <div className="text-gray-500 italic">Belum ada aktivitas...</div>
                     )}
                   </div>
                 </div>
@@ -829,21 +829,21 @@ export default function App() {
 
               {/* Feedback & Support */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="cyber-card p-6 rounded-2xl flex items-center justify-center" style={{ width: '300px', height: '300px', margin: '0 auto' }}>
+                <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex items-center justify-center" style={{ width: '300px', height: '300px', margin: '0 auto' }}>
                    <FeedbackForm inline={true} />
                 </div>
                 <div className="space-y-6">
-                   <div className="cyber-card p-8 rounded-2xl bg-gradient-to-br from-cyber-yellow/5 to-transparent">
-                      <h3 className="text-xl font-black italic text-cyber-yellow mb-4 uppercase tracking-tighter">Support the Network</h3>
-                      <p className="text-xs text-slate-400 mb-6 leading-relaxed">Your contributions keep the system online and free for all educators. Join the mission to advance Indonesian education.</p>
-                      <a href="https://saweria.co/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-cyber-yellow text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
+                   <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl bg-gradient-to-br from-red-200/5 to-transparent">
+                      <h3 className="text-xl font-black italic text-blue-300 mb-4 uppercase tracking-tighter">Support the Network</h3>
+                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">Your contributions keep the system online and free for all educators. Join the mission to advance Indonesian education.</p>
+                      <a href="https://saweria.co/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-blue-100 text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
                         ☕ Donate via Saweria
                       </a>
                    </div>
-                   <div className="cyber-card p-8 rounded-2xl bg-gradient-to-br from-cyber-blue/5 to-transparent">
-                      <h3 className="text-xl font-black italic text-cyber-blue mb-4 uppercase tracking-tighter">Premium Assets</h3>
-                      <p className="text-xs text-slate-400 mb-6 leading-relaxed">Access high-end teaching materials and exclusive module templates in our digital marketplace.</p>
-                      <a href="https://lynk.id/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-cyber-blue text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
+                   <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl bg-gradient-to-br from-red-500/5 to-transparent">
+                      <h3 className="text-xl font-black italic text-blue-600 mb-4 uppercase tracking-tighter">Premium Assets</h3>
+                      <p className="text-xs text-gray-600 mb-6 leading-relaxed">Access high-end teaching materials and exclusive module templates in our digital marketplace.</p>
+                      <a href="https://lynk.id/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-black font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform italic">
                         🛒 Marketplace
                       </a>
                    </div>
@@ -887,26 +887,26 @@ export default function App() {
       </div>
       <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 no-print items-center">
         <div className={`flex flex-col gap-3 transition-all duration-300 origin-bottom ${isSocialOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-0 opacity-0 translate-y-10 pointer-events-none'}`}>
-          <a href="https://www.facebook.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform">
+          <a href="https://www.facebook.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform">
             <FaFacebook size={18} />
           </a>
-          <a href="https://www.instagram.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform">
+          <a href="https://www.instagram.com/p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform">
             <FaInstagram size={18} />
           </a>
-          <a href="https://www.tiktok.com/@p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-black border border-white/20 flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform">
+          <a href="https://www.tiktok.com/@p.e.muryadi" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white border border-white/20 flex items-center justify-center text-black shadow-lg hover:scale-110 transition-transform">
             <FaTiktok size={18} />
           </a>
         </div>
         
         <button 
           onClick={() => setIsSocialOpen(!isSocialOpen)} 
-          className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${isSocialOpen ? 'bg-slate-700 text-white' : 'bg-white/10 text-slate-300 backdrop-blur-md border border-white/20'}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${isSocialOpen ? 'bg-red-100 text-black' : 'bg-gray-200 text-gray-700 backdrop-blur-md border border-white/20'}`}
           title="Toggle Social Media"
         >
           {isSocialOpen ? <X size={18} /> : <Share2 size={18} />}
         </button>
 
-        <button onClick={() => setIsChatOpen(true)} className="w-12 h-12 mt-2 rounded-full bg-cyber-blue text-black flex items-center justify-center shadow-[0_0_20px_rgba(0,243,255,0.5)] hover:scale-110 transition-transform pulse-glow">
+        <button onClick={() => setIsChatOpen(true)} className="w-12 h-12 mt-2 rounded-full bg-blue-600 text-black flex items-center justify-center shadow-sm hover:scale-110 transition-transform pulse-glow">
           <MessageSquare size={24} />
         </button>
       </div>
@@ -915,19 +915,19 @@ export default function App() {
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
       {/* Footer */}
-      <footer className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} bg-black/40 border-t border-white/5 py-8 px-6 no-print`}>
+      <footer className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} bg-white/40 border-t border-gray-100 py-8 px-6 no-print`}>
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="h-[1px] w-12 bg-cyber-blue/30"></div>
-            <p className="text-xs font-mono text-cyber-blue uppercase tracking-widest">System Version 2.0.77</p>
-            <div className="h-[1px] w-12 bg-cyber-blue/30"></div>
+            <div className="h-[1px] w-12 bg-blue-600/30"></div>
+            <p className="text-xs font-mono text-blue-600 uppercase tracking-widest">System Version 2.0.77</p>
+            <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
           <div className="flex justify-center gap-6 mb-4">
-            <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-cyber-blue transition-colors">Privacy Policy</a>
-            <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-cyber-blue transition-colors">Terms of Service</a>
+            <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
+            <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
           </div>
-          <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
-            ©2026 <span className="text-white">PEMURYADI</span> - Cyber Education & RuangRiung
+          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">
+            ©2026 <span className="text-black">PEMURYADI</span> - Cyber Education & RuangRiung
           </p>
         </div>
       </footer>

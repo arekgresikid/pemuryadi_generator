@@ -4,6 +4,8 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import AIAssistedTextarea from './AIAssistedTextarea';
 
 type WordClue = {
   word: string;
@@ -465,28 +467,28 @@ PENTING:
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8 bg-gradient-to-br from-slate-800 to-slate-900 shadow-xl">
+    <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 md:p-8">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-2xl shadow-lg">
+        <div className="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-2xl shadow-sm">
           📝
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-white">Teka Teki Silang</h3>
-          <p className="text-slate-400">Buat game teka teki silang edukatif</p>
+          <h3 className="text-2xl font-bold text-gray-900">Teka Teki Silang</h3>
+          <p className="text-gray-600">Buat game teka teki silang edukatif</p>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="gen-card bg-slate-800 rounded-xl p-5 shadow-sm">
+          <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">🤖 Generate Kata dengan AI</h4>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Jenjang</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
                 <select 
                   value={eduLevel}
                   onChange={(e) => setEduLevel(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 >
                   {educationLevels.map(level => (
                     <option key={level.id} value={level.id}>{level.label}</option>
@@ -494,11 +496,11 @@ PENTING:
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Fase</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
                 <select 
                   value={fase}
                   onChange={(e) => setFase(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 >
                   {phaseClassMap[eduLevel]?.phases.map(p => (
                     <option key={p.id} value={p.id}>{p.label}</option>
@@ -506,11 +508,11 @@ PENTING:
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Kelas</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
                 <select 
                   value={kelas}
                   onChange={(e) => setKelas(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 >
                   {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
@@ -518,11 +520,11 @@ PENTING:
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-slate-300 mb-2">Mata Pelajaran</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
                 <select 
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 >
                   {subjectsByLevel[eduLevel]?.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -536,7 +538,7 @@ PENTING:
           <button 
               onClick={generateWordsWithAI} 
               disabled={isGeneratingAI}
-              className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isGeneratingAI ? (
                 <><span className="animate-spin">⏳</span> Membuat Kata...</>
@@ -547,30 +549,27 @@ PENTING:
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Judul / Topik</label>
-            <input 
-              type="text" 
+            <label className="block text-sm font-medium text-gray-700 mb-2">Judul / Topik</label>
+            <AIAssistedInput type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Ekosistem dan Lingkungan"
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white focus:border-green-500 transition-all"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Daftar Kata & Petunjuk</label>
-            <p className="text-xs text-slate-400 mb-2">Format: <strong>KATA - Petunjuk</strong> (satu per baris)</p>
-            <textarea 
-              value={inputText}
+            <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Kata & Petunjuk</label>
+            <p className="text-xs text-gray-600 mb-2">Format: <strong>KATA - Petunjuk</strong> (satu per baris)</p>
+            <AIAssistedTextarea value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               rows={10}
               placeholder="FOTOSINTESIS - Proses tumbuhan membuat makanan sendiri&#10;KARNIVORA - Hewan pemakan daging&#10;EKOSISTEM - Hubungan timbal balik antara makhluk hidup dan lingkungannya"
-              className="w-full bg-slate-800 border border-slate-600 rounded-xl p-3 text-white font-mono text-sm focus:border-green-500 transition-all custom-scrollbar"
-            />
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors custom-scrollbar" />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
             </div>
           )}
@@ -578,21 +577,21 @@ PENTING:
           <div className="flex gap-3">
             <button 
               onClick={generateCrossword}
-              className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold transition-all shadow-lg btn-generate-animated"
+              className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm "
             >
               Generate TTS
             </button>
             <button 
               onClick={printPuzzle}
               disabled={!puzzleData}
-              className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <span>🖨️</span> Print PDF
             </button>
           </div>
         </div>
 
-        <div className="gen-card bg-slate-800/30 rounded-xl p-4 min-h-[400px] flex items-center justify-center overflow-auto custom-scrollbar">
+        <div className="bg-gray-50 border border-gray-200 shadow-sm rounded-xl p-4 min-h-[400px] flex items-center justify-center overflow-auto custom-scrollbar">
           {puzzleData ? (
             <div className="p-4 bg-white rounded-lg shadow-inner max-w-full overflow-auto">
               <table className="border-collapse mx-auto">
@@ -607,14 +606,14 @@ PENTING:
                           return (
                             <td 
                               key={c} 
-                              className={`w-8 h-8 md:w-10 md:h-10 ${cell ? 'border-2 border-slate-800 bg-white' : 'border-0 border-transparent'} relative text-center font-bold text-slate-800`}
+                              className={`w-8 h-8 md:w-10 md:h-10 ${cell ? 'border-2 border-gray-300 bg-white' : 'border-0 border-transparent'} relative text-center font-bold text-gray-900`}
                             >
                               {cell && cell.number && (
-                                <span className="absolute top-0.5 left-0.5 text-[8px] md:text-[10px] font-normal leading-none text-slate-600">
+                                <span className="absolute top-0.5 left-0.5 text-[8px] md:text-[10px] font-normal leading-none text-gray-500">
                                   {cell.number}
                                 </span>
                               )}
-                              {cell && <span className="opacity-0 hover:opacity-100 transition-opacity cursor-help" title="Jawaban">{cell.char}</span>}
+                              {cell && <span className="opacity-0 hover:opacity-100 transition-opacity cursor-help text-blue-600" title="Jawaban">{cell.char}</span>}
                             </td>
                           );
                         })}
@@ -623,10 +622,10 @@ PENTING:
                   })}
                 </tbody>
               </table>
-              <p className="text-center text-xs text-slate-500 mt-4">Arahkan kursor ke kotak untuk melihat jawaban</p>
+              <p className="text-center text-xs text-gray-500 mt-4">Arahkan kursor ke kotak untuk melihat jawaban</p>
             </div>
           ) : (
-            <div className="text-center text-slate-500">
+            <div className="text-center text-gray-500">
               <div className="text-6xl mb-4 opacity-50">📝</div>
               <p>Preview Teka Teki Silang akan muncul di sini</p>
             </div>
