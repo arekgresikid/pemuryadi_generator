@@ -15,6 +15,7 @@ export default function AdminPanel() {
   const [isSaving, setIsSaving] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [newName, setNewName] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -45,6 +46,7 @@ export default function AdminPanel() {
   const handleAdd = () => {
     setIsAdding(true);
     setNewEmail('');
+    setNewName('');
     setEditRole('siswa');
     setEditTier('Free');
     setEditActiveUntil('');
@@ -67,7 +69,7 @@ export default function AdminPanel() {
       const res = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newEmail, role: editRole, tier: editTier, activeUntil: editActiveUntil })
+        body: JSON.stringify({ email: newEmail, displayName: newName, role: editRole, tier: editTier, activeUntil: editActiveUntil })
       });
       if (res.ok) {
         setIsAdding(false);
@@ -339,6 +341,15 @@ export default function AdminPanel() {
             
             <div className="p-6 space-y-4">
               <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Nama Pengguna (Opsional)</label>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Nama Lengkap"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-4"
+                />
+                
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Alamat Email</label>
                 <input
                   type="email"

@@ -259,7 +259,7 @@ app.post('/admin/users', async (c) => {
   }
 
   const body = await c.req.json();
-  const { email, role, tier, activeUntil } = body;
+  const { email, displayName, role, tier, activeUntil } = body;
   
   if (!email) return c.json({ error: 'Email is required' }, 400);
 
@@ -270,9 +270,9 @@ app.post('/admin/users', async (c) => {
 
   const tempUid = 'pending-' + Date.now();
   await db.prepare(
-    `INSERT INTO users (uid, email, role, tier, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO users (uid, email, displayName, role, tier, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`
   ).bind(
-    tempUid, email, role || 'siswa', tier || 'Free', activeUntil || null, new Date().toISOString()
+    tempUid, email, displayName || null, role || 'siswa', tier || 'Free', activeUntil || null, new Date().toISOString()
   ).run();
 
   return c.json({ success: true });
