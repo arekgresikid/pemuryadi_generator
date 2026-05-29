@@ -43,6 +43,7 @@ export default function WorksheetGenerator() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [selectedImageModel, setSelectedImageModel] = React.useState<string>('nanobana');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -125,6 +126,33 @@ export default function WorksheetGenerator() {
       const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
       const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
 
+      let imageUrl = "https://picsum.photos/seed/education/200/400";
+      try {
+        const encodedPrompt = encodeURIComponent(`Educational worksheet illustration about ${formData.topik}, minimalist, line art, colorful, child friendly`);
+        const randomSeed = Math.floor(Math.random() * 1000000);
+        const apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || "";
+        
+        const imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedImageModel}&nologo=true&seed=${randomSeed}`, {
+          headers: apiKey ? {
+            'Authorization': `Bearer ${apiKey}`
+          } : {}
+        });
+
+        if (imageResponse.ok) {
+          const blob = await imageResponse.blob();
+          imageUrl = URL.createObjectURL(blob);
+        } else {
+          console.warn("Gagal mendapatkan gambar nanobana, status:", imageResponse.status);
+        }
+      } catch (err) {
+        console.warn("Error saat mengambil gambar nanobana, menggunakan fallback", err);
+      }
+
+      const finalInfographicPrompt = INFOGRAPHIC_BASE_PROMPT.replace(
+        'https://picsum.photos/seed/education/200/400',
+        imageUrl
+      );
+
       const prompt = `Buatkan Lembar Kerja Peserta Didik (LKPD) / Worksheet edukatif untuk:
 Jenjang: ${jenjangLabel}
 Fase/Kelas: ${faseLabel} / ${kelasLabel}
@@ -153,7 +181,7 @@ Konteks Kurikulum Merdeka & Pedagogi:
 3. TPACK & STEAM: Integrasikan pendekatan Technological Pedagogical Content Knowledge (TPACK) dan Science, Technology, Engineering, Art, Mathematics (STEAM) dalam rancangan kegiatan atau soal jika relevan.
 
 Instruksi Desain (SANGAT PENTING - GUNAKAN STRUKTUR INFOGRAFIK INI):
-${INFOGRAPHIC_BASE_PROMPT}
+${finalInfographicPrompt}
 
 Sentuhan Gaya Visual Tambahan:
 ${designPrompts[formData.gayaDesain]}
@@ -434,8 +462,9 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
             </div>
           )}
 
-          <div className="mb-4">
-            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <ModelSelector label="Model Teks AI" modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+            <ModelSelector label="Model Gambar AI" modality="image" value={selectedImageModel} onChange={setSelectedImageModel} disabled={isGenerating} />
           </div>
           <button 
             onClick={generateWorksheet} 

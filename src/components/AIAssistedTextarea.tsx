@@ -18,14 +18,17 @@ export default function AIAssistedTextarea({ onValueChange, contextPrompt, class
       const ai = new GoogleGenAI({});
       const promptContext = contextPrompt || placeholder || 'ide acak berupa beberapa baris teks edukasi';
       
-      const prompt = `Berikan contoh konten yang cukup panjang dan detail (bisa dalam bentuk beberapa baris atau poin) untuk text area dengan konteks: "${promptContext}".
+      const randomSeed = Math.floor(Math.random() * 10000);
+      const prompt = `Berikan contoh konten acak, unik, dan detail (bisa dalam bentuk beberapa baris atau poin) untuk text area dengan konteks: "${promptContext}".
+Pastikan konten ini memiliki sudut pandang atau variasi yang berbeda dari biasanya (Seed: ${randomSeed}).
 Jawab LANGSUNG dengan isinya saja, tanpa tanda kutip di awal/akhir, tanpa basa-basi. Jika formatnya butuh dipisah baris, gunakan newline.`;
 
       const response = await ai.models.generateContent({
         model: 'openai',
         contents: prompt,
         config: {
-          systemInstruction: 'Anda adalah asisten pendidikan pembuat ide. Berikan jawaban yang terstruktur rapi dan langsung pada intinya.',
+          temperature: 0.9,
+          systemInstruction: 'Anda adalah asisten pendidikan pembuat ide kreatif. Berikan jawaban yang selalu bervariasi, terstruktur rapi dan langsung pada intinya.',
         }
       });
       

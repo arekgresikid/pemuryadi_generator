@@ -10,6 +10,14 @@ export const Type = {
 
 export class GoogleGenAI {
   apiKey: string;
+  images: {
+    generate: (params: {
+      prompt: string;
+      model?: string;
+      n?: number;
+      size?: string;
+    }) => Promise<{ data?: Array<{ url?: string; b64_json?: string }> }>;
+  };
   models: {
     generateContent: (params: {
       model: string;
@@ -34,6 +42,29 @@ export class GoogleGenAI {
       baseURL: "https://gen.pollinations.ai/v1",
       dangerouslyAllowBrowser: true 
     });
+
+    this.images = {
+      generate: async (params) => {
+        try {
+          if (typeof window !== 'undefined') {
+            const { useToken } = await import('../api');
+            await useToken();
+          }
+
+          const response = await openai.images.generate({
+            prompt: params.prompt,
+            model: params.model || 'nanobana',
+            n: params.n || 1,
+            size: (params.size || '1024x1024') as any,
+          });
+
+          return response;
+        } catch (error) {
+          console.error("AI Image Generation Error:", error);
+          throw error;
+        }
+      }
+    };
 
     this.models = {
       generateContent: async (params) => {

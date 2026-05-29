@@ -92,7 +92,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
 
       {/* Model Selector */}
       <div className="mb-6">
-        <ModelSelector modality="image" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+        <ModelSelector label="Model Gambar AI" modality="image" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
