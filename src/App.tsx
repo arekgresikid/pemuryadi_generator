@@ -29,6 +29,7 @@ import QuickProfile from './components/QuickProfile';
 import SNP from './components/SNP';
 import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
+import AdminPanel from './components/AdminPanel';
 import { translations } from './constants';
 
 function Clock() {
@@ -362,6 +363,10 @@ export default function App() {
     { id: 'game-ifp', icon: <MonitorPlay size={20} />, label: 'Game IFP' },
     { id: 'pricing', icon: <Coins size={20} className="text-amber-400" />, label: 'Langganan' }
   ];
+
+  if (profile?.role === 'owner' || profile?.role === 'admin') {
+    menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
+  }
 
   return (
     <div 
@@ -896,6 +901,7 @@ export default function App() {
             {activeTab === 'game-ifp' && <GameIFP />}
             {activeTab.startsWith('snp-') && <SNP subTab={activeTab} />}
             {activeTab === 'pricing' && <Pricing />}
+            {activeTab === 'admin-panel' && <AdminPanel />}
           </div>
         </div>
       </main>

@@ -11,6 +11,7 @@ CREATE TABLE users (
   reportsGenerated INTEGER DEFAULT 0,
   lastResetDate TEXT,
   createdAt TEXT,
+  activeUntil TEXT,
   
   -- Extra profile fields from QuickProfile
   nip TEXT,

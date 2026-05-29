@@ -86,15 +86,15 @@ app.get('/auth/callback', async (c) => {
     });
     const userData: any = await userRes.json();
 
-    // 3. Upsert user in D1
+    // 3. Upsert user in D1 based on EMAIL (allows admin to pre-register users)
     const db = c.env.DB;
-    const existingUser = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(userData.id).first();
+    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(userData.email).first();
     
     const adminEmailsStr = c.env.ADMIN_EMAILS || 'p.e.muryadi@gmail.com,arekgresikid@gmail.com,arekgresik@gmail.com';
     const adminEmails = adminEmailsStr.split(',').map((e: string) => e.trim());
     const isAdmin = adminEmails.includes(userData.email);
-    let role = isAdmin ? 'owner' : 'guest';
-    let initialTier = isAdmin ? 'Premium' : 'Free';
+    let role = isAdmin ? 'owner' : 'siswa';
+    let initialTier = isAdmin ? 'Titan' : 'Free';
     
     if (!existingUser) {
       await db.prepare(
@@ -104,10 +104,10 @@ app.get('/auth/callback', async (c) => {
         userData.id, userData.email, userData.name, userData.picture, role, initialTier, new Date().toISOString()
       ).run();
     } else {
-      // Update photo/name if changed
+      // Update uid (if pre-registered), photo, and name
       await db.prepare(
-        `UPDATE users SET photoURL = ?, displayName = COALESCE(?, displayName) WHERE uid = ?`
-      ).bind(userData.picture, userData.name, userData.id).run();
+        `UPDATE users SET uid = ?, photoURL = ?, displayName = COALESCE(?, displayName) WHERE email = ?`
+      ).bind(userData.id, userData.picture, userData.name, userData.email).run();
     }
 
     // 4. Set JWT cookie
@@ -146,10 +146,10 @@ app.get('/auth/me', async (c) => {
     const adminEmails = adminEmailsStr.split(',').map((e: string) => e.trim());
     const isAdmin = adminEmails.includes(profile.email as string);
     
-    // Auto-upgrade admins to owner and Premium tier
-    if (isAdmin && (profile.role !== 'owner' || profile.tier !== 'Premium')) {
+    // Auto-upgrade admins to owner and Titan tier
+    if (isAdmin && (profile.role !== 'owner' || profile.tier !== 'Titan')) {
       await db.prepare('UPDATE users SET role = ?, tier = ? WHERE uid = ?')
-        .bind('owner', 'Premium', user.uid)
+        .bind('owner', 'Titan', user.uid)
         .run();
       profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
     }
@@ -160,6 +160,19 @@ app.get('/auth/me', async (c) => {
         .bind(today, user.uid)
         .run();
       profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
+    }
+
+    // Check activeUntil for subscription expiration
+    if (profile.activeUntil && profile.tier !== 'Free' && profile.role !== 'owner') {
+      const activeUntilDate = new Date(profile.activeUntil as string);
+      const now = new Date();
+      if (now > activeUntilDate) {
+        // Subscription expired, revert to Free
+        await db.prepare('UPDATE users SET tier = ?, activeUntil = NULL WHERE uid = ?')
+          .bind('Free', user.uid)
+          .run();
+        profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
+      }
     }
   }
   
@@ -188,6 +201,99 @@ app.post('/profile', async (c) => {
 
   await db.prepare(`UPDATE users SET ${setClause} WHERE uid = ?`).bind(...values).run();
   
+  return c.json({ success: true });
+});
+
+// --- Admin Routes ---
+app.get('/admin/users', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const { results } = await db.prepare('SELECT uid, email, displayName, role, tier, activeUntil, createdAt FROM users ORDER BY createdAt DESC').all();
+  return c.json(results);
+});
+
+app.put('/admin/users/:uid', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const targetUid = c.req.param('uid');
+  const body = await c.req.json();
+  const { role, tier, activeUntil } = body;
+
+  // Build dynamic update for role, tier, activeUntil
+  const updates = [];
+  const values = [];
+  if (role !== undefined) { updates.push('role = ?'); values.push(role); }
+  if (tier !== undefined) { updates.push('tier = ?'); values.push(tier); }
+  if (activeUntil !== undefined) { updates.push('activeUntil = ?'); values.push(activeUntil === '' ? null : activeUntil); }
+
+  if (updates.length > 0) {
+    values.push(targetUid);
+    await db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE uid = ?`).bind(...values).run();
+  }
+
+  return c.json({ success: true });
+});
+
+app.post('/admin/users', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { email, role, tier, activeUntil } = body;
+  
+  if (!email) return c.json({ error: 'Email is required' }, 400);
+
+  const existing = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
+  if (existing) {
+    return c.json({ error: 'Email already exists' }, 400);
+  }
+
+  const tempUid = 'pending-' + Date.now();
+  await db.prepare(
+    `INSERT INTO users (uid, email, role, tier, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?)`
+  ).bind(
+    tempUid, email, role || 'siswa', tier || 'Free', activeUntil || null, new Date().toISOString()
+  ).run();
+
+  return c.json({ success: true });
+});
+
+app.delete('/admin/users/:uid', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const targetUid = c.req.param('uid');
+  if (targetUid === user.uid) {
+    return c.json({ error: 'Cannot delete yourself' }, 400);
+  }
+
+  await db.prepare('DELETE FROM users WHERE uid = ?').bind(targetUid).run();
   return c.json({ success: true });
 });
 
