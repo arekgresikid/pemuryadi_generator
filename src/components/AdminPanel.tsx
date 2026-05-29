@@ -197,6 +197,9 @@ export default function AdminPanel() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                        u.tier === 'Titan' ? 'bg-amber-100 text-amber-700' :
+                        u.tier === 'SUPREME' ? 'bg-purple-100 text-purple-700' :
+                        u.tier === 'Ultimate' ? 'bg-indigo-100 text-indigo-700' :
                         u.tier === 'Premium' ? 'bg-blue-100 text-blue-700' :
                         u.tier === 'Essential' ? 'bg-green-100 text-green-700' :
                         'bg-slate-100 text-slate-600'
@@ -276,7 +279,7 @@ export default function AdminPanel() {
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
                 <div className="flex gap-2 flex-wrap">
-                  {['Free', 'Essential', 'Premium', 'Titan'].map(t => (
+                  {['Free', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
                     <button
                       key={t}
                       onClick={() => setEditTier(t)}
@@ -378,7 +381,7 @@ export default function AdminPanel() {
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
                 <div className="flex gap-2 flex-wrap">
-                  {['Free', 'Essential', 'Premium', 'Titan'].map(t => (
+                  {['Free', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
                     <button
                       key={t}
                       onClick={() => setEditTier(t)}
