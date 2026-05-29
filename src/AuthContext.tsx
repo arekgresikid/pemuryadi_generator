@@ -80,8 +80,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user || !profile) return false;
     
     try {
-      const tier = profile.tier || profile.role || 'Free';
-      if (tier === 'owner' || tier !== 'Free') return true;
+      const tier = profile.tier || 'Free';
+      const role = profile.role || 'siswa';
+      const isPrivileged = tier === 'Titan' || role === 'owner' || role === 'admin';
+      
+      if (isPrivileged || tier !== 'Free') return true;
 
       // Use the secure backend endpoint
       const { useToken } = await import('./api');
