@@ -211,7 +211,7 @@ app.get('/admin/users', async (c) => {
   
   const db = c.env.DB;
   const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
-  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
@@ -225,7 +225,7 @@ app.put('/admin/users/:uid', async (c) => {
   
   const db = c.env.DB;
   const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
-  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
@@ -254,7 +254,7 @@ app.post('/admin/users', async (c) => {
   
   const db = c.env.DB;
   const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
-  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
@@ -284,7 +284,7 @@ app.delete('/admin/users/:uid', async (c) => {
   
   const db = c.env.DB;
   const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
-  if (!adminProfile || (adminProfile.role !== 'owner' && adminProfile.role !== 'admin')) {
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
