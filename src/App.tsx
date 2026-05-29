@@ -324,9 +324,9 @@ export default function App() {
       label: 'Games',
       dropdown: [
         { id: 'adventure-journey', icon: <Map size={16} />, label: 'Adventure Journey', premiumOnly: true },
-        { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata', premiumOnly: true },
+        { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata' },
         { id: 'snake', icon: <Dices size={16} />, label: 'Snake & Ladder', premiumOnly: true },
-        { id: 'ranking-satu', icon: <Trophy size={16} />, label: 'Ranking #1' },
+        { id: 'ranking-satu', icon: <Trophy size={16} />, label: 'Ranking #1', premiumOnly: true },
         { id: 'crossword', icon: <Grid size={16} />, label: 'Teka Teki Silang' }
       ]
     },
