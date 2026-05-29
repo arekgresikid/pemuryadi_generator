@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, Brain, School } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
@@ -15,6 +15,7 @@ export default function DeepLearningPlan() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [formatPerangkat, setFormatPerangkat] = useState<'standar'|'kemenag'>('standar');
 
   React.useEffect(() => {
     const saved = localStorage.getItem('DeepLearningPlanData');
@@ -80,7 +81,9 @@ export default function DeepLearningPlan() {
     indikatorRubrik: '',
     remixText: '',
     hasInklusi: false,
-    jumlahInklusi: ''
+    jumlahInklusi: '',
+    integrasiAdiwiyata: false,
+    sekolahRamahAnak: false
   });
 
   const [profilLulusan, setProfilLulusan] = useState({
@@ -175,7 +178,11 @@ export default function DeepLearningPlan() {
           return labels[key];
         });
 
-      const prompt = `Buatkan Rencana Pembelajaran Mendalam (Deep Learning Plan) Kurikulum Merdeka untuk:
+      const formatInstruction = formatPerangkat === 'kemenag' 
+        ? "Kemenag RPM (Rencana Pelaksanaan Pembelajaran/Modul Ajar) Berbasis Cinta"
+        : "Rencana Pembelajaran Mendalam (Deep Learning Plan) Kurikulum Merdeka";
+      
+      const prompt = `Buatkan ${formatInstruction} untuk:
 Mata Pelajaran: ${subjectLabel}
 Topik/Materi: ${formData.topikMateri}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
@@ -198,6 +205,8 @@ Jenis Asesmen Sumatif: ${formData.jenisAsesmenSumatif}
 Jenis Rubrik Penilaian: ${formData.jenisRubrik}
 Indikator & Keterangan Rubrik yang Diinginkan: ${formData.indikatorRubrik || 'Tentukan sendiri berdasarkan topik'}
 ${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
+${formData.integrasiAdiwiyata ? `Integrasi Adiwiyata: Ya. Pastikan rencana pembelajaran mengintegrasikan Pendidikan Lingkungan Hidup.` : ''}
+${formData.sekolahRamahAnak ? `Sekolah Ramah Anak: Ya. Pastikan pendekatan inklusif dan aman untuk semua siswa diterapkan dalam rencana pembelajaran.` : ''}
 
 ${formData.remixText ? `INSTRUKSI REMIX:
 Gunakan teks referensi berikut sebagai dasar utama pembuatan Deep Learning Plan. Remix dan kembangkan konten ini agar sesuai dengan kurikulum merdeka dan target audiens di atas:
@@ -205,6 +214,11 @@ Gunakan teks referensi berikut sebagai dasar utama pembuatan Deep Learning Plan.
 ${formData.remixText}
 ---` : ''}
 
+${formatPerangkat === 'kemenag' ? `Konteks Kemenag & Berbasis Cinta (WAJIB DITAMBAHKAN DALAM RENCANA & KONTEN):
+1. Profil Pelajar Rahmatan Lil 'Alamin (PPRA): Tambahkan elemen moderasi beragama (seperti Berkeadaban/Ta'addub, Keteladanan/Qudwah, atau Toleransi/Tasamuh).
+2. Pendekatan Berbasis Cinta (Heartful Learning): Deskripsikan secara konkret bagaimana guru menunjukkan kasih sayang, empati, apresiasi, dan ikatan emosional yang kuat dengan siswa di setiap tahapan.
+3. Nilai Spiritual: Integrasikan nilai-nilai agama dan pesan moral dalam penyampaian materi.
+` : ''}
 Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
 1. Tingkatan Kognitif (Taksonomi Bloom): Target utama adalah ${formData.tingkatanKognitif}. 
    - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target.
@@ -563,22 +577,38 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg">
-          🧠
+          <Brain className="w-8 h-8 text-white" />
         </div>
-        <div>
-          <h3 className="text-2xl font-bold text-black">Rencana Pembelajaran Mendalam</h3>
-          <p className="text-gray-600">Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka</p>
+        <div className="flex-1">
+          <h3 className="text-2xl font-bold text-black">{formatPerangkat === 'standar' ? 'Rencana Pembelajaran Mendalam' : 'Kemenag RPM'}</h3>
+          <p className="text-gray-600">{formatPerangkat === 'standar' ? 'Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
         </div>
       </div>
       
+      {/* Sub Tab Menu */}
+      <div className="flex bg-gray-200 p-1 rounded-xl mb-6 shadow-inner border border-gray-300">
+        <button 
+          onClick={() => setFormatPerangkat('standar')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-emerald-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
+        >
+          Standar Kemendikbudristek
+        </button>
+        <button 
+          onClick={() => setFormatPerangkat('kemenag')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-emerald-50 text-emerald-700 shadow-md border-emerald-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
+        >
+          Kemenag RPM Berbasis Cinta
+        </button>
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-8">
-        <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-6">
           
           <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
+            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2"><School className="w-5 h-5" /> Informasi Umum</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
                 <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
@@ -705,6 +735,35 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
                   <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
                 </select>
+              </div>
+
+              <div className="col-span-2 md:col-span-1">
+                <label className="flex items-start gap-3 p-4 bg-red-50 border border-black rounded-xl cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.integrasiAdiwiyata}
+                    onChange={(e) => setFormData({...formData, integrasiAdiwiyata: e.target.checked})}
+                    className="mt-1 w-5 h-5 rounded border-black text-emerald-500 focus:ring-emerald-500 bg-white"
+                  />
+                  <div>
+                    <span className="block text-sm font-bold text-gray-900">Integrasi Adiwiyata</span>
+                    <span className="block text-xs text-gray-600 mt-0.5">Pendidikan Lingkungan Hidup</span>
+                  </div>
+                </label>
+              </div>
+              <div className="col-span-2 md:col-span-1">
+                <label className="flex items-start gap-3 p-4 bg-red-50 border border-black rounded-xl cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.sekolahRamahAnak}
+                    onChange={(e) => setFormData({...formData, sekolahRamahAnak: e.target.checked})}
+                    className="mt-1 w-5 h-5 rounded border-black text-emerald-500 focus:ring-emerald-500 bg-white"
+                  />
+                  <div>
+                    <span className="block text-sm font-bold text-gray-900">Sekolah Ramah Anak</span>
+                    <span className="block text-xs text-gray-600 mt-0.5">Pendekatan inklusif & aman</span>
+                  </div>
+                </label>
               </div>
 
               <div className="col-span-2">
