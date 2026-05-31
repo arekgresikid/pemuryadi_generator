@@ -81,6 +81,7 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [brightness, setBrightness] = useState(100);
   const [gradientsEnabled, setGradientsEnabled] = useState(true);
+  const [showTokenWarning, setShowTokenWarning] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -130,10 +131,25 @@ export default function App() {
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    let warningTimeout: any;
+    const handleShowWarning = () => {
+      setShowTokenWarning(false);
+      setTimeout(() => {
+        setShowTokenWarning(true);
+        clearTimeout(warningTimeout);
+        warningTimeout = setTimeout(() => {
+          setShowTokenWarning(false);
+        }, 5000);
+      }, 50);
+    };
+    window.addEventListener('showFreeTokenWarning', handleShowWarning);
+
     return () => {
       clearInterval(interval);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('showFreeTokenWarning', handleShowWarning);
+      clearTimeout(warningTimeout);
     };
   }, []);
 
@@ -970,6 +986,20 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* Floating Free Token Warning Notification */}
+      {showTokenWarning && (
+        <div className="fixed bottom-24 right-6 bg-gradient-to-r from-amber-500 to-orange-500 border border-amber-600 text-black px-5 py-4 rounded-2xl shadow-2xl z-50 max-w-sm animate-in slide-in-from-bottom duration-300 flex items-center gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider">Pemberitahuan Token</p>
+            <p className="text-xs font-semibold">generate ini memakan token harian anda</p>
+          </div>
+          <button onClick={() => setShowTokenWarning(false)} className="text-black/60 hover:text-black font-bold text-xs ml-2">
+            ✖
+          </button>
+        </div>
+      )}
     </div>
   );
 }

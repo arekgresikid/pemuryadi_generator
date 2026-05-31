@@ -319,7 +319,7 @@ app.post('/tokens/use', async (c) => {
     const role = String(profile.role || 'siswa').toLowerCase();
     const tier = String(profile.tier || 'Free').toLowerCase();
     if (role === 'owner' || role === 'admin' || tier !== 'free') {
-      return c.json({ success: true, tokens: profile.tokens });
+      return c.json({ success: true, tokens: profile.tokens, isFree: false });
     }
 
     if ((profile.tokens as number) <= 0) {
@@ -330,7 +330,7 @@ app.post('/tokens/use', async (c) => {
       .bind(user.uid)
       .run();
       
-    return c.json({ success: true, tokens: (profile.tokens as number) - 1 });
+    return c.json({ success: true, tokens: (profile.tokens as number) - 1, isFree: true });
   } catch (error) {
     console.error("D1 Error:", error);
     // Fallback if table doesn't exist
