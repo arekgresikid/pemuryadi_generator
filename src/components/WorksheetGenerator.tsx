@@ -46,13 +46,34 @@ export default function WorksheetGenerator() {
   const [selectedImageModel, setSelectedImageModel] = React.useState<string>('nanobana');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    jenjang: string;
+    fase: string;
+    kelas: string;
+    mapel: string;
+    topik: string;
+    jenisSoal: string[];
+    jumlahSoal: number;
+    tingkatKesulitan: string;
+    tingkatanKognitif: string;
+    instruksiTambahan: string;
+    gayaDesain: string;
+    namaGuru: string;
+    jenisNipGuru: string;
+    nipGuru: string;
+    namaSekolah: string;
+    jenisSekolah: string;
+    kepalaSekolah: string;
+    jenisNipKepalaSekolah: string;
+    nipKepalaSekolah: string;
+    remixText: string;
+  }>({
     jenjang: 'sd',
     fase: 'A',
     kelas: '1',
     mapel: 'bahasa-indonesia',
     topik: '',
-    jenisSoal: 'Pilihan Ganda',
+    jenisSoal: ['Pilihan Ganda'],
     jumlahSoal: 5,
     tingkatKesulitan: 'Sedang',
     tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
@@ -68,6 +89,18 @@ export default function WorksheetGenerator() {
     nipKepalaSekolah: '',
     remixText: ''
   });
+
+  const handleJenisSoalChange = (bentuk: string) => {
+    let current = [...formData.jenisSoal];
+    if (bentuk === 'Kombinasi') { current = ['Kombinasi']; }
+    else {
+      current = current.filter(c => c !== 'Kombinasi');
+      if (current.includes(bentuk)) current = current.filter(c => c !== bentuk);
+      else current.push(bentuk);
+    }
+    if (current.length === 0) current = ['Pilihan Ganda'];
+    setFormData(prev => ({ ...prev, jenisSoal: current }));
+  };
 
   const [result, setResult] = useState<string | null>(null);
 
@@ -158,7 +191,7 @@ Jenjang: ${jenjangLabel}
 Fase/Kelas: ${faseLabel} / ${kelasLabel}
 Mata Pelajaran: ${subjectLabel}
 Topik/Materi: ${formData.topik}
-Jenis Soal: ${formData.jenisSoal}
+Jenis Soal: ${formData.jenisSoal.join(', ')}
 Jumlah Soal: ${formData.jumlahSoal}
 Tingkat Kesulitan: ${formData.tingkatKesulitan}
 Tingkatan Kognitif (Taksonomi Bloom Revisi): ${formData.tingkatanKognitif}
@@ -397,15 +430,21 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
           <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
             <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">📝 Detail Soal</h4>
             <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Jenis Soal</label>
-                <select value={formData.jenisSoal} onChange={e => setFormData({...formData, jenisSoal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  <option value="Pilihan Ganda">Pilihan Ganda</option>
-                  <option value="Isian Singkat">Isian Singkat</option>
-                  <option value="Esai">Esai</option>
-                  <option value="Benar/Salah">Benar/Salah</option>
-                  <option value="Menjodohkan">Menjodohkan</option>
-                </select>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Bentuk/Jenis Soal</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
+                    <label key={bentuk} className="flex items-center gap-2 cursor-pointer bg-red-50 p-2.5 rounded-xl border border-black hover:border-blue-500 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={formData.jenisSoal.includes(bentuk)}
+                        onChange={() => handleJenisSoalChange(bentuk)}
+                        className="w-4 h-4 rounded border-black text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 bg-red-50"
+                      />
+                      <span className="text-xs text-black">{bentuk}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal</label>

@@ -46,6 +46,7 @@ const SUBTEMA_OPTIONS: Record<string, string[]> = {
 
 export default function ModulKokurikuler() {
   const { profile } = useAuth();
+  const isPremium = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes((profile?.role || '').toLowerCase());
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [tema, setTema] = useState('');
@@ -116,6 +117,13 @@ export default function ModulKokurikuler() {
   const [remixText, setRemixText] = useState('');
   const [hasInklusi, setHasInklusi] = useState(false);
   const [jumlahInklusi, setJumlahInklusi] = useState('');
+
+  // Premium appendix states
+  const [generateCover, setGenerateCover] = useState(false);
+  const [generateRubrik, setGenerateRubrik] = useState(false);
+  const [generateRancanganSesi, setGenerateRancanganSesi] = useState(false);
+  const [alokasiJP, setAlokasiJP] = useState('');
+  const [jumlahPertemuan, setJumlahPertemuan] = useState('');
 
   useEffect(() => {
     const phases = phaseClassMap[eduLevel]?.phases || [];
@@ -190,6 +198,17 @@ export default function ModulKokurikuler() {
       const kelasLabel = phaseClassMap[eduLevel]?.classes[fase]?.find(c => c.id === kelas)?.label || kelas;
       const jenjangLabel = educationLevels.find(l => l.id === eduLevel)?.label || eduLevel;
 
+      let lampiranInstructions = '';
+      if (generateCover && isPremium) {
+        lampiranInstructions += `\nM. LAMPIRAN - COVER MODUL KOKURIKULER (Buat format cover modul kokurikuler yang menarik meliputi: Judul Modul, Tema Kegiatan, Sasaran Kelas/Fase, Tahun Pelajaran, Nama Penyusun, dan Nama Sekolah).`;
+      }
+      if (generateRubrik && isPremium) {
+        lampiranInstructions += `\nN. LAMPIRAN - RUBRIK PENILAIAN DESKRIPTIF (Buat tabel rubrik penilaian dengan 3 tingkatan/level pencapaian: Mulai Berkembang, Berkembang, Sangat Berkembang. Berikan deskripsi indikator pencapaian konkret yang mendalam untuk setiap dimensi profil kelulusan yang diperkuat).`;
+      }
+      if (generateRancanganSesi && isPremium) {
+        lampiranInstructions += `\nO. LAMPIRAN - RANCANGAN ALUR SESI PERTEMUAN (Buat tabel rancangan sesi secara sistematis sebanyak ${jumlahPertemuan || 4} pertemuan, dengan total alokasi waktu ${alokasiJP || '16'} JP. Setiap sesi dijabarkan alur kegiatannya, alokasi waktu per sesi, aktivitas spesifik, serta sarana prasarana yang diperlukan).`;
+      }
+
       const prompt = `Buatkan Modul Kokurikuler yang komprehensif berdasarkan data berikut. Ikuti format dan struktur sesuai dengan Panduan Kokurikuler 2025 terbaru dari Kemendikbudristek (seperti yang tercantum dalam panduan resmi). Pastikan semua bagian terisi secara otomatis dan komprehensif sesuai dengan kriteria pilihan pengunjung.
 
 Data pengunjung:
@@ -214,6 +233,8 @@ ${hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${jumlahInklusi} siswa. Pas
 Kemitraan: ${Object.entries(kemitraan).filter(([_, v]) => v).map(([k]) => k).join(', ')}
 Asesmen Formatif: ${Object.entries(teknikFormatif).filter(([_, v]) => v).map(([k]) => k).join(', ')}
 Asesmen Sumatif: ${teknikSumatif}
+${alokasiJP ? `Alokasi Waktu: ${alokasiJP}` : ''}
+${jumlahPertemuan ? `Jumlah Pertemuan: ${jumlahPertemuan}` : ''}
 
 ${remixText ? `INSTRUKSI REMIX:
 Gunakan teks referensi berikut sebagai dasar utama pembuatan Modul Kokurikuler. Remix dan kembangkan konten ini agar sesuai dengan kurikulum merdeka dan target audiens di atas:
@@ -241,8 +262,12 @@ I. PEMANFAATAN TEKNOLOGI DIGITAL
 J. ASESMEN (Jenis Asesmen Formatif, Contoh Format Anekdotal, Contoh Format Jurnal Harian, Jenis Asesmen Sumatif, Pelaporan Rapor)
 K. LKPD JURNAL HARIAN & INSTRUMEN REFLEKSI (Lembar Kerja Peserta Didik, Jurnal Harian, Target Kebiasaan, Refleksi Mingguan, Lembar Rencana Aksi, Lembar Sesi Bercerita, Lembar Catatan Outbond, Refleksi Akhir Semester, Kesepakatan Aksi Nyata)
 L. INSTRUMEN REFLEKSI GURU (Refleksi Umum Kegiatan, Refleksi Berdasarkan Prinsip Pembelajaran, Refleksi Perkembangan Dimensi Profil Lulusan, Evaluasi Kelengkapan Jurnal Harian, Rekomendasi untuk Semester Mendatang)
+${lampiranInstructions}
 
-Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintaks Markdown.`;
+ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
+1. JANGAN SEKALI-KALI MEMUAT singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" maupun "Projek Penguatan Profil Pelajar Pancasila" pada seluruh bagian dokumen. Semua istilah tersebut WAJIB diganti dengan "Kokurikuler", "Kegiatan Kokurikuler", atau "Modul Kokurikuler".
+2. Tuliskan teks dalam bahasa Indonesia yang baku, formal, bebas typo, dan informatif.
+3. Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintaks Markdown.`;
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -393,7 +418,7 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto space-y-6">
       <div className="gen-card bg-red-50  p-6 rounded-2xl shadow-xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-blue-500/20 rounded-xl">
@@ -777,6 +802,103 @@ Gunakan format Markdown yang rapi dan profesional. Buat tabel menggunakan sintak
                   </label>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Lampiran Modul (Premium Only) */}
+          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm border border-amber-500/30">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-amber-600 flex items-center gap-2">📂 Lampiran Modul (Premium Only)</h4>
+              {!isPremium && (
+                <span className="bg-gradient-to-r from-yellow-500 to-amber-600 text-black text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
+                  🔒 Titan Only
+                </span>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-xs text-gray-600">
+                Generate lampiran tambahan otomatis untuk modul kokurikuler Anda.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      checked={generateCover && isPremium}
+                      disabled={!isPremium}
+                      onChange={(e) => setGenerateCover(e.target.checked)}
+                      className="peer sr-only" 
+                    />
+                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Cover Modul</span>
+                </label>
+
+                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      checked={generateRubrik && isPremium}
+                      disabled={!isPremium}
+                      onChange={(e) => setGenerateRubrik(e.target.checked)}
+                      className="peer sr-only" 
+                    />
+                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rubrik Deskripsi (3 Level)</span>
+                </label>
+
+                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      checked={generateRancanganSesi && isPremium}
+                      disabled={!isPremium}
+                      onChange={(e) => setGenerateRancanganSesi(e.target.checked)}
+                      className="peer sr-only" 
+                    />
+                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  </div>
+                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rancangan Sesi</span>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Alokasi Waktu (JP)</label>
+                  <input 
+                    type="text"
+                    placeholder="Contoh: 16 JP, 32 JP..."
+                    value={alokasiJP}
+                    disabled={!isPremium}
+                    onChange={(e) => setAlokasiJP(e.target.value)}
+                    className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Pertemuan</label>
+                  <input 
+                    type="number"
+                    min="1"
+                    placeholder="Contoh: 4, 8..."
+                    value={jumlahPertemuan}
+                    disabled={!isPremium}
+                    onChange={(e) => setJumlahPertemuan(e.target.value)}
+                    className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
+                  />
+                </div>
+              </div>
+              
+              {!isPremium && (
+                <p className="text-[10px] text-amber-600 font-medium italic mt-2">
+                  * Fitur lampiran hanya aktif untuk pengguna dengan tier Titan / Administrator.
+                </p>
+              )}
             </div>
           </div>
 

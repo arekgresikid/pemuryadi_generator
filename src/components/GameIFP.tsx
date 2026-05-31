@@ -123,7 +123,7 @@ Spesifikasi Game:
 
 Persyaratan Wajib:
 1. Game harus memiliki antarmuka pengguna (UI) yang menarik, berwarna, dan ramah anak (user-friendly).
-2. Gunakan elemen visual. Jika butuh gambar, hasilkan URL gambar dengan format \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}&nologo=true\` (ganti [DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS] dengan deskripsi gambar yang diinginkan).
+2. Gunakan elemen visual yang berkualitas. Jika game membutuhkan visualisasi bangun ruang 3D (seperti limas, prisma, tabung, kerucut, bola), grafik matematika, diagram kartesius, atau ilustrasi geometris lainnya, WAJIB digambar secara lokal secara dinamis menggunakan HTML5 Canvas API atau inline SVG menggunakan JavaScript. JANGAN menggunakan URL gambar eksternal untuk bangun ruang/matematika/diagram karena rentan pecah atau tidak akurat. Untuk gambar dekoratif/ilustrasi umum non-matematis, baru gunakan format URL: \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}&nologo=true\`.
 3. Mekanik game harus menggabungkan genre yang dipilih dengan pertanyaan/tantangan edukatif terkait topik "${formData.topik}". (Misal: Jika RPG, pemain menyerang monster dengan menjawab soal. Jika Simulasi, buatlah simulasi sederhana yang interaktif di mana pemain membuat keputusan berbasis materi).
 4. Tingkat kesulitan "${DIFFICULTY_LEVELS.find(d => d.id === formData.difficulty)?.name}" harus tercermin dalam kompleksitas soal, kecepatan permainan, atau rintangan yang ada.
 5. WAJIB ada sistem Leaderboard (Papan Peringkat) yang terus diperbarui selama game berjalan dan ditampilkan di akhir permainan, menunjukkan skor masing-masing siswa.

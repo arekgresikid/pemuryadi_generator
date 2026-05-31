@@ -128,6 +128,51 @@ export default function Supervision() {
     });
   };
 
+  const exportJSON = () => {
+    const dataStr = JSON.stringify({
+      formData,
+      sources,
+      eduLevel,
+      fase,
+      kelas,
+      subject,
+      scores,
+      result
+    }, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `Supervisi_${formData.guru || 'Guru'}_${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  const importJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileReader = new FileReader();
+    if (e.target.files && e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = event => {
+        try {
+          const parsed = JSON.parse(event.target?.result as string);
+          if (parsed.formData) setFormData(parsed.formData);
+          if (parsed.sources) setSources(parsed.sources);
+          if (parsed.eduLevel) setEduLevel(parsed.eduLevel);
+          if (parsed.fase) setFase(parsed.fase);
+          if (parsed.kelas) setKelas(parsed.kelas);
+          if (parsed.subject) setSubject(parsed.subject);
+          if (parsed.scores) setScores(parsed.scores);
+          if (parsed.result) setResult(parsed.result);
+          
+          alert('Data Supervisi berhasil di-import!');
+        } catch (error) {
+          alert('Gagal meng-import file JSON. Format file tidak valid.');
+        }
+      };
+    }
+  };
+
   const generateWithAI = async () => {
     if (!sources.rpm && !sources.modulAjar && !sources.modulKokurikuler) {
       setError('Silakan masukkan setidaknya satu sumber data (RPM, Modul Ajar, atau Modul Kokurikuler) untuk dianalisis oleh AI.');
@@ -464,7 +509,27 @@ export default function Supervision() {
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
-            <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Data Umum</h3>
+            <div className="flex items-center justify-between mb-4 border-b border-black pb-2">
+              <h3 className="flex items-center gap-2 text-blue-400 font-semibold">📝 Data Umum</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={exportJSON}
+                  className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                  title="Export Data Supervisi ke JSON"
+                >
+                  📥 Export
+                </button>
+                <label className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-sm">
+                  📤 Import
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={importJSON}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            </div>
             
             {error && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400 text-sm">

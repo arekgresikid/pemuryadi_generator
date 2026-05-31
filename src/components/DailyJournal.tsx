@@ -5,6 +5,8 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { GoogleGenAI, Type } from '../lib/genai';
+import ModelSelector from './ModelSelector';
 
 export default function DailyJournal() {
   const { profile } = useAuth();
@@ -16,6 +18,9 @@ export default function DailyJournal() {
   });
   
   const [result, setResult] = useState<any>(null);
+  const [selectedModel, setSelectedModel] = useState<string>('openai');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const now = new Date();
@@ -52,25 +57,100 @@ export default function DailyJournal() {
     }
   }, [formData.jenjang, formData.fase]);
 
-  const generateJurnal = () => {
-    const tanggalObj = new Date(formData.tanggal || new Date());
-    const tanggalFormat = tanggalObj.toLocaleDateString('id-ID', { 
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-    });
+  const generateJurnal = async () => {
+    setIsGenerating(true);
+    setError('');
+    
+    try {
+      const ai = new GoogleGenAI({});
+      const modelToUse = selectedModel || 'openai';
+      const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || mapelNames[formData.mapel] || formData.mapel;
+      
+      const prompt = `Buatkan Catatan Pembelajaran dan Refleksi Guru untuk Jurnal Harian Pembelajaran dengan detail berikut:
+Detail Pembelajaran:
+- Mata Pelajaran: ${mapelLabel}
+- Topik/Materi: ${formData.topik}
+- Jenjang: ${formData.jenjang.toUpperCase()}
+- Kelas: ${formData.kelas}
+- Fase: ${formData.fase}
+- Capaian Pembelajaran (CP): ${formData.cp}
+- Alur Tujuan Pembelajaran (ATP): ${formData.atp}
 
-    const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang.toUpperCase();
-    const faseLabel = phaseClassMap[formData.jenjang]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
-    const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
-    const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || mapelNames[formData.mapel] || formData.mapel;
+Tolong buatkan:
+1. Catatan Pembelajaran: Deskripsi pelaksanaan pembelajaran secara konkret, terstruktur, mencakup pembukaan, kegiatan inti (misal: diskusi kelompok, praktik, atau eksplorasi), dan penutup.
+2. Refleksi & Evaluasi Guru: Analisis keberhasilan pembelajaran, kendala yang dihadapi siswa, dan tindak lanjut (perbaikan/pengayaan) untuk pertemuan berikutnya.
 
-    setResult({ 
-      ...formData, 
-      tanggalFormat, 
-      jenjangLabel,
-      faseLabel,
-      kelasLabel,
-      mapelName: mapelLabel 
-    });
+ATURAN KETAT PENULISAN (SANGAT PENTING):
+1. JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
+2. Tuliskan teks dalam bahasa Indonesia yang baku, formal, bebas typo, dan informatif.
+3. Kembalikan hasil dalam format JSON terstruktur dengan properti:
+   - "catatan": Teks catatan pembelajaran (panjang sedang, 2-3 paragraf).
+   - "refleksi": Teks refleksi guru (panjang sedang, 2-3 paragraf).
+PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
+
+      const response = await ai.models.generateContent({
+        model: modelToUse,
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              catatan: { type: Type.STRING },
+              refleksi: { type: Type.STRING }
+            },
+            required: ['catatan', 'refleksi']
+          }
+        }
+      });
+
+      let catatanGen = '';
+      let refleksiGen = '';
+
+      if (response.text) {
+        try {
+          const data = JSON.parse(response.text);
+          catatanGen = data.catatan || '';
+          refleksiGen = data.refleksi || '';
+        } catch (e) {
+          throw new Error('Gagal memproses respons AI. Pastikan JSON valid.');
+        }
+      } else {
+        throw new Error('Gagal menghasilkan konten dari AI.');
+      }
+
+      const tanggalObj = new Date(formData.tanggal || new Date());
+      const tanggalFormat = tanggalObj.toLocaleDateString('id-ID', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      });
+
+      const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang.toUpperCase();
+      const faseLabel = phaseClassMap[formData.jenjang]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
+      const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
+
+      const newFormData = {
+        ...formData,
+        catatan: catatanGen,
+        refleksi: refleksiGen
+      };
+
+      setFormData(newFormData);
+
+      setResult({ 
+        ...newFormData, 
+        tanggalFormat, 
+        jenjangLabel,
+        faseLabel,
+        kelasLabel,
+        mapelName: mapelLabel 
+      });
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Terjadi kesalahan saat menghasilkan jurnal.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const printJurnal = () => {
@@ -409,20 +489,41 @@ export default function DailyJournal() {
             </div>
           </div>
           
-          <div className="flex gap-4">
-            <div className="flex gap-2 mt-4 w-full">
-              
-              <button onClick={generateJurnal} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-amber-500/25 btn-generate-animated">
-              📔 Generate Jurnal
-            </button>
+          <div className="mt-4 space-y-4">
+            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+            
+            {error && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 flex items-start gap-2">
+                <span className="text-red-500 shrink-0">⚠️</span>
+                <p className="text-xs text-red-400">{error}</p>
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button 
+                onClick={generateJurnal} 
+                disabled={isGenerating}
+                className="flex-1 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-amber-500/25 btn-generate-animated flex items-center justify-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <span>Memproses...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>📔 Generate Jurnal</span>
+                  </>
+                )}
+              </button>
+              <button 
+                onClick={() => setIsPrintModalOpen(true)} 
+                disabled={!result || isGenerating} 
+                className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2"
+              >
+                <span>🖨️ Print</span>
+              </button>
             </div>
-            <button 
-              onClick={() => setIsPrintModalOpen(true)} 
-              disabled={!result} 
-              className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              🖨️ Print
-            </button>
           </div>
           <p className="text-[10px] text-gray-500 italic text-center mt-2">
             * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
