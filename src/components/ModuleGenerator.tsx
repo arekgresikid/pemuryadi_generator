@@ -260,24 +260,22 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <style>
               @page {
                 size: A4;
-                margin: 0;
+                margin: 30mm 30mm 30mm 40mm;
               }
               @media print {
                   body { 
                     -webkit-print-color-adjust: exact; 
                     print-color-adjust: exact; 
-                    margin: 0;
-                    padding: 10mm;
                   }
                   .no-print { display: none; }
                   .content-wrapper {
                     max-width: 100% !important;
-                    padding: 5mm !important;
+                    padding: 0 !important;
                     margin: 0 !important;
                   }
               }
               body {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Arial', 'Helvetica', 'Inter', sans-serif;
                 background: white;
                 position: relative;
                 min-height: 100vh;
@@ -306,14 +304,14 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 padding: 15mm;
                 box-sizing: border-box;
               }
-              h1, h2, h3 { text-align: center; color: #1e40af; }
+              h1, h2, h3 { text-align: center; color: #0f172a; }
               table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-              th, td { border: 1px solid #333; padding: 8px; text-align: left; font-size: 12px; }
-              th { background: #1e40af; color: white; font-weight: bold; }
-              .header { background: #1e40af; color: white; padding: 20px; text-align: center; margin: -15mm -15mm 20px -15mm; }
+              th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 12px; }
+              th { background: #f1f5f9; color: #0f172a; font-weight: bold; }
+              .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px; }
               .section { margin: 15px 0; }
-              .section-title { background: #e8f0fe; font-weight: bold; padding: 8px; margin: 10px 0; border-left: 5px solid #1e40af; font-size: 14px; }
-              .sub-section-title { font-weight: bold; margin-top: 8px; font-size: 13px; color: #1e40af; }
+              .section-title { background: #e2e8f0; font-weight: bold; padding: 5px 10px; margin: 15px 0 10px 0; font-size: 13px; color: #0f172a; }
+              .sub-section-title { font-weight: bold; margin-top: 8px; font-size: 12px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; }
               .content { margin-left: 10px; font-size: 12px; }
               .support-footer {
                 margin-top: 40px;
@@ -337,9 +335,23 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
               <div class="header">
-                  <h1 style="margin: 0; font-size: 24px;">MODUL AJAR</h1>
-                  <p style="margin: 5px 0 0 0; font-size: 14px;">${result.mapelName} - ${result.topik}</p>
-                  <p style="margin: 2px 0 0 0; font-size: 12px;">Kurikulum Merdeka - Jenjang ${result.jenjangLabel}</p>
+                  <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                      ${(result.namaSekolah?.toLowerCase().includes('madrasah') || result.namaSekolah?.toLowerCase().includes(' mi ') || result.namaSekolah?.toLowerCase().includes('mts') || result.namaSekolah?.toLowerCase().includes(' ma ') || result.namaSekolah?.toLowerCase().startsWith('mi ') || result.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                  </div>
+                  <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                      ${result.namaSekolah || 'SATUAN PENDIDIKAN'}
+                  </div>
+                  <div style="font-size: 9pt; margin-top: 2px;">
+                      Tahun Ajaran: ${result.tahunAjaran || '-'}
+                  </div>
+                  <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
+                  
+                  <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase;">
+                      MODUL AJAR / RENCANA PELAKSANAAN PEMBELAJARAN (RPP)
+                  </h3>
+                  <div style="font-size: 10pt; margin-top: 5px; font-style: italic;">
+                      Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
+                  </div>
               </div>
 
               <div class="section">

@@ -224,14 +224,12 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
           <style>
               @page {
                 size: A4;
-                margin: 0;
+                margin: 30mm 30mm 30mm 40mm;
               }
               @media print {
                   body { 
                     -webkit-print-color-adjust: exact; 
                     print-color-adjust: exact; 
-                    margin: 0;
-                    padding: 5mm;
                   }
                   .no-print { display: none; }
                   .page-break { page-break-before: always; }
@@ -241,9 +239,15 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
                     margin: 0 !important;
                     zoom: 0.85;
                   }
+                  img {
+                    max-height: 180px !important;
+                    width: auto !important;
+                    margin-left: auto;
+                    margin-right: auto;
+                  }
               }
               body {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Arial', 'Helvetica', 'Inter', sans-serif;
                 background: white;
                 position: relative;
                 min-height: 100vh;
@@ -295,7 +299,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
               <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
-                      <p>Kepala Sekolah</p>
+                      <p>${(formData.namaSekolah?.toLowerCase().includes('madrasah') || formData.namaSekolah?.toLowerCase().includes(' mi ') || formData.namaSekolah?.toLowerCase().includes('mts') || formData.namaSekolah?.toLowerCase().includes(' ma ') || formData.namaSekolah?.toLowerCase().startsWith('mi ') || formData.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'Kepala Madrasah' : 'Kepala Sekolah'}</p>
                       <br><br><br><br>
                       <p style="font-weight: bold; text-decoration: underline;">${profile?.kepalaSekolah || '................................'}</p>
                       <p>${profile?.jenisNipKepalaSekolah || 'NIP'}. ${profile?.nipKepalaSekolah || '................................'}</p>

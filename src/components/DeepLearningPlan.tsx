@@ -342,30 +342,28 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
           <style>
               @page {
                 size: A4;
-                margin: 0;
+                margin: 30mm 30mm 30mm 40mm;
               }
               @media print {
                   body { 
                     -webkit-print-color-adjust: exact; 
                     print-color-adjust: exact; 
-                    margin: 0;
-                    padding: 10mm;
                   }
                   .no-print { display: none; }
                   .content-wrapper {
                     max-width: 100% !important;
-                    padding: 5mm !important;
+                    padding: 0 !important;
                     margin: 0 !important;
                   }
               }
               body {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Arial', 'Helvetica', 'Inter', sans-serif;
                 background: white;
                 position: relative;
                 min-height: 100vh;
                 margin: 0;
                 padding: 0;
-                line-height: 1.6;
+                line-height: 1.5;
                 color: #333;
               }
               .watermark {
@@ -392,7 +390,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               table { width: 100%; border-collapse: collapse; margin: 15px 0; }
               th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; vertical-align: top; }
               th { background: #f1f5f9; font-weight: bold; width: 25%; }
-              .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #0f172a; padding-bottom: 10px; }
+              .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px; }
               .section-title { font-weight: bold; font-size: 1.2em; margin-top: 20px; background: #e2e8f0; padding: 5px 10px; }
               .content-box { padding: 10px; border: 1px solid #cbd5e1; margin-top: 5px; min-height: 50px; }
               ul { margin: 0; padding-left: 20px; }
@@ -402,7 +400,23 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
               <div class="header">
-                  <h2>RENCANA PEMBELAJARAN MENDALAM</h2>
+                  <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                      ${result.isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                  </div>
+                  <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                      ${result.sekolah || 'SATUAN PENDIDIKAN'}
+                  </div>
+                  <div style="font-size: 9pt; margin-top: 2px;">
+                      Tahun Pelajaran: ${result.tahunPelajaran || '-'}
+                  </div>
+                  <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
+                  
+                  <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase; line-height: 1.4;">
+                      ${result.isKemenag ? 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) BERBASIS CINTA' : 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) / MODUL AJAR MENDALAM'}
+                  </h3>
+                  <div style="font-size: 10pt; margin-top: 5px; font-style: italic;">
+                      Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
+                  </div>
               </div>
 
               <table>

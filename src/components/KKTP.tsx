@@ -195,15 +195,15 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
       <head>
           <title>KKTP - ${subjectLabel}</title>
           <style>
-              @page { size: portrait; margin: 0; }
-              body { font-family: 'Times New Roman', Times, serif; line-height: 1.4; color: black; position: relative; padding: 1.5cm; }
-              .header-title { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 20px; text-transform: uppercase; }
-              .info-table { width: 100%; margin-bottom: 15px; font-size: 11pt; }
+              @page { size: portrait; margin: 30mm 30mm 30mm 40mm; }
+              body { font-family: 'Arial', 'Helvetica', 'Inter', sans-serif; line-height: 1.4; color: black; position: relative; margin: 0; padding: 0; }
+              .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px; }
+              .info-table { width: 100%; margin-bottom: 15px; font-size: 10pt; }
               .info-table td { padding: 2px 0; vertical-align: top; }
               .info-table td:first-child { width: 180px; }
               .info-table td:nth-child(2) { width: 15px; }
               
-              .kktp-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10pt; }
+              .kktp-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 9pt; }
               .kktp-table th, .kktp-table td { border: 1px solid black; padding: 5px; }
               .kktp-table th { text-align: center; vertical-align: middle; background-color: #f3f4f6; }
               
@@ -212,11 +212,11 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
               .bg-green { background-color: #99ff99 !important; -webkit-print-color-adjust: exact; }
               .bg-cyan { background-color: #99ffff !important; -webkit-print-color-adjust: exact; }
               
-              .keterangan-table { width: 90%; margin: 0 auto 30px auto; border-collapse: collapse; font-size: 10pt; }
+              .keterangan-table { width: 90%; margin: 0 auto 30px auto; border-collapse: collapse; font-size: 9pt; }
               .keterangan-table th, .keterangan-table td { border: 1px solid black; padding: 4px 8px; }
               .keterangan-table th { text-align: left; width: 120px; background-color: #f3f4f6; }
               
-              .signature-section { display: flex; justify-content: space-between; margin-top: 40px; font-size: 11pt; }
+              .signature-section { display: flex; justify-content: space-between; margin-top: 40px; font-size: 10pt; }
               .signature-box { width: 250px; text-align: center; }
               .signature-space { height: 60px; }
               .signature-name { font-weight: bold; text-decoration: underline; }
@@ -238,9 +238,24 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
-          <div class="header-title">
-              KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN<br/>
-              (KKTP)
+          <div class="header">
+              <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                  ${formData.isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+              </div>
+              <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                  ${formData.satuanPendidikan || 'SATUAN PENDIDIKAN'}
+              </div>
+              <div style="font-size: 9pt; margin-top: 2px;">
+                  Tahun Pelajaran: ${formData.tahunPelajaran || '-'}
+              </div>
+              <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
+              
+              <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase;">
+                  KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)
+              </h3>
+              <div style="font-size: 10pt; margin-top: 5px; font-style: italic;">
+                  Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
+              </div>
           </div>
           
           <table class="info-table">
