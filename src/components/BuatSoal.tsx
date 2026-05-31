@@ -29,6 +29,7 @@ export default function BuatSoal() {
     materi: string;
     indikator: string;
     tipeUjian: string;
+    subTipeUjian: string;
     bentukSoal: string[];
     levelKognitif: string[];
     jumlahSoalTotal: number;
@@ -36,6 +37,8 @@ export default function BuatSoal() {
     hasInklusi: boolean;
     jumlahInklusi: number;
     abkKategori: string;
+    terdapatSoalBergambar: boolean;
+    jumlahSoalBergambar: number;
   }>({
     jenjang: '',
     fase: '',
@@ -46,13 +49,16 @@ export default function BuatSoal() {
     materi: '',
     indikator: '',
     tipeUjian: 'Ujian Biasa',
+    subTipeUjian: 'TKA Literasi',
     bentukSoal: ['Pilihan Ganda'],
     levelKognitif: ['C2', 'C3'],
     jumlahSoalTotal: 10,
     jumlahSoalPerBentuk: { 'Pilihan Ganda': 10 },
     hasInklusi: false,
     jumlahInklusi: 0,
-    abkKategori: ''
+    abkKategori: '',
+    terdapatSoalBergambar: false,
+    jumlahSoalBergambar: 0
   });
 
   const handleBentukSoalChange = (bentuk: string) => {
@@ -91,6 +97,35 @@ export default function BuatSoal() {
   const saveProgress = () => {
     localStorage.setItem('BuatSoalData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const [generatingImageIndex, setGeneratingImageIndex] = useState<{index: number, isABK: boolean} | null>(null);
+
+  const handleGenerateImageForQuestion = async (index: number, description: string, isABK: boolean) => {
+    setGeneratingImageIndex({ index, isABK });
+    try {
+      const cleanDescription = encodeURIComponent(`${description}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
+      const url = `https://image.pollinations.ai/prompt/${cleanDescription}?width=512&height=512&nologo=true&private=true&model=flux`;
+      
+      setResultSoal((prev: any) => {
+        if (!prev) return prev;
+        const next = { ...prev };
+        if (isABK) {
+          const list = [...next.soalABKList];
+          list[index] = { ...list[index], gambarUrl: url };
+          next.soalABKList = list;
+        } else {
+          const list = [...next.soalList];
+          list[index] = { ...list[index], gambarUrl: url };
+          next.soalList = list;
+        }
+        return next;
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGeneratingImageIndex(null);
+    }
   };
 
   const [resultKisiKisi, setResultKisiKisi] = useState<any>(null);
@@ -203,24 +238,37 @@ Berikan output dalam format JSON murni:
           }
         };
       } else {
+        let extraInstructions = '';
+        if (formData.tipeUjian === 'Other' && formData.subTipeUjian) {
+          extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Lakukan pencarian web real-time menggunakan Google Search tool untuk mencari referensi soal dan kisi-kisi resmi ${formData.subTipeUjian} terbaru dari tahun 2022 hingga 2026.`;
+        } else if (formData.tipeUjian === 'Olimpiade') {
+          extraInstructions += `\n- Standar Olimpiade: Sesuaikan cakupan dan bobot soal dengan standar kompetisi olimpiade sains resmi (seperti OSN tingkat kabupaten/provinsi/nasional, IMO untuk Matematika, IPhO untuk Fisika, IChO untuk Kimia, IBO untuk Biologi, dll.) sesuai dengan mata pelajaran ${mapelLabel}. Soal harus bertipe analisis mendalam, pemecahan masalah kompleks, dan menantang.`;
+        }
+
+        if (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0) {
+          extraInstructions += `\n- Soal Bergambar: Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Buatlah ${formData.jumlahSoalBergambar} soal yang memerlukan gambar/diagram pendukung untuk dapat diselesaikan. Untuk soal-soal tersebut, isilah bidang "gambarDeskripsi" dengan deskripsi detail gambar outline hitam-putih tanpa warna/bold yang representatif (contoh: "diagram batang pertumbuhan tanaman", "limas segi empat ABCD dengan garis tinggi", "peta persebaran flora fauna"). Untuk soal reguler yang tidak memerlukan gambar, biarkan bidang "gambarDeskripsi" kosong atau null.`;
+        }
+
         prompt = `Buatkan Soal beserta Kunci Jawabannya untuk:
 Mata Pelajaran: ${mapelLabel}
 Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
-Tipe Ujian: ${formData.tipeUjian}
+Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
 Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi}
 Indikator Asesmen: ${formData.indikator}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif: ${formData.levelKognitif.join(', ')}
 Rincian Target Reguler: ${breakdownSoal}
+${extraInstructions}
 
 PENTING:
-- PENCARIAN REAL-TIME & GAMBAR: Kamu harus melampirkan referensi data riil, kasus aktual, atau gambar/ilustrasi pendukung yang sedang tren di search dari 2023 - 2025. Sebutkan bahwa source dukungan berasal dari "Source Nano Banana 2". Kamu bisa menggunakan URL gambar edukasi dari Wikimedia atau gambar simulasi pakai Markdown ![Ilustrasi](url).
+- PENCARIAN REAL-TIME: Kamu harus melampirkan referensi data riil, kasus aktual, atau informasi pendukung yang sedang tren di search dari 2022 - 2026 jika relevan dengan tipe ujian. Sebutkan bahwa source dukungan berasal dari "Source Nano Banana 2".
 - PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi 2 bagian dalam JSON:
   1. "soalList": Berisi soal Reguler sesuai jumlah target pengunjung.
   2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".
 - Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dari berita real-time kalau memungkinkan.
+- JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" atau "Projek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
 
 Berikan output dalam format JSON murni:
 {
@@ -236,12 +284,14 @@ Berikan output dalam format JSON murni:
       "skor": "...",
       "materi": "...",
       "indikatorSoal": "...",
-      "levelKognitif": "..." 
+      "levelKognitif": "...",
+      "gambarDeskripsi": "...",
+      "gambarUrl": ""
     }
   ],
   "soalABKList": [
     {
-      "jenisSoal": "...", "no": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "materi": "...", "indikatorSoal": "...", "levelKognitif": "..." 
+      "jenisSoal": "...", "no": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "materi": "...", "indikatorSoal": "...", "levelKognitif": "...", "gambarDeskripsi": "...", "gambarUrl": ""
     }
   ]
 }`;
@@ -263,7 +313,9 @@ Berikan output dalam format JSON murni:
                   skor: { type: Type.STRING },
                   materi: { type: Type.STRING },
                   indikatorSoal: { type: Type.STRING },
-                  levelKognitif: { type: Type.STRING }
+                  levelKognitif: { type: Type.STRING },
+                  gambarDeskripsi: { type: Type.STRING },
+                  gambarUrl: { type: Type.STRING }
                 }
               }
             },
@@ -282,7 +334,9 @@ Berikan output dalam format JSON murni:
                   skor: { type: Type.STRING },
                   materi: { type: Type.STRING },
                   indikatorSoal: { type: Type.STRING },
-                  levelKognitif: { type: Type.STRING }
+                  levelKognitif: { type: Type.STRING },
+                  gambarDeskripsi: { type: Type.STRING },
+                  gambarUrl: { type: Type.STRING }
                 }
               }
             }
@@ -473,6 +527,8 @@ Berikan output dalam format JSON murni:
                    <strong>Rumusan Soal / Pertanyaan:</strong><br/>
                    <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
                    
+                   ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
+
                    ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                      <div style="margin-left: 15px; margin-bottom: 10px;">
                        ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
@@ -513,6 +569,8 @@ Berikan output dalam format JSON murni:
                    <strong>Rumusan Soal / Pertanyaan:</strong><br/>
                    <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
                    
+                   ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
+
                    ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                      <div style="margin-left: 15px; margin-bottom: 10px;">
                        ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
@@ -584,6 +642,9 @@ Berikan output dalam format JSON murni:
             <div style="width: 30px; font-weight: bold;">${s.no}.</div>
             <div style="flex: 1;">
               <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
+              
+              ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
+
               ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                 <div style="margin-left: 10px;">
                   ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
@@ -609,6 +670,9 @@ Berikan output dalam format JSON murni:
             <div style="width: 30px; font-weight: bold;">${s.no}.</div>
             <div style="flex: 1;">
               <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
+
+              ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
+
               ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                 <div style="margin-left: 10px;">
                   ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
@@ -667,6 +731,23 @@ Berikan output dalam format JSON murni:
                     ))}
                   </div>
                 </div>
+
+                {formData.tipeUjian === 'Other' && (
+                  <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Sub-Tipe Ujian (TKA / Try Out)</label>
+                    <select
+                      value={formData.subTipeUjian}
+                      onChange={e => setFormData({...formData, subTipeUjian: e.target.value})}
+                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                    >
+                      <option value="TKA Literasi">TKA: Literasi</option>
+                      <option value="TKA Numerasi">TKA: Numerasi</option>
+                      <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
+                      <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
+                      <option value="Try Out">Try Out</option>
+                    </select>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jenjang</label>
@@ -828,6 +909,31 @@ Berikan output dalam format JSON murni:
                       />
                     </div>
                   )}
+
+                  <label className="flex items-center gap-2 cursor-pointer mt-4 pt-2 border-t border-gray-200">
+                    <input 
+                      type="checkbox" 
+                      checked={formData.terdapatSoalBergambar}
+                      onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
+                      className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
+                  </label>
+                  
+                  {formData.terdapatSoalBergambar && (
+                    <div className="animate-in fade-in duration-200">
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
+                      <input 
+                        type="number"
+                        min="1"
+                        max="20"
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 placeholder-slate-500 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                        placeholder="Masukkan jumlah soal bergambar..."
+                        value={formData.jumlahSoalBergambar === 0 ? '' : formData.jumlahSoalBergambar}
+                        onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
+                      />
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -982,11 +1088,45 @@ Berikan output dalam format JSON murni:
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="font-bold text-indigo-600 text-lg border-b border-indigo-200 pb-2 mb-4 mt-8">A. NASKAH SOAL (REGULER)</h3>
                     {resultSoal.soalList.map((s: any, i: number) => (
-                      <div key={i} className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl">
+                      <div key={i} className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl animate-in fade-in duration-200">
                         <p className="font-medium text-gray-900 mb-4 flex gap-3">
                           <span className="text-gray-500 shrink-0">{s.no}.</span>
                           <span className="whitespace-pre-wrap">{s.pertanyaan}</span>
                         </p>
+
+                        {s.gambarDeskripsi && (
+                          <div className="pl-8 mb-4">
+                            {s.gambarUrl ? (
+                              <div className="relative group max-w-xs">
+                                <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                <button 
+                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
+                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100"
+                                  title="Regenerate Gambar"
+                                >
+                                  🔄
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
+                                disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
+                                className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                              >
+                                {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Memproses...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>🎨 Generate Gambar Ilustrasi</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        )}
                         
                         {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                           <div className="pl-8 space-y-2">
@@ -1021,11 +1161,45 @@ Berikan output dalam format JSON murni:
                       <div className="mt-12 pt-8 border-t border-gray-300">
                         <h3 className="font-bold text-blue-600 text-lg border-b border-blue-200 pb-2 mb-4">NASKAH SOAL - ADAPTASI INKLUSI (ABK)</h3>
                         {resultSoal.soalABKList.map((s: any, i: number) => (
-                          <div key={i} className="p-5 border border-blue-200 bg-blue-50 rounded-xl mb-6">
+                          <div key={i} className="p-5 border border-blue-200 bg-blue-50 rounded-xl mb-6 animate-in fade-in duration-200">
                             <p className="font-medium text-gray-900 mb-4 flex gap-3">
                               <span className="text-blue-600 shrink-0">{s.no}.</span>
                               <span className="whitespace-pre-wrap">{s.pertanyaan}</span>
                             </p>
+
+                            {s.gambarDeskripsi && (
+                              <div className="pl-8 mb-4">
+                                {s.gambarUrl ? (
+                                  <div className="relative group max-w-xs">
+                                    <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                    <button 
+                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100"
+                                      title="Regenerate Gambar"
+                                    >
+                                      🔄
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                    disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                                  >
+                                    {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                      <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Memproses...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>🎨 Generate Gambar Ilustrasi</span>
+                                      </>
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            )}
                             
                             {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                               <div className="pl-8 space-y-2">

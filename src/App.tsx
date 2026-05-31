@@ -372,6 +372,9 @@ export default function App() {
     menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
   }
 
+  const isTitanOrAdmin = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes(userRole);
+  const visibleMenuItems = menuItems.filter(item => item.id !== 'snp' || isTitanOrAdmin);
+
   return (
     <div 
       className={`app-wrapper min-h-screen font-sans bg-gray-50 text-gray-900 overflow-x-hidden ${animationsEnabled ? '' : 'disable-animations'} ${gradientsEnabled ? '' : 'disable-gradients'}`}
@@ -410,7 +413,7 @@ export default function App() {
         </div>
 
         <nav className="p-4 space-y-2 overflow-y-auto h-[calc(100%-100px)] custom-scrollbar">
-          {menuItems.map(item => (
+          {visibleMenuItems.map(item => (
             <div key={item.id}>
               <button
                 onClick={() => {
@@ -493,11 +496,11 @@ export default function App() {
             </div>
             {isSearchFocused && searchQuery && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 max-h-64 overflow-y-auto custom-scrollbar">
-                {menuItems.flatMap(item => [
+                 {visibleMenuItems.flatMap(item => [
                   item,
                   ...(item.dropdown || [])
                 ]).filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
-                  menuItems.flatMap(item => [
+                  visibleMenuItems.flatMap(item => [
                     item,
                     ...(item.dropdown || [])
                   ]).filter(item => item.label.toLowerCase().includes(searchQuery.toLowerCase())).map(item => (
@@ -742,7 +745,7 @@ export default function App() {
         </header>
 
         {/* Dynamic Content */}
-        <div className="p-4 md:p-6 max-w-7xl mx-auto w-full">
+        <div className={`p-4 md:p-6 mx-auto w-full ${isFullscreen ? 'max-w-none px-6 md:px-12' : 'max-w-full lg:max-w-[95%] xl:max-w-[92%] 2xl:max-w-[1536px]'}`}>
           {activeTab === 'beranda' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -909,7 +912,7 @@ export default function App() {
             {activeTab === 'program-tahunan' && <ProgramTahunan />}
             {activeTab === 'kktp' && <KKTP />}
             {activeTab === 'game-ifp' && <GameIFP />}
-            {activeTab.startsWith('snp-') && <SNP subTab={activeTab} />}
+            {activeTab.startsWith('snp-') && isTitanOrAdmin && <SNP subTab={activeTab} />}
             {activeTab === 'pricing' && <Pricing />}
             {activeTab === 'admin-panel' && <AdminPanel />}
           </div>

@@ -159,7 +159,12 @@ ${selectedFeatures.rubrikSikap ? '- "rubrikSikap": Objek berisi "headers" (array
 ${selectedFeatures.rubrikHarian ? '- "rubrikHarian": Objek berisi "headers" (array string untuk kolom tabel) dan "rows" (array objek dengan "aspect" dan "criteria" array string sesuai header).' : ''}
 - "outOfTopic": Array string berisi ide-ide Out Of Topic (ice breakers, intermezzo, atau selingan) yang benar-benar efektif dan relevan untuk menyegarkan suasana kelas.
 
-Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JSON VALID.`;
+ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
+1. JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
+2. Tuliskan teks dalam bahasa Indonesia yang baku, formal, dan BEBAS dari kesalahan tik (typo). Misalnya, gunakan "Setelah" (bukan "Seteleh"), "Pilihan" (bukan "Piliham"), dll.
+3. Hindari adanya spasi ganda yang aneh, tab kosong, atau pemisahan kata yang tidak semestinya di dalam teks atau daftar list.
+4. Untuk penulisan rumus/ekspresi matematika, gunakan teks biasa yang jelas dan mudah dibaca (misalnya "x + y = 7" atau "ax + by = c") dan JANGAN menggunakan format latex aneh seperti ",$x+y=7,$" atau ",$".
+5. Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JSON VALID.`;
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -298,17 +303,48 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
           <head>
             <title>Print - Mengajar Harian</title>
             <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; color: #000; background: #fff; padding: 20px; position: relative; }
-              h1, h2, h3 { color: #111; }
-              .markdown-body { font-size: 12pt; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-              th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+              @page {
+                size: A4;
+                margin: 20mm 20mm 20mm 25mm;
+              }
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.5;
+                color: #000;
+                background: #fff;
+                padding: 0;
+                margin: 0;
+              }
+              h1, h2, h3 { color: #111; margin-top: 10px; margin-bottom: 10px; }
+              .markdown-body { font-size: 11pt; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+              th, td { border: 1px solid #333; padding: 6px 10px; text-align: left; font-size: 10pt; }
               th { background-color: #f2f2f2; }
-              @page { margin: 0; }
+              
+              .print-section {
+                border: 1.5px solid #000;
+                padding: 15mm;
+                margin-bottom: 20mm;
+                page-break-inside: avoid;
+                page-break-after: always;
+                box-sizing: border-box;
+                min-height: 250mm;
+                position: relative;
+              }
+              
               @media print {
-                body { padding: 2cm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                body {
+                  margin: 0;
+                  padding: 0;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
                 .no-print { display: none; }
-                .page-break { page-break-before: always; }
+                .print-section {
+                  margin-bottom: 0;
+                  page-break-after: always;
+                  border: 1.5px solid #000 !important;
+                }
               }
             </style>
           </head>
@@ -316,7 +352,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
             ${watermark}
             <div style="position: relative; z-index: 1;">
               ${printContent.innerHTML}
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
+              <div class="print-section" style="min-height: auto !important; margin-top: 20mm; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid; page-break-after: auto;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -587,7 +623,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
               </div>
 
               <div id="print-content" className="space-y-8">
-                <div className="text-center border-b border-white/10 pb-6">
+                <div className="print-section text-center border-b border-white/10 pb-6">
                   <h1 className="text-2xl md:text-3xl font-black text-black mb-2">Perangkat Mengajar Harian: {formData.topikMateri}</h1>
                   <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
                     <span><strong>Jenis:</strong> {formData.jenisGuru}</span>
@@ -598,7 +634,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 </div>
 
                 {result.ringkasan && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 print-section">
                     <h2 className="text-xl font-bold text-red-500 flex items-center gap-2 border-b border-red-500/30 pb-2">
                       <FileText size={20} /> Ringkasan Materi Ajar
                     </h2>
@@ -607,7 +643,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.outOfTopic && Array.isArray(result.outOfTopic) && (
-                  <div className="space-y-4">
+                  <div className="space-y-4 print-section">
                     <h2 className="text-xl font-bold text-red-200 flex items-center gap-2 border-b border-red-200/30 pb-2">
                       <Star size={20} /> Ide Out Of Topic (Ice Breaker / Intermezzo)
                     </h2>
@@ -620,7 +656,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.slide && Array.isArray(result.slide) && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-orange-400 flex items-center gap-2 border-b border-orange-400/30 pb-2">
                       <Presentation size={20} /> Slide Presentasi
                     </h2>
@@ -638,7 +674,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.petaPikiran && Array.isArray(result.petaPikiran) && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-green-400 flex items-center gap-2 border-b border-green-400/30 pb-2">
                       <Map size={20} /> Peta Pikiran (Mind Map)
                     </h2>
@@ -668,7 +704,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.infographic && Array.isArray(result.infographic) && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-pink-400 flex items-center gap-2 border-b border-pink-400/30 pb-2">
                       <ImageIcon size={20} /> InfoGraphic
                     </h2>
@@ -690,7 +726,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.asesmen && result.asesmen.questions && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-red-400 flex items-center gap-2 border-b border-red-400/30 pb-2">
                       <CheckSquare size={20} /> Asesmen & Kunci Jawaban
                     </h2>
@@ -731,7 +767,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.rubrikSikap && result.rubrikSikap.headers && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-yellow-400 flex items-center gap-2 border-b border-yellow-400/30 pb-2">
                       <Star size={20} /> Rubrik Penilaian Sikap
                     </h2>
@@ -757,7 +793,7 @@ Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JS
                 )}
 
                 {result.rubrikHarian && result.rubrikHarian.headers && (
-                  <div className="space-y-4 page-break">
+                  <div className="space-y-4 page-break print-section">
                     <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2 border-b border-purple-400/30 pb-2">
                       <Activity size={20} /> Rubrik Penilaian Harian
                     </h2>

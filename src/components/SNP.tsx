@@ -206,7 +206,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
 
   // Khusus SNP memunculkan kembali form chat sesuai permintaan + tool external
   return (
-    <div className="max-w-5xl mx-auto space-y-6 relative">
+    <div className="max-w-5xl lg:max-w-7xl mx-auto space-y-6 relative">
       <div className="flex justify-between items-center bg-rose-500/10 border border-rose-500/30 p-4 rounded-xl mb-6">
         <div className="flex items-center gap-3">
           <Crown className="w-8 h-8 text-rose-500" />
