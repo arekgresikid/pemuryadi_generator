@@ -66,8 +66,13 @@ export const useToken = async () => {
       throw new Error(data.error || 'Gagal memverifikasi token.');
     }
     
-    if (typeof window !== 'undefined' && data.tokens !== undefined) {
-      window.dispatchEvent(new CustomEvent('tokenConsumed', { detail: data.tokens }));
+    if (typeof window !== 'undefined') {
+      if (data.tokens !== undefined) {
+        window.dispatchEvent(new CustomEvent('tokenConsumed', { detail: data.tokens }));
+      }
+      if (data.isFree) {
+        window.dispatchEvent(new CustomEvent('showFreeTokenWarning'));
+      }
     }
     return data;
   } catch (error) {
