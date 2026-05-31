@@ -177,6 +177,14 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
     const faseLabel = phaseClassMap[formData.eduLevel]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
     const kelasLabel = phaseClassMap[formData.eduLevel]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
 
+    const isKemenag = formData.satuanPendidikan?.toLowerCase().includes('madrasah') || 
+                      formData.satuanPendidikan?.toLowerCase().includes(' mi ') || 
+                      formData.satuanPendidikan?.toLowerCase().includes('mts') || 
+                      formData.satuanPendidikan?.toLowerCase().includes(' ma ') ||
+                      formData.satuanPendidikan?.toLowerCase().startsWith('mi ') ||
+                      formData.satuanPendidikan?.toLowerCase().startsWith('ma ') ||
+                      ['al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski', 'bahasa-arab'].includes(formData.mapel);
+
     const rowsHtml = tujuanPembelajaran.map((tp, index) => `
       <tr>
         <td style="border: 1px solid black; padding: 8px; text-align: center;">${index + 1}</td>
@@ -240,7 +248,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="header">
               <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-                  ${formData.isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                  ${isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
               </div>
               <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
                   ${formData.satuanPendidikan || 'SATUAN PENDIDIKAN'}
