@@ -209,7 +209,9 @@ export default function ModulKokurikuler() {
         lampiranInstructions += `\nO. LAMPIRAN - RANCANGAN ALUR SESI PERTEMUAN (Buat tabel rancangan sesi secara sistematis sebanyak ${jumlahPertemuan || 4} pertemuan, dengan total alokasi waktu ${alokasiJP || '16'} JP. Setiap sesi dijabarkan alur kegiatannya, alokasi waktu per sesi, aktivitas spesifik, serta sarana prasarana yang diperlukan).`;
       }
 
-      const prompt = `Buatkan Modul Kokurikuler yang komprehensif berdasarkan data berikut. Ikuti format dan struktur sesuai dengan Panduan Kokurikuler 2025 terbaru dari Kemendikbudristek (seperti yang tercantum dalam panduan resmi). Pastikan semua bagian terisi secara otomatis dan komprehensif sesuai dengan kriteria pilihan pengunjung.
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan Modul Kokurikuler yang komprehensif berdasarkan data berikut. Ikuti format dan struktur sesuai dengan Panduan Kokurikuler 2025 terbaru dari Kemendikbudristek (seperti yang tercantum dalam panduan resmi). Pastikan semua bagian terisi secara otomatis dan komprehensif sesuai dengan kriteria pilihan pengunjung.
 
 Data pengunjung:
 Tema: ${tema}
@@ -367,7 +369,12 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 font-weight: bold;
                 color: #2563eb;
               }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>

@@ -132,7 +132,9 @@ export default function MengajarHarian() {
         throw new Error('Pilih minimal satu fitur untuk di-generate.');
       }
 
-      const prompt = `Buatkan perangkat mengajar harian dengan detail berikut:
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan perangkat mengajar harian dengan detail berikut:
 Informasi Umum:
 - Jenis Guru: ${formData.jenisGuru}
 - Semester: ${formData.semester}
@@ -346,6 +348,11 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   border: 1.5px solid #000 !important;
                 }
               }
+            
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
             </style>
           </head>
           <body>

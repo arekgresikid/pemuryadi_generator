@@ -66,7 +66,9 @@ export default function DailyJournal() {
       const modelToUse = selectedModel || 'openai';
       const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || mapelNames[formData.mapel] || formData.mapel;
       
-      const prompt = `Buatkan Catatan Pembelajaran dan Refleksi Guru untuk Jurnal Harian Pembelajaran dengan detail berikut:
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan Catatan Pembelajaran dan Refleksi Guru untuk Jurnal Harian Pembelajaran dengan detail berikut:
 Detail Pembelajaran:
 - Mata Pelajaran: ${mapelLabel}
 - Topik/Materi: ${formData.topik}
@@ -239,7 +241,12 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                 font-weight: bold;
                 color: #2563eb;
               }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>

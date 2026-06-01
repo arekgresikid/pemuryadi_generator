@@ -182,7 +182,9 @@ export default function DeepLearningPlan() {
         ? "Kemenag RPM (Rencana Pelaksanaan Pembelajaran/Modul Ajar) Berbasis Cinta"
         : "Rencana Pembelajaran Mendalam (Deep Learning Plan) Kurikulum Merdeka";
       
-      const prompt = `Buatkan ${formatInstruction} untuk:
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan ${formatInstruction} untuk:
 Mata Pelajaran: ${subjectLabel}
 Topik/Materi: ${formData.topikMateri}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
@@ -394,7 +396,12 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               .section-title { font-weight: bold; font-size: 1.2em; margin-top: 20px; background: #e2e8f0; padding: 5px 10px; }
               .content-box { padding: 10px; border: 1px solid #cbd5e1; margin-top: 5px; min-height: 50px; }
               ul { margin: 0; padding-left: 20px; }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>

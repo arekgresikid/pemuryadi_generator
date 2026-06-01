@@ -60,7 +60,9 @@ export default function AnalisisHariEfektif() {
     setError(null);
 
     try {
-      const prompt = `Buatlah Analisis Hari Efektif (Rincian Minggu Efektif) untuk tahun ajaran ${formData.tahunAjaran} Semester ${formData.semester} jenjang ${formData.jenjang} di Provinsi ${formData.provinsi}.
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatlah Analisis Hari Efektif (Rincian Minggu Efektif) untuk tahun ajaran ${formData.tahunAjaran} Semester ${formData.semester} jenjang ${formData.jenjang} di Provinsi ${formData.provinsi}.
 Gunakan sumber yang kredibel dari Dinas Pendidikan Provinsi terkait atau pedoman Kemendikbudristek terbaru untuk tahun 2026.
 
 Buat dalam format HTML lengkap yang siap dicetak (A4).
@@ -142,6 +144,11 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 @page { size: A4; margin: 0; }
                 body { -webkit-print-color-adjust: exact; padding: 2cm; }
               }
+            
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
             </style>
           </head>
           <body>
