@@ -182,7 +182,9 @@ export default function BuatSoal() {
       }
 
       if (type === 'kisi-kisi') {
-        prompt = `Buatkan Kisi-kisi Soal untuk:
+        prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan Kisi-kisi Soal untuk:
 Mata Pelajaran: ${mapelLabel}
 Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
@@ -249,7 +251,9 @@ Berikan output dalam format JSON murni:
           extraInstructions += `\n- Soal Bergambar: Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Buatlah ${formData.jumlahSoalBergambar} soal yang memerlukan gambar/diagram pendukung untuk dapat diselesaikan. Untuk soal-soal tersebut, isilah bidang "gambarDeskripsi" dengan deskripsi detail gambar outline hitam-putih tanpa warna/bold yang representatif (contoh: "diagram batang pertumbuhan tanaman", "limas segi empat ABCD dengan garis tinggi", "peta persebaran flora fauna"). Untuk soal reguler yang tidak memerlukan gambar, biarkan bidang "gambarDeskripsi" kosong atau null.`;
         }
 
-        prompt = `Buatkan Soal beserta Kunci Jawabannya untuk:
+        prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan Soal beserta Kunci Jawabannya untuk:
 Mata Pelajaran: ${mapelLabel}
 Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
@@ -432,7 +436,12 @@ Berikan output dalam format JSON murni:
               @page { margin: 1cm; }
               body { padding: 0; }
             }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
         </head>
         <body>
           ${getWatermarkHtml()}

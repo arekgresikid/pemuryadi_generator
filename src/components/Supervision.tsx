@@ -185,7 +185,9 @@ export default function Supervision() {
     try {
       const ai = new GoogleGenAI({});
       
-      const prompt = `
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+
         Anda adalah seorang Supervisor Pendidikan ahli. Tugas Anda adalah melakukan analisis supervisi pembelajaran berdasarkan dokumen yang disediakan.
         
         SUMBER DATA:
@@ -384,7 +386,12 @@ export default function Supervision() {
                 font-weight: bold;
                 color: #2563eb;
               }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>

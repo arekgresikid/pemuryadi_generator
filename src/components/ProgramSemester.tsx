@@ -90,7 +90,9 @@ export default function ProgramSemester() {
       const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
       const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
 
-      const prompt = `Buatlah Program Semester (Promes) Kurikulum Merdeka untuk mata pelajaran ${subjectLabel} Kelas ${kelasLabel} (Fase ${faseLabel}) Semester ${formData.semester} Tahun Ajaran ${formData.tahunAjaran}.
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatlah Program Semester (Promes) Kurikulum Merdeka untuk mata pelajaran ${subjectLabel} Kelas ${kelasLabel} (Fase ${faseLabel}) Semester ${formData.semester} Tahun Ajaran ${formData.tahunAjaran}.
 Gunakan sumber yang kredibel dari BSKAP Kemendikbudristek terbaru untuk tahun 2026.
 ${formData.topik ? `Fokuskan atau sertakan topik/materi berikut: ${formData.topik}` : ''}
 Tingkatan Kognitif (Taksonomi Bloom): ${formData.tingkatanKognitif}
@@ -185,6 +187,11 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 @page { size: A4 landscape; margin: 0; }
                 body { -webkit-print-color-adjust: exact; padding: 1.5cm; }
               }
+            
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
             </style>
           </head>
           <body>

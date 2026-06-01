@@ -107,7 +107,9 @@ export default function KKTP() {
       const faseLabel = phaseClassMap[formData.eduLevel]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
       const kelasLabel = phaseClassMap[formData.eduLevel]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
 
-      const prompt = `Buatkan daftar Tujuan Pembelajaran (TP) untuk Kriteria Ketercapaian Tujuan Pembelajaran (KKTP) Kurikulum Merdeka:
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatkan daftar Tujuan Pembelajaran (TP) untuk Kriteria Ketercapaian Tujuan Pembelajaran (KKTP) Kurikulum Merdeka:
 Mata Pelajaran: ${subjectLabel}
 Topik/Materi: ${formData.topikMateri}
 Fase: ${faseLabel}
@@ -242,7 +244,12 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                 font-weight: bold;
                 text-transform: uppercase;
               }
-          </style>
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
