@@ -76,23 +76,23 @@ Struktur Dokumen HTML:
 3. Tabel 1: Perhitungan Alokasi Waktu (Bulan, Jumlah Minggu, Jumlah Minggu Efektif, Jumlah Minggu Tidak Efektif)
 4. Tabel 2: Distribusi Alokasi Waktu (Rincian kegiatan tidak efektif seperti Libur Semester, Libur Nasional, Ujian, dll)
 5. Perhitungan Total Jam Pelajaran Efektif.
-6. Bagian Tanda Tangan di bawah tabel, WAJIB gunakan struktur HTML berikut persis seperti ini:
+${(formData.kepalaSekolah || formData.namaGuru) ? `6. Bagian Tanda Tangan di bawah tabel, WAJIB gunakan struktur HTML berikut persis seperti ini:
    <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
      <div style="width: 45%;">
        <p>Mengetahui,</p>
        <p>Kepala Sekolah</p>
        <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.kepalaSekolah || '................................'}</p>
-       <p>${formData.jenisNipKepalaSekolah || 'NIP'}. ${formData.nipKepalaSekolah || '................................'}</p>
+       <p style="font-weight: bold; text-decoration: underline;">\${formData.kepalaSekolah || '................................'}</p>
+       <p>\${formData.jenisNipKepalaSekolah || 'NIP'}. \${formData.nipKepalaSekolah || '................................'}</p>
      </div>
      <div style="width: 45%;">
-       <p>${formData.tempatTanggal || '................., .........................'}</p>
+       <p>\${formData.tempatTanggal || '................., .........................'}</p>
        <p>Guru Mata Pelajaran</p>
        <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
-       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '................................'}</p>
+       <p style="font-weight: bold; text-decoration: underline;">\${formData.namaGuru || '................................'}</p>
+       <p>\${formData.jenisNipGuru || 'NIP'}. \${formData.nipGuru || '................................'}</p>
      </div>
-   </div>
+   </div>` : ''}
 
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 

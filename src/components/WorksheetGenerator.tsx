@@ -329,7 +329,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
               ${result}
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
+              ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>${(formData.namaSekolah?.toLowerCase().includes('madrasah') || formData.namaSekolah?.toLowerCase().includes(' mi ') || formData.namaSekolah?.toLowerCase().includes('mts') || formData.namaSekolah?.toLowerCase().includes(' ma ') || formData.namaSekolah?.toLowerCase().startsWith('mi ') || formData.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'Kepala Madrasah' : 'Kepala Sekolah'}</p>
@@ -344,7 +344,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
                       <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
                       <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
               
               <div class="support-footer">
                   <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Worksheet Generator - Pemuryadi</strong></p>

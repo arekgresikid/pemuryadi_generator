@@ -376,7 +376,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   ${marked.parse(result)}
               </div>
 
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+              ${(kepalaSekolah || namaGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -391,7 +391,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                       <p style="font-weight: bold; text-decoration: underline;">${namaGuru || '................................'}</p>
                       <p>${jenisNipGuru || 'NIP'}. ${nipGuru || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
               
               <div class="support-footer">
                   <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Modul Kokurikuler - Pemuryadi</strong></p>

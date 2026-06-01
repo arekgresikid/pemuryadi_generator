@@ -289,7 +289,7 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                   <div class="content"><p>${(result.refleksi || '-').replace(/\n/g, '<br>')}</p></div>
               </div>
 
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+              ${(result.kepalaSekolah || result.ttdKS || result.namaGuru || result.ttdGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -304,7 +304,7 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                       <p style="font-weight: bold; text-decoration: underline;">${result.namaGuru || result.ttdGuru || '................................'}</p>
                       <p>${result.jenisNipGuru || 'NIP'}. ${result.nip || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
               <div class="support-footer">
                   <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Daily Journal - Pemuryadi</strong></p>
                   <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>

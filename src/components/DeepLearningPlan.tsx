@@ -553,7 +553,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   </tr>`).join('') : '<tr><td colspan="6" style="text-align:center;">Tidak ada rubrik</td></tr>'}
               </table>
 
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+              ${(formData.kepalaSekolah || formData.namaGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -568,7 +568,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
                       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nip || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
               
               <div style="margin-top: 50px; text-align: center; font-style: italic; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
                   Dokumen ini dihasilkan secara otomatis oleh AI Deep Learning Plan - Pemuryadi<br/>

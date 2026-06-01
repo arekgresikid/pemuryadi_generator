@@ -436,7 +436,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   </div>
               </div>
 
-              <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+              ${(formData.kepalaSekolah || formData.namaGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -451,7 +451,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
                       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nip || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
 
               <div class="support-footer">
                   <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Modul Ajar Generator - Pemuryadi</strong></p>
