@@ -43,7 +43,7 @@ export const getWatermarkHtml = (profileOrRole?: any) => {
 };
 
 export const getSignatureHtml = (profile: any) => {
-  if (!profile) return '';
+  if (!profile || (!profile.kepalaSekolah && !profile.nama && !profile.displayName)) return '';
   
   const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   

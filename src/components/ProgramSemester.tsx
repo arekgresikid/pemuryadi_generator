@@ -119,8 +119,7 @@ Struktur Dokumen HTML:
    - Kolom: No, Alur Tujuan Pembelajaran (ATP) / Materi, Alokasi Waktu (JP), Bulan (Juli s.d. Desember untuk Ganjil, Januari s.d. Juni untuk Genap), dan Keterangan.
    - Di bawah kolom Bulan, bagi menjadi kolom-kolom Minggu (1, 2, 3, 4, 5).
    - Isi tabel dengan contoh ATP yang relevan untuk mata pelajaran dan fase tersebut.
-4. Bagian Tanda Tangan di bawah tabel, WAJIB gunakan struktur HTML berikut persis seperti ini:
-   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+${(formData.kepalaSekolah || formData.namaGuru) ? `   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
      <div style="width: 45%;">
        <p>Mengetahui,</p>
        <p>Kepala Sekolah</p>
@@ -135,7 +134,8 @@ Struktur Dokumen HTML:
        <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
        <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '................................'}</p>
      </div>
-   </div>
+   </div>` : ''}
+
 
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse. Gunakan orientasi landscape untuk tabel yang lebar.`;
 

@@ -352,7 +352,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             ${watermark}
             <div style="position: relative; z-index: 1;">
               ${printContent.innerHTML}
-              <div class="print-section" style="min-height: auto !important; margin-top: 20mm; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid; page-break-after: auto;">
+              ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div class="print-section" style="min-height: auto !important; margin-top: 20mm; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid; page-break-after: auto;">
                   <div style="width: 45%;">
                       <p>Mengetahui,</p>
                       <p>Kepala Sekolah</p>
@@ -367,7 +367,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                       <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
                       <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
                   </div>
-              </div>
+              </div>` : ''}
             </div>
             <script>
               window.onload = () => { window.print(); window.close(); }

@@ -318,7 +318,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
               </tr>
           </table>
           
-          <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+          ${(formData.kepalaSekolah || formData.guruMapel) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
               <div style="width: 45%;">
                   <p>Mengetahui,</p>
                   <p>Kepala Sekolah</p>
@@ -333,7 +333,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                   <p style="font-weight: bold; text-decoration: underline;">${formData.guruMapel || '................................'}</p>
                   <p>${formData.jenisNipGuruMapel || 'NIP'}. ${formData.nipGuruMapel || '................................'}</p>
               </div>
-          </div>
+          </div>` : ''}
           
           <div style="margin-top: 30px; text-align: center; font-style: italic; font-size: 8pt; color: #666;">
               Dokumen ini dihasilkan secara otomatis oleh AI Generator KKTP - Pemuryadi<br/>

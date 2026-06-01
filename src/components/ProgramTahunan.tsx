@@ -117,8 +117,7 @@ Struktur Dokumen HTML:
 4. Tabel Prota:
    - Kolom: No, Semester, Alur Tujuan Pembelajaran (ATP) / Materi Pokok, Alokasi Waktu (JP), dan Keterangan.
    - Isi tabel dengan contoh ATP yang relevan dibagi menjadi Semester Ganjil dan Semester Genap.
-5. Bagian Tanda Tangan di bawah tabel, WAJIB gunakan struktur HTML berikut persis seperti ini:
-   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+${(formData.kepalaSekolah || formData.namaGuru) ? `   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
      <div style="width: 45%;">
        <p>Mengetahui,</p>
        <p>Kepala Sekolah</p>
@@ -133,7 +132,8 @@ Struktur Dokumen HTML:
        <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
        <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '................................'}</p>
      </div>
-   </div>
+   </div>` : ''}
+
 
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 

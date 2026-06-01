@@ -426,7 +426,7 @@ PENTING:
             ${answerGridHtml}
           </div>
           
-          <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+          ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
               <div style="width: 45%;">
                   <p>Mengetahui,</p>
                   <p>Kepala Sekolah</p>
@@ -441,7 +441,7 @@ PENTING:
                   <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
                   <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
               </div>
-          </div>
+          </div>` : ''}
           
           <div class="support-footer">
               <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Crossword Generator - Pemuryadi</strong></p>
