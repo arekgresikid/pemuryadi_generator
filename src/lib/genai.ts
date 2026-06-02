@@ -36,10 +36,9 @@ export class GoogleGenAI {
   constructor(options: { apiKey?: string }) {
     // The API key is now securely managed by the backend proxy.
     this.apiKey = "secure-proxy-mode";
-    
     const openai = new OpenAI({
       apiKey: "dummy-key", // The backend handles the real key
-      baseURL: "/api",     // Pointing to our Cloudflare backend proxy
+      baseURL: typeof window !== 'undefined' ? `${window.location.origin}/api` : "/api", // Pointing to our Cloudflare backend proxy
       dangerouslyAllowBrowser: true 
     });
 
