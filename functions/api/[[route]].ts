@@ -405,7 +405,7 @@ app.get('/generate-image', async (c) => {
     });
 
     if (!imageResponse.ok) {
-      return c.json({ error: 'Image generation failed', status: imageResponse.status }, imageResponse.status);
+      return c.json({ error: 'Image generation failed', status: imageResponse.status }, imageResponse.status as any);
     }
 
     const arrayBuffer = await imageResponse.arrayBuffer();
@@ -434,7 +434,7 @@ app.post('/chat/completions', async (c) => {
     });
     
     if (!response.ok) {
-       return c.json({ error: 'AI generation failed', status: response.status }, response.status);
+       return c.json({ error: 'AI generation failed', status: response.status }, response.status as any);
     }
     
     const data = await response.json();
@@ -460,7 +460,7 @@ app.post('/images/generations', async (c) => {
     });
     
     if (!response.ok) {
-       return c.json({ error: 'AI image generation failed', status: response.status }, response.status);
+       return c.json({ error: 'AI image generation failed', status: response.status }, response.status as any);
     }
     
     const data = await response.json();
@@ -468,6 +468,16 @@ app.post('/images/generations', async (c) => {
   } catch (err: any) {
     return c.json({ error: 'Internal server error', details: err.message }, 500);
   }
+});
+
+// --- Secret Dev Mode Proxy ---
+app.post('/verify-dev-mode', async (c) => {
+  const body = await c.req.json();
+  const validPassword = (c.env as any).DEV_PASSWORD || 'ruangriungdev'; // Fallback for local if not set
+  if (body.password === validPassword) {
+    return c.json({ success: true });
+  }
+  return c.json({ success: false }, 401);
 });
 
 export const onRequest = handle(app)

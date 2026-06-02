@@ -1,0 +1,172 @@
+import React from 'react';
+import { Heart, Activity, Coffee, ShoppingCart, MessageSquare } from 'lucide-react';
+import QuickProfile from '../QuickProfile';
+import FeedbackForm from '../FeedbackForm';
+
+export interface DashboardProps {
+  osName: string;
+  ramInfo: string;
+  userAgentStr: string;
+  visitors: { today: number; month: number; total: number };
+  favorites: number;
+  activityClicks: Record<string, number>;
+  menuItems: any[];
+  onTabChange: (tabId: string) => void;
+  onOpenChat: () => void;
+  onIncrementFavorites: () => void;
+}
+
+export default function Dashboard({
+  osName,
+  ramInfo,
+  userAgentStr,
+  visitors,
+  favorites,
+  activityClicks,
+  menuItems,
+  onTabChange,
+  onOpenChat,
+  onIncrementFavorites
+}: DashboardProps) {
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        {/* Hero Dashboard Section */}
+        <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex flex-col justify-center col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 h-full">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-gray-200 mb-6 w-max">
+            <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span> 
+            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
+            welcome to <span className="text-blue-600">the future education.</span>
+          </h2>
+          <div className="flex flex-wrap gap-4 mt-auto mb-8">
+            <button onClick={() => onTabChange('pricing')} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors px-6 py-3 text-left w-max">
+              <div className="font-bold text-sm mb-1">Operation System: {osName} | RAM: {ramInfo}</div>
+              <div className="text-[9px] font-mono opacity-80 max-w-sm">USER AGENT: {userAgentStr}</div>
+            </button>
+            <button onClick={onOpenChat} className="px-8 py-3 text-sm font-bold uppercase tracking-widest border border-gray-300 text-blue-500 hover:bg-blue-500 hover:text-white transition-all italic">
+              Consult AI Assistant
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Profile */}
+        <div className="col-span-1 md:col-span-2 lg:col-span-1 flex items-stretch h-full">
+          <div className="w-full flex-1">
+            <QuickProfile />
+          </div>
+        </div>
+
+        {/* Traffic Analytics */}
+        <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col h-full col-span-1 md:col-span-1 lg:col-span-1">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest">Traffic Analytics</h3>
+            <Activity size={16} className="text-blue-500" />
+          </div>
+          <div className="space-y-4 flex-1 flex flex-col">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Daily Access</span>
+              <span className="text-lg font-mono font-bold text-blue-600">{visitors.today}</span>
+            </div>
+            <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+              <div className="bg-blue-600 h-full w-3/4 shadow-sm"></div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Monthly Load</span>
+              <span className="text-lg font-mono font-bold text-blue-500">{visitors.month}</span>
+            </div>
+            <div className="w-full bg-gray-100 h-1 rounded-full overflow-hidden mb-4">
+              <div className="bg-blue-500 h-full w-1/2 shadow-sm"></div>
+            </div>
+            <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto">
+              <div className="flex items-center gap-2">
+                <Heart size={14} className="text-blue-300" />
+                <span className="text-xs text-gray-500">Favorites</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-lg font-mono font-bold text-blue-300">{favorites}</span>
+                <button onClick={onIncrementFavorites} className="p-1.5 rounded bg-blue-50 text-blue-300 hover:bg-blue-100 hover:text-white transition-colors" title="Favorite this app">
+                  <Heart size={14} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Aktivitas Paling Sering Diklik */}
+        <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col h-full col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-1">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xs font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-600 animate-pulse rounded-full"></div>
+              Aktivitas Paling Sering Diklik
+            </h3>
+          </div>
+          <div className="space-y-4 font-mono text-[10px] flex-1 overflow-y-auto">
+            {Object.entries(activityClicks).length > 0 ? (
+              Object.entries(activityClicks)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .map(([activity, count], index) => {
+                  const menuItem = menuItems.flatMap(item => [item, ...(item.dropdown || [])]).find(item => item.id === activity);
+                  const label = menuItem ? menuItem.label : activity;
+                  return (
+                    <div key={activity} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-2 gap-1 sm:gap-4">
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-4 overflow-hidden">
+                        <span className="text-slate-600 shrink-0">#{index + 1}</span>
+                        <span className="text-gray-700 truncate sm:whitespace-normal sm:break-words">{label}</span>
+                      </div>
+                      <span className="text-blue-600 font-bold self-end sm:self-auto shrink-0">{count} klik</span>
+                    </div>
+                  );
+                })
+            ) : (
+              <div className="text-gray-500 italic">Belum ada aktivitas...</div>
+            )}
+          </div>
+        </div>
+
+        {/* Support Network */}
+        <div className="bg-white border border-gray-200 shadow-sm p-6 lg:p-8 rounded-2xl flex flex-col justify-between bg-gradient-to-br from-blue-50 to-transparent hover:shadow-md transition-shadow h-full col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-1">
+            <div>
+              <h3 className="text-lg font-black italic text-blue-600 mb-3 uppercase tracking-tight flex items-center gap-2">
+                 <Coffee size={20} /> Support Network
+              </h3>
+              <p className="text-xs text-gray-600 mb-6 leading-relaxed">
+                Kontribusi Anda menjaga sistem ini tetap online dan gratis bagi seluruh pendidik. Mari wujudkan ekosistem pendidikan yang lebih baik.
+              </p>
+            </div>
+            <a href="https://saweria.co/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 w-full bg-blue-100 text-blue-700 font-bold uppercase text-xs tracking-wider rounded-xl hover:scale-[1.02] transition-transform mt-auto">
+              Donate via Saweria
+            </a>
+        </div>
+
+        {/* Premium Assets */}
+        <div className="bg-white border border-gray-200 shadow-sm p-6 lg:p-8 rounded-2xl flex flex-col justify-between bg-gradient-to-br from-red-50 to-transparent hover:shadow-md transition-shadow h-full col-span-1 md:col-span-1 lg:col-span-2 xl:col-span-1">
+            <div>
+              <h3 className="text-lg font-black italic text-red-600 mb-3 uppercase tracking-tight flex items-center gap-2">
+                 <ShoppingCart size={20} /> Premium Assets
+              </h3>
+              <p className="text-xs text-gray-600 mb-6 leading-relaxed">
+                Dapatkan akses ke materi ajar eksklusif, template premium, dan sumber daya tingkat lanjut untuk kebutuhan mengajar kelas Anda.
+              </p>
+            </div>
+            <a href="https://lynk.id/pemuryadi" target="_blank" rel="noreferrer" className="inline-flex justify-center items-center gap-2 px-6 py-3 w-full bg-red-600 text-white font-bold uppercase text-xs tracking-wider rounded-xl hover:scale-[1.02] transition-transform shadow-sm mt-auto">
+              Buka Marketplace
+            </a>
+        </div>
+
+        {/* Feedback */}
+        <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col justify-center h-full col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+           <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+             <MessageSquare size={18} className="text-blue-600" /> Masukan & Saran
+           </h3>
+           <p className="text-xs text-gray-500 mb-4">Punya ide fitur atau kendala? Beritahu kami agar aplikasi ini terus berkembang!</p>
+           <FeedbackForm inline={true} />
+        </div>
+
+      </div>
+    </div>
+  );
+}
