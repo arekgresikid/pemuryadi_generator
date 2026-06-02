@@ -149,10 +149,7 @@ export default function Sidebar({
                     }
                     setActiveDropdown(isOpening ? item.id : null);
                     
-                    // Otomatis arahkan ke sub-menu pertama saat membuka menu
-                    if (isOpening && item.dropdown.length > 0) {
-                      handleTabChange(item.dropdown[0].id);
-                    }
+                    // Hapus auto-navigate agar pengguna bebas memilih sub-menu tanpa tidak sengaja membuka fitur premium
                   } else {
                     handleTabChange(item.id);
                     setActiveDropdown(null);

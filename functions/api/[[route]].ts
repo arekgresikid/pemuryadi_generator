@@ -106,11 +106,14 @@ app.get('/auth/callback', async (c) => {
     let initialTier = isAdmin ? 'Titan' : 'Free';
     
     if (!existingUser) {
+      // Default to 2 tokens for Free tier, or 999 if Titan
+      let initialTokens = isAdmin ? 999 : 2;
+      
       await db.prepare(
-        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, createdAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, createdAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
-        userData.id, userData.email, userData.name, userData.picture, role, initialTier, new Date().toISOString()
+        userData.id, userData.email, userData.name, userData.picture, role, initialTier, initialTokens, new Date().toISOString()
       ).run();
     } else {
       // Update uid (if pre-registered), photo, and name
@@ -150,7 +153,7 @@ app.get('/auth/me', async (c) => {
   let profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
   
   if (profile) {
-    const adminEmailsStr = c.env.ADMIN_EMAILS || 'p.e.muryadi@gmail.com,arekgresikid@gmail.com,arekgresik@gmail.com';
+    const adminEmailsStr = c.env.ADMIN_EMAILS || 'p.e.muryadi@gmail.com,arekgresikid@gmail.com';
     const adminEmails = adminEmailsStr.split(',').map((e: string) => e.trim());
     const isAdmin = adminEmails.includes(profile.email as string);
     
@@ -277,10 +280,12 @@ app.post('/admin/users', async (c) => {
   }
 
   const tempUid = 'pending-' + Date.now();
+  const initialTokens = tier === 'Titan' || tier === 'Supreme' || role === 'owner' || role === 'admin' ? 999 : (tier === 'Free' ? 2 : 0);
+  
   await db.prepare(
-    `INSERT INTO users (uid, email, displayName, role, tier, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO users (uid, email, displayName, role, tier, tokens, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
-    tempUid, email, displayName || null, role || 'siswa', tier || 'Free', activeUntil || null, new Date().toISOString()
+    tempUid, email, displayName || null, role || 'siswa', tier || 'Free', initialTokens, activeUntil || null, new Date().toISOString()
   ).run();
 
   return c.json({ success: true });
@@ -323,10 +328,12 @@ app.post('/tokens/use', async (c) => {
     
     if (!profile) return c.json({ error: 'User not found' }, 404);
     
-    // Privileged roles and premium tiers bypass token limits
+    // Privileged roles and supreme/titan tiers bypass token limits completely
     const role = String(profile.role || 'siswa').toLowerCase();
-    const tier = String(profile.tier || 'Free').toLowerCase();
-    if (role === 'owner' || role === 'admin' || tier !== 'free') {
+    const tier = String(profile.tier || 'free').toLowerCase();
+    const isFree = tier === 'free';
+    
+    if (role === 'owner' || role === 'admin' || tier === 'supreme' || tier === 'titan') {
       return c.json({ success: true, tokens: profile.tokens, isFree: false });
     }
 
@@ -338,7 +345,7 @@ app.post('/tokens/use', async (c) => {
       .bind(user.uid)
       .run();
       
-    return c.json({ success: true, tokens: (profile.tokens as number) - 1, isFree: true });
+    return c.json({ success: true, tokens: (profile.tokens as number) - 1, isFree: isFree });
   } catch (error) {
     console.error("D1 Error:", error);
     // Fallback if table doesn't exist

@@ -35,10 +35,13 @@ import Sidebar, { MenuItem } from './components/layout/Sidebar';
 import Topbar from './components/layout/Topbar';
 import Dashboard from './components/layout/Dashboard';
 import DevModeModal from './components/layout/DevModeModal';
+import PremiumLockModal from './components/layout/PremiumLockModal';
+import LoginRequiredModal from './components/layout/LoginRequiredModal';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('beranda');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isLoginRequiredOpen, setIsLoginRequiredOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
   
@@ -62,6 +65,7 @@ export default function App() {
   const [isDevUnlocked, setIsDevUnlocked] = useState(false);
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
   const [showTokenWarning, setShowTokenWarning] = useState(false);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
   const { user, profile, loading } = useAuth();
 
@@ -119,11 +123,15 @@ export default function App() {
     };
     window.addEventListener('showFreeTokenWarning', handleShowWarning);
 
+    const handleShowLoginModal = () => setIsLoginRequiredOpen(true);
+    window.addEventListener('showLoginModal', handleShowLoginModal);
+
     return () => {
       clearInterval(interval);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('showFreeTokenWarning', handleShowWarning);
+      window.removeEventListener('showLoginModal', handleShowLoginModal);
       clearTimeout(warningTimeout);
     };
   }, []);
@@ -259,7 +267,7 @@ export default function App() {
       const isPrivileged = tier === 'titan' || role === 'owner' || role === 'admin';
       
       if (!isPrivileged && (tier === 'free' || tier === 'guest')) {
-        alert('Fitur ini khusus untuk pengguna berbayar. Silakan upgrade akun Anda ke plan Essential, Premium, atau lainnya.');
+        setIsPremiumModalOpen(true);
         return;
       }
     }
@@ -489,7 +497,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Dev Mode Password Modal */}
       <DevModeModal 
         target={devPromptTarget}
         onClose={() => setDevPromptTarget(null)}
@@ -499,6 +506,20 @@ export default function App() {
           handleTabChange(target);
           if (window.innerWidth < 768) setIsSidebarOpen(false);
         }}
+      />
+      
+      <PremiumLockModal 
+        isOpen={isPremiumModalOpen} 
+        onClose={() => setIsPremiumModalOpen(false)} 
+        onUpgrade={() => {
+          setIsPremiumModalOpen(false);
+          setActiveTab('pricing');
+        }} 
+      />
+      
+      <LoginRequiredModal 
+        isOpen={isLoginRequiredOpen}
+        onClose={() => setIsLoginRequiredOpen(false)}
       />
     </div>
   );
