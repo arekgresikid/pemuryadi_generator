@@ -775,12 +775,10 @@ export default function App() {
                   <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
                     welcome to <span className="text-blue-600">the future education.</span>
                   </h2>
-                  <p className="text-gray-600 text-[10px] md:text-xs max-w-xl mb-8 font-mono break-all italic bg-gray-100 p-2 rounded border border-gray-100">
-                    USER AGENT:<br/>{userAgentStr}
-                  </p>
-                  <div className="flex flex-wrap gap-4 mt-auto">
-                    <button onClick={() => handleTabChange('modul')} className="bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors px-8 py-3 text-sm">
-                      Operation System: {osName} | RAM: {ramInfo}
+                  <div className="flex flex-wrap gap-4 mt-auto mb-8">
+                    <button onClick={() => handleTabChange('pricing')} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors px-6 py-3 text-left w-max">
+                      <div className="font-bold text-sm mb-1">Operation System: {osName} | RAM: {ramInfo}</div>
+                      <div className="text-[9px] font-mono opacity-80 max-w-sm">USER AGENT: {userAgentStr}</div>
                     </button>
                     <button onClick={() => setIsChatOpen(true)} className="px-8 py-3 text-sm font-bold uppercase tracking-widest border border-gray-300 text-blue-500 hover:bg-blue-500 hover:text-white transition-all italic">
                       Consult AI Assistant
