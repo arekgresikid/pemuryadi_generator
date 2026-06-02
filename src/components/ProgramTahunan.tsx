@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
-import { Loader2, Printer, LayoutDashboard, Settings, FileText, Save } from 'lucide-react';
+import { Loader2, Printer, LayoutDashboard, Settings, FileText, Save , Trash2 } from 'lucide-react';
 import PrintSupportModal from './PrintSupportModal';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
+import DOMPurify from 'dompurify';
 
 const ai = new GoogleGenAI({});
 
@@ -72,6 +73,13 @@ export default function ProgramTahunan() {
   const saveProgress = () => {
     localStorage.setItem('ProgramTahunanData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('ProgramTahunanData');
+      window.location.reload();
+    }
   };
 
   const [resultHtml, setResultHtml] = useState<string | null>(null);
@@ -363,13 +371,20 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
             
               <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
-<div className="flex gap-2 mt-4 w-full">
+<div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
+              </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
               </button>
               <button 
               onClick={generateProta}
@@ -408,7 +423,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <p>Menyusun Program Tahunan 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
-                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: resultHtml }} className="print-container" />
+                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} className="print-container" />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <LayoutDashboard size={64} className="mb-4 opacity-20" />

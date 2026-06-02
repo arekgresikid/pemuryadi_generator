@@ -49,13 +49,22 @@ app.get('/auth/login', (c) => {
     origin = 'http://localhost:3000';
   }
   const redirectUri = origin + '/api/auth/callback';
-  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${c.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email profile&access_type=offline&prompt=select_account`;
+  const state = crypto.randomUUID();
+  setCookie(c, 'oauth_state', state, { path: '/', secure: true, httpOnly: true, maxAge: 600 });
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${c.env.GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email profile&access_type=offline&prompt=select_account&state=${state}`;
   return c.redirect(url);
 });
 
 app.get('/auth/callback', async (c) => {
   const code = c.req.query('code');
   if (!code) return c.json({ error: 'No code provided' }, 400);
+
+  const state = c.req.query('state');
+  const savedState = getCookie(c, 'oauth_state');
+  if (!state || !savedState || state !== savedState) {
+    return c.json({ error: 'Invalid state parameter for CSRF protection' }, 400);
+  }
+  deleteCookie(c, 'oauth_state', { path: '/' });
 
   let origin = new URL(c.req.url).origin;
   if (origin.includes('127.0.0.1:8788')) {
@@ -129,8 +138,7 @@ app.get('/auth/callback', async (c) => {
     // 5. Redirect back to app
     return c.redirect('/');
   } catch (error: any) {
-    console.error('OAuth error:', error);
-    return c.json({ error: 'OAuth failed', details: error.message, stack: error.stack }, 500);
+    return c.json({ error: 'OAuth failed', details: error.message }, 500);
   }
 });
 
@@ -191,7 +199,7 @@ app.post('/profile', async (c) => {
   const db = c.env.DB;
 
   // Dynamically build update query
-  const keys = Object.keys(body).filter(k => ['displayName', 'nip', 'jenjang', 'tahunPelajaran', 'namaSekolah', 'kepalaSekolah', 'jenisNipKepalaSekolah', 'nipKepalaSekolah', 'jenisNipGuru', 'tokens', 'lastResetDate'].includes(k));
+  const keys = Object.keys(body).filter(k => ['displayName', 'nip', 'jenjang', 'tahunPelajaran', 'namaSekolah', 'kepalaSekolah', 'jenisNipKepalaSekolah', 'nipKepalaSekolah', 'jenisNipGuru'].includes(k));
   
   if (keys.length === 0) return c.json({ success: true });
 
@@ -303,7 +311,7 @@ app.post('/tokens/use', async (c) => {
   
   // Local bypass on the backend as well
   const origin = new URL(c.req.url).origin;
-  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+  if (origin === 'http://localhost:3000' || origin === 'http://127.0.0.1:8788' || origin === 'http://localhost:8788') {
     return c.json({ success: true, tokens: 999 });
   }
 
@@ -374,6 +382,92 @@ app.post('/logs', async (c) => {
   ).run();
   
   return c.json({ success: true });
+});
+
+// --- Image Generation Proxy ---
+app.get('/generate-image', async (c) => {
+  const prompt = c.req.query('prompt');
+  const model = c.req.query('model') || 'nanobana';
+  const seed = c.req.query('seed') || Math.floor(Math.random() * 1000000);
+  
+  if (!prompt) {
+    return c.json({ error: 'Prompt is required' }, 400);
+  }
+
+  const encodedPrompt = encodeURIComponent(prompt);
+  const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
+  
+  try {
+    const imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&nologo=true&seed=${seed}`, {
+      headers: apiKey ? {
+        'Authorization': `Bearer ${apiKey}`
+      } : {}
+    });
+
+    if (!imageResponse.ok) {
+      return c.json({ error: 'Image generation failed', status: imageResponse.status }, imageResponse.status);
+    }
+
+    const arrayBuffer = await imageResponse.arrayBuffer();
+    return c.body(arrayBuffer, 200, {
+      'Content-Type': imageResponse.headers.get('Content-Type') || 'image/jpeg',
+      'Cache-Control': 'public, max-age=31536000'
+    });
+  } catch (err: any) {
+    return c.json({ error: 'Internal server error', details: err.message }, 500);
+  }
+});
+
+// --- Text Generation Proxy ---
+app.post('/chat/completions', async (c) => {
+  const body = await c.req.json();
+  const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
+  
+  try {
+    const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+      },
+      body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+       return c.json({ error: 'AI generation failed', status: response.status }, response.status);
+    }
+    
+    const data = await response.json();
+    return c.json(data);
+  } catch (err: any) {
+    return c.json({ error: 'Internal server error', details: err.message }, 500);
+  }
+});
+
+// --- OpenAI Images Proxy ---
+app.post('/images/generations', async (c) => {
+  const body = await c.req.json();
+  const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
+  
+  try {
+    const response = await fetch('https://gen.pollinations.ai/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+      },
+      body: JSON.stringify(body)
+    });
+    
+    if (!response.ok) {
+       return c.json({ error: 'AI image generation failed', status: response.status }, response.status);
+    }
+    
+    const data = await response.json();
+    return c.json(data);
+  } catch (err: any) {
+    return c.json({ error: 'Internal server error', details: err.message }, 500);
+  }
 });
 
 export const onRequest = handle(app)

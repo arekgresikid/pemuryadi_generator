@@ -57,7 +57,7 @@ Jawab LANGSUNG dengan isinya saja (maksimal 5-7 kata), tanpa tanda kutip, tanpa 
   return (
     <div className="relative w-full group">
       <input 
-        className={`${className} pr-12`} 
+        className={`w-full ${className} pr-12`} 
         placeholder={placeholder}
         {...props} 
       />

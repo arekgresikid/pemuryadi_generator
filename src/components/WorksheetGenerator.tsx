@@ -9,6 +9,7 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import DOMPurify from 'dompurify';
 
 const INFOGRAPHIC_BASE_PROMPT = `
 Create a vertical worksheet, portrait orientation, optimized to fit entirely on a single A4 page.
@@ -163,13 +164,8 @@ export default function WorksheetGenerator() {
       try {
         const encodedPrompt = encodeURIComponent(`Educational worksheet illustration about ${formData.topik}, minimalist, line art, colorful, child friendly`);
         const randomSeed = Math.floor(Math.random() * 1000000);
-        const apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || "";
         
-        const imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedImageModel}&nologo=true&seed=${randomSeed}`, {
-          headers: apiKey ? {
-            'Authorization': `Bearer ${apiKey}`
-          } : {}
-        });
+        const imageResponse = await fetch(`/api/generate-image?prompt=${encodedPrompt}&model=${selectedImageModel}&seed=${randomSeed}`);
 
         if (imageResponse.ok) {
           const blob = await imageResponse.blob();
@@ -548,7 +544,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
               </div>
               <div 
                 className="bg-white rounded-xl overflow-hidden shadow-inner min-h-[500px]"
-                dangerouslySetInnerHTML={{ __html: result }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result) }}
               />
             </div>
           ) : (
