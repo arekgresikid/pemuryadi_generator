@@ -51,17 +51,17 @@ export const addActivityLog = async (msg: string, status: string, color: string)
 
 export const useToken = async () => {
   try {
-    // Bypass token check for local development
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return { success: true, tokens: 999 };
-    }
-
     const response = await fetch('/api/tokens/use', { method: 'POST' });
     let data: any = {};
     try { data = await response.json(); } catch(e) {}
     
     if (!response.ok) {
-      if (response.status === 401) throw new Error('Silakan login terlebih dahulu untuk menggunakan fitur AI.');
+      if (response.status === 401) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('showLoginModal'));
+        }
+        throw new Error('Silakan login terlebih dahulu untuk menggunakan fitur AI.');
+      }
       if (response.status === 403) throw new Error('Token harian Anda sudah habis. Silakan upgrade ke Premium untuk akses tanpa batas.');
       throw new Error(data.error || 'Gagal memverifikasi token.');
     }
