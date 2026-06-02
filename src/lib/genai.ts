@@ -34,12 +34,12 @@ export class GoogleGenAI {
   };
 
   constructor(options: { apiKey?: string }) {
-    // Gunakan VITE_POLLINATIONS_API_KEY dari .env, atau fallback ke argumen yang diberikan
-    this.apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || options.apiKey || "";
+    // The API key is now securely managed by the backend proxy.
+    this.apiKey = "secure-proxy-mode";
     
     const openai = new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: "https://gen.pollinations.ai/v1",
+      apiKey: "dummy-key", // The backend handles the real key
+      baseURL: "/api",     // Pointing to our Cloudflare backend proxy
       dangerouslyAllowBrowser: true 
     });
 

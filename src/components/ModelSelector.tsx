@@ -40,39 +40,53 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
     { name: 'wan-image', description: 'Wan 2.7 Image - Text-to-image up to 2K' },
   ];
 
+  const valueRef = React.useRef(value);
+  
   useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(() => {
+    let isMounted = true;
     const defaults = modality === 'image' ? defaultImageModels : defaultTextModels;
     setModels(defaults);
 
-    // Filter types to exclude audio/video-only, paid_only, etc.
-    const excludeTypes = modality === 'image'
-      ? ['video', 'audio']
-      : ['image', 'video'];
-
-    fetch('https://gen.pollinations.ai/models')
-      .then(res => res.json())
+    fetch(`https://gen.pollinations.ai/${modality}/models`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then((data: any[]) => {
-        if (!Array.isArray(data)) return;
-        const filtered = data
-          .filter(m =>
-            m.output_modalities &&
-            m.output_modalities.includes(modality) &&
-            !excludeTypes.some((t: string) => m.output_modalities.length === 1 && m.output_modalities[0] === t)
-          )
-          .map(m => ({ name: m.name, description: m.description || m.name }));
+        if (!isMounted || !Array.isArray(data)) return;
+        
+        const mapped = data.map(m => {
+          if (typeof m === 'string') {
+            return { name: m, description: m };
+          }
+          return { name: m?.name || '', description: m?.description || m?.name || '' };
+        }).filter(m => m.name);
 
-        if (filtered.length > 0) {
-          setModels(filtered);
-          // Set default to first if current not in list
-          if (!filtered.some(m => m.name === value)) {
-            onChange(filtered[0].name);
+        if (mapped.length > 0) {
+          setModels(mapped);
+          // Set default to first if current not in list using fresh value
+          if (!mapped.some(m => m.name === valueRef.current)) {
+            onChange(mapped[0].name);
           }
         }
       })
-      .catch(() => {
-        // Use fallback defaults on error
+      .catch((e) => {
+        if (isMounted) {
+          console.error("Failed to fetch models from", `https://gen.pollinations.ai/${modality}/models`, e);
+          // Defaults are already set
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [modality]);
 
   const selectedInfo = models.find(m => m.name === value);

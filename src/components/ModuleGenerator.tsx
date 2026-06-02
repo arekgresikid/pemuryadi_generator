@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
@@ -30,6 +30,13 @@ export default function ModuleGenerator() {
   const saveProgress = () => {
     localStorage.setItem('ModuleGeneratorData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('ModuleGeneratorData');
+      window.location.reload();
+    }
   };
 
   const [error, setError] = useState('');
@@ -718,13 +725,20 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <div className="mb-4">
             <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
           </div>
-          <div className="flex gap-2 mt-4 w-full">
+          <div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
+              </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
               </button>
               <button onClick={generateModul} disabled={isGenerating} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-teal-500/25 disabled:opacity-50 disabled:cursor-not-allowed btn-generate-animated">
             {isGenerating ? (

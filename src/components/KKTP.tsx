@@ -29,6 +29,13 @@ export default function KKTP() {
     alert('Progress berhasil disimpan!');
   };
 
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('KKTPData');
+      window.location.reload();
+    }
+  };
+
   const [error, setError] = useState('');
   
   const [formData, setFormData] = useState({
@@ -501,13 +508,20 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
           <div className="mb-4">
             <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
           </div>
-          <div className="flex gap-2 mt-4 w-full">
+          <div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
+              </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
               </button>
               <button 
             onClick={generateKKTP}
