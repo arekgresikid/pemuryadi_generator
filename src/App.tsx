@@ -414,7 +414,7 @@ export default function App() {
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
                 <h1 className="text-lg font-bold text-blue-600 tracking-tighter">Pemuryadi Generator</h1>
-                <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
+                <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Powered by RuangRiung</p>
               </div>
             )}
           </div>
@@ -980,7 +980,7 @@ export default function App() {
             <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">
-            ©2026 <span className="text-black">PEMURYADI</span> - Cyber Education & RuangRiung
+            © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.
           </p>
         </div>
       </footer>
