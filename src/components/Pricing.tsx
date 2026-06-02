@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
@@ -117,6 +117,24 @@ export default function Pricing() {
       buttonText: 'Beli Titan'
     }
   ];
+
+  useEffect(() => {
+    // Auto-select plan based on device on mount
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    // Desktop devices get Premium (recommended), mobile gets Essential
+    const isDesktop = userAgent.includes('windows') || userAgent.includes('macintosh') || userAgent.includes('linux');
+    const recommendedPlanName = isDesktop ? 'Premium' : 'Essential';
+    
+    const planToSelect = plans.find(p => p.name === recommendedPlanName);
+    if (planToSelect) {
+      // Delay slightly for smooth transition
+      const timer = setTimeout(() => {
+        setSelectedPlan(planToSelect);
+        setShowModal(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []); // Run once on mount
 
   const handleUpgrade = (plan: any) => {
     setSelectedPlan(plan);

@@ -51,38 +51,38 @@ export default function QuickProfile() {
   };
 
   return (
-    <div className="bg-white border border-gray-200 shadow-sm p-4 rounded-xl bg-gray-50 border border-gray-200 w-full max-w-[400px]">
-      <div className="flex items-center gap-2 mb-3 border-b border-red-500/10 pb-2">
-        <User size={16} className="text-red-500" />
-        <h3 className="text-xs font-bold text-red-500 uppercase tracking-widest">Identitas Profil</h3>
-        {['owner', 'admin'].includes(profile?.role?.toLowerCase()) && <Shield size={12} className="text-red-200 ml-auto" />}
+    <div className="bg-white border border-red-100 shadow-sm p-6 rounded-2xl w-full h-full flex flex-col justify-between">
+      <div className="flex items-center gap-2 mb-4 border-b border-red-500/10 pb-3">
+        <User size={18} className="text-red-500" />
+        <h3 className="text-sm font-bold text-red-500 uppercase tracking-widest">Identitas Profil</h3>
+        {['owner', 'admin'].includes(profile?.role?.toLowerCase()) && <Shield size={14} className="text-red-200 ml-auto" />}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4 flex-1">
         <div className="col-span-2">
-          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1">Nama Lengkap</label>
+          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1.5">Nama Lengkap</label>
           <AIAssistedInput type="text" 
             value={formData.displayName}
             onChange={(e) => setFormData({...formData, displayName: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-black focus:border-red-500 outline-none transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-black focus:border-red-500 focus:bg-white outline-none transition-all"
             placeholder="Nama Lengkap"
           />
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1">NIP / NUPTK</label>
+          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1.5">NIP / NUPTK</label>
           <AIAssistedInput type="text" 
             value={formData.nip}
             onChange={(e) => setFormData({...formData, nip: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-black focus:border-red-500 outline-none transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-black focus:border-red-500 focus:bg-white outline-none transition-all"
             placeholder="NIP"
           />
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1">Jenjang</label>
+          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1.5">Jenjang</label>
           <select 
             value={formData.jenjang}
             onChange={(e) => setFormData({...formData, jenjang: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-black focus:border-red-500 outline-none transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-black focus:border-red-500 focus:bg-white outline-none transition-all"
           >
             <option value="PAUD/TK">PAUD/TK</option>
             <option value="SD">SD</option>
@@ -92,11 +92,11 @@ export default function QuickProfile() {
           </select>
         </div>
         <div>
-          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1">Tahun Pelajaran</label>
+          <label className="block text-[10px] text-gray-500 uppercase font-bold mb-1.5">Tahun Pelajaran</label>
           <AIAssistedInput type="text" 
             value={formData.tahunPelajaran}
             onChange={(e) => setFormData({...formData, tahunPelajaran: e.target.value})}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-black focus:border-red-500 outline-none transition-all"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-black focus:border-red-500 focus:bg-white outline-none transition-all"
             placeholder="2025/2026"
           />
         </div>
@@ -104,10 +104,10 @@ export default function QuickProfile() {
           <button 
             onClick={handleSave}
             disabled={isSaving || !user}
-            className={`w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
+            className={`w-full flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${
               showSuccess 
                 ? 'bg-red-300 text-black' 
-                : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-black border border-red-500/30'
+                : 'bg-red-50 text-red-600 hover:bg-red-500 hover:text-white border border-red-200'
             } ${(!user || isSaving) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isSaving ? (

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
-import { Leaf, Shield, Users, BarChart, BookOpen, FileText, Loader2, Save, Crown, ExternalLink } from 'lucide-react';
+import { Leaf, Shield, Users, BarChart, BookOpen, FileText, Loader2, Save, Crown, ExternalLink, Printer } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import DocumentUpload, { UploadedFile } from './DocumentUpload';
 import { useAuth } from '../AuthContext';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import PrintSupportModal from './PrintSupportModal';
+import { getWatermarkHtml } from '../utils/print';
 
 interface SNPProps {
   subTab: string;
@@ -19,6 +21,8 @@ const SNP: React.FC<SNPProps> = ({ subTab }) => {
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const isTitan = profile?.role === 'owner' || profile?.role === 'admin' || profile?.tier?.toLowerCase() === 'titan' || profile?.role?.toLowerCase() === 'titan';
 
@@ -186,6 +190,44 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
     }
   };
 
+  const printDocument = () => {
+    const printContent = printRef.current?.innerHTML;
+    if (printContent) {
+      const printWindow = window.open('', '_blank');
+      printWindow?.document.write(`
+        <html>
+          <head>
+            <title>Print Dokumen ${config.title}</title>
+            <style>
+              body { font-family: 'Times New Roman', Times, serif; padding: 20px; color: black; line-height: 1.5; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+              th, td { border: 1px solid black; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+              h1, h2, h3, h4, h5, h6 { color: black; margin-bottom: 10px; text-transform: uppercase; }
+              p { margin-bottom: 10px; }
+              ul, ol { margin-bottom: 10px; padding-left: 20px; }
+              @media print {
+                @page { size: A4; margin: 2cm; }
+                body { -webkit-print-color-adjust: exact; padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <h2 style="text-align: center;">Draft Dokumen ${config.agentName}</h2>
+            ${printContent}
+            ${getWatermarkHtml(profile?.role)}
+          </body>
+        </html>
+      `);
+      printWindow?.document.close();
+      printWindow?.focus();
+      setTimeout(() => {
+        printWindow?.print();
+        printWindow?.close();
+      }, 500);
+    }
+  };
+
   if (!isTitan) {
     return (
       <div className="max-w-3xl mx-auto h-[60vh] flex flex-col items-center justify-center p-8 text-center space-y-6">
@@ -290,12 +332,16 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
               {config.icon}
               Draft Dokumen {config.agentName}
             </h3>
+            <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg flex items-center gap-2 transition-colors shadow-md hover:shadow-lg">
+              <Printer size={16} /> Cetak
+            </button>
           </div>
-          <div className="prose prose-invert max-w-none prose-headings:text-rose-400 prose-a:text-rose-300">
+          <div ref={printRef} className="prose prose-invert max-w-none prose-headings:text-rose-400 prose-a:text-rose-300">
             <ReactMarkdown>{result}</ReactMarkdown>
           </div>
         </div>
       )}
+      <PrintSupportModal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} onConfirm={printDocument} />
     </div>
   );
 };

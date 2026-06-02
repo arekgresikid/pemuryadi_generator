@@ -156,7 +156,7 @@ app.get('/auth/me', async (c) => {
 
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     if (profile.lastResetDate !== today && profile.tier === 'Free') {
-      await db.prepare('UPDATE users SET tokens = 5, lastResetDate = ? WHERE uid = ?')
+      await db.prepare('UPDATE users SET tokens = 2, lastResetDate = ? WHERE uid = ?')
         .bind(today, user.uid)
         .run();
       profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
