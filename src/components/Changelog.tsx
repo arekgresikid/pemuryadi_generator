@@ -72,7 +72,7 @@ export default function Changelog() {
         'Optimalisasi tampilan tata letak cetak kertas (Print Layouts), manajemen hak akses, dan Ekspor/Impor JSON.',
         'Penyesuaian tata letak KOP Surat Sekolah dan perbaikan fitur logika cetak khusus Kemenag.',
         'Meningkatkan fitur AI Image Generation untuk menyertakan pengaturan model AI secara lengkap ke seluruh form visual.',
-        'Penyempurnaan antarmuka modul RPM (Rencana Pembelajaran Mingguan) dan peralihan dari karakter Emoji standar ke Ikon UI.'
+        'Penyempurnaan antarmuka modul RPM (Rencana Pembelajaran Mendalam) dan peralihan dari karakter Emoji standar ke Ikon UI.'
       ]
     },
     {
