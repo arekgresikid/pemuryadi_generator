@@ -4,7 +4,7 @@ import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lu
 export default function Changelog() {
   const versions = [
     {
-      version: '1.1.0',
+      version: '5.2.0',
       date: '4 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
@@ -19,7 +19,7 @@ export default function Changelog() {
       ]
     },
     {
-      version: '1.0.9',
+      version: '5.1.9',
       date: '3 Juni 2026',
       icon: <Sparkles className="w-5 h-5 text-gray-500" />,
       commits: [
@@ -31,7 +31,7 @@ export default function Changelog() {
       ]
     },
     {
-      version: '1.0.8',
+      version: '5.1.8',
       date: '1 - 2 Juni 2026',
       icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
@@ -42,7 +42,7 @@ export default function Changelog() {
       ]
     },
     {
-      version: '1.0.7',
+      version: '5.1.7',
       date: '30 - 31 Mei 2026',
       icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
@@ -54,7 +54,7 @@ export default function Changelog() {
       ]
     },
     {
-      version: '1.0.6',
+      version: '5.1.6',
       date: '29 Mei 2026',
       icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
@@ -67,7 +67,7 @@ export default function Changelog() {
       ]
     },
     {
-      version: '1.0.0',
+      version: '5.0.0',
       date: '19 April 2026',
       icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
