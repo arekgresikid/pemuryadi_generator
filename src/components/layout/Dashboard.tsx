@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, Activity, Coffee, ShoppingCart, MessageSquare } from 'lucide-react';
 import QuickProfile from '../QuickProfile';
 import FeedbackForm from '../FeedbackForm';
@@ -28,6 +28,51 @@ export default function Dashboard({
   onOpenChat,
   onIncrementFavorites
 }: DashboardProps) {
+  const [typedText, setTypedText] = useState('');
+  const phrases = [
+    "Welcome to the future Education.",
+    "Solusi AI cerdas untuk para Pendidik.",
+    "Susun Modul Ajar & RPP dalam hitungan detik.",
+    "Tingkatkan efisiensi Administrasi Sekolah Anda."
+  ];
+
+  useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let intervalId: ReturnType<typeof setInterval>;
+    let isMounted = true;
+    let phraseIndex = 0;
+
+    const startTyping = () => {
+      let currentText = '';
+      let charIndex = 0;
+      setTypedText('');
+      const currentPhrase = phrases[phraseIndex];
+      
+      intervalId = setInterval(() => {
+        if (!isMounted) return;
+        if (charIndex < currentPhrase.length) {
+          currentText += currentPhrase[charIndex];
+          setTypedText(currentText);
+          charIndex++;
+        } else {
+          clearInterval(intervalId);
+          phraseIndex = (phraseIndex + 1) % phrases.length;
+          timeoutId = setTimeout(() => {
+            if (isMounted) startTyping();
+          }, 4000); // Tunggu 4 detik sebelum ganti kalimat
+        }
+      }, 60); // Kecepatan ketik 60ms
+    };
+
+    startTyping();
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -41,8 +86,8 @@ export default function Dashboard({
           <h2 className="text-3xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
             <span className="text-blue-600">Pemuryadi Generator</span>
           </h2>
-          <p className="text-lg text-gray-500 font-medium italic mb-4">
-            welcome to the future education.
+          <p className="text-lg text-gray-500 font-medium italic mb-4 min-h-[28px]">
+            {typedText}<span className="animate-pulse inline-block w-[2px] h-[1em] bg-blue-500 ml-1 align-middle"></span>
           </p>
           <div className="flex flex-wrap gap-4 mt-auto mb-8">
             <button onClick={() => onTabChange('pricing')} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors px-6 py-3 text-left w-max">
