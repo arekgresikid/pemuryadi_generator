@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Crown } from 'lucide-react';
 
 interface WelcomePopupProps {
   onComplete: (role: string) => void;
+  onNavigateToPricing?: () => void;
 }
 
-const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete }) => {
+const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete, onNavigateToPricing }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -21,6 +22,15 @@ const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete }) => {
     onComplete('guest'); // Default role or user choice
   };
 
+  const handlePricing = () => {
+    setIsOpen(false);
+    localStorage.setItem('hasSeenWelcomePopup', 'true');
+    onComplete('guest');
+    if (onNavigateToPricing) {
+      onNavigateToPricing();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -31,15 +41,25 @@ const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete }) => {
             <span className="text-3xl">👋</span>
           </div>
           <h2 className="text-2xl font-bold mb-2">Selamat Datang!</h2>
-          <p className="text-gray-600 mb-6">
-            Jelajahi berbagai fitur menarik di Pendidikan Generator. Tingkatkan pengalaman belajar mengajar Anda.
+          <p className="text-gray-600 mb-6 text-sm">
+            Jelajahi berbagai fitur pendidikan bertenaga AI untuk memudahkan administrasi dan kegiatan belajar mengajar Anda. 
+            <br/><br/>
+            Sebagian besar fitur dasar tersedia secara gratis, namun kami juga menyediakan paket langganan premium untuk akses penuh ke seluruh alat tingkat lanjut.
           </p>
-          <button
-            onClick={handleClose}
-            className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors"
-          >
-            Mulai Sekarang
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={handleClose}
+              className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              Mulai Eksplorasi Gratis
+            </button>
+            <button
+              onClick={handlePricing}
+              className="w-full py-3 bg-amber-100 text-amber-700 rounded-xl font-bold hover:bg-amber-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Crown size={18} /> Lihat Paket Langganan
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ export default function AdminPanel() {
   const [editRole, setEditRole] = useState('guest');
   const [editTier, setEditTier] = useState('Free');
   const [editActiveUntil, setEditActiveUntil] = useState('');
+  const [editName, setEditName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newEmail, setNewEmail] = useState('');
@@ -38,6 +39,7 @@ export default function AdminPanel() {
 
   const handleEdit = (user: any) => {
     setEditingUser(user);
+    setEditName(user.displayName || '');
     setEditRole(user.role || 'siswa');
     setEditTier(user.tier || 'Free');
     setEditActiveUntil(user.activeUntil || '');
@@ -95,7 +97,8 @@ export default function AdminPanel() {
         body: JSON.stringify({
           role: editRole,
           tier: editTier,
-          activeUntil: editActiveUntil
+          activeUntil: editActiveUntil,
+          displayName: editName
         })
       });
       
@@ -257,7 +260,13 @@ export default function AdminPanel() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">User Info</label>
-                <div className="text-sm font-bold text-gray-800">{editingUser.displayName}</div>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Nama Pengguna"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500 mb-2"
+                />
                 <div className="text-[10px] font-mono text-gray-500">{editingUser.email}</div>
               </div>
 

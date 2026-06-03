@@ -242,14 +242,15 @@ app.put('/admin/users/:uid', async (c) => {
 
   const targetUid = c.req.param('uid');
   const body = await c.req.json();
-  const { role, tier, activeUntil } = body;
+  const { role, tier, activeUntil, displayName } = body;
 
-  // Build dynamic update for role, tier, activeUntil
+  // Build dynamic update for role, tier, activeUntil, displayName
   const updates = [];
   const values = [];
   if (role !== undefined) { updates.push('role = ?'); values.push(role); }
   if (tier !== undefined) { updates.push('tier = ?'); values.push(tier); }
   if (activeUntil !== undefined) { updates.push('activeUntil = ?'); values.push(activeUntil === '' ? null : activeUntil); }
+  if (displayName !== undefined) { updates.push('displayName = ?'); values.push(displayName); }
 
   if (updates.length > 0) {
     values.push(targetUid);
