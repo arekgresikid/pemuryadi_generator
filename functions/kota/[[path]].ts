@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 export async function onRequest(context: any) {
   const { request, env, params } = context;
   const pathParam = params.path ? (Array.isArray(params.path) ? params.path.join('/') : params.path) : '';

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, Bell, Settings, User, LogIn, LogOut, Shield, Coins, Zap } from 'lucide-react';
 import Logo from '../Logo';
+import { MenuItem } from './Sidebar';
 
 function Clock() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -25,6 +26,50 @@ function Clock() {
   );
 }
 
+function Breadcrumb({ activeTab, menuItems }: { activeTab?: string, menuItems?: MenuItem[] }) {
+  if (!activeTab || !menuItems) return null;
+  
+  let parentLabel = '';
+  let currentLabel = '';
+  
+  for (const item of menuItems) {
+    if (item.id === activeTab) {
+      currentLabel = item.label;
+      break;
+    }
+    if (item.dropdown) {
+      for (const sub of item.dropdown) {
+        if (sub.id === activeTab) {
+          parentLabel = item.label;
+          currentLabel = sub.label;
+          break;
+        }
+      }
+    }
+    if (currentLabel) break;
+  }
+  
+  if (!currentLabel) return null;
+  
+  return (
+    <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
+      <span className="text-gray-400">Beranda</span>
+      {parentLabel && (
+        <>
+          <span className="text-gray-300">/</span>
+          <span className="text-gray-500">{parentLabel}</span>
+        </>
+      )}
+      {currentLabel !== 'Beranda' && (
+        <>
+          <span className="text-gray-300">/</span>
+          <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{currentLabel}</span>
+        </>
+      )}
+    </div>
+  );
+}
+
 export interface TopbarProps {
   setIsSidebarOpen: (v: boolean) => void;
   usageTime: number;
@@ -44,6 +89,8 @@ export interface TopbarProps {
   handleLogin: () => void;
   handleLogout: () => void;
   handleTabChange: (id: string) => void;
+  activeTab?: string;
+  menuItems?: MenuItem[];
 }
 
 export default function Topbar({
@@ -64,7 +111,9 @@ export default function Topbar({
   loading,
   handleLogin,
   handleLogout,
-  handleTabChange
+  handleTabChange,
+  activeTab,
+  menuItems
 }: TopbarProps) {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -100,7 +149,9 @@ export default function Topbar({
         <h1 className="text-sm font-bold text-blue-600">Pemuryadi Generator</h1>
       </div>
 
-      <div className="flex-1"></div>
+      <div className="flex-1 hidden md:flex items-center ml-6">
+        <Breadcrumb activeTab={activeTab} menuItems={menuItems} />
+      </div>
 
       <div className="flex items-center gap-2 sm:gap-6 ml-auto">
         <div className="hidden sm:block">
@@ -287,6 +338,11 @@ export default function Topbar({
                         ) : (
                           <button onClick={() => { handleTabChange('pricing'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-gradient-to-r from-amber-400 to-amber-500 text-black font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1 hover:brightness-105 transition-all shadow-sm">
                             <Zap size={10} /> Upgrade Tier
+                          </button>
+                        )}
+                        {['owner', 'admin'].includes(profile.role?.toLowerCase()) && (
+                          <button onClick={() => { handleTabChange('admin-panel'); setIsProfileOpen(false); }} className="mt-2 text-[10px] bg-blue-600 text-white font-bold uppercase tracking-widest px-2 py-1 rounded w-full flex justify-center items-center gap-1 hover:bg-blue-700 transition-all shadow-sm">
+                            <Shield size={10} /> Admin Dashboard
                           </button>
                         )}
                       </div>
