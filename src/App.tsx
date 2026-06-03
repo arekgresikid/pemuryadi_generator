@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2 } from 'lucide-react';
+import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
@@ -29,6 +29,7 @@ import SNP from './components/SNP';
 import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
+import Changelog from './components/Changelog';
 
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
@@ -449,6 +450,7 @@ export default function App() {
             {activeTab.startsWith('snp-') && isTitanOrAdmin && <SNP subTab={activeTab} />}
             {activeTab === 'pricing' && <Pricing />}
             {activeTab === 'admin-panel' && <AdminPanel />}
+            {activeTab === 'changelog' && <Changelog />}
           </div>
         </div>
       </main>
@@ -492,7 +494,10 @@ export default function App() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
-            <p className="text-xs font-mono text-blue-600 uppercase tracking-widest">System Version 5.1.6</p>
+            <button onClick={() => setActiveTab('changelog')} className="text-center group flex flex-col items-center">
+              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 1.1.0</p>
+              <p className="text-[9px] text-gray-400 group-hover:text-blue-500 transition-colors mt-1 uppercase tracking-widest">Lihat Riwayat Versi</p>
+            </button>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
           <div className="flex justify-center flex-wrap gap-4 md:gap-6 mb-4">
