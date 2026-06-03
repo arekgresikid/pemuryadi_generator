@@ -37,6 +37,8 @@ import Dashboard from './components/layout/Dashboard';
 import DevModeModal from './components/layout/DevModeModal';
 import PremiumLockModal from './components/layout/PremiumLockModal';
 import LoginRequiredModal from './components/layout/LoginRequiredModal';
+import WelcomePopup from './components/WelcomePopup';
+import SEOLandingPage from './components/SEOLandingPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('beranda');
@@ -44,6 +46,13 @@ export default function App() {
   const [isLoginRequiredOpen, setIsLoginRequiredOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+  const [isSeoLanding, setIsSeoLanding] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      return path.startsWith('/kota/') || path.startsWith('/sekolah/');
+    }
+    return false;
+  });
   
   const [visitors, setVisitors] = useState({ today: 0, month: 0, total: 0 });
   const [favorites, setFavorites] = useState(0);
@@ -68,6 +77,7 @@ export default function App() {
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
 
   const { user, profile, loading } = useAuth();
+
 
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
@@ -345,6 +355,18 @@ export default function App() {
     };
   }, []);
 
+  if (isSeoLanding) {
+    return (
+      <SEOLandingPage 
+        onEnterApp={(tab?: string) => {
+          setIsSeoLanding(false);
+          if (tab) setActiveTab(tab);
+          window.history.pushState({}, '', '/');
+        }} 
+      />
+    );
+  }
+
   return (
     <div 
       className={`app-wrapper min-h-screen font-sans bg-gray-50 text-gray-900 overflow-x-hidden ${animationsEnabled ? '' : 'disable-animations'} ${gradientsEnabled ? '' : 'disable-gradients'}`}
@@ -473,11 +495,12 @@ export default function App() {
             <p className="text-xs font-mono text-blue-600 uppercase tracking-widest">System Version 5.1.6</p>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
-          <div className="flex justify-center gap-6 mb-4">
+          <div className="flex justify-center flex-wrap gap-4 md:gap-6 mb-4">
+            <a href="/about.html" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
             <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
           </div>
-          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold">
+          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.
           </p>
         </div>
@@ -520,6 +543,11 @@ export default function App() {
       <LoginRequiredModal 
         isOpen={isLoginRequiredOpen}
         onClose={() => setIsLoginRequiredOpen(false)}
+      />
+
+      <WelcomePopup 
+        onComplete={(role) => console.log('Welcome completed', role)} 
+        onNavigateToPricing={() => handleTabChange('pricing')}
       />
     </div>
   );
