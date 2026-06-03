@@ -33,7 +33,11 @@ export default function Dashboard({
     "Welcome to the future Education.",
     "Solusi AI cerdas untuk para Pendidik.",
     "Susun Modul Ajar & RPP dalam hitungan detik.",
-    "Tingkatkan efisiensi Administrasi Sekolah Anda."
+    "Tingkatkan efisiensi Administrasi Sekolah Anda.",
+    "Analisis kebutuhan belajar siswa lebih mudah.",
+    "Satu klik untuk semua dokumen kelas.",
+    "Bebaskan waktu Anda untuk lebih fokus mengajar.",
+    "Membangun ekosistem pendidikan yang lebih maju."
   ];
 
   useEffect(() => {
