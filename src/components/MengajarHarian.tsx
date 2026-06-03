@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
-import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save } from 'lucide-react';
+import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save , Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
@@ -85,6 +85,13 @@ export default function MengajarHarian() {
   const saveProgress = () => {
     localStorage.setItem('MengajarHarianData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('MengajarHarianData');
+      window.location.reload();
+    }
   };
 
   const [result, setResult] = useState<any>(null);
@@ -574,13 +581,20 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
             
               <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
-<div className="flex gap-2 mt-4 w-full">
+<div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
+              </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
               </button>
               <button 
               onClick={generateContent}

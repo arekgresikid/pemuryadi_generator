@@ -299,7 +299,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
 
           
               <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
-<div className="flex gap-2 w-full">
+<div className="flex flex-wrap gap-2 w-full">
             <button 
               onClick={saveProgress}
               className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"

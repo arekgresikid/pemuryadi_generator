@@ -45,15 +45,10 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
       const prompt = `Educational ${type} about ${context.subject}: ${context.topic} for ${context.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
       const encodedPrompt = encodeURIComponent(prompt);
       const randomSeed = Math.floor(Math.random() * 1000000);
-      const apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || "";
 
-      const imageUrlStr = `https://gen.pollinations.ai/image/${encodedPrompt}?model=${selectedModel}&nologo=true&seed=${randomSeed}`;
+      const imageUrlStr = `/api/generate-image?prompt=${encodedPrompt}&model=${selectedModel}&seed=${randomSeed}`;
 
-      const imageResponse = await fetch(imageUrlStr, {
-        headers: apiKey ? {
-          'Authorization': `Bearer ${apiKey}`
-        } : {}
-      });
+      const imageResponse = await fetch(imageUrlStr);
       if (!imageResponse.ok) {
         throw new Error('Gagal menghasilkan gambar. Silakan coba lagi.');
       }
