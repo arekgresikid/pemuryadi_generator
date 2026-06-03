@@ -27,7 +27,7 @@ export default function AdminPanel() {
       setLoading(true);
       const res = await fetch('/api/admin/users');
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as any[];
         setUsers(data);
       }
     } catch (e) {
@@ -77,7 +77,7 @@ export default function AdminPanel() {
         setIsAdding(false);
         await fetchUsers();
       } else {
-        const data = await res.json();
+        const data = (await res.json()) as any;
         alert(data.error || 'Gagal menambahkan user');
       }
     } catch (e) {

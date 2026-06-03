@@ -83,12 +83,18 @@ export default function Dashboard({
         
         {/* Hero Dashboard Section */}
         <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex flex-col justify-center col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 h-full">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-gray-200 mb-6 w-max">
-            <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span> 
-            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-200 mb-6 w-max">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600"></span>
+            </span>
+            <span className="text-[10px] font-bold text-green-700 uppercase tracking-widest">System Online</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
-            <span className="text-blue-600">Pemuryadi Generator</span>
+          <h2 className="text-3xl md:text-5xl font-black mb-2 tracking-tighter leading-none flex flex-col items-start gap-1">
+            <span className="text-blue-600">
+              Pemurya<span className="text-amber-500">di Gen</span>erator
+            </span>
+            <a href="https://digen.id" target="_blank" rel="noreferrer" className="text-sm font-bold text-gray-400 hover:text-blue-500 transition-colors tracking-normal">https://digen.id</a>
           </h2>
           <p className="text-lg text-gray-500 font-medium italic mb-4 min-h-[28px]">
             {typedText}<span className="animate-pulse inline-block w-[2px] h-[1em] bg-blue-500 ml-1 align-middle"></span>

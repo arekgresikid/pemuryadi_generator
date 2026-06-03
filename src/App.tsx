@@ -316,14 +316,14 @@ export default function App() {
       try {
         const resStats = await fetch('/api/stats');
         if (resStats.ok && mounted) {
-          const data = await resStats.json();
+          const data = (await resStats.json()) as any;
           setFavorites(data.favorites || 0);
         }
         
         if (user) {
           const resLogs = await fetch('/api/logs');
           if (resLogs.ok && mounted) {
-            const logs = await resLogs.json();
+            const logs = (await resLogs.json()) as any[];
             setActivityLogs(logs);
           }
         }
@@ -403,6 +403,8 @@ export default function App() {
           handleLogin={handleLogin}
           handleLogout={handleLogout}
           handleTabChange={handleTabChange}
+          activeTab={activeTab}
+          menuItems={menuItems}
         />
 
         {/* Dynamic Content */}
@@ -491,11 +493,33 @@ export default function App() {
 
       {/* Footer */}
       <footer className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} bg-white/40 border-t border-gray-100 py-8 px-6 no-print`}>
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Brand Logos / Global Partners */}
+          <div className="text-center space-y-2 mb-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-400">Global Partners & Tech Support</p>
+            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">Didukung oleh ekosistem teknologi AI terbaik di dunia</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-6 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-700 mb-10">
+            <div title="nanobanana" className="flex items-center gap-2"><img src="/asset/nanobanana.svg" className="h-5" alt="Nanobanana" /><span className="font-bold text-[10px] text-gray-700">Nanobanana</span></div>
+            <div title="Meta" className="flex items-center gap-2"><img src="/asset/meta.svg" className="h-4" alt="Meta" /><span className="font-bold text-[10px] text-gray-700">Meta</span></div>
+            <div title="YouTube" className="flex items-center gap-2"><img src="/asset/yt-favicon.svg" className="h-5" alt="YouTube" /><span className="font-bold text-[10px] text-gray-700">YouTube</span></div>
+            <div title="Google AdSense" className="flex items-center gap-2"><img src="/asset/googleadsense.svg" className="h-5" alt="Google AdSense" /><span className="font-bold text-[10px] text-gray-700">AdSense</span></div>
+            <div title="Cloudflare" className="flex items-center"><img src="/asset/logo-cloudflare-dark.svg" className="h-4" alt="Cloudflare" /></div>
+            <div title="Google" className="flex items-center gap-2"><img src="/asset/google-icon.svg" className="h-4" alt="Google" /><span className="font-bold text-[10px] text-gray-700">Google</span></div>
+            <div title="Google Cloud" className="flex items-center gap-2"><img src="/asset/gcp.svg" className="h-4.5" alt="Google Cloud" /><span className="font-bold text-[10px] text-gray-700">GCP</span></div>
+            <div title="GitHub" className="flex items-center gap-2"><img src="/asset/github.svg" className="h-5" alt="GitHub" /><span className="font-bold text-[10px] text-gray-700">GitHub</span></div>
+            <div title="Antigravity" className="flex items-center gap-2"><img src="/asset/antigravity.svg" className="h-6" alt="Antigravity" /><span className="font-bold text-[10px] text-gray-700">Antigravity</span></div>
+            <div title="DeepSeek" className="flex items-center"><img src="/asset/deepseek.svg" className="h-6" alt="DeepSeek" /></div>
+            <div title="Gemini" className="flex items-center gap-2"><img src="/asset/gemini.svg" className="h-6" alt="Gemini" /><span className="font-bold text-[10px] text-gray-700">Gemini</span></div>
+            <div title="OpenAI" className="flex items-center"><img src="/asset/openai.svg" className="h-6" alt="OpenAI" /></div>
+            <div title="Grok" className="flex items-center"><img src="/asset/grok.svg" className="h-5" alt="Grok" /></div>
+            <div title="Pollinations AI" className="flex items-center gap-2"><img src="/asset/pollinations.svg" className="h-6" alt="Pollinations" /><span className="font-bold text-[10px] text-gray-700">Pollinations</span></div>
+            <div title="Node.js" className="flex items-center"><img src="/asset/nodejs.svg" className="h-5" alt="Node.js" /></div>
+          </div>
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
             <button onClick={() => setActiveTab('changelog')} className="text-center group flex flex-col items-center">
-              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.0</p>
+              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.1</p>
               <p className="text-[9px] text-gray-400 group-hover:text-blue-500 transition-colors mt-1 uppercase tracking-widest">Lihat Riwayat Versi</p>
             </button>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>

@@ -4,10 +4,32 @@ import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lu
 export default function Changelog() {
   const versions = [
     {
-      version: '5.2.0',
+      version: '5.2.2',
       date: '4 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Memperbarui branding Footer dengan menambahkan seksi "Global Partners & Tech Support" beserta deretan logo ekosistem AI.',
+        'Merapikan struktur direktori aset publik dengan memindahkan seluruh logo SVG eksternal ke dalam folder khusus /asset.',
+        'Menambahkan menu pintasan khusus "Admin Dashboard" pada dropdown profil untuk hak akses admin/owner.',
+        'Mengimplementasikan sistem navigasi Breadcrumbs dinamis di Topbar sesuai dengan menu yang sedang aktif.'
+      ]
+    },
+    {
+      version: '5.2.1',
+      date: '4 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
+      commits: [
+        'Memperbaiki error tipe TypeScript terkait HTMLRewriter pada fungsi Cloudflare Pages dan tipe response unknown pada App & AdminPanel.',
+        'Menambahkan teks tautan digen.id pada judul Dashboard dan memberikan warna khusus (sorotan) pada bagian teks "di Gen".',
+        'Memperbarui indikator System Online di Dashboard dengan animasi titik radar berwarna hijau yang berkedip.',
+        'Menambahkan prefix www (https://www.digen.id) pada Authorized redirect URIs dan Authorized JavaScript origins di konsol Google OAuth.'
+      ]
+    },
+    {
+      version: '5.2.0',
+      date: '4 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Menambahkan lebih banyak variasi kalimat pada animasi mengetik di Dashboard.',
         'Memperbaiki tampilan nama aplikasi untuk keperluan kelancaran verifikasi Google OAuth.',
