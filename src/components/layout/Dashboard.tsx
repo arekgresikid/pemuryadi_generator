@@ -38,9 +38,12 @@ export default function Dashboard({
             <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span> 
             <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">System Online</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter leading-none italic">
-            welcome to <span className="text-blue-600">the future education.</span>
+          <h2 className="text-3xl md:text-5xl font-black mb-2 tracking-tighter leading-none">
+            <span className="text-blue-600">Pemuryadi Generator</span>
           </h2>
+          <p className="text-lg text-gray-500 font-medium italic mb-4">
+            welcome to the future education.
+          </p>
           <div className="flex flex-wrap gap-4 mt-auto mb-8">
             <button onClick={() => onTabChange('pricing')} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors px-6 py-3 text-left w-max">
               <div className="font-bold text-sm mb-1">Operation System: {osName} | RAM: {ramInfo}</div>
