@@ -30,6 +30,7 @@ import SNP from './components/SNP';
 import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
+import WelcomePopup from './components/WelcomePopup';
 import { translations } from './constants';
 
 function Clock() {
@@ -396,6 +397,8 @@ export default function App() {
       className={`app-wrapper min-h-screen font-sans bg-gray-50 text-gray-900 overflow-x-hidden ${animationsEnabled ? '' : 'disable-animations'} ${gradientsEnabled ? '' : 'disable-gradients'}`}
       style={brightness !== 100 ? { filter: `brightness(${brightness}%)` } : undefined}
     >
+      <WelcomePopup onComplete={(role) => handleTabChange('pricing')} />
+
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
@@ -413,8 +416,8 @@ export default function App() {
             <Logo className="w-10 h-10" />
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
-                <h1 className="text-lg font-bold text-blue-600 tracking-tighter">Pemuryadi Generator</h1>
-                <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Cyber Education & RuangRiung</p>
+                <h1 className="text-lg font-bold text-blue-600 tracking-tighter">Pendidikan Generator</h1>
+                <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Featuring pemuryadi and RuangRiung</p>
               </div>
             )}
           </div>
@@ -492,7 +495,7 @@ export default function App() {
                <Menu size={24} />
              </button>
              <Logo className="w-8 h-8" />
-             <h1 className="text-sm font-bold text-blue-600">Pemuryadi Generator</h1>
+             <h1 className="text-sm font-bold text-blue-600">Pendidikan Generator</h1>
           </div>
 
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-md mx-4 lg:mx-8 relative" ref={searchDropdownRef}>
