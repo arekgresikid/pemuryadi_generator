@@ -1052,7 +1052,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             </div>
           </div>
 
-          <div className="flex gap-2 mt-4 w-full">
+          <div className="flex flex-wrap gap-2 mt-4 w-full">
               
               <div className="mb-4">
             <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />

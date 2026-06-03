@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import Logo from './Logo';
+import { useAuth } from '../AuthContext';
+import { loginWithGoogle } from '../api';
 
 interface Message {
   role: 'user' | 'model';
@@ -9,8 +11,9 @@ interface Message {
 }
 
 export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: 'Halo! 👋 Saya **Pemuryadi Bot**, saya siap membantu Anda dengan pertanyaan seputar pendidikan dan Kurikulum Merdeka.\n\nApa yang bisa saya bantu?' }
+    { role: 'model', text: 'Halo! 👋 Saya **Pemuryadi Bot**, asisten AI Anda di **Pemuryadi Generator & RuangRiung**. \n\nSaya siap membantu Anda merancang administrasi (Modul Ajar, RPM, dll), merencanakan game edukasi, atau berdiskusi seputar Kurikulum Merdeka.\n\nApa yang ingin kita buat hari ini?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +45,7 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
         model: 'openai',
         contents: prompt,
         config: {
-          systemInstruction: 'Anda adalah Pemuryadi Bot, asisten AI yang ahli dalam bidang pendidikan di Indonesia, khususnya Kurikulum Merdeka, Modul Ajar, Capaian Pembelajaran, Profil Pelajar Pancasila, dan administrasi guru. Berikan jawaban yang ramah, informatif, dan terstruktur dengan baik menggunakan Markdown.',
+          systemInstruction: 'Anda adalah asisten AI resmi dari Pemuryadi Generator & RuangRiung (Cyber Education Workspace). Anda ahli membantu guru di Indonesia dalam menyusun administrasi (Modul Ajar, RPM, Kalender Pendidikan, Prota, Promes, KKTP), membuat game edukatif (Word Search, Crossword, Ranking 1), dan memahami Kurikulum Merdeka. Jawab dengan ramah, suportif, informatif, dan selalu arahkan mereka untuk menggunakan fitur-fitur yang tersedia di aplikasi Pemuryadi Generator jika relevan. Gunakan Markdown.',
         }
       });
       
@@ -66,23 +69,23 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           <div className="flex items-center gap-3">
             <Logo className="w-10 h-10 rounded-full" />
             <div>
-              <h3 className="font-bold text-black">Pemuryadi Bot</h3>
-              <p className="text-xs text-blue-100">Powered by Gemini AI</p>
+              <h3 className="font-bold text-white">Pemuryadi Bot</h3>
+              <p className="text-xs text-blue-100">Cyber Education Assistant</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-black transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors">
             ✕
           </button>
         </div>
         
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] p-3 rounded-2xl ${
+              <div className={`max-w-[85%] p-4 rounded-2xl shadow-sm ${
                 msg.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-gray-100 text-gray-900 rounded-tl-sm'
+                  ? 'bg-blue-600 text-white rounded-tr-sm' : 'bg-white border border-gray-100 text-gray-800 rounded-tl-sm'
               }`}>
-                <div className="prose prose-sm prose-invert max-w-none">
+                <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert text-white' : 'text-gray-800'}`}>
                   <Markdown>{msg.text}</Markdown>
                 </div>
               </div>
@@ -90,44 +93,59 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="gen-card bg-red-50 text-gray-700 p-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
+              <div className="bg-white border border-gray-100 text-gray-700 p-3 rounded-2xl rounded-tl-sm flex items-center gap-2 shadow-sm">
                 <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-sm">Sedang mengetik...</span>
+                <span className="text-sm font-medium">Sedang mengetik...</span>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
         
-        <div className="p-4 border-t border-black bg-white">
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
-            {['Kurikulum Merdeka', 'Modul Ajar', 'Capaian Pembelajaran'].map(topic => (
+        <div className="p-4 border-t border-gray-200 bg-white">
+          {!user ? (
+            <div className="text-center py-2">
+              <p className="text-sm text-gray-600 mb-3">Silakan Login untuk mulai mengobrol dengan AI.</p>
               <button 
-                key={topic}
-                onClick={() => handleSend(`Apa itu ${topic}?`)}
-                className="whitespace-nowrap px-3 py-1.5 text-xs rounded-full bg-red-50 hover:bg-red-100 text-gray-700 border border-black transition-colors"
+                onClick={loginWithGoogle}
+                className="w-full py-3 px-4 bg-white border border-gray-300 text-gray-700 rounded-xl flex items-center justify-center gap-2 font-medium shadow-sm hover:bg-gray-50 transition-all hover:shadow-md"
               >
-                {topic}
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
+                Login via Google
               </button>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input 
-              type="text" 
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSend()}
-              className="flex-1 bg-red-50 border border-black rounded-xl px-4 py-3 text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" 
-              placeholder="Tanya seputar pendidikan..." 
-            />
-            <button 
-              onClick={() => handleSend()}
-              disabled={!input.trim() || isLoading}
-              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-semibold transition-all shadow-md"
-            >
-              Kirim
-            </button>
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-2 mb-3 overflow-x-auto pb-2 scrollbar-hide">
+                {['Ide Game Edukasi', 'Bantu Buat Modul', 'Apa itu RPM?'].map(topic => (
+                  <button 
+                    key={topic}
+                    onClick={() => handleSend(topic)}
+                    className="whitespace-nowrap px-3 py-1.5 text-xs rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-colors font-medium"
+                  >
+                    {topic}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  className="flex-1 bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-gray-800 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none" 
+                  placeholder="Tanya seputar pendidikan..." 
+                />
+                <button 
+                  onClick={() => handleSend()}
+                  disabled={!input.trim() || isLoading}
+                  className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-all shadow-md"
+                >
+                  Kirim
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

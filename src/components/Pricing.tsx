@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send } from 'lucide-react';
+import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send, Copy, Landmark } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 export default function Pricing() {
   const { user, profile } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
   
   const currentTier = profile?.tier || profile?.role || (user ? 'Free' : null);
 
@@ -118,23 +125,7 @@ export default function Pricing() {
     }
   ];
 
-  useEffect(() => {
-    // Auto-select plan based on device on mount
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    // Desktop devices get Premium (recommended), mobile gets Essential
-    const isDesktop = userAgent.includes('windows') || userAgent.includes('macintosh') || userAgent.includes('linux');
-    const recommendedPlanName = isDesktop ? 'Premium' : 'Essential';
-    
-    const planToSelect = plans.find(p => p.name === recommendedPlanName);
-    if (planToSelect) {
-      // Delay slightly for smooth transition
-      const timer = setTimeout(() => {
-        setSelectedPlan(planToSelect);
-        setShowModal(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, []); // Run once on mount
+  // Removed auto-select useEffect to prevent annoying modal popup on mount
 
   const handleUpgrade = (plan: any) => {
     setSelectedPlan(plan);
@@ -271,8 +262,8 @@ export default function Pricing() {
 
       {/* Payment Modal */}
       {showModal && selectedPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80  animate-in fade-in duration-300">
-          <div className="bg-white border border-black p-6 md:p-8 rounded-2xl max-w-md w-full shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-300">
+          <div className="bg-white border border-black p-6 md:p-8 rounded-2xl max-w-md w-full max-h-[95vh] overflow-y-auto shadow-2xl relative">
             <button 
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors"
@@ -280,43 +271,72 @@ export default function Pricing() {
               <X size={24} />
             </button>
             
-            <h3 className="text-2xl font-bold text-black mb-2">Pilih Metode Pembayaran</h3>
+            <h3 className="text-2xl font-bold text-black mb-2 pr-6">Pilih Metode Pembayaran</h3>
             <p className="text-gray-600 text-sm mb-6">
               Selesaikan pembayaran untuk paket <strong className="text-black">{selectedPlan.name}</strong> sebesar <strong className="text-red-300">{selectedPlan.price}</strong>.
             </p>
 
             <div className="space-y-4 mb-8">
+              {/* E-Wallet Section */}
               <div className="bg-red-50 rounded-xl p-4 border border-black">
                 <div className="flex items-center gap-3 mb-3 text-black font-semibold">
                   <CreditCard size={20} className="text-red-500" />
-                  Transfer E-Wallet
+                  Transfer E-Wallet (a.n. Praswara Eko Muryadi)
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-white p-3 rounded-lg border border-black">
-                    <span className="text-xs text-gray-600 block mb-1">GoPay</span>
-                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-black">
-                    <span className="text-xs text-gray-600 block mb-1">OVO</span>
-                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-black">
-                    <span className="text-xs text-gray-600 block mb-1">DANA</span>
-                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg border border-black">
-                    <span className="text-xs text-gray-600 block mb-1">ShopeePay</span>
-                    <span className="font-mono font-bold text-black">0813 3076 3633 (a.n. Arif Tirtana)</span>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  {['GoPay', 'OVO', 'DANA', 'ShopeePay'].map((wallet) => (
+                    <div key={wallet} className="bg-white p-3 rounded-lg border border-black flex justify-between items-center group">
+                      <div>
+                        <span className="text-xs text-gray-600 block mb-1">{wallet}</span>
+                        <span className="font-mono font-bold text-black">123456780</span>
+                      </div>
+                      <button 
+                        onClick={() => handleCopy('123456780', wallet)}
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
+                        title="Salin Nomor"
+                      >
+                        {copiedId === wallet ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-3 text-xs text-gray-600 text-center">
-                  A.n. P.E Muryadi
+              </div>
+
+              {/* Bank Transfer Section */}
+              <div className="bg-blue-50 rounded-xl p-4 border border-black">
+                <div className="flex items-center gap-3 mb-3 text-black font-semibold">
+                  <Landmark size={20} className="text-blue-500" />
+                  Transfer Bank (a.n. Praswara Eko Muryadi)
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  {[
+                    { name: 'BCA', no: '1234567890' },
+                    { name: 'Mandiri', no: '1234567890' },
+                    { name: 'BNI', no: '1234567890' },
+                    { name: 'BRI', no: '1234567890' },
+                    { name: 'SEABANK', no: '1234567890' },
+                    { name: 'BANK JAGO', no: '1234567890' }
+                  ].map((bank) => (
+                    <div key={bank.name} className="bg-white p-3 rounded-lg border border-black flex justify-between items-center group">
+                      <div>
+                        <span className="text-xs text-gray-600 block mb-1">{bank.name}</span>
+                        <span className="font-mono font-bold text-black">{bank.no}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleCopy(bank.no, bank.name)}
+                        className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
+                        title="Salin Nomor"
+                      >
+                        {copiedId === bank.name ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="bg-emerald-900/30 border border-emerald-500/30 p-4 rounded-xl mb-6">
-              <p className="text-sm text-emerald-200">
+            <div className="bg-green-50 border border-green-200 p-4 rounded-xl mb-6">
+              <p className="text-sm text-green-800 font-medium">
                 Setelah melakukan transfer, silakan klik tombol di bawah untuk mengonfirmasi pembayaran melalui WhatsApp. Admin akan segera mengaktifkan paket Anda.
               </p>
             </div>

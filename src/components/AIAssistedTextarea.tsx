@@ -52,7 +52,7 @@ Jawab LANGSUNG dengan isinya saja, tanpa tanda kutip di awal/akhir, tanpa basa-b
   return (
     <div className="relative w-full group">
       <textarea 
-        className={`${className} pr-12`} 
+        className={`w-full ${className} pr-12`} 
         placeholder={placeholder}
         {...props} 
       />

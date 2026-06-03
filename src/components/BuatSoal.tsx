@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
-import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save } from 'lucide-react';
+import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
@@ -97,6 +97,13 @@ export default function BuatSoal() {
   const saveProgress = () => {
     localStorage.setItem('BuatSoalData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('BuatSoalData');
+      window.location.reload();
+    }
   };
 
   const [generatingImageIndex, setGeneratingImageIndex] = useState<{index: number, isABK: boolean} | null>(null);
@@ -1024,6 +1031,13 @@ Berikan output dalam format JSON murni:
                   >
                     <Save size={16} /> Simpan
                   </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
+              </button>
                   <button
                     onClick={() => generateContent(activeSubTab === 'kisi-kisi' ? 'kisi-kisi' : 'soal')}
                     disabled={isGenerating}

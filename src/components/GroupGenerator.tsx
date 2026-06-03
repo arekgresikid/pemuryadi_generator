@@ -81,7 +81,8 @@ export default function GroupGenerator() {
               onChange={(e) => setStudentNames(e.target.value)}
               rows={8} 
               className="w-full bg-red-50 border border-black rounded-xl p-4 text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
-              placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..." />
+              placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..." 
+              contextPrompt="Berikan daftar 10-15 nama siswa-siswi Indonesia secara acak (kombinasi nama laki-laki dan perempuan). HANYA TULIS NAMA, SATU NAMA PER BARIS, TANPA NOMOR, TANPA TEKS LAINNYA." />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -116,6 +117,7 @@ export default function GroupGenerator() {
                   value={groupNames[i] || ''}
                   onChange={(e) => handleGroupNameChange(i, e.target.value)}
                   placeholder={`Kelompok ${i + 1}`}
+                  contextPrompt="Berikan 1 ide nama kelompok yang sangat kreatif, keren, dan singkat untuk anak sekolah (contoh: 'Garuda', 'Pioneers', 'Alpha', atau nama ilmuwan). HANYA TULIS NAMA KELOMPOK, tanpa tanda kutip, tanpa penjelasan."
                   className="w-full bg-red-50 border border-black rounded-lg p-2 text-sm text-black focus:border-blue-500 transition-all"
                 />
               ))}

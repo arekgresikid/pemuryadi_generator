@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { useToken } from '../api';
 
 export const Type = {
   OBJECT: "object",
@@ -34,12 +35,11 @@ export class GoogleGenAI {
   };
 
   constructor(options: { apiKey?: string }) {
-    // Gunakan VITE_POLLINATIONS_API_KEY dari .env, atau fallback ke argumen yang diberikan
-    this.apiKey = (import.meta as any).env.VITE_POLLINATIONS_API_KEY || options.apiKey || "";
-    
+    // The API key is now securely managed by the backend proxy.
+    this.apiKey = "secure-proxy-mode";
     const openai = new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: "https://gen.pollinations.ai/v1",
+      apiKey: "dummy-key", // The backend handles the real key
+      baseURL: typeof window !== 'undefined' ? `${window.location.origin}/api` : "/api", // Pointing to our Cloudflare backend proxy
       dangerouslyAllowBrowser: true 
     });
 
@@ -47,8 +47,11 @@ export class GoogleGenAI {
       generate: async (params) => {
         try {
           if (typeof window !== 'undefined') {
-            const { useToken } = await import('../api');
-            await useToken();
+            try {
+              await useToken();
+            } catch (err) {
+              throw err;
+            }
           }
 
           const response = await openai.images.generate({
@@ -122,9 +125,16 @@ export class GoogleGenAI {
 
         try {
           // Check and consume token before generation
+          let isFreeTier = false;
           if (typeof window !== 'undefined') {
-            const { useToken } = await import('../api');
-            await useToken();
+            try {
+              const tokenResponse = await useToken();
+              if (tokenResponse && tokenResponse.isFree) {
+                isFreeTier = true;
+              }
+            } catch (tokenErr) {
+              throw tokenErr;
+            }
           }
 
           const completion = await openai.chat.completions.create({
@@ -136,6 +146,11 @@ export class GoogleGenAI {
           });
 
           let responseText = completion.choices[0].message.content || "";
+          
+          // Append watermark only for free tier and only for plain text (not JSON)
+          if (isFreeTier && !isArrayRoot && !config?.responseSchema && config?.responseMimeType !== 'application/json') {
+            responseText += "\n\n---\n*Dibuat menggunakan versi Gratis Pemuryadi Generator. Upgrade ke Premium untuk hasil tanpa watermark.*";
+          }
           
           // Unwrap array if we wrapped it earlier
           if (isArrayRoot && responseText) {

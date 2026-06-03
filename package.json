@@ -16,6 +16,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "d3-geo": "^3.1.1",
+    "dompurify": "^3.4.7",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "firebase": "^12.11.0",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260528.1",
     "@types/d3-geo": "^3.1.0",
+    "@types/dompurify": "^3.0.5",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "@types/react-simple-maps": "^3.0.6",

@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
-import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save } from 'lucide-react';
+import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save, ClipboardList, Download, Upload, Target, BarChart, MessageCircle, Calculator, Printer , Trash2 } from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 
@@ -27,6 +27,13 @@ export default function Supervision() {
   const saveProgress = () => {
     localStorage.setItem('SupervisionData', JSON.stringify(formData));
     alert('Progress berhasil disimpan!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('SupervisionData');
+      window.location.reload();
+    }
   };
 
   const [error, setError] = useState('');
@@ -470,7 +477,7 @@ export default function Supervision() {
     printWindow.document.close();
   };
 
-  const renderSection = (title: string, id: string, items: string[]) => (
+  const renderSection = (title: React.ReactNode, id: string, items: string[]) => (
     <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
       <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">{title}</h3>
       <div className="space-y-3">
@@ -504,8 +511,8 @@ export default function Supervision() {
   return (
     <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-2xl shadow-lg">
-          📋
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg">
+          <ClipboardList className="w-8 h-8" />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">Instrumen Supervisi Pembelajaran</h3>
@@ -517,17 +524,17 @@ export default function Supervision() {
         <div className="lg:col-span-2 space-y-4">
           <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
             <div className="flex items-center justify-between mb-4 border-b border-black pb-2">
-              <h3 className="flex items-center gap-2 text-blue-400 font-semibold">📝 Data Umum</h3>
+              <h3 className="flex items-center gap-2 text-blue-400 font-semibold"><FileText className="w-5 h-5" /> Data Umum</h3>
               <div className="flex gap-2">
                 <button
                   onClick={exportJSON}
                   className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
                   title="Export Data Supervisi ke JSON"
                 >
-                  📥 Export
+                  <Download className="w-4 h-4" /> Export
                 </button>
                 <label className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-sm">
-                  📤 Import
+                  <Upload className="w-4 h-4" /> Import
                   <input
                     type="file"
                     accept=".json"
@@ -546,7 +553,9 @@ export default function Supervision() {
             )}
 
             <div className="grid md:grid-cols-2 gap-4">
-              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all md:col-span-2" />
+              <div className="md:col-span-2">
+                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              </div>
               
               <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.guru} onChange={e => setFormData({...formData, guru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
               <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Guru" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
@@ -644,13 +653,20 @@ export default function Supervision() {
               <div className="mb-4">
             <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
           </div>
-          <div className="flex gap-2 mt-4 w-full">
+          <div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
                 className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
+              </button>
+              <button 
+                onClick={resetProgress}
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                title="Reset Data"
+              >
+                <Trash2 size={18} /> Reset
               </button>
               <button 
                 onClick={generateWithAI}
@@ -673,27 +689,29 @@ export default function Supervision() {
             </div>
           </div>
 
-          {renderSection('📚 A. Perencanaan Pembelajaran (Modul Ajar/RPP)', 'planning', supervisionIndicators.planning)}
-          {renderSection('🎯 B. Pelaksanaan Pembelajaran', 'execution', supervisionIndicators.execution)}
-          {renderSection('📊 C. Asesmen dan Evaluasi', 'assessment', supervisionIndicators.assessment)}
-          {renderSection('💭 D. Refleksi dan Tindak Lanjut', 'reflection', supervisionIndicators.reflection)}
+          {renderSection(<><BookOpen className="w-5 h-5 text-blue-400" /> A. Perencanaan Pembelajaran (Modul Ajar/RPP)</>, 'planning', supervisionIndicators.planning)}
+          {renderSection(<><Target className="w-5 h-5 text-green-400" /> B. Pelaksanaan Pembelajaran</>, 'execution', supervisionIndicators.execution)}
+          {renderSection(<><BarChart className="w-5 h-5 text-purple-400" /> C. Asesmen dan Evaluasi</>, 'assessment', supervisionIndicators.assessment)}
+          {renderSection(<><MessageCircle className="w-5 h-5 text-amber-400" /> D. Refleksi dan Tindak Lanjut</>, 'reflection', supervisionIndicators.reflection)}
 
           <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
-            <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">📝 Catatan Supervisor</h3>
+            <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4"><FileText className="w-5 h-5" /> Catatan Supervisor</h3>
             <AIAssistedTextarea rows={4} 
               value={formData.catatan}
               onChange={e => setFormData({...formData, catatan: e.target.value})}
-              className="w-full bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" 
-              placeholder="Catatan, saran, dan rekomendasi..." />
+              className="w-full h-40 bg-slate-50 border border-slate-300 rounded-lg p-4 text-black focus:border-blue-500 transition-all resize-none font-mono text-sm leading-relaxed"
+              placeholder="Catatan, saran, dan rekomendasi..." 
+              contextPrompt="Berikan contoh paragraf catatan kesimpulan, saran, dan rekomendasi konkret dari seorang supervisor pendidikan kepada guru setelah melakukan supervisi akademik di kelas."
+              />
           </div>
           
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
-              <button onClick={calculateScore} className="flex-1 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-red-500/20 btn-generate-animated">
-                📊 Hitung Nilai
+              <button onClick={calculateScore} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-red-500/20 btn-generate-animated">
+                <Calculator className="w-6 h-6" /> Hitung Nilai
               </button>
-              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
-                🖨️ Print
+              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+                <Printer className="w-6 h-6" /> Print
               </button>
             </div>
             <p className="text-[10px] text-gray-500 italic text-center">
@@ -705,7 +723,7 @@ export default function Supervision() {
         
         <div className="space-y-4">
           <div className="gen-card bg-red-50 rounded-xl p-6 sticky top-24 shadow-xl">
-            <h4 className="text-lg font-semibold mb-6 text-center text-black">📊 Hasil Supervisi</h4>
+            <h4 className="text-lg font-semibold mb-6 text-center text-black flex items-center justify-center gap-2"><BarChart className="w-6 h-6 text-blue-500" /> Hasil Supervisi</h4>
             
             <div className="flex justify-center mb-8">
               <div 
