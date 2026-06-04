@@ -115,7 +115,7 @@ const BarcodeGenerator: React.FC = () => {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     className="pl-10 w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-                    placeholder="Contoh: https://arekgresik.id"
+                    placeholder="Contoh: https://digen.id"
                   />
                 </div>
               </div>
