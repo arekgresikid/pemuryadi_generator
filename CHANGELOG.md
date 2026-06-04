@@ -11,6 +11,8 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - Memperbarui desain OG Image (gambar bagikan sosial media) dengan tema pendidikan yang elegan.
 - Meningkatkan fitur Programmatic SEO dan perluasan fitur Admin Panel.
 - Penyelesaian konflik kode (merge conflicts) dan perbaikan komponen WelcomePopup.
+- Mengganti logo favicon aplikasi menjadi bentuk bulat (circle) yang baru.
+- Memperbarui resolusi gambar Open Graph (og-image.jpg) menjadi 1200x630px dan menukar posisi teks sesuai pesanan.
 - Membuat halaman dokumentasi Riwayat Versi (Changelog) interaktif yang dapat diakses langsung dari Footer.
 
 ## Versi 5.1.9
