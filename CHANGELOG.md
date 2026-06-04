@@ -29,7 +29,7 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - Menambahkan banner promo diskon 20% khusus pengguna baru di halaman Pricing, Dashboard, dan pada modal WelcomePopup.
 - Menambahkan fitur Generator Barcode dan QR Code gratis dengan fitur kustomisasi warna, logo, dan unduh gambar beresolusi tinggi, beserta peringatan privasi tidak disimpannya data di server.
 - Memperbarui nomor rekening tujuan hanya ke BCA (a.n. Praswara Eko Muryadi).
-- Memperbarui nomor E-Wallet ke 081330763633, menghapus OVO dari opsi pembayaran, serta mengubah nomor tujuan klaim WhatsApp ke 081347697809.
+- Memperbarui nomor E-Wallet ke xxx, menghapus OVO dari opsi pembayaran, serta mengubah nomor tujuan klaim WhatsApp ke xxx.
 - Menyempurnakan teks pesan klaim otomatis WhatsApp dan SEO menjadi "Pemuryadi Generator".
 
 ## Versi 5.1.9
