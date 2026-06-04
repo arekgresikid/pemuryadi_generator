@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Activity, Coffee, ShoppingCart, MessageSquare } from 'lucide-react';
+import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send } from 'lucide-react';
 import QuickProfile from '../QuickProfile';
 import FeedbackForm from '../FeedbackForm';
+import { useAuth } from '../../AuthContext';
 
 export interface DashboardProps {
   osName: string;
@@ -28,6 +29,10 @@ export default function Dashboard({
   onOpenChat,
   onIncrementFavorites
 }: DashboardProps) {
+  const { user, profile } = useAuth();
+  const [showPromo, setShowPromo] = useState(true);
+  const currentTier = profile?.tier || profile?.role || (user ? 'Free' : null);
+
   const [typedText, setTypedText] = useState('');
   const phrases = [
     "Welcome to the future Education.",
@@ -79,6 +84,39 @@ export default function Dashboard({
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Promo Banner */}
+      {showPromo && (!currentTier || currentTier.toLowerCase() === 'free') && (
+        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/20 relative overflow-hidden">
+          <button 
+            onClick={() => setShowPromo(false)}
+            className="absolute top-3 right-3 text-white/70 hover:text-white p-1 z-20 transition-colors bg-black/10 hover:bg-black/20 rounded-full"
+            title="Tutup Promo"
+          >
+            <X size={20} />
+          </button>
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }}></div>
+          <div className="relative z-10 flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-white text-indigo-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Spesial Pengguna Baru</span>
+            </div>
+            <h2 className="text-xl md:text-3xl font-black mb-1 drop-shadow-md">Voucher Diskon 20%</h2>
+            <p className="text-white/90 text-sm md:text-base font-medium">Klaim potongan harga eksklusif Anda untuk berlangganan paket Premium atau Ultimate sekarang juga!</p>
+          </div>
+          <div className="relative z-10 shrink-0 w-full md:w-auto">
+            <button 
+              onClick={() => {
+                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
+                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
+              }}
+              className="w-full md:w-auto bg-white text-indigo-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+            >
+              <Send size={18} />
+              Klaim via WhatsApp
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         
         {/* Hero Dashboard Section */}

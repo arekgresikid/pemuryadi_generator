@@ -14,6 +14,10 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - Mengganti logo favicon aplikasi menjadi bentuk bulat (circle) yang baru.
 - Memperbarui resolusi gambar Open Graph (og-image.jpg) menjadi 1200x630px dan menukar posisi teks sesuai pesanan.
 - Membuat halaman dokumentasi Riwayat Versi (Changelog) interaktif yang dapat diakses langsung dari Footer.
+- Menambahkan banner promo diskon 20% khusus pengguna baru di halaman Pricing, Dashboard, dan pada modal WelcomePopup.
+- Memperbarui nomor rekening tujuan hanya ke BCA (a.n. Praswara Eko Muryadi).
+- Memperbarui nomor E-Wallet ke 081330763633, menghapus OVO dari opsi pembayaran, serta mengubah nomor tujuan klaim WhatsApp ke 081347697809.
+- Menyempurnakan teks pesan klaim otomatis WhatsApp dan SEO menjadi "Pemuryadi Generator".
 
 ## Versi 5.1.9
 **Tanggal:** 3 Juni 2026
