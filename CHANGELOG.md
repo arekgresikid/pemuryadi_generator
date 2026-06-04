@@ -2,6 +2,18 @@
 
 Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 
+## Versi 5.2.1
+**Tanggal:** 4 Juni 2026
+
+- Peningkatan Besar-besaran (Refactoring) Arsitektur Barcode & QR Code Generator:
+  - Mengubah library ke `react-qrcode-logo` untuk menjamin logo tetap ter-render saat QR Code diunduh.
+  - Memperbarui layout menjadi sistem 2 kolom modern (Grid) dengan kolom Pratinjau melayang (*sticky*).
+  - Menambahkan fitur animasi mulus menggunakan library `framer-motion` (*motion/react*).
+  - Menambahkan kustomisasi gaya bentuk Barcode (Kotak/Titik) dan kelengkungan sudut mata (*Eye Radius*).
+  - Menambahkan dukungan tombol cepat (Preset Data) seperti tautan WhatsApp Admin dan URL *digen.id*.
+  - Menambahkan tombol *Salin Teks* dan *Bagikan* (*Native Share API*).
+- Menambahkan gambar logo QR Code Pemuryadi di bawah bagian hak cipta Footer.
+
 ## Versi 5.2.0
 **Tanggal:** 4 Juni 2026
 

@@ -532,9 +532,16 @@ export default function App() {
             <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
             <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
           </div>
-          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center">
+          <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.
           </p>
+          <div className="flex justify-center mt-6">
+            <img 
+              src="/Pemuryadi_QRCode.png" 
+              alt="QR Code Pemuryadi Generator" 
+              className="w-24 h-24 object-contain rounded-lg shadow-sm border border-gray-200 bg-white p-1 hover:scale-110 transition-transform duration-300"
+            />
+          </div>
         </div>
       </footer>
 
