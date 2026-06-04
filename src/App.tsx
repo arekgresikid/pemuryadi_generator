@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History } from 'lucide-react';
+import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
@@ -30,6 +30,7 @@ import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
 import Changelog from './components/Changelog';
+import BarcodeGenerator from './components/BarcodeGenerator';
 
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
@@ -242,6 +243,7 @@ export default function App() {
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
+    { id: 'barcode-generator', icon: <QrCode size={20} />, label: 'Generator Barcode' },
     { 
       id: 'game-ifp', 
       icon: <MonitorPlay size={20} />, 
@@ -448,6 +450,7 @@ export default function App() {
             {activeTab === 'program-semester' && <ProgramSemester />}
             {activeTab === 'program-tahunan' && <ProgramTahunan />}
             {activeTab === 'kktp' && <KKTP />}
+            {activeTab === 'barcode-generator' && <BarcodeGenerator />}
             {activeTab === 'game-ifp' && <GameIFP />}
             {activeTab.startsWith('snp-') && isTitanOrAdmin && <SNP subTab={activeTab} />}
             {activeTab === 'pricing' && <Pricing />}
