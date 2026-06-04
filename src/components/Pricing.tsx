@@ -133,14 +133,40 @@ export default function Pricing() {
   };
 
   const confirmPayment = () => {
-    const phoneNumber = "6281330763633"; // E-wallet / WA number
-    const message = encodeURIComponent(`Halo Admin Pemuryadi, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
+    const phoneNumber = "6281347697809"; // WA number
+    const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
     setShowModal(false);
   };
 
   return (
     <div className="p-6 md:p-8 animate-in fade-in zoom-in-95 duration-500">
+      {/* Banner Khusus Pengguna Baru */}
+      {(!currentTier || currentTier.toLowerCase() === 'free') && (
+        <div className="max-w-7xl mx-auto mb-10 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/20 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }}></div>
+          <div className="relative z-10 flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-white text-red-600 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">Spesial Pengguna Baru</span>
+            </div>
+            <h2 className="text-2xl md:text-4xl font-black mb-2 drop-shadow-md">Voucher Diskon 20%</h2>
+            <p className="text-white/90 text-sm md:text-lg font-medium">Klaim potongan harga eksklusif Anda untuk berlangganan paket Premium atau Ultimate sekarang juga!</p>
+          </div>
+          <div className="relative z-10 shrink-0 w-full md:w-auto">
+            <button 
+              onClick={() => {
+                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
+                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
+              }}
+              className="w-full md:w-auto bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 hover:shadow-xl"
+            >
+              <Send size={20} />
+              Klaim via WhatsApp
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tighter">
           Tingkatkan <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-400">Performa Mengajar</span> Anda
@@ -284,14 +310,14 @@ export default function Pricing() {
                   Transfer E-Wallet (a.n. Praswara Eko Muryadi)
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                  {['GoPay', 'OVO', 'DANA', 'ShopeePay'].map((wallet) => (
+                  {['GoPay', 'DANA', 'ShopeePay'].map((wallet) => (
                     <div key={wallet} className="bg-white p-3 rounded-lg border border-black flex justify-between items-center group">
                       <div>
                         <span className="text-xs text-gray-600 block mb-1">{wallet}</span>
-                        <span className="font-mono font-bold text-black">123456780</span>
+                        <span className="font-mono font-bold text-black">081330763633</span>
                       </div>
                       <button 
-                        onClick={() => handleCopy('123456780', wallet)}
+                        onClick={() => handleCopy('081330763633', wallet)}
                         className="p-2 text-gray-400 hover:text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
                         title="Salin Nomor"
                       >
@@ -310,12 +336,7 @@ export default function Pricing() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                   {[
-                    { name: 'BCA', no: '1234567890' },
-                    { name: 'Mandiri', no: '1234567890' },
-                    { name: 'BNI', no: '1234567890' },
-                    { name: 'BRI', no: '1234567890' },
-                    { name: 'SEABANK', no: '1234567890' },
-                    { name: 'BANK JAGO', no: '1234567890' }
+                    { name: 'BCA', no: '6595489656' }
                   ].map((bank) => (
                     <div key={bank.name} className="bg-white p-3 rounded-lg border border-black flex justify-between items-center group">
                       <div>
