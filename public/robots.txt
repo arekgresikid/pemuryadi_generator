@@ -2,3 +2,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://digen.id/sitemap.xml
+Host: https://digen.id
+
+# AI Crawlers Instructions
+Allow: /llms.txt
