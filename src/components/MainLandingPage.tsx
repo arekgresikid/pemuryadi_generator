@@ -6,7 +6,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
 
   useEffect(() => {
     // Inject SEO Metadata
-    document.title = "Pembuat Modul Ajar & RPP AI Otomatis | digen.id";
+    document.title = "Pembuat Modul Ajar & RPP AI Otomatis | Pemuryadi Generator";
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

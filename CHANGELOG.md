@@ -5,7 +5,7 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 ## Versi 5.2.5
 **Tanggal:** 7 Juni 2026
 
-- **Branding Landing Page Khusus:** Menerapkan identitas "digen.id" secara khusus hanya pada halaman Landing Page (termasuk pada logo navbar, footer, dan judul SEO halaman tersebut) untuk kebutuhan pemasaran, sementara bagian utama aplikasi tetap menggunakan nama "Pemuryadi Generator".
+- **Branding Landing Page Khusus:** Menerapkan identitas "digen.id" secara khusus hanya pada elemen visual halaman Landing Page (seperti logo navbar dan teks hero) untuk kebutuhan pemasaran, sementara bagian utama aplikasi serta **judul tab browser (SEO & Google Auth)** tetap menggunakan nama otentik "Pemuryadi Generator".
 - **Penyempurnaan Responsivitas Mobile:** Mengoptimalkan ukuran *font* judul, *padding* navbar, serta mengatur jarak antar-elemen di *Hero Section* agar tampilan di layar gawai pintar (mobile) tidak lagi saling bertumpuk atau berhimpitan.
 - **Perbaikan Scrollbar Tema Gelap:** Menyuntikkan CSS khusus ke dalam halaman Landing Page untuk menghilangkan "garis putih vertikal" yang sebelumnya mengganggu estetika tema gelap, sehingga bilah gulir (*scrollbar*) kini menyatu sempurna secara otomatis.
 - **Landing Page Baru yang SEO-Friendly:** Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) bergaya pemasaran modern (*Marketing-oriented*).
