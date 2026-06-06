@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send } from 'lucide-react';
+import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send, AlertTriangle } from 'lucide-react';
 import QuickProfile from '../QuickProfile';
 import FeedbackForm from '../FeedbackForm';
 import { useAuth } from '../../AuthContext';
@@ -253,12 +253,22 @@ export default function Dashboard({
             </a>
         </div>
 
-        {/* Feedback */}
+        {/* Feedback & Bug Report */}
         <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl flex flex-col justify-center h-full col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
            <h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-             <MessageSquare size={18} className="text-blue-600" /> Masukan & Saran
+             <MessageSquare size={18} className="text-blue-600" /> Masukan, Saran, & Laporan Bug
            </h3>
-           <p className="text-xs text-gray-500 mb-4">Punya ide fitur atau kendala? Beritahu kami agar aplikasi ini terus berkembang!</p>
+           <div className="text-xs text-gray-600 mb-4 space-y-3">
+             <p>Punya ide fitur, saran pengembangan, atau menemui kendala teknis? Beritahu kami agar aplikasi ini terus berkembang!</p>
+             <div className="bg-red-50 text-red-800 p-3.5 rounded-xl border border-red-100 flex items-start gap-3">
+               <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-600" />
+               <p className="leading-relaxed">
+                 <strong className="text-red-900 block mb-1">Mendapati Bug atau Error?</strong> 
+                 Mohon kirimkan kronologi kejadiannya secara rinci. Jika memungkinkan, sertakan <strong>screenshot atau video</strong> agar tim kami dapat segera menindaklanjutinya.<br/>
+                 Silakan kirimkan laporan Anda melalui email ke <a href="mailto:p.e.muryadi@gmail.com" className="font-bold underline hover:text-red-900 transition-colors">p.e.muryadi@gmail.com</a> atau <a href="mailto:arekgresikid@gmail.com" className="font-bold underline hover:text-red-900 transition-colors">arekgresikid@gmail.com</a>.
+               </p>
+             </div>
+           </div>
            <FeedbackForm inline={true} />
         </div>
 
