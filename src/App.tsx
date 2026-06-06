@@ -640,12 +640,12 @@ export default function App() {
             <a href="mailto:support@pemuryadi.my.id" className="hover:text-black transition-colors">Hubungi Kami</a>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
-            © 2026 <span className="text-black">digen.id</span> & RuangRiung. Cyber Education Workspace.
+            © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.
           </p>
           <div className="flex justify-center mt-6">
             <img 
               src="/Pemuryadi_QRCode.png" 
-              alt="QR Code digen.id" 
+              alt="QR Code Pemuryadi Generator" 
               className="w-24 h-24 object-contain rounded-lg shadow-sm border border-gray-200 bg-white p-1 hover:scale-110 transition-transform duration-300"
             />
           </div>

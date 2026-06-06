@@ -149,7 +149,7 @@ export class GoogleGenAI {
           
           // Append watermark only for free tier and only for plain text (not JSON)
           if (isFreeTier && !isArrayRoot && !config?.responseSchema && config?.responseMimeType !== 'application/json') {
-            responseText += "\n\n---\n*Dibuat menggunakan versi Gratis digen.id. Upgrade ke Premium untuk hasil tanpa watermark.*";
+            responseText += "\n\n---\n*Dibuat menggunakan versi Gratis Pemuryadi Generator. Upgrade ke Premium untuk hasil tanpa watermark.*";
           }
           
           // Unwrap array if we wrapped it earlier

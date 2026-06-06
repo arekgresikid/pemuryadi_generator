@@ -20,7 +20,7 @@ export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
     if (rating === 0 && !feedback.trim()) return;
     
     const userName = profile?.nama || profile?.displayName || profile?.email || 'Guest';
-    const message = `Hallo Admin digen.id,\n\nSaya ingin memberikan Masukan & Saran:\n\n*Nama:* ${userName}\n*Rating:* ${rating} dari 5 Bintang\n*Pesan:* ${feedback.trim()}`;
+    const message = `Hallo Admin Pemuryadi Generator,\n\nSaya ingin memberikan Masukan & Saran:\n\n*Nama:* ${userName}\n*Rating:* ${rating} dari 5 Bintang\n*Pesan:* ${feedback.trim()}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/6281347697809?text=${encodedMessage}`, '_blank');
     

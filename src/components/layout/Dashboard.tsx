@@ -105,7 +105,7 @@ export default function Dashboard({
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
               onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin digen.id, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
+                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
                 window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
               }}
               className="w-full md:w-auto bg-white text-indigo-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"

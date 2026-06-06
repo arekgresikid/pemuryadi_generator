@@ -40,9 +40,9 @@ const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete, onNavigateToPri
           <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">👋</span>
           </div>
-          <h2 className="text-2xl font-bold mb-2">digen.id</h2>
+          <h2 className="text-2xl font-bold mb-2">Pemuryadi Generator</h2>
           <p className="text-gray-600 mb-6 text-sm">
-            Selamat datang di <strong>digen.id</strong>! Jelajahi berbagai fitur pendidikan bertenaga AI untuk memudahkan administrasi dan kegiatan belajar mengajar Anda. 
+            Selamat datang di <strong>Pemuryadi Generator</strong>! Jelajahi berbagai fitur pendidikan bertenaga AI untuk memudahkan administrasi dan kegiatan belajar mengajar Anda. 
             <br/><br/>
             Sebagian besar fitur dasar tersedia secara gratis, namun kami juga menyediakan paket langganan premium untuk akses penuh ke seluruh alat tingkat lanjut.
           </p>
@@ -53,7 +53,7 @@ const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete, onNavigateToPri
             </div>
             <button 
               onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin digen.id, saya pengguna baru (Guest) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
+                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (Guest) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
                 window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
               }}
               className="bg-white text-indigo-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1 text-xs font-bold shadow-sm"
