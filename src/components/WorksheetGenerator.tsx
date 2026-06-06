@@ -10,6 +10,7 @@ import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import DOMPurify from 'dompurify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const INFOGRAPHIC_BASE_PROMPT = `
 Create a vertical worksheet, portrait orientation, optimized to fit entirely on a single A4 page.
@@ -43,11 +44,11 @@ Rules:
 export default function WorksheetGenerator() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-  const [selectedImageModel, setSelectedImageModel] = React.useState<string>('nanobana');
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('WorksheetGenerator_selectedModel', 'openai');
+  const [selectedImageModel, setSelectedImageModel] = useLocalStorage<string>('WorksheetGenerator_selectedImageModel', 'nanobana');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState<{
+  const [formData, setFormData] = useLocalStorage<{
     jenjang: string;
     fase: string;
     kelas: string;

@@ -8,6 +8,7 @@ import {
 import Barcode from 'react-barcode';
 import { QRCode } from 'react-qrcode-logo';
 import { motion, AnimatePresence } from 'motion/react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const PRESETS = [
   { 
@@ -25,17 +26,17 @@ const PRESETS = [
 ];
 
 const BarcodeGenerator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'qr' | 'barcode'>('qr');
-  const [inputValue, setInputValue] = useState('');
-  const [fgColor, setFgColor] = useState('#000000');
-  const [bgColor, setBgColor] = useState('#ffffff');
-  const [logoUrl, setLogoUrl] = useState<string | null>('/favicon.png');
-  const [qrStyle, setQrStyle] = useState<'squares' | 'dots'>('squares');
-  const [eyeRadius, setEyeRadius] = useState<number>(0);
+  const [activeTab, setActiveTab] = useLocalStorage<'qr' | 'barcode'>('BarcodeGenerator_activeTab', 'qr');
+  const [inputValue, setInputValue] = useLocalStorage('BarcodeGenerator_inputValue', '');
+  const [fgColor, setFgColor] = useLocalStorage('BarcodeGenerator_fgColor', '#000000');
+  const [bgColor, setBgColor] = useLocalStorage('BarcodeGenerator_bgColor', '#ffffff');
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('BarcodeGenerator_logoUrl', '/favicon.png');
+  const [qrStyle, setQrStyle] = useLocalStorage<'squares' | 'dots'>('BarcodeGenerator_qrStyle', 'squares');
+  const [eyeRadius, setEyeRadius] = useLocalStorage<number>('BarcodeGenerator_eyeRadius', 0);
   const [isAppearanceOpen, setIsAppearanceOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [logoSize, setLogoSize] = useState<number>(70);
+  const [logoSize, setLogoSize] = useLocalStorage<number>('BarcodeGenerator_logoSize', 70);
 
   const containerRef = useRef<HTMLDivElement>(null);
 

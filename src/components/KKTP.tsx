@@ -9,36 +9,29 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { useAuth } from '../AuthContext';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function KKTP() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('KKTPData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('KKTP_selectedModel', 'openai');
 
   const saveProgress = () => {
-    localStorage.setItem('KKTPData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('KKTPData');
+      localStorage.removeItem('KKTP_tujuanPembelajaran');
+      localStorage.removeItem('KKTP_selectedModel');
       window.location.reload();
     }
   };
 
   const [error, setError] = useState('');
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('KKTPData', {
     satuanPendidikan: '',
     eduLevel: 'sd',
     fase: 'A',
@@ -58,7 +51,7 @@ export default function KKTP() {
     remixText: ''
   });
 
-  const [tujuanPembelajaran, setTujuanPembelajaran] = useState([{ kode: '', deskripsi: '' }]);
+  const [tujuanPembelajaran, setTujuanPembelajaran] = useLocalStorage('KKTP_tujuanPembelajaran', [{ kode: '', deskripsi: '' }]);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // Sync dropdowns

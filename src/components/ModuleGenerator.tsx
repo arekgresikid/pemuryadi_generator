@@ -10,51 +10,48 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function ModuleGenerator() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-  const [formatPerangkat, setFormatPerangkat] = useState<'standar'|'kemenag'>('standar');
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('ModuleGenerator_selectedModel', 'openai');
+  const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('ModuleGenerator_formatPerangkat', 'standar');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem('ModuleGeneratorData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
-
   const saveProgress = () => {
-    localStorage.setItem('ModuleGeneratorData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('ModuleGeneratorData');
+      localStorage.removeItem('ModuleGenerator_formData');
+      localStorage.removeItem('ModuleGenerator_custom');
+      localStorage.removeItem('ModuleGenerator_customData');
+      localStorage.removeItem('ModuleGenerator_prinsipInti');
+      localStorage.removeItem('ModuleGenerator_selectedModel');
+      localStorage.removeItem('ModuleGenerator_formatPerangkat');
       window.location.reload();
     }
   };
 
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('ModuleGenerator_formData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
     semester: '1', tahunAjaran: '2024/2025', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
     remixText: '', hasInklusi: false, jumlahInklusi: ''
   });
 
-  const [custom, setCustom] = useState({
+  const [custom, setCustom] = useLocalStorage('ModuleGenerator_custom', {
     cp: false, tp: false, pp: false, kp: false
   });
 
-  const [customData, setCustomData] = useState({
+  const [customData, setCustomData] = useLocalStorage('ModuleGenerator_customData', {
     cpText: '', tpList: [''], ppList: [''], kpPembuka: '', kpInti: '', kpPenutup: ''
   });
 
-  const [prinsipInti, setPrinsipInti] = useState<string[]>(['Bermakna']);
+  const [prinsipInti, setPrinsipInti] = useLocalStorage<string[]>('ModuleGenerator_prinsipInti', ['Bermakna']);
 
   const [rubrikList, setRubrikList] = useState([{ aspek: '', score: '', deskripsi: '' }]);
   const [result, setResult] = useState<any>(null);

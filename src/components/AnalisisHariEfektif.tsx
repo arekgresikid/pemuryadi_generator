@@ -7,6 +7,7 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ai = new GoogleGenAI({});
 
@@ -19,7 +20,7 @@ const PROVINSI_LIST = [
 
 export default function AnalisisHariEfektif() {
   const { profile } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('AnalisisHariEfektifData', {
     provinsi: 'DKI Jakarta',
     jenjang: 'SD',
     tahunAjaran: '2026/2027',
@@ -35,25 +36,16 @@ export default function AnalisisHariEfektif() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('AnalisisHariEfektifData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('AnalisisHariEfektif_selectedModel', 'openai');
 
   const saveProgress = () => {
-    localStorage.setItem('AnalisisHariEfektifData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('AnalisisHariEfektifData');
+      localStorage.removeItem('AnalisisHariEfektif_selectedModel');
       window.location.reload();
     }
   };

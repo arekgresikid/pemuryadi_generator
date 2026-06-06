@@ -43,11 +43,25 @@ import WelcomePopup from './components/WelcomePopup';
 import SEOLandingPage from './components/SEOLandingPage';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('beranda');
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_activeTab');
+      if (saved) return saved;
+    }
+    return 'beranda';
+  });
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isLoginRequiredOpen, setIsLoginRequiredOpen] = useState(false);
   const [isSocialOpen, setIsSocialOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 1024) return false;
+      const saved = localStorage.getItem('pemuryadi_isSidebarOpen');
+      if (saved !== null) return saved === 'true';
+      return true;
+    }
+    return true;
+  });
   const [isSeoLanding, setIsSeoLanding] = useState(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
@@ -59,11 +73,45 @@ export default function App() {
   const [visitors, setVisitors] = useState({ today: 0, month: 0, total: 0 });
   const [favorites, setFavorites] = useState(0);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
-  const [activityClicks, setActivityClicks] = useState<Record<string, number>>({});
+  const [activityClicks, setActivityClicks] = useState<Record<string, number>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_activityClicks');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse activityClicks from localStorage', e);
+        }
+      }
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pemuryadi_activityClicks', JSON.stringify(activityClicks));
+  }, [activityClicks]);
   
-  const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  const [gradientsEnabled, setGradientsEnabled] = useState(true);
-  const [brightness, setBrightness] = useState(100);
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_animationsEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
+  const [gradientsEnabled, setGradientsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_gradientsEnabled');
+      if (saved !== null) return saved === 'true';
+    }
+    return true;
+  });
+  const [brightness, setBrightness] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_brightness');
+      if (saved) return parseInt(saved, 10);
+    }
+    return 100;
+  });
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   const [osName, setOsName] = useState('Unknown OS');
@@ -73,7 +121,20 @@ export default function App() {
   const [usageTime, setUsageTime] = useState(0);
   
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isDevUnlocked, setIsDevUnlocked] = useState(false);
+  const [isDevUnlocked, setIsDevUnlocked] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_isDevUnlocked');
+      if (saved !== null) return saved === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => { localStorage.setItem('pemuryadi_activeTab', activeTab); }, [activeTab]);
+  useEffect(() => { localStorage.setItem('pemuryadi_isSidebarOpen', String(isSidebarOpen)); }, [isSidebarOpen]);
+  useEffect(() => { localStorage.setItem('pemuryadi_animationsEnabled', String(animationsEnabled)); }, [animationsEnabled]);
+  useEffect(() => { localStorage.setItem('pemuryadi_gradientsEnabled', String(gradientsEnabled)); }, [gradientsEnabled]);
+  useEffect(() => { localStorage.setItem('pemuryadi_brightness', String(brightness)); }, [brightness]);
+  useEffect(() => { localStorage.setItem('pemuryadi_isDevUnlocked', String(isDevUnlocked)); }, [isDevUnlocked]);
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
   const [showTokenWarning, setShowTokenWarning] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
