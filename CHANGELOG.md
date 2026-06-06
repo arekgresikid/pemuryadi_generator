@@ -2,6 +2,13 @@
 
 Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 
+## Versi 5.2.2
+**Tanggal:** 6 Juni 2026
+
+- Mengimplementasikan fitur penyimpanan otomatis (*Auto-Save*) dengan `localStorage` pada seluruh modul generator, memastikan data yang telah diketik tidak akan hilang walau halaman di-*refresh*.
+- Mengintegrasikan pengiriman otomatis form Masukan & Saran (*Feedback*) langsung ke pesan WhatsApp Admin.
+- Menambahkan panel informasi instruksi pelaporan *Bug & Error* pada antarmuka *Dashboard* (dilengkapi dengan panduan *screenshot* dan opsi kirim via email).
+
 ## Versi 5.2.1
 **Tanggal:** 4 Juni 2026
 
