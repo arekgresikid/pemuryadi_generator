@@ -146,7 +146,7 @@ export default function Topbar({
           <Menu size={24} />
         </button>
         <Logo className="w-8 h-8" />
-        <h1 className="text-sm font-bold text-blue-600">Pemuryadi Generator</h1>
+        <h1 className="text-sm font-bold text-blue-600">digen.id</h1>
       </div>
 
       <div className="flex-1 hidden md:flex items-center ml-6">

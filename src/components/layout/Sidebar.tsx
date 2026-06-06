@@ -63,7 +63,7 @@ export default function Sidebar({
             <Logo className="w-10 h-10" />
             {isSidebarOpen && (
               <div className="animate-in fade-in slide-in-from-left-2">
-                <h1 className="text-lg font-bold text-blue-600 tracking-tighter">Pemuryadi Generator</h1>
+                <h1 className="text-lg font-bold text-blue-600 tracking-tighter">digen.id</h1>
                 <p className="text-[8px] text-blue-500 uppercase tracking-widest font-bold">Co-Created with RuangRiung</p>
               </div>
             )}

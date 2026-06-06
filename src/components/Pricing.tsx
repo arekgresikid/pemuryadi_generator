@@ -134,7 +134,7 @@ export default function Pricing() {
 
   const confirmPayment = () => {
     const phoneNumber = "6281347697809"; // WA number
-    const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
+    const message = encodeURIComponent(`Hallo Admin digen.id, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
     setShowModal(false);
   };
@@ -155,7 +155,7 @@ export default function Pricing() {
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
               onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
+                const message = encodeURIComponent(`Hallo Admin digen.id, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
                 window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
               }}
               className="w-full md:w-auto bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 hover:shadow-xl"

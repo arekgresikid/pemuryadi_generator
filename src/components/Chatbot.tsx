@@ -13,7 +13,7 @@ interface Message {
 export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: 'Halo! 👋 Saya **Pemuryadi Bot**, asisten AI Anda di **Pemuryadi Generator & RuangRiung**. \n\nSaya siap membantu Anda merancang administrasi (Modul Ajar, RPM, dll), merencanakan game edukasi, atau berdiskusi seputar Kurikulum Merdeka.\n\nApa yang ingin kita buat hari ini?' }
+    { role: 'model', text: 'Halo! 👋 Saya **Pemuryadi Bot**, asisten AI Anda di **digen.id & RuangRiung**. \n\nSaya siap membantu Anda merancang administrasi (Modul Ajar, RPM, dll), merencanakan game edukasi, atau berdiskusi seputar Kurikulum Merdeka.\n\nApa yang ingin kita buat hari ini?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +45,7 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
         model: 'openai',
         contents: prompt,
         config: {
-          systemInstruction: 'Anda adalah asisten AI resmi dari Pemuryadi Generator & RuangRiung (Cyber Education Workspace). Anda ahli membantu guru di Indonesia dalam menyusun administrasi (Modul Ajar, RPM, Kalender Pendidikan, Prota, Promes, KKTP), membuat game edukatif (Word Search, Crossword, Ranking 1), dan memahami Kurikulum Merdeka. PENTING: Perhatikan konteks singkatan di website ini. RPM adalah "Rencana Pembelajaran Mendalam", BUKAN "Rencana Pekerjaan Mingguan" atau singkatan lain. Prota = Program Tahunan, Promes = Program Semester, KKTP = Kriteria Ketercapaian Tujuan Pembelajaran. Jawab dengan ramah, suportif, informatif, dan selalu arahkan mereka untuk menggunakan fitur-fitur yang tersedia di aplikasi Pemuryadi Generator jika relevan. Gunakan Markdown.',
+          systemInstruction: 'Anda adalah asisten AI resmi dari digen.id & RuangRiung (Cyber Education Workspace). Anda ahli membantu guru di Indonesia dalam menyusun administrasi (Modul Ajar, RPM, Kalender Pendidikan, Prota, Promes, KKTP), membuat game edukatif (Word Search, Crossword, Ranking 1), dan memahami Kurikulum Merdeka. PENTING: Perhatikan konteks singkatan di website ini. RPM adalah "Rencana Pembelajaran Mendalam", BUKAN "Rencana Pekerjaan Mingguan" atau singkatan lain. Prota = Program Tahunan, Promes = Program Semester, KKTP = Kriteria Ketercapaian Tujuan Pembelajaran. Jawab dengan ramah, suportif, informatif, dan selalu arahkan mereka untuk menggunakan fitur-fitur yang tersedia di aplikasi digen.id jika relevan. Gunakan Markdown.',
         }
       });
       

@@ -6,7 +6,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
 
   useEffect(() => {
     // Inject SEO Metadata
-    document.title = "Pembuat Modul Ajar & RPP AI Otomatis | Pemuryadi Generator";
+    document.title = "Pembuat Modul Ajar & RPP AI Otomatis | digen.id";
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -27,23 +27,38 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
       meta.content = "aplikasi guru, pembuat modul ajar ai, rpp merdeka otomatis, generator soal ai, kktp, jurnal harian guru, administrasi pendidikan";
       document.head.appendChild(meta);
     }
+
+    // Inject dark scrollbar for landing page
+    const style = document.createElement('style');
+    style.id = 'landing-scrollbar-style';
+    style.innerHTML = `
+      ::-webkit-scrollbar-track { background: #020617 !important; }
+      ::-webkit-scrollbar-thumb { background: #1e293b !important; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      const styleEl = document.getElementById('landing-scrollbar-style');
+      if (styleEl) styleEl.remove();
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans selection:bg-blue-500/30 text-slate-300">
+    <div className="min-h-screen bg-slate-950 font-sans selection:bg-blue-500/30 text-slate-300 overflow-x-hidden w-full relative">
       {/* Navbar */}
-      <nav className="border-b border-white/10 bg-slate-950/50 backdrop-blur-md absolute top-0 w-full z-50">
+      <nav className="border-b border-white/10 bg-slate-950/50 backdrop-blur-md absolute top-0 inset-x-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Sparkles className="text-white w-5 h-5" />
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Sparkles className="text-white w-4 h-4 md:w-5 md:h-5" />
             </div>
-            <span className="font-bold text-xl text-white tracking-tight">Pemuryadi Generator</span>
+            <span className="font-bold text-lg md:text-xl text-white tracking-tight">digen.id</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <button 
               onClick={onEnterApp}
-              className="text-sm font-bold text-white px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 cursor-pointer"
+              className="text-xs md:text-sm font-bold text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-all border border-white/10 cursor-pointer"
             >
               Masuk
             </button>
@@ -69,30 +84,30 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
               <span>Sistem Cerdas Bertenaga AI Generatif</span>
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 md:mb-6 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
               Revolusi Administrasi <br className="hidden md:block"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-400">
                 Pendidikan Kurikulum Merdeka
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-400 mb-8 max-w-3xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-              Pangkas 90% waktu Anda dalam menyusun Modul Ajar, RPP, Bank Soal, hingga Analisis Hari Efektif. Biarkan Artificial Intelligence mengerjakan rutinitas administratif, sehingga Anda bisa fokus pada mengajar siswa.
+            <p className="text-base md:text-xl text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+              Biarkan AI menyusun Modul Ajar, RPP, dan Bank Soal dalam hitungan detik. Hemat 90% waktu administrasi Anda, kembali fokus mendidik siswa.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in fade-in zoom-in duration-700 delay-300">
               <button 
                 onClick={onEnterApp}
-                className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.2)] cursor-pointer"
+                className="px-6 py-3 md:px-8 md:py-4 bg-white text-slate-900 rounded-2xl font-bold text-base md:text-lg hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.2)] cursor-pointer"
               >
                 Mulai Akses Dashboard <ArrowRight size={20} />
               </button>
             </div>
             
-            <div className="mt-8 flex flex-wrap justify-center items-center gap-6 text-sm font-medium text-slate-500 animate-in fade-in duration-1000 delay-500">
-              <span className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500" size={18}/> 100% Sesuai Kemdikbud</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500" size={18}/> Anti-Plagiasi & Unik</span>
-              <span className="flex items-center gap-2"><CheckCircle2 className="text-emerald-500" size={18}/> Ekspor ke Word & PDF</span>
+            <div className="mt-8 flex flex-wrap justify-center items-center gap-3 md:gap-6 text-xs md:text-sm font-medium text-slate-500 animate-in fade-in duration-1000 delay-500">
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> 100% Sesuai Kemdikbud</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Anti-Plagiasi & Unik</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Ekspor ke Word & PDF</span>
             </div>
           </div>
         </section>
@@ -227,7 +242,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         <section className="py-24 px-6 relative z-20 max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Pertanyaan Umum (FAQ)</h2>
-            <p className="text-slate-400">Temukan jawaban cepat untuk pertanyaan tentang platform Pemuryadi Generator.</p>
+            <p className="text-slate-400">Temukan jawaban cepat untuk pertanyaan tentang platform digen.id.</p>
           </div>
           
           <div className="space-y-4">
@@ -281,7 +296,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 opacity-50">
             <Sparkles size={18} />
-            <span className="font-bold tracking-tight">Pemuryadi Generator</span>
+            <span className="font-bold tracking-tight">digen.id</span>
           </div>
           
           <div className="flex gap-6 text-sm font-medium text-slate-500">

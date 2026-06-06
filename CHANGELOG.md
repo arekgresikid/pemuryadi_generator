@@ -5,8 +5,11 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 ## Versi 5.2.5
 **Tanggal:** 7 Juni 2026
 
+- **Rebranding Sistem:** Mengganti identitas "Pemuryadi Generator" menjadi **digen.id** secara menyeluruh (termasuk pada logo, navbar, popup, chatbot, barcode, hingga judul SEO) agar lebih singkat, ringkas, dan memperkuat posisi *branding*.
+- **Penyempurnaan Responsivitas Mobile:** Mengoptimalkan ukuran *font* judul, *padding* navbar, serta mengatur jarak antar-elemen di *Hero Section* agar tampilan di layar gawai pintar (mobile) tidak lagi saling bertumpuk atau berhimpitan.
+- **Perbaikan Scrollbar Tema Gelap:** Menyuntikkan CSS khusus ke dalam halaman Landing Page untuk menghilangkan "garis putih vertikal" yang sebelumnya mengganggu estetika tema gelap, sehingga bilah gulir (*scrollbar*) kini menyatu sempurna secara otomatis.
 - **Landing Page Baru yang SEO-Friendly:** Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) bergaya pemasaran modern (*Marketing-oriented*).
-- **Elemen Peningkatan Konversi (CTA):** Menambahkan blok *Hero Section* dengan tajuk tebal, tombol *Call-to-Action* (Coba Gratis), metrik statistik (*Social Proof*), dan alur 3 langkah mudah penggunaan (Cara Kerja).
+- **Elemen Peningkatan Konversi (CTA):** Menambahkan blok *Hero Section* dengan tajuk tebal yang lebih padat & ringkas, tombol *Call-to-Action* (Coba Gratis), metrik statistik (*Social Proof*), dan alur 3 langkah mudah penggunaan (Cara Kerja).
 - **FAQ Interaktif & Relevan:** Menambahkan 8 Pertanyaan Umum (FAQ) interaktif berbasis *Accordion* lengkap dengan konteks spesifik sistem (anti-plagiasi, ekspor Word, Mulok/Kejuruan) untuk meyakinkan calon pengguna baru dan membantu pengindeksan SEO.
 - **Penyempurnaan Tampilan Antarmuka:** Membuang bagian mockup statis dan seksi testimoni untuk menjaga kebersihan visual (karena aplikasi masih baru). Menyempurnakan posisi *Navbar*, memangkas tinggi *Hero Section*, serta memberikan palet warna dinamis lengkap dengan ikon pada seluruh kartu modul dan kartu benefit ("Mengapa Pendidik Memilih Kami").
 - **Transisi Halus Mulus:** Menerapkan sistem deteksi akses `hasEnteredApp` via `localStorage` sehingga Landing Page hanya muncul pada kunjungan pertama atau pengguna baru, sementara pengguna setia akan langsung diarahkan ke Dashboard.

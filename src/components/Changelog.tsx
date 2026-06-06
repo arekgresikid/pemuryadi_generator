@@ -92,7 +92,7 @@ export default function Changelog() {
         'Memperbarui instruksi sistem Chatbot AI, UI, dan memperbaiki tampilan modal login.',
         'Melakukan refaktor besar-besaran pada App.tsx menjadi komponen tata letak (layout) modular.',
         'Mengamankan sistem autentikasi untuk akses mode pengembang (Dev Mode).',
-        'Pembaruan logo dan branding pada header dan footer Pemuryadi Generator.',
+        'Pembaruan logo dan branding pada header dan footer digen.id.',
         'Penguatan keamanan antarmuka dari celah XSS (Penambahan dompurify).'
       ]
     },
@@ -137,7 +137,7 @@ export default function Changelog() {
       date: '19 April 2026',
       icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
-        'Initial Commit: Inisialisasi awal repositori proyek Pemuryadi Generator.',
+        'Initial Commit: Inisialisasi awal repositori proyek digen.id.',
         'Menyiapkan fondasi dan kerangka awal sistem dengan integrasi AI Studio.'
       ]
     }
@@ -153,7 +153,7 @@ export default function Changelog() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">Riwayat Versi</h1>
-            <p className="text-sm text-gray-500 mt-1 font-medium">Melacak setiap evolusi dan pembaruan sistem Pemuryadi Generator.</p>
+            <p className="text-sm text-gray-500 mt-1 font-medium">Melacak setiap evolusi dan pembaruan sistem digen.id.</p>
           </div>
         </div>
       </div>

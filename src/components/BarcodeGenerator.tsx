@@ -117,7 +117,7 @@ const BarcodeGenerator: React.FC = () => {
           if (blob) {
             const file = new File([blob], "pemuryadi-qr.png", { type: "image/png" });
             navigator.share({
-              title: 'QR Code Pemuryadi Generator',
+              title: 'QR Code digen.id',
               files: [file],
             }).catch(() => {});
           }
