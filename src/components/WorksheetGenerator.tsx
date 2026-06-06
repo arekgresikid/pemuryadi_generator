@@ -57,6 +57,7 @@ export default function WorksheetGenerator() {
     jenisSoal: string[];
     jumlahSoal: number;
     tingkatKesulitan: string;
+    kerangkaTaksonomi: string;
     tingkatanKognitif: string;
     instruksiTambahan: string;
     gayaDesain: string;
@@ -78,7 +79,8 @@ export default function WorksheetGenerator() {
     jenisSoal: ['Pilihan Ganda'],
     jumlahSoal: 5,
     tingkatKesulitan: 'Sedang',
-    tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
+    kerangkaTaksonomi: 'Bloom',
+    tingkatanKognitif: 'C1 - Mengingat',
     instruksiTambahan: '',
     gayaDesain: 'Minimalis',
     namaGuru: '',
@@ -191,7 +193,7 @@ Topik/Materi: ${formData.topik}
 Jenis Soal: ${formData.jenisSoal.join(', ')}
 Jumlah Soal: ${formData.jumlahSoal}
 Tingkat Kesulitan: ${formData.tingkatKesulitan}
-Tingkatan Kognitif (Taksonomi Bloom Revisi): ${formData.tingkatanKognitif}
+Tingkatan Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom Revisi' : 'Taksonomi SOLO'}): ${formData.tingkatanKognitif}
 Instruksi Tambahan: ${formData.instruksiTambahan || 'Tidak ada'}
 
 ${formData.remixText ? `INSTRUKSI REMIX:
@@ -201,10 +203,12 @@ ${formData.remixText}
 ---` : ''}
 
 Konteks Kurikulum Merdeka & Pedagogi:
-1. Taksonomi Bloom:
-   - Fokus HOTS: Kurikulum Merdeka mendorong keseimbangan antara LOTS (C1-C2) dan HOTS (C4-C6), dengan penekanan lebih pada tingkat tinggi.
+1. Kerangka Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}):
+${formData.kerangkaTaksonomi === 'Bloom' ? `   - Fokus HOTS: Kurikulum Merdeka mendorong keseimbangan antara LOTS (C1-C2) dan HOTS (C4-C6), dengan penekanan lebih pada tingkat tinggi.
    - Dimensi Pengetahuan: Selain proses kognitif, target juga mencakup dimensi pengetahuan: Faktual, Konseptual, Prosedural, dan Metakognitif.
-   - Kata Kerja Operasional (KKO): Gunakan KKO yang spesifik untuk merumuskan soal agar dapat diukur.
+   - Kata Kerja Operasional (KKO): Gunakan KKO yang spesifik untuk merumuskan soal agar dapat diukur.` : `   - Taksonomi SOLO berfokus pada kompleksitas pemahaman siswa.
+   - Tahapan: Pra-struktural (belum paham konsep), Uni-struktural (satu aspek), Multi-struktural (beberapa aspek terpisah), Relasional (menghubungkan aspek), Abstrak Diperluas (menggeneralisasi ke domain baru).
+   - Rumuskan soal yang memancing siswa untuk menunjukkan level pemahaman sesuai target.`}
    - Fleksibilitas: Tingkat kognitif disesuaikan dengan fase perkembangan peserta didik.
    - JANGAN tampilkan label (C1, C2, dll) pada hasil akhir, cukup gunakan KKO yang tepat.
 2. Tujuan Pembelajaran (ABCD): Jika memungkinkan, formulasikan instruksi/tujuan dengan prinsip Audience (Peserta didik), Behavior (Perilaku/KKO), Condition (Kondisi pembelajaran), dan Degree (Kriteria keberhasilan).
@@ -218,7 +222,8 @@ ${designPrompts[formData.gayaDesain]}
 
 Berikan hasil HANYA dalam format kode HTML lengkap (hanya bagian dalam <body>, tanpa tag <html>, <head>, atau <body>) yang menggunakan Tailwind CSS classes untuk styling.
 Pastikan desainnya sangat menarik, interaktif, dan mengikuti struktur grid 40/60 (kiri visual, kanan teks) sesuai instruksi di atas.
-Gunakan elemen HTML seperti <AIAssistedInput type="text" /> untuk isian, <input type="radio"> untuk pilihan ganda, dll.
+Gunakan elemen HTML standar seperti <input type="text" class="border-b-2 border-black bg-transparent w-full focus:outline-none" /> untuk isian kosong, <input type="checkbox" class="w-4 h-4"> untuk pilihan, dll.
+Jangan gunakan tag komponen React kustom seperti <AIAssistedInput>.
 Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tanpa embel-embel teks lain.`;
 
       const response = await ai.models.generateContent({
@@ -461,17 +466,41 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
                   <option value="Campuran">Campuran</option>
                 </select>
               </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
-                </select>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">Kerangka Taksonomi</label>
+                <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'Bloom', tingkatanKognitif: 'C1 - Mengingat'})}
+                    className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                  >
+                    Taksonomi Bloom
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'SOLO', tingkatanKognitif: 'Pra-struktural'})}
+                    className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                  >
+                    Taksonomi SOLO
+                  </button>
+                </div>
+
+                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
+                <div className="flex flex-wrap gap-2">
+                  {(formData.kerangkaTaksonomi === 'Bloom' 
+                    ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Menerapkan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta']
+                    : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
+                  ).map(level => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setFormData({...formData, tingkatanKognitif: level})}
+                      className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${formData.tingkatanKognitif === level ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Instruksi Tambahan (Opsional)</label>
@@ -550,7 +579,12 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
               </div>
               <div 
                 className="bg-white rounded-xl overflow-hidden shadow-inner min-h-[500px]"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result) }}
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(result, { 
+                    ADD_TAGS: ['style', 'iframe'], 
+                    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|blob|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i 
+                  }) 
+                }}
               />
             </div>
           ) : (

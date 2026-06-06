@@ -544,5 +544,10 @@ export const topicsBySubject: Record<string, string[]> = {
   'pab-hindu': ['Sraddha (Keimanan)', 'Susila (Etika)', 'Yadnya (Ritual)', 'Sejarah Agama Hindu'],
   'pab-buddha': ['Sejarah Buddha Gautama', 'Dhamma', 'Sila', 'Samadhi', 'Panna'],
   'pab-konghucu': ['Sejarah Nabi Kongzi', 'Keimanan (Xin)', 'Tata Ibadah (Li)', 'Etika Moral (De)'],
+  'al-quran-hadis': ['Hafalan Surah Pendek', 'Tajwid', 'Kisah Nabi dan Rasul', 'Hadis tentang Akhlak', 'Memahami Isi Kandungan Ayat'],
+  'akidah-akhlak': ['Rukun Iman', 'Asmaul Husna', 'Akhlak Terpuji', 'Menghindari Akhlak Tercela', 'Adab Sehari-hari'],
+  'fikih': ['Rukun Islam', 'Thaharah (Bersuci)', 'Shalat Fardhu', 'Zakat dan Puasa', 'Pengurusan Jenazah', 'Haji dan Umrah'],
+  'ski': ['Sejarah Nabi Muhammad SAW', 'Khulafaur Rasyidin', 'Bani Umayyah', 'Bani Abbasiyah', 'Sejarah Masuknya Islam di Nusantara'],
+  'bahasa-arab': ['Istima\' (Mendengarkan)', 'Kalam (Berbicara)', 'Qira\'ah (Membaca)', 'Kitabah (Menulis)', 'Mufrodat (Kosakata)', 'Qawaid (Tata Bahasa)'],
   'default': ['Bab 1: Pendahuluan', 'Bab 2: Konsep Dasar', 'Bab 3: Penerapan', 'Bab 4: Analisis Lanjut', 'Bab 5: Evaluasi']
 };

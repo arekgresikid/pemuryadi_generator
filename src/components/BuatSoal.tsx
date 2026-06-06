@@ -3,7 +3,7 @@ import ModelSelector from './ModelSelector';
 
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
-import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2 } from 'lucide-react';
+import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
@@ -13,7 +13,10 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
-  const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu'>('kisi-kisi');
+  const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | 'live-quiz'>('kisi-kisi');
+  const [liveQuizIndex, setLiveQuizIndex] = useState(0);
+  const [liveQuizAnswers, setLiveQuizAnswers] = useState<Record<number, string>>({});
+  const [liveQuizFinished, setLiveQuizFinished] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -33,6 +36,7 @@ export default function BuatSoal() {
     tipeUjian: string;
     subTipeUjian: string;
     bentukSoal: string[];
+    kerangkaTaksonomi: string;
     levelKognitif: string[];
     jumlahSoalTotal: number;
     jumlahSoalPerBentuk: Record<string, number>;
@@ -53,7 +57,8 @@ export default function BuatSoal() {
     tipeUjian: 'Ujian Biasa',
     subTipeUjian: 'TKA Literasi',
     bentukSoal: ['Pilihan Ganda'],
-    levelKognitif: ['C2', 'C3'],
+    kerangkaTaksonomi: 'Bloom',
+    levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan'],
     jumlahSoalTotal: 10,
     jumlahSoalPerBentuk: { 'Pilihan Ganda': 10 },
     hasInklusi: false,
@@ -83,7 +88,7 @@ export default function BuatSoal() {
       if (current.includes(lvl)) current = current.filter(c => c !== lvl);
       else current.push(lvl);
     }
-    if (current.length === 0) current = ['C1'];
+    if (current.length === 0) current = ['C1 - Mengingat'];
     setFormData({ ...formData, levelKognitif: current });
   };
 
@@ -131,6 +136,18 @@ export default function BuatSoal() {
   const [resultSoal, setResultSoal] = useState<any>(null);
 
   useEffect(() => {
+    if (profile && !formData.jenjang) {
+      setFormData(prev => ({
+        ...prev,
+        jenjang: profile.jenjang?.toLowerCase() || 'sd'
+      }));
+    } else if (!formData.jenjang) {
+      setFormData(prev => ({ ...prev, jenjang: 'sd' }));
+    }
+  }, [profile, formData.jenjang]);
+
+  useEffect(() => {
+    if (!formData.jenjang) return;
     const phases = phaseClassMap[formData.jenjang]?.phases || [];
     if (!phases.find(p => p.id === formData.fase)) {
       const firstPhase = phases[0]?.id || '';
@@ -192,7 +209,7 @@ Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi}
 Indikator Asesmen: ${formData.indikator}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
-Level Kognitif: ${formData.levelKognitif.join(', ')}
+Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
 ${breakdownSoal}
 ${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
 
@@ -244,10 +261,16 @@ Berikan output dalam format JSON murni:
           extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Lakukan pencarian web real-time menggunakan Google Search tool untuk mencari referensi soal dan kisi-kisi resmi ${formData.subTipeUjian} terbaru dari tahun 2022 hingga 2026.`;
         } else if (formData.tipeUjian === 'Olimpiade') {
           extraInstructions += `\n- Standar Olimpiade: Sesuaikan cakupan dan bobot soal dengan standar kompetisi olimpiade sains resmi (seperti OSN tingkat kabupaten/provinsi/nasional, IMO untuk Matematika, IPhO untuk Fisika, IChO untuk Kimia, IBO untuk Biologi, dll.) sesuai dengan mata pelajaran ${mapelLabel}. Soal harus bertipe analisis mendalam, pemecahan masalah kompleks, dan menantang.`;
+        } else if (formData.tipeUjian === 'Live Quiz') {
+          extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat. Pembahasan harus to the point.`;
         }
 
         if (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0) {
-          extraInstructions += `\n- Soal Bergambar: Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Buatlah ${formData.jumlahSoalBergambar} soal yang memerlukan gambar/diagram pendukung untuk dapat diselesaikan. Untuk soal-soal tersebut, isilah bidang "gambarDeskripsi" dengan deskripsi detail gambar outline hitam-putih tanpa warna/bold yang representatif (contoh: "diagram batang pertumbuhan tanaman", "limas segi empat ABCD dengan garis tinggi", "peta persebaran flora fauna"). Untuk soal reguler yang tidak memerlukan gambar, biarkan bidang "gambarDeskripsi" kosong atau null.`;
+          extraInstructions += `\n- Soal Bergambar: Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Buatlah ${formData.jumlahSoalBergambar} soal yang memerlukan gambar/diagram pendukung untuk dapat diselesaikan. Untuk soal-soal tersebut, WAJIB mengisi bidang "gambarDeskripsi" dengan PROMPT DALAM BAHASA INGGRIS yang sangat spesifik dan deskriptif untuk image generator (contoh: "A detailed black and white line art diagram of plant growth stages", "A vector line drawing of a pyramid with labels", "A clear map showing distribution of flora and fauna in Indonesia"). Harus dalam bahasa Inggris. Untuk soal reguler yang tidak memerlukan gambar, biarkan bidang "gambarDeskripsi" kosong atau null.`;
+        }
+
+        if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
+          extraInstructions += `\n- BAHASA ARAB: Karena mata pelajaran ini berbasis PAI/Bahasa Arab, WAJIB gunakan teks Arab asli (Arabic script) berharakat untuk setiap ayat, hadis, kosakata, atau naskah Arab yang diperlukan. Jangan hanya menggunakan transliterasi latin.`;
         }
 
         prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
@@ -261,16 +284,15 @@ Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi}
 Indikator Asesmen: ${formData.indikator}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
-Level Kognitif: ${formData.levelKognitif.join(', ')}
+Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
 Rincian Target Reguler: ${breakdownSoal}
 ${extraInstructions}
 
 PENTING:
 - PENCARIAN REAL-TIME: Kamu harus melampirkan referensi data riil, kasus aktual, atau informasi pendukung yang sedang tren di search dari 2022 - 2026 jika relevan dengan tipe ujian. Sebutkan bahwa source dukungan berasal dari "Source Nano Banana 2".
-- PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi 2 bagian dalam JSON:
+- PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi ${formData.hasInklusi ? '2 bagian' : '1 bagian'} dalam JSON:
   1. "soalList": Berisi soal Reguler sesuai jumlah target pengunjung.
-  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".
-- Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dari berita real-time kalau memungkinkan.
+${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".\n` : ''}- Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dari berita real-time kalau memungkinkan.
 - JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" atau "Projek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
 
 Berikan output dalam format JSON murni:
@@ -291,59 +313,64 @@ Berikan output dalam format JSON murni:
       "gambarDeskripsi": "...",
       "gambarUrl": ""
     }
-  ],
+  ]${formData.hasInklusi ? `,
   "soalABKList": [
     {
       "jenisSoal": "...", "no": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "materi": "...", "indikatorSoal": "...", "levelKognitif": "...", "gambarDeskripsi": "...", "gambarUrl": ""
     }
-  ]
+  ]` : ''}
 }`;
-        responseSchema = {
-          type: Type.OBJECT,
-          properties: {
-            soalList: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  jenisSoal: { type: Type.STRING },
-                  no: { type: Type.STRING },
-                  pertanyaan: { type: Type.STRING },
-                  opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-                  kunci: { type: Type.STRING },
-                  pembahasan: { type: Type.STRING },
-                  skor: { type: Type.STRING },
-                  materi: { type: Type.STRING },
-                  indikatorSoal: { type: Type.STRING },
-                  levelKognitif: { type: Type.STRING },
-                  gambarDeskripsi: { type: Type.STRING },
-                  gambarUrl: { type: Type.STRING }
-                }
-              }
-            },
-            soalABKList: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  jenisSoal: { type: Type.STRING },
-                  no: { type: Type.STRING },
-                  pertanyaan: { type: Type.STRING },
-                  opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-                  kunci: { type: Type.STRING },
-                  pembahasan: { type: Type.STRING },
-                  skor: { type: Type.STRING },
-                  materi: { type: Type.STRING },
-                  indikatorSoal: { type: Type.STRING },
-                  levelKognitif: { type: Type.STRING },
-                  gambarDeskripsi: { type: Type.STRING },
-                  gambarUrl: { type: Type.STRING }
-                }
+        let propertiesObj: any = {
+          soalList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                jenisSoal: { type: Type.STRING },
+                no: { type: Type.STRING },
+                pertanyaan: { type: Type.STRING },
+                opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+                pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
+                kunci: { type: Type.STRING },
+                pembahasan: { type: Type.STRING },
+                skor: { type: Type.STRING },
+                materi: { type: Type.STRING },
+                indikatorSoal: { type: Type.STRING },
+                levelKognitif: { type: Type.STRING },
+                gambarDeskripsi: { type: Type.STRING },
+                gambarUrl: { type: Type.STRING }
               }
             }
           }
+        };
+
+        if (formData.hasInklusi) {
+          propertiesObj.soalABKList = {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                jenisSoal: { type: Type.STRING },
+                no: { type: Type.STRING },
+                pertanyaan: { type: Type.STRING },
+                opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+                pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
+                kunci: { type: Type.STRING },
+                pembahasan: { type: Type.STRING },
+                skor: { type: Type.STRING },
+                materi: { type: Type.STRING },
+                indikatorSoal: { type: Type.STRING },
+                levelKognitif: { type: Type.STRING },
+                gambarDeskripsi: { type: Type.STRING },
+                gambarUrl: { type: Type.STRING }
+              }
+            }
+          };
+        }
+
+        responseSchema = {
+          type: Type.OBJECT,
+          properties: propertiesObj
         };
       }
 
@@ -713,266 +740,336 @@ Berikan output dalam format JSON murni:
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
           
-          {/* Form Section */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-5 relative overflow-hidden">
-              <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <List size={18} className="text-blue-600" /> Parameter Soal
-              </h2>
-
-              <div className="space-y-4">
-                {/* Tipe Ujian */}
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Tipe Ujian</label>
-                  <div className="flex flex-wrap gap-2">
-                    {['Ujian Biasa', 'Asesmen Nasional', 'Olimpiade', 'Other'].map(tipe => (
-                      <button
-                        key={tipe}
-                        onClick={() => setFormData({...formData, tipeUjian: tipe})}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${formData.tipeUjian === tipe ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 border border-gray-300 hover:border-blue-200'}`}
-                      >
-                        {tipe}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {formData.tipeUjian === 'Other' && (
-                  <div className="animate-in fade-in slide-in-from-top-1 duration-200">
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Sub-Tipe Ujian (TKA / Try Out)</label>
-                    <select
-                      value={formData.subTipeUjian}
-                      onChange={e => setFormData({...formData, subTipeUjian: e.target.value})}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    >
-                      <option value="TKA Literasi">TKA: Literasi</option>
-                      <option value="TKA Numerasi">TKA: Numerasi</option>
-                      <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
-                      <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
-                      <option value="Try Out">Try Out</option>
-                    </select>
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jenjang</label>
-                  <select 
-                    value={formData.jenjang}
-                    onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  >
-                    {educationLevels.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Fase</label>
-                    <select 
-                      value={formData.fase}
-                      onChange={e => setFormData({...formData, fase: e.target.value})}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    >
-                      {phaseClassMap[formData.jenjang]?.phases.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Kelas</label>
-                    <select 
-                      value={formData.kelas}
-                      onChange={e => setFormData({...formData, kelas: e.target.value})}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    >
-                      {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Semester</label>
-                    <select 
-                      value={formData.semester}
-                      onChange={e => setFormData({...formData, semester: e.target.value})}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    >
-                      <option value="1">Ganjil (1)</option>
-                      <option value="2">Genap (2)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Mata Pelajaran</label>
-                    <select 
-                      value={formData.mapel}
-                      onChange={e => setFormData({...formData, mapel: e.target.value})}
-                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    >
-                      {subjectsByLevel[formData.jenjang]?.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Capaian Pembelajaran (Otomatis)</label>
-                  <div className="p-3 bg-gray-100 rounded-lg text-xs text-gray-700 h-24 overflow-y-auto border border-gray-300">
-                    {getCP()}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Materi Esensial / Konteks</label>
-                  <AIAssistedInput type="text"
-                    value={formData.materi}
-                    onChange={e => setFormData({...formData, materi: e.target.value})}
-                    placeholder="Contoh: Pecahan, Ekosistem, dll."
-                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 placeholder-slate-500 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Indikator Asesmen</label>
-                  <AIAssistedTextarea value={formData.indikator}
-                    onChange={e => setFormData({...formData, indikator: e.target.value})}
-                    placeholder="Contoh: Peserta didik dapat menganalisis..."
-                    className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 placeholder-slate-500 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all h-20" />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Bentuk Soal</label>
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                    {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
-                      <div key={bentuk} className="flex flex-col gap-1">
-                        <label className="flex items-center gap-2 cursor-pointer bg-gray-100 p-2 rounded border border-gray-300 hover:border-blue-200 transition-colors">
-                          <input
-                            type="checkbox"
-                            checked={formData.bentukSoal.includes(bentuk)}
-                            onChange={() => handleBentukSoalChange(bentuk)}
-                            className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
-                          />
-                          <span className="text-[11px] text-gray-700">{bentuk}</span>
-                        </label>
-                        {formData.bentukSoal.includes(bentuk) && bentuk !== 'Kombinasi' && (
-                          <input 
-                            type="number" 
-                            min="1" 
-                            value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
-                            onChange={e => setFormData({...formData, jumlahSoalPerBentuk: {...formData.jumlahSoalPerBentuk, [bentuk]: parseInt(e.target.value) || 0}})} 
-                            placeholder="Jumlah Soal"
-                            className="w-full p-1.5 text-xs border border-gray-300 rounded bg-gray-100 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
-                          />
-                        )}
+          {/* Form Section (Top Panel) */}
+          <div className="w-full flex flex-col gap-4">
+            <h2 className="font-bold text-gray-900 flex items-center gap-2 px-1 mb-2">
+              <List size={18} className="text-blue-600" /> Parameter Soal
+            </h2>
+                
+                {/* Section 1: Informasi Ujian & Kelas */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-5">
+                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2">1. Informasi Ujian & Kelas</h3>
+                  
+                  {/* Row 1: Tipe Ujian */}
+                  <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                    <div className="flex-1">
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Tipe Ujian</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Ujian Biasa', 'Asesmen Nasional', 'Olimpiade', 'Live Quiz', 'Other'].map(tipe => (
+                          <button
+                            key={tipe}
+                            onClick={() => setFormData({...formData, tipeUjian: tipe})}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${formData.tipeUjian === tipe ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 border border-gray-300 hover:border-blue-200'}`}
+                          >
+                            {tipe}
+                          </button>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+
+                    {formData.tipeUjian === 'Other' && (
+                      <div className="flex-1 w-full min-w-[200px] animate-in fade-in slide-in-from-top-1 duration-200">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Sub-Tipe Ujian (TKA / Try Out)</label>
+                        <select
+                          value={formData.subTipeUjian}
+                          onChange={e => setFormData({...formData, subTipeUjian: e.target.value})}
+                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                        >
+                          <option value="TKA Literasi">TKA: Literasi</option>
+                          <option value="TKA Numerasi">TKA: Numerasi</option>
+                          <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
+                          <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
+                          <option value="Try Out">Try Out</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Row 2: Selects */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jenjang</label>
+                      <select 
+                        value={formData.jenjang}
+                        onChange={e => setFormData({...formData, jenjang: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        {educationLevels.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Fase</label>
+                      <select 
+                        value={formData.fase}
+                        onChange={e => setFormData({...formData, fase: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="" disabled>Pilih Fase</option>
+                        {phaseClassMap[formData.jenjang]?.phases?.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Kelas</label>
+                      <select 
+                        value={formData.kelas}
+                        onChange={e => setFormData({...formData, kelas: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="" disabled>Pilih Kelas</option>
+                        {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Semester</label>
+                      <select 
+                        value={formData.semester}
+                        onChange={e => setFormData({...formData, semester: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="1">Ganjil (1)</option>
+                        <option value="2">Genap (2)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Mata Pelajaran</label>
+                      <select 
+                        value={formData.mapel}
+                        onChange={e => setFormData({...formData, mapel: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        {subjectsByLevel[formData.jenjang]?.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Level Kognitif</label>
-                  <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">
-                    {['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'HOTS', 'Kombinasi'].map(lvl => (
-                      <label key={lvl} className="flex items-center gap-2 cursor-pointer bg-gray-100 p-2 rounded border border-gray-300 hover:border-blue-200 transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={formData.levelKognitif.includes(lvl)}
-                          onChange={() => handleLevelKognitifChange(lvl)}
+                {/* Section 2: Materi & Indikator */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">2. Materi & Indikator</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Capaian Pembelajaran (Otomatis)</label>
+                    <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-700 h-24 overflow-y-auto border border-gray-300">
+                      {getCP()}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Materi Esensial / Konteks</label>
+                    <AIAssistedInput type="text"
+                      value={formData.materi}
+                      onChange={e => setFormData({...formData, materi: e.target.value})}
+                      placeholder="Contoh: Pecahan, Ekosistem, dll."
+                      className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Indikator Asesmen</label>
+                      <AIAssistedTextarea value={formData.indikator}
+                        onChange={e => setFormData({...formData, indikator: e.target.value})}
+                        placeholder="Contoh: Peserta didik dapat menganalisis..."
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all h-24" />
+                    </div>
+                  </div>
+                </div></div>
+
+                {/* Section 3: Struktur & Level Kognitif */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-5">
+                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2">3. Struktur & Level Kognitif</h3>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    
+                    {/* Kolom Kiri: Bentuk Soal */}
+                    <div className="flex flex-col gap-5">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Bentuk Soal</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
+                          <div key={bentuk} className="flex flex-col gap-2">
+                            <label className="flex items-center gap-3 cursor-pointer bg-gray-50 p-2.5 rounded-lg border border-gray-200 hover:border-blue-300 transition-all min-h-[46px]">
+                              <input
+                                type="checkbox"
+                                checked={formData.bentukSoal.includes(bentuk)}
+                                onChange={() => handleBentukSoalChange(bentuk)}
+                                className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white flex-shrink-0"
+                              />
+                              <span className="text-[11px] text-gray-700 leading-tight">{bentuk}</span>
+                            </label>
+                            {formData.bentukSoal.includes(bentuk) && bentuk !== 'Kombinasi' && (
+                              <input 
+                                type="number" 
+                                min="1" 
+                                value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
+                                onChange={e => setFormData({...formData, jumlahSoalPerBentuk: {...formData.jumlahSoalPerBentuk, [bentuk]: parseInt(e.target.value) || 0}})} 
+                                placeholder="Jumlah Soal"
+                                className="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
+                              />
+                            )}
+                          </div>
+                        ))}
+                        </div>
+                      </div>
+
+                      {formData.bentukSoal.includes('Kombinasi') && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
+                          <input type="number" min="1" max="100" value={formData.jumlahSoalTotal} onChange={e => setFormData({...formData, jumlahSoalTotal: parseInt(e.target.value) || 1})} className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                        </div>
+                      )}
+                    </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Kerangka Taksonomi</label>
+                    <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4 w-full">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData, 
+                            kerangkaTaksonomi: 'Bloom', 
+                            levelKognitif: formData.levelKognitif.filter(l => l.startsWith('C') || l === 'HOTS' || l === 'Kombinasi')
+                          });
+                        }}
+                        className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                      >
+                        Taksonomi Bloom
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData, 
+                            kerangkaTaksonomi: 'SOLO', 
+                            levelKognitif: []
+                          });
+                        }}
+                        className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                      >
+                        Taksonomi SOLO
+                      </button>
+                    </div>
+
+                    <label className="block text-[10px] font-semibold text-gray-500 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
+                    <div className="flex flex-wrap gap-2">
+                      {(formData.kerangkaTaksonomi === 'Bloom' 
+                        ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Mengaplikasikan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta', 'HOTS', 'Kombinasi']
+                        : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
+                      ).map(lvl => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => handleLevelKognitifChange(lvl)}
+                          className={`px-3 py-1.5 text-[11px] font-bold rounded-full border transition-all ${formData.levelKognitif.includes(lvl) ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
+                        >
+                          {lvl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                </div>
+
+                {/* Section 4: Opsi Tambahan */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">4. Opsi Tambahan</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Opsi Inklusi */}
+                    <div className="flex flex-col gap-3">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.hasInklusi}
+                          onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
                           className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
                         />
-                        <span className="text-[11px] text-gray-700">{lvl}</span>
+                        <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
                       </label>
-                    ))}
+                      
+                      {formData.hasInklusi && (
+                        <div className="pl-7 animate-in fade-in duration-200">
+                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Siswa Inklusi</label>
+                          <input 
+                            type="number"
+                            min="1"
+                            className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                            placeholder="Masukkan jumlah siswa inklusi..."
+                            value={formData.jumlahInklusi === 0 ? '' : formData.jumlahInklusi}
+                            onChange={(e) => setFormData({...formData, jumlahInklusi: parseInt(e.target.value) || 0})}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Opsi Gambar */}
+                    <div className="flex flex-col gap-3">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.terdapatSoalBergambar}
+                          onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
+                          className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
+                      </label>
+                      
+                      {formData.terdapatSoalBergambar && (
+                        <div className="pl-7 animate-in fade-in duration-200">
+                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
+                          <input 
+                            type="number"
+                            min="1"
+                            max="20"
+                            className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                            placeholder="Masukkan jumlah soal bergambar..."
+                            value={formData.jumlahSoalBergambar === 0 ? '' : formData.jumlahSoalBergambar}
+                            onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                {formData.bentukSoal.includes('Kombinasi') && (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
-                    <input type="number" min="1" max="100" value={formData.jumlahSoalTotal} onChange={e => setFormData({...formData, jumlahSoalTotal: parseInt(e.target.value) || 1})} className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                {/* Section 5: Tips */}
+                <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row gap-6 justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 mb-2 relative z-10">
+                      <Lightbulb size={16} /> Tips Menyusun Kisi-Kisi
+                    </h3>
+                    <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                      <li>Selaraskan dengan CP → ATP → TP</li>
+                      <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
+                      <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
+                      <li>Variasikan level kognitif (tidak hanya mengingat)</li>
+                    </ul>
                   </div>
-                )}
-
-                <div className="space-y-3 pt-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.hasInklusi}
-                      onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                      className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
-                  </label>
                   
-                  {formData.hasInklusi && (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jumlah Siswa Inklusi</label>
-                      <input 
-                        type="number"
-                        min="1"
-                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 placeholder-slate-500 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        placeholder="Masukkan jumlah siswa inklusi..."
-                        value={formData.jumlahInklusi === 0 ? '' : formData.jumlahInklusi}
-                        onChange={(e) => setFormData({...formData, jumlahInklusi: parseInt(e.target.value) || 0})}
-                      />
-                    </div>
-                  )}
-
-                  <label className="flex items-center gap-2 cursor-pointer mt-4 pt-2 border-t border-gray-200">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.terdapatSoalBergambar}
-                      onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
-                      className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
-                  </label>
-                  
-                  {formData.terdapatSoalBergambar && (
-                    <div className="animate-in fade-in duration-200">
-                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
-                      <input 
-                        type="number"
-                        min="1"
-                        max="20"
-                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-900 placeholder-slate-500 focus:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        placeholder="Masukkan jumlah soal bergambar..."
-                        value={formData.jumlahSoalBergambar === 0 ? '' : formData.jumlahSoalBergambar}
-                        onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
-                      />
-                    </div>
-                  )}
+                  <div className="flex-1">
+                    <h3 className="text-sm font-bold text-red-500 flex items-center gap-2 mb-2 relative z-10">
+                      <AlertTriangle size={16} /> Hindari Kesalahan Umum
+                    </h3>
+                    <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                      <li>Indikator hanya pada level mengingat (C1)</li>
+                      <li>Tidak mencerminkan pembelajaran kontekstual</li>
+                      <li>Soal tidak mengukur pemahaman mendalam</li>
+                      <li>Distribusi level kognitif tidak seimbang</li>
+                    </ul>
+                  </div>
                 </div>
-
-              </div>
-            </div>
-
-            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-200 relative overflow-hidden">
-              <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 mb-2 relative z-10">
-                <Lightbulb size={16} /> Tips Menyusun Kisi-Kisi
-              </h3>
-              <ul className="text-xs text-gray-700 space-y-1.5 pl-4 list-disc relative z-10">
-                <li>Selaraskan dengan CP → ATP → TP</li>
-                <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
-                <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
-                <li>Variasikan level kognitif (tidak hanya mengingat)</li>
-                <li>Gunakan bahasa yang jelas, kontekstual, dan tidak ambigu</li>
-              </ul>
-              
-              <h3 className="text-sm font-bold text-red-500 flex items-center gap-2 mt-5 mb-2 relative z-10">
-                <AlertTriangle size={16} /> Kesalahan Umum
-              </h3>
-              <ul className="text-xs text-gray-700 space-y-1.5 pl-4 list-disc relative z-10">
-                <li>Indikator hanya pada level mengingat (C1)</li>
-                <li>Tidak mencerminkan pembelajaran kontekstual</li>
-                <li>Soal tidak mengukur pemahaman mendalam</li>
-                <li>Distribusi level kognitif tidak seimbang</li>
-              </ul>
-            </div>
           </div>
 
-          {/* Result Section */}
-          <div className="lg:col-span-8 flex flex-col h-[800px]">
+          {/* Result Section (Bottom Panel) */}
+          <div className="w-full flex flex-col h-[800px]">
             <div className="bg-white rounded-t-2xl border-x border-t border-gray-200 p-2 flex gap-2 relative overflow-hidden flex-wrap">
               <button
                 onClick={() => setActiveSubTab('kisi-kisi')}
@@ -997,6 +1094,12 @@ Berikan output dalam format JSON murni:
                 className={`flex-1 min-w-[120px] py-3 px-2 rounded-xl text-[11px] lg:text-sm font-bold transition-all relative z-10 ${activeSubTab === 'kartu' ? 'bg-amber-100 text-amber-600 border border-amber-200 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 Kartu Soal
+              </button>
+              <button
+                onClick={() => { setActiveSubTab('live-quiz'); setLiveQuizIndex(0); setLiveQuizAnswers({}); setLiveQuizFinished(false); }}
+                className={`flex-1 min-w-[120px] py-3 px-2 rounded-xl text-[11px] lg:text-sm font-bold transition-all relative z-10 ${activeSubTab === 'live-quiz' ? 'bg-purple-100 text-purple-600 border border-purple-200 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                Live Quiz
               </button>
             </div>
 
@@ -1471,6 +1574,100 @@ Berikan output dalam format JSON murni:
                       <List size={32} className="text-slate-600" />
                     </div>
                     <p className="text-sm">Klik Generate untuk membuat Kartu Soal</p>
+                  </div>
+                )
+              )}
+
+              {activeSubTab === 'live-quiz' && (
+                resultSoal?.soalList ? (
+                  <div className="h-full flex flex-col p-4 animate-in fade-in zoom-in-95 duration-300">
+                    {!liveQuizFinished ? (
+                      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-y-auto relative">
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                          <h3 className="font-bold text-xl text-purple-700 flex items-center gap-2"><Sparkles className="w-5 h-5"/> Live Quiz</h3>
+                          <span className="bg-purple-100 text-purple-800 text-sm font-bold px-3 py-1 rounded-full">Soal {liveQuizIndex + 1} dari {resultSoal.soalList.length}</span>
+                        </div>
+                        <div className="mb-6 flex-1">
+                          <div className="flex items-start gap-4">
+                            <div className="bg-purple-100 text-purple-800 font-bold w-10 h-10 flex items-center justify-center rounded-lg flex-shrink-0 text-xl">{liveQuizIndex + 1}</div>
+                            <div className="flex-1">
+                              {resultSoal.soalList[liveQuizIndex].gambarUrl && (
+                                <img src={resultSoal.soalList[liveQuizIndex].gambarUrl} alt="Ilustrasi" className="mb-4 max-w-sm w-full object-contain rounded border border-gray-200" />
+                              )}
+                              <p className="text-lg text-gray-800 mb-6 whitespace-pre-wrap">{resultSoal.soalList[liveQuizIndex].pertanyaan}</p>
+                              
+                              {resultSoal.soalList[liveQuizIndex].opsiTambahan && resultSoal.soalList[liveQuizIndex].opsiTambahan.length > 0 && (
+                                <div className="space-y-3">
+                                  {resultSoal.soalList[liveQuizIndex].opsiTambahan.map((opt: string, i: number) => {
+                                    const optionLetter = opt.substring(0, 2).trim(); // e.g. "A."
+                                    const isSelected = liveQuizAnswers[liveQuizIndex] === optionLetter;
+                                    return (
+                                      <button
+                                        key={i}
+                                        onClick={() => setLiveQuizAnswers({...liveQuizAnswers, [liveQuizIndex]: optionLetter})}
+                                        className={`w-full text-left p-4 rounded-xl border-2 transition-all group ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'}`}
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-400'}`}>
+                                            {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                                          </div>
+                                          <span className={`${isSelected ? 'text-purple-900 font-medium' : 'text-gray-700'}`}>{opt}</span>
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex justify-between mt-auto pt-4 border-t border-gray-200 bg-white sticky bottom-0">
+                          <button
+                            onClick={() => setLiveQuizIndex(Math.max(0, liveQuizIndex - 1))}
+                            disabled={liveQuizIndex === 0}
+                            className="px-6 py-2.5 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
+                          >
+                            Sebelumnya
+                          </button>
+                          {liveQuizIndex < resultSoal.soalList.length - 1 ? (
+                            <button
+                              onClick={() => setLiveQuizIndex(liveQuizIndex + 1)}
+                              className="px-6 py-2.5 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                            >
+                              Selanjutnya
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setLiveQuizFinished(true)}
+                              className="px-6 py-2.5 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                            >
+                              Selesai
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center animate-in zoom-in-95 duration-500">
+                        <div className="w-28 h-28 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                          <CheckCircle size={56} className="text-green-600" />
+                        </div>
+                        <h2 className="text-4xl font-black text-gray-800 mb-3 tracking-tight">Quiz Selesai!</h2>
+                        <p className="text-gray-600 mb-8 max-w-md text-lg">Anda telah menyelesaikan kuis ini. (Penilaian otomatis memerlukan integrasi validasi kunci lebih lanjut).</p>
+                        <button
+                          onClick={() => { setLiveQuizIndex(0); setLiveQuizAnswers({}); setLiveQuizFinished(false); }}
+                          className="px-8 py-3.5 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+                        >
+                          Coba Lagi
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-gray-500 animate-in fade-in">
+                    <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4 border border-purple-100">
+                      <Sparkles size={32} className="text-purple-400" />
+                    </div>
+                    <p className="text-sm font-medium">Klik Generate untuk memulai Live Quiz</p>
                   </div>
                 )
               )}
