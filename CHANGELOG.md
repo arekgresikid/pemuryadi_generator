@@ -2,6 +2,15 @@
 
 Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 
+## Versi 5.2.3
+**Tanggal:** 7 Juni 2026
+
+- **Peningkatan UI/UX Pembuat Soal:** Merombak tata letak antarmuka (UI) menjadi model Kartu (*Cards*) bersusun vertikal agar terlihat lebih rapi, modern, dan mudah dinavigasi di perangkat *mobile* maupun *desktop*.
+- **Pembaruan Grid Responsif:** Memperbaiki masalah elemen formulir (seperti kolom Fase, Kelas, dan jumlah Bentuk Soal) yang saling berhimpitan dan bertumpuk pada layar sedang/besar.
+- **Fitur Baru "Live Quiz":** Menambahkan opsi Tipe Ujian "Live Quiz" yang secara otomatis menyesuaikan *prompt* AI dan menyediakan antarmuka pratinjau kuis interaktif untuk uji coba soal secara langsung.
+- **Pembaruan Kurikulum Madrasah:** Menambahkan daftar mata pelajaran spesifik Pendidikan Agama Islam (PAI) & Bahasa Arab seperti Qur'an Hadist, Akidah Akhlak, Fikih, dan SKI.
+- **Perbaikan Kutu (*Bug Fix*):** Memperbaiki masalah dropdown "Fase" dan "Kelas" yang kosong tidak memuat opsi akibat kegagalan sinkronisasi state inisialisasi pada *LocalStorage*.
+
 ## Versi 5.2.2
 **Tanggal:** 6 Juni 2026
 
