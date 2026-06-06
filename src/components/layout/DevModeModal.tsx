@@ -25,7 +25,7 @@ export default function DevModeModal({ target, onClose, onSuccess }: DevModeModa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password })
       });
-      const data = await res.json();
+      const data = (await res.json()) as any;
       if (data.success) {
         onSuccess(target);
         // Reset state for future opens

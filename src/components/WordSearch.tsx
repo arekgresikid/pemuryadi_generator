@@ -148,7 +148,7 @@ export default function WordSearch() {
             <AIAssistedInput type="text" 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-green-500 transition-all" 
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-green-500 transition-all" 
               placeholder="Contoh: Mencari Kata Sains"
             />
           </div>
@@ -157,7 +157,7 @@ export default function WordSearch() {
             <AIAssistedTextarea value={wordsText}
               onChange={(e) => setWordsText(e.target.value)}
               rows={6} 
-              className="w-full bg-red-50 border border-black rounded-xl p-4 text-black focus:border-green-500 transition-all" 
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-4 text-black focus:border-green-500 transition-all" 
               placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..." />
             <p className="text-xs text-gray-500 mt-1">Jumlah kata: <span>{Math.min(wordCount, 40)}</span>/40</p>
           </div>
@@ -167,7 +167,7 @@ export default function WordSearch() {
               <select 
                 value={gridSize}
                 onChange={(e) => setGridSize(parseInt(e.target.value))}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black"
               >
                 <option value="15">15 x 15</option>
                 <option value="18">18 x 18</option>
@@ -180,7 +180,7 @@ export default function WordSearch() {
               <select 
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black"
               >
                 <option value="easy">Mudah (H/V)</option>
                 <option value="medium">Sedang (+Diagonal)</option>
@@ -208,7 +208,7 @@ export default function WordSearch() {
           </div>
         </div>
         
-        <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[400px] overflow-auto flex flex-col items-center">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm min-h-[400px] overflow-auto flex flex-col items-center">
           {puzzleData ? (
             <>
               <div className="text-center mb-4">

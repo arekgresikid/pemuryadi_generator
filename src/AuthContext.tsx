@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await fetch('/api/auth/me');
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as any;
         if (data.user) {
           // Map to match the shape expected by components originally relying on Firebase User
           setUser({ ...data.user, photoURL: data.profile?.photoURL });

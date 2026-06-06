@@ -124,7 +124,7 @@ Spesifikasi Game:
 
 Persyaratan Wajib:
 1. Game harus memiliki antarmuka pengguna (UI) yang menarik, berwarna, dan ramah anak (user-friendly).
-2. Gunakan elemen visual yang berkualitas. Jika game membutuhkan visualisasi bangun ruang 3D (seperti limas, prisma, tabung, kerucut, bola), grafik matematika, diagram kartesius, atau ilustrasi geometris lainnya, WAJIB digambar secara lokal secara dinamis menggunakan HTML5 Canvas API atau inline SVG menggunakan JavaScript. JANGAN menggunakan URL gambar eksternal untuk bangun ruang/matematika/diagram karena rentan pecah atau tidak akurat. Untuk gambar dekoratif/ilustrasi umum non-matematis, baru gunakan format URL: \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}&nologo=true\`.
+2. Gunakan elemen visual yang berkualitas. Jika game membutuhkan visualisasi bangun ruang 3D (seperti limas, prisma, tabung, kerucut, bola), grafik matematika, diagram kartesius, atau ilustrasi geometris lainnya, WAJIB digambar secara lokal secara dinamis menggunakan HTML5 Canvas API atau inline SVG menggunakan JavaScript. JANGAN menggunakan URL gambar eksternal untuk bangun ruang/matematika/diagram karena rentan pecah atau tidak akurat. Untuk gambar dekoratif/ilustrasi umum non-matematis, baru gunakan format URL: \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}\`.
 3. Mekanik game harus menggabungkan genre yang dipilih dengan pertanyaan/tantangan edukatif terkait topik "${formData.topik}". (Misal: Jika RPG, pemain menyerang monster dengan menjawab soal. Jika Simulasi, buatlah simulasi sederhana yang interaktif di mana pemain membuat keputusan berbasis materi).
 4. Tingkat kesulitan "${DIFFICULTY_LEVELS.find(d => d.id === formData.difficulty)?.name}" harus tercermin dalam kompleksitas soal, kecepatan permainan, atau rintangan yang ada.
 5. WAJIB ada sistem Leaderboard (Papan Peringkat) yang terus diperbarui selama game berjalan dan ditampilkan di akhir permainan, menunjukkan skor masing-masing siswa.
@@ -192,7 +192,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                       placeholder="Contoh: Tata Surya, Pecahan, Sejarah Kemerdekaan..." 
                       value={formData.topik}
                       onChange={e => setFormData({...formData, topik: e.target.value})}
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     />
                   </div>
 
@@ -201,7 +201,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     <select 
                       value={formData.jenjang}
                       onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {JENJANG.map(j => <option key={j} value={j}>{j}</option>)}
                     </select>
@@ -212,7 +212,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                     <select 
                       value={formData.jenisGame}
                       onChange={e => setFormData({...formData, jenisGame: e.target.value})}
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                     >
                       {GAME_TYPES.map(g => (
                         <option key={g.id} value={g.id}>{g.name}</option>
@@ -277,7 +277,7 @@ Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri deng
                         placeholder={`Nama Pemain ${i + 1}`}
                         value={(formData as any)[`pemain${i + 1}`]}
                         onChange={e => setFormData({...formData, [`pemain${i + 1}`]: e.target.value})}
-                        className="w-full bg-white border border-black rounded-xl p-2.5 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
+                        className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
                       />
                     ))}
                   </div>

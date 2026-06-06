@@ -2,6 +2,16 @@
 
 Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 
+## Versi 5.2.4
+**Tanggal:** 7 Juni 2026
+
+- **Standardisasi Desain UI Secara Massal:** Menyeragamkan keseluruhan tata letak untuk seluruh komponen *generator* (termasuk Modul Ajar, RPM, Program Semester, Instrumen Supervisi, Jurnal, KKTP, Modul Kokurikuler, dll). Menghapus warna latar belakang lama (`bg-red-50`) yang terkesan menyatu, serta mengadopsi format kartu putih bersih (`bg-white`) dengan garis luar tipis dan bayangan lembut agar lebih kontras dan tidak membingungkan pengguna.
+- **Pembaruan Kolom Input:** Mengganti warna latar belakang dan garis batas (border) pada seluruh kolom isian teks dan menu tarik-turun (dropdown) untuk meningkatkan visibilitas dan kemudahan membaca.
+- **Penghapusan Animasi Mengganggu:** Menghapus efek animasi melompat (efek seolah-olah bergeser ke atas atau *translate-Y*) pada kartu-kartu antarmuka utama saat kursor diarahkan (hover), memberikan pengalaman penggunaan form yang lebih tenang dan stabil.
+- **Implementasi Akordion (Collapsible):** Mengubah tata letak kartu formulir panjang (long-form cards) pada seluruh halaman generator (seperti Supervisi, Jurnal Harian, Rencana Pembelajaran Mendalam, Program Semester, Modul Kokurikuler, dll) menjadi antarmuka akordion. Hal ini mencegah halaman menjadi terlalu panjang dan mempermudah navigasi pada layar kecil.
+- **Optimalisasi Ruang Layar:** Merapikan lebar dropdown teks panjang pada Modul Kokurikuler serta membuang elemen kontainer berlapis tak perlu di komponen KKTP dan modul-modul lainnya.
+- **Perbaikan Bug (Struktur UI):** Memperbaiki masalah (*bug*) tata letak dan kesalahan sintaks (error render) yang sempat muncul pada komponen `ModulKokurikuler` dan `ModuleGenerator` setelah penerapan perubahan akordion.
+
 ## Versi 5.2.3
 **Tanggal:** 7 Juni 2026
 
@@ -10,6 +20,7 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - **Fitur Baru "Live Quiz":** Menambahkan opsi Tipe Ujian "Live Quiz" yang secara otomatis menyesuaikan *prompt* AI dan menyediakan antarmuka pratinjau kuis interaktif untuk uji coba soal secara langsung.
 - **Pembaruan Kurikulum Madrasah:** Menambahkan daftar mata pelajaran spesifik Pendidikan Agama Islam (PAI) & Bahasa Arab seperti Qur'an Hadist, Akidah Akhlak, Fikih, dan SKI.
 - **Perbaikan Kutu (*Bug Fix*):** Memperbaiki masalah dropdown "Fase" dan "Kelas" yang kosong tidak memuat opsi akibat kegagalan sinkronisasi state inisialisasi pada *LocalStorage*.
+- **Penggantian Emoji dengan Ikon Standar:** Mengganti seluruh penggunaan emoji teks (*native emoji*) yang tampil tidak konsisten di berbagai perangkat keras dengan Ikon Lucide React standar yang seragam, rapi, dan konsisten di seluruh browser/platform.
 
 ## Versi 5.2.2
 **Tanggal:** 6 Juni 2026

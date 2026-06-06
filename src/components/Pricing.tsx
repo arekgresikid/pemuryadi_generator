@@ -279,7 +279,7 @@ export default function Pricing() {
         })}
       </div>
       
-      <div className="mt-12 text-center max-w-2xl mx-auto p-6 bg-white border border-black rounded-2xl">
+      <div className="mt-12 text-center max-w-2xl mx-auto p-6 bg-white border border-gray-300 rounded-2xl">
         <h4 className="text-black font-bold mb-2 flex justify-center items-center gap-2"><Shield size={18} className="text-red-500"/> Bagaimana sistem Tokens bekerja?</h4>
         <p className="text-sm text-gray-600">
           Satu token setara dengan satu kali tekan tombol Generate. Pembuatan soal, perangkat ajar, atau kegiatan di tab apa pun akan memakan 1 Token. Jika token habis, Anda bisa membeli paket token secara terpisah kapan pun.
@@ -289,7 +289,7 @@ export default function Pricing() {
       {/* Payment Modal */}
       {showModal && selectedPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-300">
-          <div className="bg-white border border-black p-6 md:p-8 rounded-2xl max-w-md w-full max-h-[95vh] overflow-y-auto shadow-2xl relative">
+          <div className="bg-white border border-gray-300 p-6 md:p-8 rounded-2xl max-w-md w-full max-h-[95vh] overflow-y-auto shadow-2xl relative">
             <button 
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 text-gray-600 hover:text-black transition-colors"

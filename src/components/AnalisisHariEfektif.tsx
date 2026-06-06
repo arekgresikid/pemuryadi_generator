@@ -181,7 +181,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
-            <div className="gen-card bg-red-50 p-5 rounded-2xl space-y-4">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
               <h3 className="text-lg font-semibold text-black flex items-center gap-2 mb-4">
                 <Settings size={18} className="text-red-500" /> Pengaturan
               </h3>
@@ -189,11 +189,11 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
-                  <AIAssistedInput type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                  <AIAssistedInput type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
-                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all">
+                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all">
                     <option value="Ganjil">Ganjil</option>
                     <option value="Genap">Genap</option>
                   </select>
@@ -202,14 +202,14 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Provinsi</label>
-                <select value={formData.provinsi} onChange={e => setFormData({...formData, provinsi: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all">
+                <select value={formData.provinsi} onChange={e => setFormData({...formData, provinsi: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all">
                   {PROVINSI_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
-                <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all">
+                <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all">
                   <option value="PAUD">PAUD</option>
                   <option value="SD">SD</option>
                   <option value="SMP">SMP</option>
@@ -220,50 +220,50 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Nama Sekolah</label>
-                <AIAssistedInput type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                <AIAssistedInput type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Nama Guru</label>
-                <AIAssistedInput type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                <AIAssistedInput type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Guru</label>
                 <div className="flex gap-2">
-                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all">
+                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <AIAssistedInput type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                  <AIAssistedInput type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Kepala Sekolah</label>
-                <AIAssistedInput type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                <AIAssistedInput type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Kepala Sekolah</label>
                 <div className="flex gap-2">
-                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all">
+                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <AIAssistedInput type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                  <AIAssistedInput type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
                 </div>
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
-                <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
               </div>
             </div>
 

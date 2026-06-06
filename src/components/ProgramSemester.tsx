@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
-import { Loader2, Printer, LayoutList, Settings, FileText, Save , Trash2 } from 'lucide-react';
+import { Loader2, Printer, LayoutList, Settings, FileText, Save , Trash2, ChevronDown, ChevronUp, User } from 'lucide-react';
 import PrintSupportModal from './PrintSupportModal';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
@@ -62,6 +62,18 @@ export default function ProgramSemester() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('ProgramSemester_selectedModel', 'openai');
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    pengaturan: true,
+    identitas: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const saveProgress = () => {
     alert('Progress otomatis disimpan saat Anda mengetik!');
@@ -210,166 +222,194 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="gen-card bg-white  rounded-3xl p-6 md:p-8 shadow-2xl">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <LayoutList size={24} className="text-black" />
+    <div className="flex flex-col h-full bg-gray-50 text-gray-900 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-200 shadow-sm">
+            <LayoutList size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-black">Program Semester (Promes)</h2>
-            <p className="text-gray-600 text-sm">Generate Program Semester Kurikulum Merdeka 2026</p>
+            <h1 className="text-xl font-bold text-gray-900 tracking-wide">Program Semester (Promes)</h1>
+            <p className="text-sm text-emerald-600">Generate Program Semester Kurikulum Merdeka 2026</p>
           </div>
         </div>
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1 space-y-6">
-            <div className="gen-card bg-red-50 p-5 rounded-2xl space-y-4">
-              <h3 className="text-lg font-semibold text-black flex items-center gap-2 mb-4">
-                <Settings size={18} className="text-emerald-600" /> Pengaturan
-              </h3>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <button 
+                onClick={() => toggleSection('pengaturan')}
+                className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <h3 className="text-lg font-semibold text-black flex items-center gap-2">
+                  <Settings size={18} className="text-emerald-600" /> Pengaturan
+                </h3>
+                {expandedSections['pengaturan'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+              </button>
               
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
-                  <AIAssistedInput type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
-                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    <option value="Ganjil">Ganjil</option>
-                    <option value="Genap">Genap</option>
-                  </select>
-                </div>
-              </div>
+              {expandedSections['pengaturan'] && (
+                <div className="p-6 pt-0 border-t border-gray-100 space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
+                      <AIAssistedInput type="text" value={formData.tahunAjaran} onChange={e => setFormData({...formData, tahunAjaran: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
+                      <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        <option value="Ganjil">Ganjil</option>
+                        <option value="Genap">Genap</option>
+                      </select>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
-                  <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    {educationLevels.map(level => (
-                      <option key={level.id} value={level.id}>{level.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
-                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    {phaseClassMap[formData.jenjang]?.phases.map(p => (
-                      <option key={p.id} value={p.id}>{p.label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
+                      <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        {educationLevels.map(level => (
+                          <option key={level.id} value={level.id}>{level.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
+                      <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        {phaseClassMap[formData.jenjang]?.phases.map(p => (
+                          <option key={p.id} value={p.id}>{p.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
-                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
-                      <option key={c.id} value={c.id}>{c.label}</option>
-                    ))}
-                  </select>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
+                      <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
+                          <option key={c.id} value={c.id}>{c.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
+                      <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        {subjectsByLevel[formData.jenjang]?.map(sub => (
+                          <option key={sub.id} value={sub.id}>{sub.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi Khusus (Opsional)</label>
+                      <select 
+                        value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
+                        onChange={e => {
+                          const val = e.target.value;
+                          if (val === 'lainnya') {
+                            setFormData({...formData, isCustomTopik: true, topik: ''});
+                          } else {
+                            setFormData({...formData, isCustomTopik: false, topik: val});
+                          }
+                        }} 
+                        className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
+                      >
+                        <option value="">-- Semua Topik/Materi --</option>
+                        {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
+                          <option key={idx} value={topic}>{topic}</option>
+                        ))}
+                        <option value="lainnya">Lainnya (+)</option>
+                      </select>
+                      {formData.isCustomTopik && (
+                        <AIAssistedInput type="text" 
+                          placeholder="Masukkan Topik/Materi secara manual..." 
+                          value={formData.topik} 
+                          onChange={e => setFormData({...formData, topik: e.target.value})} 
+                          className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
+                    <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                      <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
+                      <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
+                      <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
+                      <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
+                      <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
+                      <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
+                      <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
-                  <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    {subjectsByLevel[formData.jenjang]?.map(sub => (
-                      <option key={sub.id} value={sub.id}>{sub.label}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi Khusus (Opsional)</label>
-                  <select 
-                    value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
-                    onChange={e => {
-                      const val = e.target.value;
-                      if (val === 'lainnya') {
-                        setFormData({...formData, isCustomTopik: true, topik: ''});
-                      } else {
-                        setFormData({...formData, isCustomTopik: false, topik: val});
-                      }
-                    }} 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
-                  >
-                    <option value="">-- Semua Topik/Materi --</option>
-                    {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
-                      <option key={idx} value={topic}>{topic}</option>
-                    ))}
-                    <option value="lainnya">Lainnya (+)</option>
-                  </select>
-                  {formData.isCustomTopik && (
-                    <AIAssistedInput type="text" 
-                      placeholder="Masukkan Topik/Materi secara manual..." 
-                      value={formData.topik} 
-                      onChange={e => setFormData({...formData, topik: e.target.value})} 
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
-                    />
-                  )}
-                </div>
-              </div>
+              )}
+            </div>
 
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nama Sekolah</label>
-                <AIAssistedInput type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nama Guru</label>
-                <AIAssistedInput type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Guru</label>
-                <div className="flex gap-2">
-                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    <option value="NIP">NIP</option>
-                    <option value="NUPTK">NUPTK</option>
-                    <option value="NIY">NIY</option>
-                    <option value="NRG">NRG</option>
-                    <option value="NPK">NPK</option>
-                  </select>
-                  <AIAssistedInput type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Kepala Sekolah</label>
-                <AIAssistedInput type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Kepala Sekolah</label>
-                <div className="flex gap-2">
-                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                    <option value="NIP">NIP</option>
-                    <option value="NUPTK">NUPTK</option>
-                    <option value="NIY">NIY</option>
-                    <option value="NRG">NRG</option>
-                    <option value="NPK">NPK</option>
-                  </select>
-                  <AIAssistedInput type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-                </div>
-              </div>
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <button 
+                onClick={() => toggleSection('identitas')}
+                className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+              >
+                <h3 className="text-lg font-semibold text-black flex items-center gap-2">
+                  <User size={18} className="text-emerald-600" /> Identitas Guru & Sekolah
+                </h3>
+                {expandedSections['identitas'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+              </button>
               
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
-                <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
-              </div>
+              {expandedSections['identitas'] && (
+                <div className="p-6 pt-0 border-t border-gray-100 space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Nama Sekolah</label>
+                    <AIAssistedInput type="text" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Nama Guru</label>
+                    <AIAssistedInput type="text" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Guru</label>
+                    <div className="flex gap-2">
+                      <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        <option value="NIP">NIP</option>
+                        <option value="NUPTK">NUPTK</option>
+                        <option value="NIY">NIY</option>
+                        <option value="NRG">NRG</option>
+                        <option value="NPK">NPK</option>
+                      </select>
+                      <AIAssistedInput type="text" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Kepala Sekolah</label>
+                    <AIAssistedInput type="text" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Nomor Induk Kepala Sekolah</label>
+                    <div className="flex gap-2">
+                      <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                        <option value="NIP">NIP</option>
+                        <option value="NUPTK">NUPTK</option>
+                        <option value="NIY">NIY</option>
+                        <option value="NRG">NRG</option>
+                        <option value="NPK">NPK</option>
+                      </select>
+                      <AIAssistedInput type="text" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
+                    <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+                </div>
+              )}
             </div>
 
             
@@ -402,8 +442,8 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
           </div>
 
           <div className="lg:col-span-2">
-            <div className="bg-slate-200 rounded-2xl border border-slate-300 h-full min-h-[600px] flex flex-col overflow-hidden relative">
-              <div className="bg-slate-300 px-4 py-3 border-b border-slate-400 flex justify-between items-center">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm h-full min-h-[600px] flex flex-col overflow-hidden relative">
+              <div className="bg-slate-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                 <span className="text-slate-700 font-medium text-sm flex items-center gap-2">
                   <FileText size={16} /> Preview Dokumen
                 </span>

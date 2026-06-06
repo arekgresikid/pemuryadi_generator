@@ -29,6 +29,21 @@ html, body {
   overflow-x: hidden;
 }
 
+/* Ensure all interactive elements show pointer cursor */
+button, 
+summary, 
+a[href], 
+[role="button"],
+.cyber-button,
+.btn-generate-animated,
+.tab-btn,
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"] {
+  cursor: pointer !important;
+}
+
 .app-wrapper { 
   min-height: 100%; 
   width: 100%; 
@@ -64,8 +79,7 @@ html, body {
   transition: all 0.2s ease;
 }
 
-.cyber-card:hover,
-.gen-card:hover {
+.cyber-card:hover {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0px rgba(0,0,0,0.15);
 }

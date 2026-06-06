@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
-import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save, ClipboardList, Download, Upload, Target, BarChart, MessageCircle, Calculator, Printer , Trash2 } from 'lucide-react';
+import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save, ClipboardList, Download, Upload, Target, BarChart, MessageCircle, Calculator, Printer, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -48,9 +48,10 @@ export default function Supervision() {
   });
   
   const [eduLevel, setEduLevel] = useLocalStorage('Supervision_eduLevel', 'sd');
-  const [fase, setFase] = useLocalStorage('Supervision_fase', 'A');
-  const [kelas, setKelas] = useLocalStorage('Supervision_kelas', '1');
-  const [subject, setSubject] = useLocalStorage('Supervision_subject', 'bahasa-indonesia');
+  const [fase, setFase] = useLocalStorage('supervisi_fase', 'A');
+  const [kelas, setKelas] = useLocalStorage('supervisi_kelas', '1');
+  const [subject, setSubject] = useLocalStorage('supervisi_subject', 'matematika');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({ planning: true });
   
   const [scores, setScores] = useLocalStorage<Record<string, number>>('Supervision_scores', {});
   const [result, setResult] = useState<{total: number, grade: string, plan: number, exec: number, ass: number, ref: number} | null>(null);
@@ -475,73 +476,99 @@ export default function Supervision() {
     printWindow.document.close();
   };
 
-  const renderSection = (title: React.ReactNode, id: string, items: string[]) => (
-    <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
-      <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">{title}</h3>
-      <div className="space-y-3">
-        {items.map((item, index) => (
-          <div key={index} className="gen-card flex items-start gap-3 p-3 bg-red-50 rounded-lg hover:/30 transition-colors">
-            <span className="text-gray-500 text-sm font-medium w-6">{index + 1}.</span>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 mb-3 leading-relaxed">{item}</p>
-              <div className="flex gap-4">
-                {[4, 3, 2, 1].map(val => (
-                  <label key={val} className="flex items-center gap-2 cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name={`${id}_${index}`} 
-                      value={val}
-                      checked={scores[`${id}_${index}`] === val}
-                      onChange={() => handleScoreChange(id, index, val)}
-                      className="w-4 h-4 text-blue-500 bg-red-100 border-black focus:ring-blue-500 focus:ring-offset-slate-800"
-                    />
-                    <span className="text-xs text-gray-600 group-hover:text-gray-900 transition-colors">{val}</span>
-                  </label>
-                ))}
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const renderSection = (title: React.ReactNode, id: string, items: string[]) => {
+    const isExpanded = expandedSections[id];
+    return (
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 overflow-hidden">
+      <button 
+        onClick={() => toggleSection(id)}
+        className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors text-left"
+      >
+        <h3 className="flex items-center gap-2 text-blue-500 font-bold text-lg">{title}</h3>
+        {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+      </button>
+      
+      {isExpanded && (
+        <div className="p-6 pt-0 space-y-3 border-t border-gray-100">
+          {items.map((item, index) => (
+            <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 transition-colors">
+              <span className="text-gray-500 text-sm font-medium w-6">{index + 1}.</span>
+              <div className="flex-1">
+                <p className="text-sm text-gray-700 mb-3 leading-relaxed">{item}</p>
+                <div className="flex gap-4">
+                  {[4, 3, 2, 1].map(val => (
+                    <label key={val} className="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="radio" 
+                        name={`${id}_${index}`} 
+                        value={val}
+                        checked={scores[`${id}_${index}`] === val}
+                        onChange={() => handleScoreChange(id, index, val)}
+                        className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500 focus:ring-offset-slate-800"
+                      />
+                      <span className="text-xs text-gray-500 group-hover:text-gray-900 transition-colors">{val}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
-  );
+  )};
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg">
-          <ClipboardList className="w-8 h-8" />
-        </div>
-        <div>
-          <h3 className="text-2xl font-bold text-black">Instrumen Supervisi Pembelajaran</h3>
-          <p className="text-gray-600">Berdasarkan Permendikdasmen No. 1 Tahun 2026</p>
+    <div className="flex flex-col h-full bg-gray-50 text-gray-900">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 border border-indigo-200 shadow-sm">
+            <ClipboardList size={24} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 tracking-wide">Instrumen Supervisi Akademik</h1>
+            <p className="text-sm text-indigo-600">Berdasarkan Perdirjen GTK No. 7327/B.B1/HK.03.01/2023</p>
+          </div>
         </div>
       </div>
-      
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
+          <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
-          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
-            <div className="flex items-center justify-between mb-4 border-b border-black pb-2">
+          <details className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
               <h3 className="flex items-center gap-2 text-blue-400 font-semibold"><FileText className="w-5 h-5" /> Data Umum</h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={exportJSON}
-                  className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                  title="Export Data Supervisi ke JSON"
-                >
-                  <Download className="w-4 h-4" /> Export
-                </button>
-                <label className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-sm">
-                  <Upload className="w-4 h-4" /> Import
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={importJSON}
-                    className="hidden"
-                  />
-                </label>
+              <div className="flex items-center gap-4">
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={exportJSON}
+                    className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                    title="Export Data Supervisi ke JSON"
+                  >
+                    <Download className="w-4 h-4" /> Export
+                  </button>
+                  <label className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-sm">
+                    <Upload className="w-4 h-4" /> Import
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={importJSON}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
               </div>
-            </div>
+            </summary>
+            
+            <div className="p-6 pt-4">
             
             {error && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400 text-sm">
@@ -552,19 +579,19 @@ export default function Supervision() {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
               </div>
               
-              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.guru} onChange={e => setFormData({...formData, guru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
-              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Guru" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.guru} onChange={e => setFormData({...formData, guru: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Guru" value={formData.nipGuru} onChange={e => setFormData({...formData, nipGuru: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
               
-              <AIAssistedInput type="text" placeholder="Nama Supervisor" value={formData.supervisor} onChange={e => setFormData({...formData, supervisor: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
-              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Supervisor" value={formData.nipSupervisor} onChange={e => setFormData({...formData, nipSupervisor: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="text" placeholder="Nama Supervisor" value={formData.supervisor} onChange={e => setFormData({...formData, supervisor: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+              <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Supervisor" value={formData.nipSupervisor} onChange={e => setFormData({...formData, nipSupervisor: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
               
               <select 
                 value={eduLevel}
                 onChange={(e) => setEduLevel(e.target.value)}
-                className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
+                className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
               >
                 {educationLevels.map(level => (
                   <option key={level.id} value={level.id}>{level.label}</option>
@@ -575,7 +602,7 @@ export default function Supervision() {
                 <select 
                   value={fase}
                   onChange={(e) => setFase(e.target.value)}
-                  className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
+                  className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                 >
                   {phaseClassMap[eduLevel]?.phases.map(p => (
                     <option key={p.id} value={p.id}>{p.label}</option>
@@ -584,7 +611,7 @@ export default function Supervision() {
                 <select 
                   value={kelas}
                   onChange={(e) => setKelas(e.target.value)}
-                  className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
+                  className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                 >
                   {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
@@ -595,28 +622,33 @@ export default function Supervision() {
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all"
+                className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
               >
                 {subjectsByLevel[eduLevel]?.map(sub => (
                   <option key={sub.id} value={sub.id}>{sub.label}</option>
                 ))}
               </select>
 
-              <AIAssistedInput type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="bg-red-50 border border-black rounded-lg p-3 text-black focus:border-blue-500 transition-all" />
+              <AIAssistedInput type="date" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
             </div>
-          </div>
+            </div>
+          </details>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm border border-blue-500/20">
-            <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4">
-              <Sparkles className="w-5 h-5 text-amber-600" />
-              AI Supervision Generator (Sumber Data)
-            </h3>
-            <p className="text-xs text-gray-600 mb-4 italic">
+          <details className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
+              <h3 className="flex items-center gap-2 text-blue-400 font-semibold">
+                <Sparkles className="w-5 h-5 text-amber-600" />
+                AI Supervision Generator (Sumber Data)
+              </h3>
+              <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="p-6 pt-4">
+            <p className="text-xs text-gray-500 mb-4 italic">
               Masukkan konten dokumen Anda di bawah ini agar AI dapat menganalisis dan mengisi instrumen secara otomatis.
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">
+                <label className="block text-xs font-medium text-gray-500 mb-1">
                   <div className="flex items-center gap-1">
                     <Layout className="w-3 h-3" /> Alur RPM (Rencana Pembelajaran Mendalam)
                   </div>
@@ -625,27 +657,27 @@ export default function Supervision() {
                 <AIAssistedTextarea rows={2}
                   value={sources.rpm}
                   onChange={e => setSources({...sources, rpm: e.target.value})}
-                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                   placeholder="Paste konten RPM di sini..." />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
                   <BookOpen className="w-3 h-3" /> Modul Ajar
                 </label>
                 <AIAssistedTextarea rows={2}
                   value={sources.modulAjar}
                   onChange={e => setSources({...sources, modulAjar: e.target.value})}
-                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                   placeholder="Paste konten Modul Ajar di sini..." />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
                   <FileText className="w-3 h-3" /> Modul Kokurikuler
                 </label>
                 <AIAssistedTextarea rows={2}
                   value={sources.modulKokurikuler}
                   onChange={e => setSources({...sources, modulKokurikuler: e.target.value})}
-                  className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-blue-500 transition-all"
+                  className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                   placeholder="Paste konten Modul Kokurikuler di sini..." />
               </div>
               <div className="mb-4">
@@ -654,14 +686,14 @@ export default function Supervision() {
           <div className="flex flex-wrap gap-2 mt-4 w-full">
               <button 
                 onClick={saveProgress}
-                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-gray-900 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Simpan Progress"
               >
                 <Save size={18} /> Simpan
               </button>
               <button 
                 onClick={resetProgress}
-                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-gray-900 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
                 title="Reset Data"
               >
                 <Trash2 size={18} /> Reset
@@ -669,7 +701,7 @@ export default function Supervision() {
               <button 
                 onClick={generateWithAI}
                 disabled={isGenerating}
-                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-black hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                className="flex-1 py-3 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-gray-900 hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isGenerating ? (
                   <>
@@ -684,31 +716,37 @@ export default function Supervision() {
                 )}
               </button>
             </div>
+              </div>
             </div>
-          </div>
+          </details>
 
           {renderSection(<><BookOpen className="w-5 h-5 text-blue-400" /> A. Perencanaan Pembelajaran (Modul Ajar/RPP)</>, 'planning', supervisionIndicators.planning)}
           {renderSection(<><Target className="w-5 h-5 text-green-400" /> B. Pelaksanaan Pembelajaran</>, 'execution', supervisionIndicators.execution)}
           {renderSection(<><BarChart className="w-5 h-5 text-purple-400" /> C. Asesmen dan Evaluasi</>, 'assessment', supervisionIndicators.assessment)}
           {renderSection(<><MessageCircle className="w-5 h-5 text-amber-400" /> D. Refleksi dan Tindak Lanjut</>, 'reflection', supervisionIndicators.reflection)}
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm">
-            <h3 className="flex items-center gap-2 text-blue-400 font-semibold mb-4"><FileText className="w-5 h-5" /> Catatan Supervisor</h3>
+          <details className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-4 group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
+              <h3 className="flex items-center gap-2 text-blue-400 font-semibold"><FileText className="w-5 h-5" /> Catatan Supervisor</h3>
+              <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="p-6 pt-4">
             <AIAssistedTextarea rows={4} 
               value={formData.catatan}
               onChange={e => setFormData({...formData, catatan: e.target.value})}
-              className="w-full h-40 bg-slate-50 border border-slate-300 rounded-lg p-4 text-black focus:border-blue-500 transition-all resize-none font-mono text-sm leading-relaxed"
+              className="w-full h-40 bg-slate-50 border border-slate-300 rounded-lg p-4 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none font-mono text-sm leading-relaxed"
               placeholder="Catatan, saran, dan rekomendasi..." 
               contextPrompt="Berikan contoh paragraf catatan kesimpulan, saran, dan rekomendasi konkret dari seorang supervisor pendidikan kepada guru setelah melakukan supervisi akademik di kelas."
               />
-          </div>
+            </div>
+          </details>
           
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
-              <button onClick={calculateScore} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-black hover:opacity-90 transition-all shadow-lg hover:shadow-red-500/20 btn-generate-animated">
+              <button onClick={calculateScore} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 font-bold text-lg text-gray-900 hover:opacity-90 transition-all shadow-lg hover:shadow-red-500/20 btn-generate-animated">
                 <Calculator className="w-6 h-6" /> Hitung Nilai
               </button>
-              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+              <button onClick={() => setIsPrintModalOpen(true)} disabled={!result} className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-lg text-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
                 <Printer className="w-6 h-6" /> Print
               </button>
             </div>
@@ -720,8 +758,12 @@ export default function Supervision() {
         </div>
         
         <div className="space-y-4">
-          <div className="gen-card bg-red-50 rounded-xl p-6 sticky top-24 shadow-xl">
-            <h4 className="text-lg font-semibold mb-6 text-center text-black flex items-center justify-center gap-2"><BarChart className="w-6 h-6 text-blue-500" /> Hasil Supervisi</h4>
+          <details className="bg-white rounded-2xl border border-gray-200 shadow-sm sticky top-6 group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
+              <h4 className="text-lg font-semibold text-gray-900 flex items-center gap-2"><BarChart className="w-6 h-6 text-blue-500" /> Hasil Supervisi</h4>
+              <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="p-6 pt-4">
             
             <div className="flex justify-center mb-8">
               <div 
@@ -729,8 +771,8 @@ export default function Supervision() {
                 style={{ background: `conic-gradient(#3b82f6 ${result ? result.total * 3.6 : 0}deg, #1e293b 0)` }}
               >
                 <div className="w-[120px] h-[120px] rounded-full bg-white flex flex-col items-center justify-center absolute shadow-lg">
-                  <span className="text-4xl font-bold text-black">{result ? result.total : 0}</span>
-                  <span className="text-xs text-gray-600 mt-1">dari 100</span>
+                  <span className="text-4xl font-bold text-gray-900">{result ? result.total : 0}</span>
+                  <span className="text-xs text-gray-500 mt-1">dari 100</span>
                 </div>
               </div>
             </div>
@@ -739,26 +781,26 @@ export default function Supervision() {
               {result ? result.grade : '-'}
             </div>
             
-            <div className="gen-card space-y-3 text-sm bg-white p-4 rounded-lg">
+            <div className="space-y-3 text-sm bg-gray-50 p-4 rounded-xl border border-gray-100">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Perencanaan:</span>
-                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.plan.toFixed(1) : 0}%</span>
+                <span className="text-gray-500">Perencanaan:</span>
+                <span className="font-semibold text-gray-900 bg-red-50 px-2 py-1 rounded">{result ? result.plan.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Pelaksanaan:</span>
-                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.exec.toFixed(1) : 0}%</span>
+                <span className="text-gray-500">Pelaksanaan:</span>
+                <span className="font-semibold text-gray-900 bg-red-50 px-2 py-1 rounded">{result ? result.exec.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Asesmen:</span>
-                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.ass.toFixed(1) : 0}%</span>
+                <span className="text-gray-500">Asesmen:</span>
+                <span className="font-semibold text-gray-900 bg-red-50 px-2 py-1 rounded">{result ? result.ass.toFixed(1) : 0}%</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Refleksi:</span>
-                <span className="font-semibold text-black bg-red-50 px-2 py-1 rounded">{result ? result.ref.toFixed(1) : 0}%</span>
+                <span className="text-gray-500">Refleksi:</span>
+                <span className="font-semibold text-gray-900 bg-red-50 px-2 py-1 rounded">{result ? result.ref.toFixed(1) : 0}%</span>
               </div>
             </div>
             
-            <div className="gen-card mt-6 p-4 bg-red-50 rounded-lg text-xs text-gray-600">
+            <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500">
               <p className="font-semibold text-gray-700 mb-2">Keterangan Nilai:</p>
               <ul className="space-y-1">
                 <li className="flex justify-between"><span className="text-green-400">A (Amat Baik)</span> <span>90-100</span></li>
@@ -766,12 +808,13 @@ export default function Supervision() {
                 <li className="flex justify-between"><span className="text-yellow-400">C (Cukup)</span> <span>70-79</span></li>
                 <li className="flex justify-between"><span className="text-red-400">D (Kurang)</span> <span>&lt;70</span></li>
               </ul>
+              </div>
             </div>
-          </div>
+          </details>
         </div>
       </div>
 
-      <PrintSupportModal 
+      </div></div><PrintSupportModal 
         isOpen={isPrintModalOpen} 
         onClose={() => setIsPrintModalOpen(false)} 
         onConfirm={printSupervision} 

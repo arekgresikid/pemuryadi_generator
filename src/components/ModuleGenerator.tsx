@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2 } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
@@ -55,6 +55,19 @@ export default function ModuleGenerator() {
 
   const [rubrikList, setRubrikList] = useState([{ aspek: '', score: '', deskripsi: '' }]);
   const [result, setResult] = useState<any>(null);
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    identitas: false,
+    pengaturan: true,
+    opsi: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   useEffect(() => {
     const phases = phaseClassMap[formData.jenjang]?.phases || [];
@@ -489,196 +502,229 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center text-2xl shadow-lg">
-          <BookOpen className="w-8 h-8 text-white" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-2xl font-bold text-black">{formatPerangkat === 'standar' ? 'Modul Ajar' : 'Kemenag Modul Ajar'}</h3>
-          <p className="text-gray-600">{formatPerangkat === 'standar' ? 'Sesuai Capaian Pembelajaran Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
+    <div className="flex flex-col h-full bg-gray-50 text-gray-900">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600 border border-teal-200 shadow-sm">
+            <BookOpen size={24} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 tracking-wide">{formatPerangkat === 'standar' ? 'Modul Ajar' : 'Kemenag Modul Ajar'}</h1>
+            <p className="text-sm text-teal-600">{formatPerangkat === 'standar' ? 'Sesuai Capaian Pembelajaran Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
+          </div>
         </div>
       </div>
       
-      {/* Sub Tab Menu */}
-      <div className="flex bg-gray-200 p-1 rounded-xl mb-6 shadow-inner border border-gray-300">
-        <button 
-          onClick={() => setFormatPerangkat('standar')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-cyan-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
-        >
-          Standar Kemendikbudristek
-        </button>
-        <button 
-          onClick={() => setFormatPerangkat('kemenag')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-cyan-50 text-cyan-700 shadow-md border-cyan-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
-        >
-          Kemenag Modul Ajar Berbasis Cinta
-        </button>
-      </div>
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-cyan-400 mb-4 flex items-center gap-2"><User className="w-5 h-5" /> Data Profil Guru</h4>
-            <div className="space-y-3">
-              <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
-              <div className="flex gap-2">
-                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
-                  <option value="NIP">NIP</option>
-                  <option value="NUPTK">NUPTK</option>
-                  <option value="NIY">NIY</option>
-                  <option value="NRG">NRG</option>
-                  <option value="NPK">NPK</option>
-                </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
-              </div>
-              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
-              <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
-                <option value="Negeri">Negeri</option>
-                <option value="Swasta">Swasta</option>
-                <option value="Islam Terpadu">Islam Terpadu</option>
-              </select>
-              <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
-              <div className="flex gap-2">
-                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
-                  <option value="NIP">NIP</option>
-                  <option value="NUPTK">NUPTK</option>
-                  <option value="NIY">NIY</option>
-                  <option value="NRG">NRG</option>
-                  <option value="NPK">NPK</option>
-                </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
-              <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-                {educationLevels.map(level => (
-                  <option key={level.id} value={level.id}>{level.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
-              <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-                {phaseClassMap[formData.jenjang]?.phases.map(p => (
-                  <option key={p.id} value={p.id}>{p.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
-              <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-                {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Semester</label>
-              <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-                <option value="1">Semester 1</option><option value="2">Semester 2</option>
-              </select>
-            </div>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
-            <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-              {subjectsByLevel[formData.jenjang]?.map(s => (
-                <option key={s.id} value={s.id}>{s.label}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Topik/Materi</label>
-            <select 
-              value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
-              onChange={e => {
-                const val = e.target.value;
-                if (val === 'lainnya') {
-                  setFormData({...formData, isCustomTopik: true, topik: ''});
-                } else {
-                  setFormData({...formData, isCustomTopik: false, topik: val});
-                }
-              }} 
-              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all"
+          {/* Sub Tab Menu */}
+          <div className="flex bg-gray-100 p-1 rounded-xl shadow-inner border border-gray-200">
+            <button 
+              onClick={() => setFormatPerangkat('standar')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-teal-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
             >
-              {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
-                <option key={idx} value={topic}>{topic}</option>
-              ))}
-              <option value="lainnya">Lainnya (+)</option>
-            </select>
-            {formData.isCustomTopik && (
-              <AIAssistedInput type="text" 
-                placeholder="Masukkan Topik/Materi secara manual..." 
-                value={formData.topik} 
-                onChange={e => setFormData({...formData, topik: e.target.value})} 
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all mt-3" 
-              />
-            )}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
-            <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-cyan-500 transition-all">
-              <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-              <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-              <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-              <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-              <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-              <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-              <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
-            </select>
+              Standar Kemendikbudristek
+            </button>
+            <button 
+              onClick={() => setFormatPerangkat('kemenag')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-teal-50 text-teal-700 shadow-md border border-teal-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+            >
+              Kemenag Modul Ajar Berbasis Cinta
+            </button>
           </div>
 
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                checked={formData.hasInklusi}
-                onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                className="w-4 h-4 rounded border-black text-cyan-500 focus:ring-cyan-500 focus:ring-offset-white bg-white"
-              />
-              <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
-            </label>
-            
-            {formData.hasInklusi && (
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
-                <input 
-                  type="number"
-                  min="1"
-                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all"
-                  placeholder="Masukkan jumlah siswa inklusi..."
-                  value={formData.jumlahInklusi}
-                  onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
-                />
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('identitas')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-cyan-400 flex items-center gap-2"><User className="w-5 h-5" /> Data Profil Guru</h4>
+              {expandedSections['identitas'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['identitas'] && (
+              <div className="p-6 pt-0 border-t border-gray-100 space-y-3">
+                <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+                <div className="flex gap-2">
+                  <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
+                    <option value="NIP">NIP</option>
+                    <option value="NUPTK">NUPTK</option>
+                    <option value="NIY">NIY</option>
+                    <option value="NRG">NRG</option>
+                    <option value="NPK">NPK</option>
+                  </select>
+                  <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+                </div>
+                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.namaSekolah} onChange={e => setFormData({...formData, namaSekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+                <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
+                  <option value="Negeri">Negeri</option>
+                  <option value="Swasta">Swasta</option>
+                  <option value="Islam Terpadu">Islam Terpadu</option>
+                </select>
+                <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+                <div className="flex gap-2">
+                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all">
+                    <option value="NIP">NIP</option>
+                    <option value="NUPTK">NUPTK</option>
+                    <option value="NIY">NIY</option>
+                    <option value="NRG">NRG</option>
+                    <option value="NPK">NPK</option>
+                  </select>
+                  <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
+                </div>
               </div>
             )}
           </div>
+          
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('pengaturan')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-cyan-400 flex items-center gap-2"><Settings size={18} className="text-blue-500 inline-block mr-1"/> Pengaturan Modul</h4>
+              {expandedSections['pengaturan'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['pengaturan'] && (
+              <div className="p-6 pt-0 border-t border-gray-100 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
+                  <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                    {educationLevels.map(level => (
+                      <option key={level.id} value={level.id}>{level.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
+                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                    {phaseClassMap[formData.jenjang]?.phases.map(p => (
+                      <option key={p.id} value={p.id}>{p.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                    {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Semester</label>
+                  <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                    <option value="1">Semester 1</option><option value="2">Semester 2</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                  {subjectsByLevel[formData.jenjang]?.map(s => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Topik/Materi</label>
+                <select 
+                  value={formData.isCustomTopik ? 'lainnya' : formData.topik} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val === 'lainnya') {
+                      setFormData({...formData, isCustomTopik: true, topik: ''});
+                    } else {
+                      setFormData({...formData, isCustomTopik: false, topik: val});
+                    }
+                  }} 
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all"
+                >
+                  {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
+                    <option key={idx} value={topic}>{topic}</option>
+                  ))}
+                  <option value="lainnya">Lainnya (+)</option>
+                </select>
+                {formData.isCustomTopik && (
+                  <AIAssistedInput type="text" 
+                    placeholder="Masukkan Topik/Materi secara manual..." 
+                    value={formData.topik} 
+                    onChange={e => setFormData({...formData, topik: e.target.value})} 
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all mt-3" 
+                  />
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
+                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
+                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
+                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
+                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
+                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
+                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
+                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.hasInklusi}
+                    onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
+                    className="w-4 h-4 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-white bg-white"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
+                </label>
+                
+                {formData.hasInklusi && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
+                    <input 
+                      type="number"
+                      min="1"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 text-sm focus:border-cyan-500 transition-all"
+                      placeholder="Masukkan jumlah siswa inklusi..."
+                      value={formData.jumlahInklusi}
+                      onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
           <PDFRemixUpload 
             onTextExtracted={(text) => setFormData(prev => ({ ...prev, remixText: text }))}
             label="Remix dari PDF (Opsional)"
           />
           
-          <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl p-5 border border-orange-500/30 mt-4">
-            <h4 className="font-semibold text-orange-400 mb-4 flex items-center gap-2">⚙️ Opsi Penyesuaian Manual</h4>
-            <div className="space-y-3">
+          <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-2xl border border-orange-500/30 mt-4 overflow-hidden">
+            <button 
+              onClick={() => toggleSection('opsi')}
+              className="w-full flex items-center justify-between p-5 hover:bg-orange-500/5 transition-colors"
+            >
+              <h4 className="font-semibold text-orange-400 flex items-center gap-2">⚙️ Opsi Penyesuaian Manual</h4>
+              {expandedSections['opsi'] ? <ChevronUp className="w-5 h-5 text-orange-400" /> : <ChevronDown className="w-5 h-5 text-orange-400" />}
+            </button>
+            {expandedSections['opsi'] && (
+              <div className="p-5 pt-0 space-y-3">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <input type="checkbox" checked={custom.cp} onChange={e => setCustom({...custom, cp: e.target.checked})} className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" />
                 <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Gunakan Capaian Pembelajaran Manual</span>
               </label>
               {custom.cp && (
-                <AIAssistedTextarea rows={3} value={customData.cpText} onChange={e => handleCustomChange('cpText', e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-orange-500 transition-all mt-2" placeholder="Masukkan Capaian Pembelajaran..." />
+                <AIAssistedTextarea rows={3} value={customData.cpText} onChange={e => handleCustomChange('cpText', e.target.value)} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-orange-500 transition-all mt-2" placeholder="Masukkan Capaian Pembelajaran..." />
               )}
               
               <label className="flex items-center gap-3 cursor-pointer group">
@@ -693,30 +739,31 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                         const newList = [...customData.tpList];
                         newList[i] = e.target.value;
                         handleCustomChange('tpList', newList);
-                      }} className="flex-1 bg-red-50 border border-black rounded-lg p-2 text-black text-sm focus:border-orange-500 transition-all" placeholder="Tujuan Pembelajaran..." />
+                      }} className="flex-1 bg-gray-50 border border-gray-300 rounded-lg p-2 text-black text-sm focus:border-orange-500 transition-all" placeholder="Tujuan Pembelajaran..." />
                     </div>
                   ))}
                   <button onClick={() => handleCustomChange('tpList', [...customData.tpList, ''])} className="w-full py-2 bg-red-100 hover:bg-slate-600 text-black rounded-lg text-sm font-medium transition-all">+ Tambah Tujuan</button>
                 </div>
               )}
               
-              <div className="pt-2 border-t border-black">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Prinsip Kegiatan Inti</label>
-                <div className="flex flex-wrap gap-3">
-                  {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
-                    <label key={prinsip} className="flex items-center gap-2 cursor-pointer group">
-                      <input 
-                        type="checkbox" 
-                        checked={prinsipInti.includes(prinsip)} 
-                        onChange={() => handlePrinsipIntiChange(prinsip)} 
-                        className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" 
-                      />
-                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{prinsip}</span>
-                    </label>
-                  ))}
+                <div className="pt-2 border-t border-black">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Prinsip Kegiatan Inti</label>
+                  <div className="flex flex-wrap gap-3">
+                    {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
+                      <label key={prinsip} className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          checked={prinsipInti.includes(prinsip)} 
+                          onChange={() => handlePrinsipIntiChange(prinsip)} 
+                          className="w-4 h-4 text-orange-500 bg-red-100 border-black rounded focus:ring-orange-500" 
+                        />
+                        <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{prinsip}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
           
           <div className="mb-4">
@@ -753,7 +800,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           {error && <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
         </div>
         
-        <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[400px] overflow-auto space-y-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col min-h-[800px] overflow-hidden">
           {isGenerating ? (
             <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -776,7 +823,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 <h4 className="text-teal-400 font-medium">{result.mapelName}</h4>
               </div>
 
-              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-4">
                 <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">1. INFORMASI UMUM</h4>
                 <div className="space-y-4">
                   <div>
@@ -821,7 +868,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 </div>
               </div>
 
-              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
+              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mb-4">
                 <h4 className="font-semibold text-green-400 mb-4 flex items-center gap-2">2. KOMPONEN INTI</h4>
                 <div className="space-y-4">
                   <div>
@@ -913,13 +960,10 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
             </div>
           )}
         </div>
+          </div>
+        </div>
       </div>
-
-      <PrintSupportModal 
-        isOpen={isPrintModalOpen} 
-        onClose={() => setIsPrintModalOpen(false)} 
-        onConfirm={printModul} 
-      />
+      <PrintSupportModal isOpen={isPrintModalOpen} onClose={() => setIsPrintModalOpen(false)} onConfirm={printModul} />
     </div>
   );
 }

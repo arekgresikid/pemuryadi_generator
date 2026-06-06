@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
-import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save , Trash2 } from 'lucide-react';
+import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save , Trash2, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
@@ -292,6 +292,10 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
   };
 
   const executePrint = () => {
+    // Open all details before getting HTML so they print expanded
+    const detailsElements = document.querySelectorAll('#print-content details');
+    detailsElements.forEach(d => d.setAttribute('open', 'true'));
+
     const printContent = document.getElementById('print-content');
     if (printContent) {
       const printWindow = window.open('', '_blank');
@@ -410,18 +414,20 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
-              <Info size={18} className="text-red-500" />
-              Informasi Umum
-            </h3>
-            
-            <div className="space-y-4">
+          <details className="bg-white border border-gray-200 shadow-sm rounded-2xl group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
+              <h3 className="text-lg font-bold text-black flex items-center gap-2">
+                <Info size={18} className="text-red-500" />
+                Informasi Umum
+              </h3>
+              <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="p-6 pt-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenis Guru</label>
                   <select 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.jenisGuru}
                     onChange={(e) => setFormData({...formData, jenisGuru: e.target.value})}
                   >
@@ -432,7 +438,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Semester</label>
                   <select 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.semester}
                     onChange={(e) => setFormData({...formData, semester: e.target.value})}
                   >
@@ -446,7 +452,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenjang</label>
                   <select 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.jenjang}
                     onChange={(e) => setFormData({...formData, jenjang: e.target.value, fase: 'Fase A', kelas: 'Kelas I'})}
                   >
@@ -456,7 +462,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Fase</label>
                   <select 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.fase}
                     onChange={(e) => setFormData({...formData, fase: e.target.value, kelas: KELAS_OPTIONS[e.target.value as keyof typeof KELAS_OPTIONS][0]})}
                   >
@@ -468,7 +474,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
               <div>
                 <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Kelas</label>
                 <select 
-                  className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                   value={formData.kelas}
                   onChange={(e) => setFormData({...formData, kelas: e.target.value})}
                 >
@@ -482,7 +488,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Mata Pelajaran</label>
                   <select 
-                    className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none mb-2"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none mb-2"
                     value={formData.mataPelajaran}
                     onChange={(e) => setFormData({...formData, mataPelajaran: e.target.value})}
                   >
@@ -492,7 +498,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   </select>
                   {formData.mataPelajaran === 'Lainnya' && (
                     <AIAssistedInput type="text"
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                       placeholder="Masukkan nama mata pelajaran..."
                       value={formData.customMapel}
                       onChange={(e) => setFormData({...formData, customMapel: e.target.value})}
@@ -504,7 +510,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
               <div>
                 <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Topik/Materi</label>
                 <AIAssistedInput type="text"
-                  className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                   placeholder="Contoh: Teks Deskripsi, Fotosintesis..."
                   value={formData.topikMateri}
                   onChange={(e) => setFormData({...formData, topikMateri: e.target.value})}
@@ -528,7 +534,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                     <input 
                       type="number"
                       min="1"
-                      className="w-full bg-white border border-black rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                       placeholder="Masukkan jumlah siswa inklusi..."
                       value={formData.jumlahInklusi}
                       onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -542,14 +548,17 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 label="Remix dari PDF (Opsional)"
               />
             </div>
-          </div>
+          </details>
 
-          <div className="bg-white border border-gray-200 shadow-sm p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
-              <CheckSquare size={18} className="text-red-400" />
-              Pilih Fitur Generate
-            </h3>
-            <div className="space-y-3">
+          <details className="bg-white border border-gray-200 shadow-sm rounded-2xl group" open>
+            <summary className="flex items-center justify-between p-6 pb-4 border-b border-gray-100 cursor-pointer list-none">
+              <h3 className="text-lg font-bold text-black flex items-center gap-2">
+                <CheckSquare size={18} className="text-red-400" />
+                Pilih Fitur Generate
+              </h3>
+              <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="p-6 pt-4 space-y-3">
               {[
                 { id: 'ringkasan', label: 'Ringkasan Materi Ajar', icon: FileText, color: 'text-blue-400' },
                 { id: 'slide', label: 'Slide Presentasi', icon: Presentation, color: 'text-orange-400' },
@@ -614,7 +623,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 <p className="text-sm text-red-400">{error}</p>
               </div>
             )}
-          </div>
+            </details>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -648,33 +657,41 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 </div>
 
                 {result.ringkasan && (
-                  <div className="space-y-4 print-section">
-                    <h2 className="text-xl font-bold text-red-500 flex items-center gap-2 border-b border-red-500/30 pb-2">
-                      <FileText size={20} /> Ringkasan Materi Ajar
-                    </h2>
-                    {renderMarkdown(result.ringkasan)}
-                  </div>
+                  <details className="space-y-4 print-section group" open>
+                    <summary className="text-xl font-bold text-red-500 flex items-center justify-between border-b border-red-500/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><FileText size={20} /> Ringkasan Materi Ajar</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      {renderMarkdown(result.ringkasan)}
+                    </div>
+                  </details>
                 )}
 
                 {result.outOfTopic && Array.isArray(result.outOfTopic) && (
-                  <div className="space-y-4 print-section">
-                    <h2 className="text-xl font-bold text-red-200 flex items-center gap-2 border-b border-red-200/30 pb-2">
-                      <Star size={20} /> Ide Out Of Topic (Ice Breaker / Intermezzo)
-                    </h2>
-                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                  <details className="space-y-4 print-section group" open>
+                    <summary className="text-xl font-bold text-red-200 flex items-center justify-between border-b border-red-200/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><Star size={20} /> Ide Out Of Topic (Ice Breaker / Intermezzo)</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <ul className="list-disc pl-5 space-y-2 text-gray-700">
                       {result.outOfTopic.map((idea: string, i: number) => (
                         <li key={i}>{idea}</li>
                       ))}
-                    </ul>
-                  </div>
+                      </ul>
+                    </div>
+                  </details>
                 )}
 
                 {result.slide && Array.isArray(result.slide) && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-orange-400 flex items-center gap-2 border-b border-orange-400/30 pb-2">
-                      <Presentation size={20} /> Slide Presentasi
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-orange-400 flex items-center justify-between border-b border-orange-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><Presentation size={20} /> Slide Presentasi</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {result.slide.map((s: any, i: number) => (
                         <div key={i} className="gen-card bg-red-50 rounded-xl p-5 shadow-lg">
                           <h3 className="text-lg font-bold text-black mb-3 border-b border-black pb-2">Slide {i + 1}: {s.title}</h3>
@@ -684,15 +701,18 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                         </div>
                       ))}
                     </div>
-                  </div>
+                    </div>
+                  </details>
                 )}
 
                 {result.petaPikiran && Array.isArray(result.petaPikiran) && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-green-400 flex items-center gap-2 border-b border-green-400/30 pb-2">
-                      <Map size={20} /> Peta Pikiran (Mind Map)
-                    </h2>
-                    <div className="gen-card bg-white p-6 rounded-xl">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-green-400 flex items-center justify-between border-b border-green-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><Map size={20} /> Peta Pikiran (Mind Map)</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="gen-card bg-white p-6 rounded-xl">
                       <div className="flex flex-col space-y-6">
                         {result.petaPikiran.map((node: any, i: number) => (
                           <div key={i} className="relative pl-8">
@@ -713,16 +733,19 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                           </div>
                         ))}
                       </div>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 {result.infographic && Array.isArray(result.infographic) && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-pink-400 flex items-center gap-2 border-b border-pink-400/30 pb-2">
-                      <ImageIcon size={20} /> InfoGraphic
-                    </h2>
-                    <div className="flex flex-col gap-4">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-pink-400 flex items-center justify-between border-b border-pink-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><ImageIcon size={20} /> InfoGraphic</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="flex flex-col gap-4">
                       {result.infographic.map((info: any, i: number) => (
                         <div key={i} className="gen-card flex flex-col md:flex-row gap-4 bg-red-50 rounded-xl p-4 /20">
                           <div className="md:w-1/3">
@@ -735,16 +758,19 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                           </div>
                         </div>
                       ))}
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 {result.asesmen && result.asesmen.questions && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-red-400 flex items-center gap-2 border-b border-red-400/30 pb-2">
-                      <CheckSquare size={20} /> Asesmen & Kunci Jawaban
-                    </h2>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-red-400 flex items-center justify-between border-b border-red-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><CheckSquare size={20} /> Asesmen & Kunci Jawaban</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                       {/* Kolom Soal */}
                       <div className="gen-card bg-red-50 rounded-xl p-5">
                         <h3 className="text-lg font-bold text-black mb-4 border-b border-black pb-2">Soal Latihan</h3>
@@ -776,16 +802,19 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                           ))}
                         </div>
                       </div>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 {result.rubrikSikap && result.rubrikSikap.headers && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-yellow-400 flex items-center gap-2 border-b border-yellow-400/30 pb-2">
-                      <Star size={20} /> Rubrik Penilaian Sikap
-                    </h2>
-                    <div className="overflow-x-auto">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-yellow-400 flex items-center justify-between border-b border-yellow-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><Star size={20} /> Rubrik Penilaian Sikap</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left text-gray-700">
                         <thead className="text-xs text-black uppercase bg-red-50 border-b border-black">
                           <tr>
@@ -802,16 +831,19 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
 
                 {result.rubrikHarian && result.rubrikHarian.headers && (
-                  <div className="space-y-4 page-break print-section">
-                    <h2 className="text-xl font-bold text-purple-400 flex items-center gap-2 border-b border-purple-400/30 pb-2">
-                      <Activity size={20} /> Rubrik Penilaian Harian
-                    </h2>
-                    <div className="overflow-x-auto">
+                  <details className="space-y-4 page-break print-section group" open>
+                    <summary className="text-xl font-bold text-purple-400 flex items-center justify-between border-b border-purple-400/30 pb-2 cursor-pointer list-none">
+                      <div className="flex items-center gap-2"><Activity size={20} /> Rubrik Penilaian Harian</div>
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform no-print" />
+                    </summary>
+                    <div className="pt-2">
+                      <div className="overflow-x-auto">
                       <table className="w-full text-sm text-left text-gray-700">
                         <thead className="text-xs text-black uppercase bg-red-50 border-b border-black">
                           <tr>
@@ -828,8 +860,9 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     </div>
-                  </div>
+                  </details>
                 )}
               </div>
             </div>

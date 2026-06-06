@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save, Brain, School , Trash2 } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, Brain, School, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
@@ -34,6 +34,19 @@ export default function DeepLearningPlan() {
 
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [error, setError] = useState('');
+  
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    info: true,
+    identifikasi: true,
+    desain: true,
+    pengalaman: true,
+    asesmen: true
+  });
+
+  const toggleSection = (id: string) => {
+    setExpandedSections(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const [formData, setFormData] = useLocalStorage('DeepLearningPlanData', {
     sekolah: '',
     jenisSekolah: 'Negeri',
@@ -599,92 +612,105 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg">
-          <Brain className="w-8 h-8 text-white" />
-        </div>
-        <div className="flex-1">
-          <h3 className="text-2xl font-bold text-black">{formatPerangkat === 'standar' ? 'Rencana Pembelajaran Mendalam' : 'Kemenag RPM'}</h3>
-          <p className="text-gray-600">{formatPerangkat === 'standar' ? 'Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
+    <div className="flex flex-col h-full bg-gray-50 text-gray-900 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-200 shadow-sm">
+            <Brain size={24} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900 tracking-wide">{formatPerangkat === 'standar' ? 'Rencana Pembelajaran Mendalam' : 'Kemenag RPM'}</h1>
+            <p className="text-sm text-emerald-600">{formatPerangkat === 'standar' ? 'Format Perencanaan Pembelajaran Mendalam Kurikulum Merdeka' : 'Rencana Pelaksanaan Pembelajaran/Modul Ajar Berbasis Cinta'}</p>
+          </div>
         </div>
       </div>
       
-      {/* Sub Tab Menu */}
-      <div className="flex bg-gray-200 p-1 rounded-xl mb-6 shadow-inner border border-gray-300">
-        <button 
-          onClick={() => setFormatPerangkat('standar')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-emerald-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
-        >
-          Standar Kemendikbudristek
-        </button>
-        <button 
-          onClick={() => setFormatPerangkat('kemenag')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-emerald-50 text-emerald-700 shadow-md border-emerald-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'}`}
-        >
-          Kemenag RPM Berbasis Cinta
-        </button>
-      </div>
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6">
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div className="space-y-6">
+          {/* Sub Tab Menu */}
+          <div className="flex bg-gray-100 p-1 rounded-xl shadow-inner border border-gray-200">
+            <button 
+              onClick={() => setFormatPerangkat('standar')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-emerald-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+            >
+              Standar Kemendikbudristek
+            </button>
+            <button 
+              onClick={() => setFormatPerangkat('kemenag')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-emerald-50 text-emerald-700 shadow-md border border-emerald-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+            >
+              Kemenag RPM Berbasis Cinta
+            </button>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
           
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2"><School className="w-5 h-5" /> Informasi Umum</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 md:col-span-1">
-                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('info')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-emerald-600 flex items-center gap-2"><School className="w-5 h-5" /> Informasi Umum</h4>
+              {expandedSections['info'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['info'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="col-span-2 md:col-span-1">
+                <AIAssistedInput type="text" placeholder="Nama Sekolah" value={formData.sekolah} onChange={e => setFormData({...formData, sekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisSekolah} onChange={e => setFormData({...formData, jenisSekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="Negeri">Negeri</option>
                   <option value="Swasta">Swasta</option>
                   <option value="Islam Terpadu">Islam Terpadu</option>
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1 flex gap-2">
-                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1 flex gap-2">
-                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisNipGuru} onChange={e => setFormData({...formData, jenisNipGuru: e.target.value})} className="w-1/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="NIP">NIP</option>
                   <option value="NUPTK">NUPTK</option>
                   <option value="NIY">NIY</option>
                   <option value="NRG">NRG</option>
                   <option value="NPK">NPK</option>
                 </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nip} onChange={e => setFormData({...formData, nip: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Jenis Guru</label>
-                <select value={formData.jenisGuru} onChange={e => setFormData({...formData, jenisGuru: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.jenisGuru} onChange={e => setFormData({...formData, jenisGuru: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="Guru Kelas">Guru Kelas</option>
                   <option value="Guru Mapel (PJOK, PAdDP)">Guru Mapel (PJOK, PAdDP)</option>
                 </select>
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
-                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="1">Ganjil (1)</option>
                   <option value="2">Genap (2)</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
-                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   {educationLevels.map(level => (
                     <option key={level.id} value={level.id}>{level.label}</option>
                   ))}
@@ -693,7 +719,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
-                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.phases.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
@@ -701,7 +727,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
-                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.classes[formData.fase]?.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -710,7 +736,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
-                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   {subjectsByLevel[formData.eduLevel]?.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.label}</option>
                   ))}
@@ -728,7 +754,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                       setFormData({...formData, isCustomTopik: false, topikMateri: val});
                     }
                   }} 
-                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
                 >
                   {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                     <option key={idx} value={topic}>{topic}</option>
@@ -740,15 +766,15 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     placeholder="Masukkan Topik/Materi secara manual..." 
                     value={formData.topikMateri} 
                     onChange={e => setFormData({...formData, topikMateri: e.target.value})} 
-                    className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mt-3" 
                   />
                 )}
               </div>
               <div className="col-span-2 md:col-span-1">
-                <AIAssistedInput type="text" placeholder="Alokasi Waktu (Contoh: 4 Pertemuan / 8 JP)" value={formData.alokasiWaktu} onChange={e => setFormData({...formData, alokasiWaktu: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Alokasi Waktu (Contoh: 4 Pertemuan / 8 JP)" value={formData.alokasiWaktu} onChange={e => setFormData({...formData, alokasiWaktu: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div className="col-span-2 md:col-span-1">
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
+                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
                   <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
                   <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
                   <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -760,7 +786,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
 
               <div className="col-span-2 md:col-span-1">
-                <label className="flex items-start gap-3 p-4 bg-red-50 border border-black rounded-xl cursor-pointer">
+                <label className="flex items-start gap-3 p-4 bg-gray-50 border border-gray-300 rounded-xl cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.integrasiAdiwiyata}
@@ -774,7 +800,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </label>
               </div>
               <div className="col-span-2 md:col-span-1">
-                <label className="flex items-start gap-3 p-4 bg-red-50 border border-black rounded-xl cursor-pointer">
+                <label className="flex items-start gap-3 p-4 bg-gray-50 border border-gray-300 rounded-xl cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.sekolahRamahAnak}
@@ -795,15 +821,24 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 />
               </div>
             </div>
+            </div>
+            )}
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">A. Identifikasi</h4>
-            
-            <div className="space-y-4">
-              <div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('identifikasi')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-emerald-600 flex items-center gap-2">A. Identifikasi</h4>
+              {expandedSections['identifikasi'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['identifikasi'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4 mt-4">
+                  <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Peserta Didik</label>
-                <AIAssistedTextarea rows={2} value={formData.pesertaDidik} onChange={e => setFormData({...formData, pesertaDidik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Peserta didik kelas 1 dengan gaya belajar beragam..." />
+                <AIAssistedTextarea rows={2} value={formData.pesertaDidik} onChange={e => setFormData({...formData, pesertaDidik: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Peserta didik kelas 1 dengan gaya belajar beragam..." />
               </div>
               
               <div className="space-y-3">
@@ -823,7 +858,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     <input 
                       type="number"
                       min="1"
-                      className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
                       placeholder="Masukkan jumlah siswa inklusi..."
                       value={formData.jumlahInklusi}
                       onChange={(e) => setFormData({...formData, jumlahInklusi: e.target.value})}
@@ -834,7 +869,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Topik Pelajaran</label>
-                <AIAssistedTextarea rows={2} value={formData.topikPelajaran} onChange={e => setFormData({...formData, topikPelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Membaca suku kata 'ba, bi, bu, be, bo'..." />
+                <AIAssistedTextarea rows={2} value={formData.topikPelajaran} onChange={e => setFormData({...formData, topikPelajaran: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" placeholder="Contoh: Membaca suku kata 'ba, bi, bu, be, bo'..." />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Dimensi Profil Lulusan</label>
@@ -853,26 +888,36 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </div>
               </div>
             </div>
+            </div>
+            )}
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">B. Desain Pembelajaran</h4>
-            <div className="space-y-4">
-              <div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('desain')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-emerald-600 flex items-center gap-2">B. Desain Pembelajaran</h4>
+              {expandedSections['desain'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['desain'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4 mt-4">
+                  <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Capaian Pembelajaran</label>
-                <AIAssistedTextarea rows={2} value={formData.capaianPembelajaran} onChange={e => setFormData({...formData, capaianPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.capaianPembelajaran} onChange={e => setFormData({...formData, capaianPembelajaran: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Lintas Disiplin Ilmu</label>
-                <AIAssistedTextarea rows={2} value={formData.lintasDisiplin} onChange={e => setFormData({...formData, lintasDisiplin: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.lintasDisiplin} onChange={e => setFormData({...formData, lintasDisiplin: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tujuan Pembelajaran</label>
-                <AIAssistedTextarea rows={2} value={formData.tujuanPembelajaran} onChange={e => setFormData({...formData, tujuanPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.tujuanPembelajaran} onChange={e => setFormData({...formData, tujuanPembelajaran: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Praktik Pedagogis</label>
-                <select value={formData.praktikPedagogis} onChange={e => setFormData({...formData, praktikPedagogis: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
+                <select value={formData.praktikPedagogis} onChange={e => setFormData({...formData, praktikPedagogis: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Pembelajaran Berbasis Masalah (Problem Based Learning)">Pembelajaran Berbasis Masalah (Problem Based Learning)</option>
                   <option value="Pembelajaran Berbasis Proyek (Project Based Learning)">Pembelajaran Berbasis Proyek (Project Based Learning)</option>
                   <option value="Pembelajaran Inkuiri (Inquiry Learning)">Pembelajaran Inkuiri (Inquiry Learning)</option>
@@ -884,23 +929,33 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Lingkungan Pembelajaran</label>
-                <AIAssistedTextarea rows={2} value={formData.lingkunganBelajar} onChange={e => setFormData({...formData, lingkunganBelajar: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.lingkunganBelajar} onChange={e => setFormData({...formData, lingkunganBelajar: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Kemitraan Pembelajaran</label>
-                <AIAssistedTextarea rows={2} value={formData.kemitraanPembelajaran} onChange={e => setFormData({...formData, kemitraanPembelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.kemitraanPembelajaran} onChange={e => setFormData({...formData, kemitraanPembelajaran: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Pemanfaatan Digital</label>
-                <AIAssistedTextarea rows={2} value={formData.pemanfaatanDigital} onChange={e => setFormData({...formData, pemanfaatanDigital: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.pemanfaatanDigital} onChange={e => setFormData({...formData, pemanfaatanDigital: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">C. Pengalaman Belajar</h4>
-            <div className="space-y-4">
-              <div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('pengalaman')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-emerald-600 flex items-center gap-2">C. Pengalaman Belajar</h4>
+              {expandedSections['pengalaman'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['pengalaman'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4 mt-4">
+                  <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">AWAL</label>
                 <div className="flex gap-4 mb-2">
                   {['Berkesadaran', 'Bermakna', 'Menggembirakan'].map(prinsip => (
@@ -910,7 +965,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                     </label>
                   ))}
                 </div>
-                <AIAssistedTextarea rows={3} value={formData.awal} onChange={e => setFormData({...formData, awal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={3} value={formData.awal} onChange={e => setFormData({...formData, awal: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               
               <div className="pt-4 border-t border-black">
@@ -926,7 +981,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                         </label>
                       ))}
                     </div>
-                    <AIAssistedTextarea rows={3} value={formData.memahami} onChange={e => setFormData({...formData, memahami: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.memahami} onChange={e => setFormData({...formData, memahami: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Mengaplikasi</label>
@@ -938,7 +993,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                         </label>
                       ))}
                     </div>
-                    <AIAssistedTextarea rows={3} value={formData.mengaplikasi} onChange={e => setFormData({...formData, mengaplikasi: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.mengaplikasi} onChange={e => setFormData({...formData, mengaplikasi: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Merefleksi</label>
@@ -950,7 +1005,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                         </label>
                       ))}
                     </div>
-                    <AIAssistedTextarea rows={3} value={formData.merefleksi} onChange={e => setFormData({...formData, merefleksi: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                    <AIAssistedTextarea rows={3} value={formData.merefleksi} onChange={e => setFormData({...formData, merefleksi: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
                   </div>
                 </div>
               </div>
@@ -966,29 +1021,39 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                       </label>
                     ))}
                   </div>
-                  <AIAssistedTextarea rows={3} value={formData.penutup} onChange={e => setFormData({...formData, penutup: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  <AIAssistedTextarea rows={3} value={formData.penutup} onChange={e => setFormData({...formData, penutup: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
                 </div>
               </div>
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-emerald-600 mb-4 flex items-center gap-2">D. Asesmen dan Tindak Lanjut</h4>
-            <div className="space-y-4">
-              <div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('asesmen')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-emerald-600 flex items-center gap-2">D. Asesmen dan Tindak Lanjut</h4>
+              {expandedSections['asesmen'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['asesmen'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4 mt-4">
+                  <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Awal</label>
-                <select value={formData.jenisAsesmenAwal} onChange={e => setFormData({...formData, jenisAsesmenAwal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
+                <select value={formData.jenisAsesmenAwal} onChange={e => setFormData({...formData, jenisAsesmenAwal: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Tes Tertulis">Tes Tertulis</option>
                   <option value="Wawancara">Wawancara</option>
                   <option value="Observasi">Observasi</option>
                   <option value="Kuesioner/Angket">Kuesioner/Angket</option>
                   <option value="Diskusi Kelas">Diskusi Kelas</option>
                 </select>
-                <AIAssistedTextarea rows={2} value={formData.asesmenAwal} onChange={e => setFormData({...formData, asesmenAwal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenAwal} onChange={e => setFormData({...formData, asesmenAwal: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Formatif</label>
-                <select value={formData.jenisAsesmenFormatif} onChange={e => setFormData({...formData, jenisAsesmenFormatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
+                <select value={formData.jenisAsesmenFormatif} onChange={e => setFormData({...formData, jenisAsesmenFormatif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Observasi">Observasi</option>
                   <option value="Penilaian Diri (Self Assessment)">Penilaian Diri (Self Assessment)</option>
                   <option value="Penilaian Antar Teman (Peer Assessment)">Penilaian Antar Teman (Peer Assessment)</option>
@@ -997,11 +1062,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Tanya Jawab">Tanya Jawab</option>
                   <option value="Penugasan">Penugasan</option>
                 </select>
-                <AIAssistedTextarea rows={2} value={formData.asesmenFormatif} onChange={e => setFormData({...formData, asesmenFormatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenFormatif} onChange={e => setFormData({...formData, asesmenFormatif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Asesmen Sumatif</label>
-                <select value={formData.jenisAsesmenSumatif} onChange={e => setFormData({...formData, jenisAsesmenSumatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
+                <select value={formData.jenisAsesmenSumatif} onChange={e => setFormData({...formData, jenisAsesmenSumatif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Tes Tertulis">Tes Tertulis</option>
                   <option value="Tes Lisan">Tes Lisan</option>
                   <option value="Penilaian Praktik/Kinerja">Penilaian Praktik/Kinerja</option>
@@ -1009,11 +1074,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Penilaian Portofolio">Penilaian Portofolio</option>
                   <option value="Penilaian Produk">Penilaian Produk</option>
                 </select>
-                <AIAssistedTextarea rows={2} value={formData.asesmenSumatif} onChange={e => setFormData({...formData, asesmenSumatif: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} value={formData.asesmenSumatif} onChange={e => setFormData({...formData, asesmenSumatif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Rubrik Penilaian</label>
-                <select value={formData.jenisRubrik} onChange={e => setFormData({...formData, jenisRubrik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
+                <select value={formData.jenisRubrik} onChange={e => setFormData({...formData, jenisRubrik: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all mb-2">
                   <option value="Rubrik Analitik">Rubrik Analitik</option>
                   <option value="Rubrik Holistik">Rubrik Holistik</option>
                   <option value="Rubrik Skala Penilaian">Rubrik Skala Penilaian</option>
@@ -1022,9 +1087,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Indikator dan Keterangan Rubrik (Opsional)</label>
-                <AIAssistedTextarea rows={2} placeholder="Contoh: Indikator 1: Keaktifan (Siswa aktif bertanya dan menjawab)..." value={formData.indikatorRubrik || ''} onChange={e => setFormData({...formData, indikatorRubrik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                <AIAssistedTextarea rows={2} placeholder="Contoh: Indikator 1: Keaktifan (Siswa aktif bertanya dan menjawab)..." value={formData.indikatorRubrik || ''} onChange={e => setFormData({...formData, indikatorRubrik: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           
           {error && (
@@ -1074,7 +1141,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
         </div>
         
-        <div className="gen-card bg-red-50 rounded-xl p-4 h-[700px] overflow-y-auto custom-scrollbar space-y-6">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm h-[700px] overflow-y-auto custom-scrollbar space-y-6">
           {result ? (
             <>
               <AIVisualGenerator 
@@ -1154,7 +1221,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </div>
               </div>
 
-              <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm overflow-x-auto">
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col min-h-[800px] overflow-hidden">
                 <h4 className="font-semibold text-emerald-600 mb-3">Rubrik Penilaian ({result.jenisRubrik || 'Rubrik'})</h4>
                 {result.rubrik && result.rubrik.length > 0 ? (
                   <table className="w-full text-sm text-left text-gray-700">
@@ -1198,8 +1265,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
             </div>
           )}
         </div>
+          </div>
+        </div>
       </div>
-
       <PrintSupportModal 
         isOpen={isPrintModalOpen} 
         onClose={() => setIsPrintModalOpen(false)} 

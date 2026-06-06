@@ -4,14 +4,41 @@ import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lu
 export default function Changelog() {
   const versions = [
     {
-      version: '5.2.2',
-      date: '6 Juni 2026',
+      version: '5.2.4',
+      date: '7 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
       commits: [
-        'Mengimplementasikan fitur penyimpanan otomatis (Auto-Save) dengan localStorage pada seluruh modul generator.',
+        'Memperbaiki tampilan tata letak (layout) secara massal di seluruh halaman generator dengan menyeragamkan desain kartu (cards) berlatar belakang putih agar tidak menyatu dengan background.',
+        'Mengganti warna latar dan garis batas (border) pada seluruh kolom input agar lebih kontras dan mudah dibaca.',
+        'Menghapus animasi melompat (bounce/translate-Y) yang mengganggu pada kartu-kartu antarmuka generator saat diarahkan oleh kursor (hover).',
+        'Mengimplementasikan fitur antarmuka akordion (accordion) pada halaman generator dengan form panjang (seperti Modul Kokurikuler, Supervisi, Jurnal Harian, Rencana Pembelajaran Mendalam) agar tampilan tidak terlalu panjang dan mempermudah navigasi pada layar kecil.',
+        'Memperbaiki masalah (bug) layout dan struktur komponen yang sempat rusak pada Modul Kokurikuler dan Modul Ajar pasca penambahan akordion.',
+        'Menambahkan seed (nilai acak) pada parameter AI Image Generation agar gambar visual yang dihasilkan selalu bervariasi dan unik di setiap permintaan.',
+        'Menyematkan indikator loading (spinner visual) pada fitur regenerate (pembuatan ulang) soal individual untuk memberikan umpan balik kepada pengguna.'
+      ]
+    },
+    {
+      version: '5.2.3',
+      date: '7 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
+      commits: [
+        'Merombak tata letak antarmuka (UI) menjadi model Kartu (Cards) bersusun vertikal agar terlihat lebih rapi, modern, dan mudah dinavigasi di perangkat mobile maupun desktop, serta tidak saling berhimpitan satu sama lain.',
+        'Memperbaiki masalah dropdown fase/kelas yang kosong saat pergantian jenjang.',
+        'Menyelesaikan masalah layar putih (white screen error) pada Worksheet Generator akibat undefined error.',
+        'Mengembalikan Worksheet Generator untuk menggunakan useState alih-alih useLocalStorage demi menghindari bug.'
+      ]
+    },
+    {
+      version: '5.2.2',
+      date: '6 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
+      commits: [
+        'Menambahkan panel informasi instruksi pelaporan Bug & Error pada antarmuka Dashboard.',
         'Mengintegrasikan pengiriman otomatis form Masukan & Saran (Feedback) langsung ke pesan WhatsApp Admin.',
-        'Menambahkan panel informasi instruksi pelaporan Bug & Error pada antarmuka Dashboard.'
+        'Menambahkan fitur penyimpanan otomatis (Auto-Save) progress dengan localStorage pada seluruh modul generator.',
+        'Menambahkan instruksi meta AI crawler (llms.txt) untuk optimasi asisten AI.',
+        'Mengintegrasikan Google Analytics untuk pelacakan performa web.'
       ]
     },
     {
@@ -22,14 +49,7 @@ export default function Changelog() {
         'Memperbarui branding Footer dengan menambahkan seksi "Global Partners & Tech Support" beserta deretan logo ekosistem AI.',
         'Merapikan struktur direktori aset publik dengan memindahkan seluruh logo SVG eksternal ke dalam folder khusus /asset.',
         'Menambahkan menu pintasan khusus "Admin Dashboard" pada dropdown profil untuk hak akses admin/owner.',
-        'Mengimplementasikan sistem navigasi Breadcrumbs dinamis di Topbar sesuai dengan menu yang sedang aktif.'
-      ]
-    },
-    {
-      version: '5.2.1',
-      date: '4 Juni 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
+        'Mengimplementasikan sistem navigasi Breadcrumbs dinamis di Topbar sesuai dengan menu yang sedang aktif.',
         'Memperbaiki error tipe TypeScript terkait HTMLRewriter pada fungsi Cloudflare Pages dan tipe response unknown pada App & AdminPanel.',
         'Menambahkan teks tautan digen.id pada judul Dashboard dan memberikan warna khusus (sorotan) pada bagian teks "di Gen".',
         'Memperbarui indikator System Online di Dashboard dengan animasi titik radar berwarna hijau yang berkedip.',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
-import { Printer, Plus, Trash2, Sparkles, AlertCircle, Save } from 'lucide-react';
+import { Printer, Plus, Trash2, Sparkles, AlertCircle, Save, Target, School, UserCheck } from 'lucide-react';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
@@ -360,10 +360,10 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
+    <div className="space-y-6">
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-2xl shadow-lg">
-          🎯
+          <Target className="w-7 h-7 text-white" />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">Kriteria Ketercapaian Tujuan Pembelajaran (KKTP)</h3>
@@ -371,18 +371,17 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-6">
           
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">🏫 Informasi Umum</h4>
+          <div className="pb-6 border-b border-gray-200">
+            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2"><School size={18} /> Informasi Umum</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <AIAssistedInput type="text" placeholder="Nama Satuan Pendidikan" value={formData.satuanPendidikan} onChange={e => setFormData({...formData, satuanPendidikan: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                <AIAssistedInput type="text" placeholder="Nama Satuan Pendidikan" value={formData.satuanPendidikan} onChange={e => setFormData({...formData, satuanPendidikan: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
-                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                <select value={formData.eduLevel} onChange={e => setFormData({...formData, eduLevel: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                   {educationLevels.map(level => (
                     <option key={level.id} value={level.id}>{level.label}</option>
                   ))}
@@ -391,7 +390,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
-                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                  <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.phases.map(p => (
                       <option key={p.id} value={p.id}>{p.label}</option>
                     ))}
@@ -399,7 +398,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
-                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                  <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                     {phaseClassMap[formData.eduLevel]?.classes[formData.fase]?.map(c => (
                       <option key={c.id} value={c.id}>{c.label}</option>
                     ))}
@@ -408,18 +407,18 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>
-                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                   <option value="1">Ganjil (1)</option>
                   <option value="2">Genap (2)</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Pelajaran</label>
-                <AIAssistedInput type="text" value={formData.tahunPelajaran} onChange={e => setFormData({...formData, tahunPelajaran: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                <AIAssistedInput type="text" value={formData.tahunPelajaran} onChange={e => setFormData({...formData, tahunPelajaran: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
-                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                   {subjectsByLevel[formData.eduLevel]?.map(sub => (
                     <option key={sub.id} value={sub.id}>{sub.label}</option>
                   ))}
@@ -437,7 +436,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                       setFormData({...formData, isCustomTopik: false, topikMateri: val});
                     }
                   }} 
-                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
+                  className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
                 >
                   {(topicsBySubject[formData.mapel] || topicsBySubject['default']).map((topic, idx) => (
                     <option key={idx} value={topic}>{topic}</option>
@@ -449,7 +448,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                     placeholder="Masukkan Topik/Materi secara manual..." 
                     value={formData.topikMateri} 
                     onChange={e => setFormData({...formData, topikMateri: e.target.value})} 
-                    className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all mt-3" 
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all mt-3" 
                   />
                 )}
               </div>
@@ -461,38 +460,38 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
             </div>
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">👨‍🏫 Data Guru & Kepala Sekolah</h4>
+          <div className="pb-6 border-b border-gray-200">
+            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2"><UserCheck size={18} /> Data Guru & Kepala Sekolah</h4>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={formData.kepalaSekolah} onChange={e => setFormData({...formData, kepalaSekolah: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
                 </div>
                 <div className="col-span-2 flex gap-2">
-                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                  <select value={formData.jenisNipKepalaSekolah} onChange={e => setFormData({...formData, jenisNipKepalaSekolah: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
                 </div>
                 <div className="col-span-2">
-                  <AIAssistedInput type="text" placeholder="Nama Guru Mata Pelajaran" value={formData.guruMapel} onChange={e => setFormData({...formData, guruMapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <AIAssistedInput type="text" placeholder="Nama Guru Mata Pelajaran" value={formData.guruMapel} onChange={e => setFormData({...formData, guruMapel: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
                 </div>
                 <div className="col-span-2 flex gap-2">
-                  <select value={formData.jenisNipGuruMapel} onChange={e => setFormData({...formData, jenisNipGuruMapel: e.target.value})} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                  <select value={formData.jenisNipGuruMapel} onChange={e => setFormData({...formData, jenisNipGuruMapel: e.target.value})} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                     <option value="NIP">NIP</option>
                     <option value="NUPTK">NUPTK</option>
                     <option value="NIY">NIY</option>
                     <option value="NRG">NRG</option>
                     <option value="NPK">NPK</option>
                   </select>
-                  <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nipGuruMapel} onChange={e => setFormData({...formData, nipGuruMapel: e.target.value})} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={formData.nipGuruMapel} onChange={e => setFormData({...formData, nipGuruMapel: e.target.value})} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
                 </div>
                 <div className="col-span-2">
-                  <AIAssistedInput type="text" placeholder="Tempat & Tanggal Penetapan (cth: Surabaya, 10 Juli 2024)" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <AIAssistedInput type="text" placeholder="Tempat & Tanggal Penetapan (cth: Surabaya, 10 Juli 2024)" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
                 </div>
               </div>
             </div>
@@ -544,7 +543,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
         </div>
 
         <div className="space-y-6">
-          <div className="gen-card bg-white rounded-2xl p-6 border border-black h-[700px] overflow-y-auto custom-scrollbar">
+          <div>
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-bold text-black flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -570,21 +569,21 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
 
             <div className="space-y-4">
               {tujuanPembelajaran.map((tp, index) => (
-                <div key={index} className="group relative bg-red-50 border border-black rounded-xl p-4 hover:border-amber-500/50 transition-all">
+                <div key={index} className="group relative border-b border-gray-200 pb-6 mb-2 last:border-0 last:pb-0">
                   <div className="flex gap-4">
                     <div className="w-24 shrink-0">
                       <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">Kode</label>
                       <AIAssistedInput type="text" 
                         value={tp.kode} 
                         onChange={e => handleTPChange(index, 'kode', e.target.value)} 
-                        className="w-full bg-white border border-black rounded-lg p-2 text-black text-sm focus:border-amber-500 transition-all" 
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-black text-sm focus:border-amber-500 transition-all" 
                       />
                     </div>
                     <div className="flex-1">
                       <label className="block text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">Deskripsi Tujuan Pembelajaran</label>
                       <AIAssistedTextarea value={tp.deskripsi} 
                         onChange={e => handleTPChange(index, 'deskripsi', e.target.value)} 
-                        className="w-full bg-white border border-black rounded-lg p-2 text-black text-sm focus:border-amber-500 transition-all min-h-[80px]" />
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-black text-sm focus:border-amber-500 transition-all min-h-[80px]" />
                     </div>
                     <button 
                       onClick={() => handleRemoveTP(index)}
@@ -623,7 +622,6 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
             </div>
           </div>
         </div>
-      </div>
 
       <PrintSupportModal 
         isOpen={isPrintModalOpen} 
