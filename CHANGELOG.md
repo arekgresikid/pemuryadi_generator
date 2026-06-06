@@ -2,6 +2,15 @@
 
 Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 
+## Versi 5.2.5
+**Tanggal:** 7 Juni 2026
+
+- **Landing Page Baru yang SEO-Friendly:** Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) bergaya pemasaran modern (*Marketing-oriented*).
+- **Elemen Peningkatan Konversi (CTA):** Menambahkan blok *Hero Section* dengan tajuk tebal, tombol *Call-to-Action* (Coba Gratis), metrik statistik (*Social Proof*), dan alur 3 langkah mudah penggunaan (Cara Kerja).
+- **FAQ Interaktif:** Menambahkan sesi *Frequently Asked Questions* berbasis *Accordion* untuk membantu calon pengguna memahami keunggulan dan menjawab keraguan, sekaligus membantu pengindeksan SEO.
+- **Testimoni Pendidik:** Menambahkan dukungan visual kartu ulasan/testimoni dari rekan sejawat pendidik.
+- **Transisi Halus Mulus:** Menerapkan sistem deteksi akses `hasEnteredApp` via `localStorage` sehingga Landing Page hanya muncul pada kunjungan pertama atau pengguna baru, sementara pengguna setia akan langsung diarahkan ke Dashboard.
+
 ## Versi 5.2.4
 **Tanggal:** 7 Juni 2026
 

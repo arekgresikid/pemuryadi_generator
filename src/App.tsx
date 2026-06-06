@@ -41,6 +41,7 @@ import PremiumLockModal from './components/layout/PremiumLockModal';
 import LoginRequiredModal from './components/layout/LoginRequiredModal';
 import WelcomePopup from './components/WelcomePopup';
 import SEOLandingPage from './components/SEOLandingPage';
+import MainLandingPage from './components/MainLandingPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
@@ -66,6 +67,13 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       return path.startsWith('/kota/') || path.startsWith('/sekolah/');
+    }
+    return false;
+  });
+  const [hasEnteredApp, setHasEnteredApp] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_hasEnteredApp');
+      return saved === 'true';
     }
     return false;
   });
@@ -448,12 +456,25 @@ export default function App() {
       <SEOLandingPage 
         onEnterApp={(tab?: string) => {
           setIsSeoLanding(false);
+          setHasEnteredApp(true);
+          localStorage.setItem('pemuryadi_hasEnteredApp', 'true');
           if (tab) setActiveTab(tab);
-          window.history.pushState({}, '', '/');
-        }} 
+        }}
       />
     );
   }
+
+  if (!hasEnteredApp && !user && window.location.pathname === '/') {
+    return (
+      <MainLandingPage 
+        onEnterApp={() => {
+          setHasEnteredApp(true);
+          localStorage.setItem('pemuryadi_hasEnteredApp', 'true');
+        }}
+      />
+    );
+  }
+
 
   return (
     <div 
@@ -612,10 +633,11 @@ export default function App() {
             </button>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
-          <div className="flex justify-center flex-wrap gap-4 md:gap-6 mb-4">
-            <a href="/about.html" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Tentang Kami</a>
-            <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
-            <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
+          <div className="flex justify-center gap-6 mb-8 text-sm text-gray-500 font-medium">
+            <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
+            <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
+            <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>
+            <a href="mailto:support@pemuryadi.my.id" className="hover:text-black transition-colors">Hubungi Kami</a>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.

@@ -4,10 +4,22 @@ import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lu
 export default function Changelog() {
   const versions = [
     {
-      version: '5.2.4',
+      version: '5.2.5',
       date: '7 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) pemasaran.',
+        'Menambahkan bagian Hero dengan Call-to-Action, metrik statistik (Social Proof), dan 3 langkah Cara Kerja.',
+        'Mengimplementasikan FAQ interaktif berbasis Accordion untuk menjawab keraguan dan optimalisasi SEO.',
+        'Menambahkan seksi Ulasan dan Testimoni Pendidik untuk membangun kepercayaan pengguna baru.',
+        'Menerapkan deteksi transisi halaman via localStorage, agar pengguna baru masuk ke Landing Page sedangkan pengguna lama masuk ke Dashboard.'
+      ]
+    },
+    {
+      version: '5.2.4',
+      date: '7 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Memperbaiki tampilan tata letak (layout) secara massal di seluruh halaman generator dengan menyeragamkan desain kartu (cards) berlatar belakang putih agar tidak menyatu dengan background.',
         'Mengganti warna latar dan garis batas (border) pada seluruh kolom input agar lebih kontras dan mudah dibaca.',
