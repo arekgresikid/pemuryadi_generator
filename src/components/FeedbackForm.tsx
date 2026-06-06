@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Star, Send, MessageSquarePlus, X } from 'lucide-react';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useAuth } from '../AuthContext';
 
 interface FeedbackFormProps {
   inline?: boolean;
 }
 
 export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
+  const { profile } = useAuth();
   const [isOpen, setIsOpen] = useState(inline);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
@@ -17,12 +19,14 @@ export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
     e.preventDefault();
     if (rating === 0 && !feedback.trim()) return;
     
-    // Simulate API call
-    setTimeout(() => {
-      setSubmitted(true);
-      setRating(0);
-      setFeedback('');
-    }, 500);
+    const userName = profile?.nama || profile?.displayName || profile?.email || 'Guest';
+    const message = `Hallo Admin Pemuryadi Generator,\n\nSaya ingin memberikan Masukan & Saran:\n\n*Nama:* ${userName}\n*Rating:* ${rating} dari 5 Bintang\n*Pesan:* ${feedback.trim()}`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/6281347697809?text=${encodedMessage}`, '_blank');
+    
+    setSubmitted(true);
+    setRating(0);
+    setFeedback('');
   };
 
   if (!isOpen && !inline) {
