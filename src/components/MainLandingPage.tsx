@@ -28,20 +28,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
       document.head.appendChild(meta);
     }
 
-    // Inject dark scrollbar for landing page
-    const style = document.createElement('style');
-    style.id = 'landing-scrollbar-style';
-    style.innerHTML = `
-      ::-webkit-scrollbar-track { background: #020617 !important; }
-      ::-webkit-scrollbar-thumb { background: #1e293b !important; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #334155 !important; }
-    `;
-    document.head.appendChild(style);
 
-    return () => {
-      const styleEl = document.getElementById('landing-scrollbar-style');
-      if (styleEl) styleEl.remove();
-    };
   }, []);
 
   return (
