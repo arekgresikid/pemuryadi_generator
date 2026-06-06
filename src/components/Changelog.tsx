@@ -15,7 +15,9 @@ export default function Changelog() {
         'Mengimplementasikan fitur antarmuka akordion (accordion) pada halaman generator dengan form panjang (seperti Modul Kokurikuler, Supervisi, Jurnal Harian, Rencana Pembelajaran Mendalam) agar tampilan tidak terlalu panjang dan mempermudah navigasi pada layar kecil.',
         'Memperbaiki masalah (bug) layout dan struktur komponen yang sempat rusak pada Modul Kokurikuler dan Modul Ajar pasca penambahan akordion.',
         'Menambahkan seed (nilai acak) pada parameter AI Image Generation agar gambar visual yang dihasilkan selalu bervariasi dan unik di setiap permintaan.',
-        'Menyematkan indikator loading (spinner visual) pada fitur regenerate (pembuatan ulang) soal individual untuk memberikan umpan balik kepada pengguna.'
+        'Menyematkan indikator loading (spinner visual) pada fitur regenerate (pembuatan ulang) soal individual untuk memberikan umpan balik kepada pengguna.',
+        'Menerapkan aturan CSS secara menyeluruh agar semua elemen interaktif otomatis memunculkan kursor tangan (pointer) saat di-hover.',
+        'Menyempurnakan format spasi baris pada Kunci Jawaban AI di pembuat soal agar tulisan terbaca lebih jelas dan rapi tanpa terpotong.'
       ]
     },
     {

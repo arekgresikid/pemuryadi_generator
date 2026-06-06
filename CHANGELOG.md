@@ -11,6 +11,10 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - **Implementasi Akordion (Collapsible):** Mengubah tata letak kartu formulir panjang (long-form cards) pada seluruh halaman generator (seperti Supervisi, Jurnal Harian, Rencana Pembelajaran Mendalam, Program Semester, Modul Kokurikuler, dll) menjadi antarmuka akordion. Hal ini mencegah halaman menjadi terlalu panjang dan mempermudah navigasi pada layar kecil.
 - **Optimalisasi Ruang Layar:** Merapikan lebar dropdown teks panjang pada Modul Kokurikuler serta membuang elemen kontainer berlapis tak perlu di komponen KKTP dan modul-modul lainnya.
 - **Perbaikan Bug (Struktur UI):** Memperbaiki masalah (*bug*) tata letak dan kesalahan sintaks (error render) yang sempat muncul pada komponen `ModulKokurikuler` dan `ModuleGenerator` setelah penerapan perubahan akordion.
+- **Penyempurnaan Kursor Global:** Menerapkan aturan CSS secara menyeluruh agar semua elemen interaktif (seperti tombol, link, akordion/summary, checkbox, dan radio button) otomatis memunculkan kursor tangan (pointer) saat diarahkan (hover).
+- **Perbaikan Keterbacaan Kunci Jawaban:** Menyempurnakan format spasi baris (*whitespace-pre-wrap*) pada bagian luaran teks Kunci Jawaban AI di pembuat soal agar tulisan terbaca lebih jelas dan rapi.
+- **Variasi Gambar Visual AI:** Menambahkan seed (nilai acak) ke dalam parameter prompt pembuatan gambar AI (Kartu Soal) agar *output* gambar yang dihasilkan tidak selalu sama/redundan.
+- **Indikator Loading Spesifik:** Menyematkan indikator memuat (spinner berputar) secara individual ketika pengguna me-regenerate ulang soal, memberikan umpan balik visual yang interaktif.
 
 ## Versi 5.2.3
 **Tanggal:** 7 Juni 2026
