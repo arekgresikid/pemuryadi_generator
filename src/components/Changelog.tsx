@@ -5,9 +5,19 @@ export default function Changelog() {
   const versions = [
     {
       version: '5.2.2',
-      date: '4 Juni 2026',
+      date: '6 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Mengimplementasikan fitur penyimpanan otomatis (Auto-Save) dengan localStorage pada seluruh modul generator.',
+        'Mengintegrasikan pengiriman otomatis form Masukan & Saran (Feedback) langsung ke pesan WhatsApp Admin.',
+        'Menambahkan panel informasi instruksi pelaporan Bug & Error pada antarmuka Dashboard.'
+      ]
+    },
+    {
+      version: '5.2.1',
+      date: '4 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Memperbarui branding Footer dengan menambahkan seksi "Global Partners & Tech Support" beserta deretan logo ekosistem AI.',
         'Merapikan struktur direktori aset publik dengan memindahkan seluruh logo SVG eksternal ke dalam folder khusus /asset.',
