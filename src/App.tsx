@@ -637,7 +637,6 @@ export default function App() {
             <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
             <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>
-            <a href="mailto:support@pemuryadi.my.id" className="hover:text-black transition-colors">Hubungi Kami</a>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.

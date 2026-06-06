@@ -11,6 +11,7 @@ Berisi rekapitulasi riwayat pembaruan sistem yang ditarik dari Git Commits.
 - **Landing Page Baru yang SEO-Friendly:** Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) bergaya pemasaran modern (*Marketing-oriented*).
 - **Elemen Peningkatan Konversi (CTA):** Menambahkan blok *Hero Section* dengan tajuk tebal yang lebih padat & ringkas, tombol *Call-to-Action* (Coba Gratis), metrik statistik (*Social Proof*), dan alur 3 langkah mudah penggunaan (Cara Kerja).
 - **FAQ Interaktif & Relevan:** Menambahkan 8 Pertanyaan Umum (FAQ) interaktif berbasis *Accordion* lengkap dengan konteks spesifik sistem (anti-plagiasi, ekspor Word, Mulok/Kejuruan) untuk meyakinkan calon pengguna baru dan membantu pengindeksan SEO.
+- **Pembersihan Navigasi:** Menghapus tautan "Hubungi Kami" dari bagian bawah halaman (footer) pada laman SEO dan Dashboard guna menyederhanakan arsitektur navigasi.
 - **Penyempurnaan Tampilan Antarmuka:** Membuang bagian mockup statis dan seksi testimoni untuk menjaga kebersihan visual (karena aplikasi masih baru). Menyempurnakan posisi *Navbar*, memangkas tinggi *Hero Section*, serta memberikan palet warna dinamis lengkap dengan ikon pada seluruh kartu modul dan kartu benefit ("Mengapa Pendidik Memilih Kami").
 - **Transisi Halus Mulus:** Menerapkan sistem deteksi akses `hasEnteredApp` via `localStorage` sehingga Landing Page hanya muncul pada kunjungan pertama atau pengguna baru, sementara pengguna setia akan langsung diarahkan ke Dashboard.
 

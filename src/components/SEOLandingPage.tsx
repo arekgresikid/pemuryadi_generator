@@ -211,9 +211,9 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
             <h4 className="text-white font-bold mb-6">Dukungan</h4>
             <ul className="space-y-4">
               <li><button onClick={() => onEnterApp('beranda')} className="hover:text-blue-400 transition-colors cursor-pointer text-left">Panduan Penggunaan</button></li>
+              <li><a href="/about.html" className="hover:text-blue-400 transition-colors cursor-pointer">Tentang Kami</a></li>
               <li><a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors cursor-pointer">Kebijakan Privasi</a></li>
               <li><a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors cursor-pointer">Syarat & Ketentuan</a></li>
-              <li><a href="mailto:support@digen.id" className="hover:text-blue-400 transition-colors cursor-pointer">Hubungi Kami</a></li>
             </ul>
           </div>
         </div>
