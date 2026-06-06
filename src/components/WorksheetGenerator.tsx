@@ -118,7 +118,7 @@ export default function WorksheetGenerator() {
     const phases = phaseClassMap[formData.jenjang]?.phases || [];
     const firstPhase = phases[0]?.id || '';
     
-    const classes = phaseClassMap[formData.jenjang]?.classes[firstPhase] || [];
+    const classes = phaseClassMap[formData.jenjang]?.classes?.[firstPhase] || [];
     const firstClass = classes[0]?.id || '';
 
     const subjects = subjectsByLevel[formData.jenjang] || [];
@@ -128,7 +128,7 @@ export default function WorksheetGenerator() {
   }, [formData.jenjang]);
 
   useEffect(() => {
-    const classes = phaseClassMap[formData.jenjang]?.classes[formData.fase] || [];
+    const classes = phaseClassMap[formData.jenjang]?.classes?.[formData.fase] || [];
     setFormData(prev => ({ ...prev, kelas: classes[0]?.id || '' }));
   }, [formData.fase, formData.jenjang]);
 
@@ -157,8 +157,8 @@ export default function WorksheetGenerator() {
       const ai = new GoogleGenAI({});
       
       const subjectLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
-      const faseLabel = phaseClassMap[formData.jenjang]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
-      const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
+      const faseLabel = phaseClassMap[formData.jenjang]?.phases?.find(p => p.id === formData.fase)?.label || formData.fase;
+      const kelasLabel = phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
       const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
 
       let imageUrl = "https://picsum.photos/seed/education/200/400";
@@ -228,7 +228,12 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
 
       let htmlContent = response.text || '';
       // Clean up markdown code blocks if AI still includes them
-      htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
+      const htmlMatch = htmlContent.match(/```(?:html)?\n?([\s\S]*?)\n?```/);
+      if (htmlMatch) {
+        htmlContent = htmlMatch[1];
+      } else {
+        htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
+      }
 
       setResult(htmlContent);
     } catch (err: any) {
@@ -396,7 +401,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
                 <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {phaseClassMap[formData.jenjang]?.phases.map(p => (
+                  {phaseClassMap[formData.jenjang]?.phases?.map(p => (
                     <option key={p.id} value={p.id}>{p.label}</option>
                   ))}
                 </select>
@@ -404,7 +409,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
                 <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {phaseClassMap[formData.jenjang]?.classes[formData.fase]?.map(c => (
+                  {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => (
                     <option key={c.id} value={c.id}>{c.label}</option>
                   ))}
                 </select>

@@ -365,11 +365,35 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const todayVis = Math.floor(Math.random() * 50) + 10;
+    const monthVis = Math.floor(Math.random() * 500) + 100;
+    const totalVis = Math.floor(Math.random() * 5000) + 1000;
+
     setVisitors({
-      today: Math.floor(Math.random() * 50) + 10,
-      month: Math.floor(Math.random() * 500) + 100,
-      total: Math.floor(Math.random() * 5000) + 1000
+      today: todayVis,
+      month: monthVis,
+      total: totalVis
     });
+
+    const popularActivities = [
+      'modul', 'mengajar-harian', 'jurnal', 'kktp', 'buat-soal', 
+      'supervisi', 'crossword', 'puzzle', 'kelompok', 'worksheet',
+      'program-semester', 'program-tahunan', 'kalender-pendidikan',
+      'analisis-hari-efektif', 'ranking-satu', 'snake'
+    ];
+    
+    const simulatedClicks: Record<string, number> = {};
+    const shuffled = [...popularActivities].sort(() => 0.5 - Math.random());
+    const numActivities = 6;
+    
+    let currentMax = Math.floor(totalVis * (0.15 + Math.random() * 0.15));
+    
+    for (let i = 0; i < numActivities; i++) {
+      simulatedClicks[shuffled[i]] = currentMax;
+      currentMax = Math.floor(currentMax * (0.6 + Math.random() * 0.25));
+    }
+    
+    setActivityClicks(simulatedClicks);
   }, []);
 
   useEffect(() => {
