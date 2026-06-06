@@ -95,6 +95,11 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
               <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> 100% Sesuai Kemdikbud</span>
               <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Anti-Plagiasi & Unik</span>
               <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Ekspor ke Word & PDF</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Dukungan Kurikulum Merdeka</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Privasi Data Terjamin</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Generate Hitungan Detik</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Mudah Digunakan (User-Friendly)</span>
+              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Tanpa Instalasi Aplikasi</span>
             </div>
           </div>
         </section>
