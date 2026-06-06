@@ -91,15 +91,15 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
               </button>
             </div>
             
-            <div className="mt-8 flex flex-wrap justify-center items-center gap-3 md:gap-6 text-xs md:text-sm font-medium text-slate-500 animate-in fade-in duration-1000 delay-500">
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> 100% Sesuai Kemdikbud</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Anti-Plagiasi & Unik</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Ekspor ke Word & PDF</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Dukungan Kurikulum Merdeka</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Privasi Data Terjamin</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Generate Hitungan Detik</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Mudah Digunakan (User-Friendly)</span>
-              <span className="flex items-center gap-1 md:gap-2"><CheckCircle2 className="text-emerald-500" size={16}/> Tanpa Instalasi Aplikasi</span>
+            <div className="mt-8 grid grid-cols-2 md:flex md:flex-wrap justify-center gap-y-3 gap-x-2 md:gap-6 text-xs md:text-sm font-medium text-slate-500 animate-in fade-in duration-1000 delay-500 max-w-4xl mx-auto">
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>100% Sesuai Kemdikbud</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Anti-Plagiasi & Unik</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Ekspor ke Word & PDF</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Kurikulum Merdeka</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Privasi Data Terjamin</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Generate Detik</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Sangat Mudah Digunakan</span></div>
+              <div className="flex items-start md:items-center gap-1.5 md:gap-2 text-left"><CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5 md:mt-0" size={16}/> <span>Tanpa Instalasi</span></div>
             </div>
           </div>
         </section>
