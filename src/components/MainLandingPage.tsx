@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Sparkles, BrainCircuit, ShieldCheck, Clock, BookOpen, Layers, Users, Zap, CheckCircle2, PlayCircle, FileText, Star, Grid, FileEdit, DownloadCloud, ChevronDown } from 'lucide-react';
+import { ArrowRight, Sparkles, BrainCircuit, ShieldCheck, Clock, BookOpen, Layers, Users, Zap, CheckCircle2, PlayCircle, FileText, Star, Grid, FileEdit, DownloadCloud, ChevronDown, HelpCircle, CalendarCheck, ClipboardCheck, Target, ListChecks, Award, CalendarRange, Calculator, Trophy } from 'lucide-react';
 
 export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void }) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -129,18 +129,58 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
               <p className="text-slate-400 max-w-2xl mx-auto">Kami memahami bahwa beban kerja administratif guru sangat berat. Alat ini dirancang spesifik untuk mengatasi masalah tersebut.</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                { icon: Clock, title: 'Hemat Waktu Ekstrim', desc: 'Selesaikan Modul Ajar yang biasanya memakan waktu berhari-hari hanya dalam hitungan detik.' },
-                { icon: BrainCircuit, title: 'Kecerdasan Buatan (AI)', desc: 'Setiap modul, soal, dan rubrik penilaian dibuat dinamis, unik, dan disesuaikan dengan konteks sekolah Anda.' },
-                { icon: ShieldCheck, title: 'Standar Nasional', desc: 'Format luaran (output) secara otomatis mengikuti struktur yang disyaratkan oleh Kurikulum Merdeka.' }
+                { icon: Clock, title: 'Hemat Waktu Ekstrim', desc: 'Selesaikan Modul Ajar yang biasanya memakan waktu berhari-hari hanya dalam hitungan detik.', color: 'from-blue-500 to-cyan-400', iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10' },
+                { icon: BrainCircuit, title: 'Kecerdasan Buatan (AI)', desc: 'Setiap modul, soal, dan rubrik penilaian dibuat dinamis, unik, dan disesuaikan dengan konteks sekolah.', color: 'from-purple-500 to-pink-500', iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10' },
+                { icon: ShieldCheck, title: 'Standar Nasional', desc: 'Format luaran (output) secara otomatis mengikuti struktur yang disyaratkan oleh Kurikulum Merdeka.', color: 'from-emerald-400 to-teal-500', iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10' },
+                { icon: DownloadCloud, title: 'Praktis & Siap Pakai', desc: 'Satu kali klik untuk menyalin teks atau mengunduh hasil dokumen secara utuh, siap dicetak langsung.', color: 'from-amber-400 to-orange-500', iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10' }
               ].map((benefit, i) => (
-                <div key={i} className="bg-slate-950 p-8 rounded-3xl border border-white/5 hover:border-blue-500/30 transition-colors group">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all">
-                    <benefit.icon className="text-blue-400" size={28} />
+                <div key={i} className="bg-slate-950 p-8 rounded-3xl border border-white/5 hover:-translate-y-1 transition-all group relative overflow-hidden shadow-lg">
+                  <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${benefit.color} opacity-70 group-hover:opacity-100 transition-opacity`}></div>
+                  <div className={`w-14 h-14 rounded-2xl ${benefit.iconBg} flex items-center justify-center mb-6 group-hover:scale-110 transition-all`}>
+                    <benefit.icon className={benefit.iconColor} size={28} />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{benefit.title}</h3>
                   <p className="text-slate-400 leading-relaxed">{benefit.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Modules/Features Section */}
+        <section className="py-24 px-6 bg-slate-950 relative z-20">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Satu Platform, Semua Solusi Administrasi</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">Dilengkapi dengan belasan modul cerdas untuk mendukung setiap aspek tugas keguruan Anda.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { icon: BookOpen, title: 'Modul Ajar & RPP', desc: 'Susun perangkat ajar Kurikulum Merdeka lengkap dengan rubrik.', color: 'from-blue-500 to-cyan-400', iconColor: 'text-blue-400', iconBg: 'bg-blue-500/10' },
+                { icon: HelpCircle, title: 'Bank Soal & Kuis', desc: 'Buat soal formatif/sumatif otomatis beserta kunci jawaban.', color: 'from-purple-500 to-pink-500', iconColor: 'text-purple-400', iconBg: 'bg-purple-500/10' },
+                { icon: FileEdit, title: 'Lembar Kerja Siswa', desc: 'Hasilkan LKPD interaktif dan berdiferensiasi sesuai profil.', color: 'from-emerald-400 to-teal-500', iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10' },
+                { icon: CalendarCheck, title: 'Jurnal Harian', desc: 'Catat agenda mengajar dan refleksi harian secara praktis.', color: 'from-amber-400 to-orange-500', iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10' },
+                { icon: ClipboardCheck, title: 'Supervisi Akademik', desc: 'Siapkan instrumen observasi dan penilaian guru.', color: 'from-indigo-500 to-purple-500', iconColor: 'text-indigo-400', iconBg: 'bg-indigo-500/10' },
+                { icon: Target, title: 'Pembelajaran Mendalam', desc: 'Rancang Deep Learning dengan pendekatan mutakhir.', color: 'from-rose-400 to-red-500', iconColor: 'text-rose-400', iconBg: 'bg-rose-500/10' },
+                { icon: ListChecks, title: 'KKTP', desc: 'Rumuskan kriteria ketercapaian tujuan dengan presisi.', color: 'from-cyan-400 to-blue-600', iconColor: 'text-cyan-400', iconBg: 'bg-cyan-500/10' },
+                { icon: Award, title: 'Modul Kokurikuler P5', desc: 'Buat proyek penguatan profil pelajar Pancasila.', color: 'from-yellow-400 to-amber-600', iconColor: 'text-yellow-400', iconBg: 'bg-yellow-500/10' },
+                { icon: CalendarRange, title: 'Program Semester', desc: 'Petakan distribusi alokasi waktu dan materi ajar 1 semester.', color: 'from-teal-400 to-emerald-600', iconColor: 'text-teal-400', iconBg: 'bg-teal-500/10' },
+                { icon: Calculator, title: 'Analisis Hari Efektif', desc: 'Hitung otomatis jumlah minggu efektif sesuai kalender.', color: 'from-fuchsia-500 to-pink-600', iconColor: 'text-fuchsia-400', iconBg: 'bg-fuchsia-500/10' },
+                { icon: Trophy, title: 'Rangkuman Materi', desc: 'Pilah intisari bab untuk persiapan lomba Ranking 1.', color: 'from-orange-400 to-red-500', iconColor: 'text-orange-400', iconBg: 'bg-orange-500/10' },
+                { icon: Zap, title: 'Dan Banyak Lagi', desc: 'Modul-modul baru terus ditambahkan sesuai kebutuhan.', color: 'from-slate-400 to-slate-600', iconColor: 'text-slate-400', iconBg: 'bg-slate-500/10' }
+              ].map((module, i) => (
+                <div key={i} className="bg-slate-900/80 p-6 rounded-2xl border border-white/5 hover:-translate-y-1 transition-all group cursor-default relative overflow-hidden shadow-lg">
+                  <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${module.color} opacity-70 group-hover:opacity-100 transition-opacity`}></div>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-xl ${module.iconBg} flex items-center justify-center group-hover:scale-110 transition-all`}>
+                      <module.icon className={module.iconColor} size={24} />
+                    </div>
+                    <h3 className="font-bold text-white text-lg leading-tight">{module.title}</h3>
+                  </div>
+                  <p className="text-slate-400 text-sm">{module.desc}</p>
                 </div>
               ))}
             </div>
@@ -179,72 +219,9 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
           </div>
         </section>
 
-        {/* Features Showcase */}
-        <section className="py-24 px-6 relative z-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-              <div className="max-w-2xl">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Satu Platform, <br/><span className="text-blue-400">Semua Solusi Administrasi</span></h2>
-                <p className="text-slate-400 text-lg">Dilengkapi dengan belasan modul cerdas untuk mendukung setiap aspek tugas keguruan Anda.</p>
-              </div>
-              <button onClick={onEnterApp} className="text-white font-bold flex items-center gap-2 hover:text-blue-400 transition-colors pb-2 border-b border-white/20 hover:border-blue-400 cursor-pointer">
-                Lihat Semua Fitur <ArrowRight size={18} />
-              </button>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { icon: BookOpen, title: 'Generator Modul Ajar', desc: 'Lengkap dengan ATP, TP, dan Rubrik', color: 'from-blue-500 to-cyan-400' },
-                { icon: Zap, title: 'Bank Soal AI', desc: 'Soal HOTS, Pilihan Ganda & Uraian', color: 'from-purple-500 to-pink-500' },
-                { icon: Layers, title: 'RPP Merdeka (RPM)', desc: 'Rencana Pembelajaran Mendalam', color: 'from-emerald-400 to-teal-500' },
-                { icon: Users, title: 'Modul Kokurikuler', desc: 'Proyek Penguatan Profil Pelajar', color: 'from-amber-400 to-orange-500' }
-              ].map((feat, i) => (
-                <div key={i} className="bg-slate-900 p-8 rounded-3xl border border-white/5 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden group cursor-pointer" onClick={onEnterApp}>
-                  <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${feat.color} opacity-50 group-hover:opacity-100 transition-opacity`}></div>
-                  <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-6">
-                    <feat.icon className="text-white" size={24} />
-                  </div>
-                  <h4 className="text-lg font-bold text-white mb-2">{feat.title}</h4>
-                  <p className="text-slate-400 text-sm">{feat.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Testimonials */}
-        <section className="py-24 bg-slate-900/50 border-y border-white/5 relative z-20 px-6">
-          <div className="max-w-7xl mx-auto">
-             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Apa Kata Rekan Pendidik?</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Bergabunglah dengan komunitas guru modern yang telah beralih menggunakan AI.</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { name: 'Budi Santoso', role: 'Guru SMP Negeri 1', text: 'Sangat luar biasa! Dulu membuat modul ajar bisa memakan waktu berhari-hari, sekarang hanya dalam 5 menit. Modulnya sangat relevan dengan Kurikulum Merdeka.' },
-                { name: 'Siti Aminah', role: 'Guru SD', text: 'Bank Soalnya sangat membantu. Saya tidak perlu pusing lagi mencari referensi soal HOTS. Fitur analisis hari efektif juga sangat presisi.' },
-                { name: 'Ahmad Fauzi', role: 'Kepala Sekolah', text: 'Saya merekomendasikan aplikasi ini untuk seluruh guru di sekolah saya. Administrasi rapi, guru tidak stres, dan bisa lebih fokus mendidik anak-anak.' }
-              ].map((testi, i) => (
-                <div key={i} className="bg-slate-950 p-8 rounded-3xl border border-white/5 relative hover:-translate-y-1 transition-transform duration-300">
-                  <div className="text-blue-500 mb-6 flex gap-1">
-                    {[1,2,3,4,5].map(star => <Star key={star} size={18} fill="currentColor" />)}
-                  </div>
-                  <p className="text-slate-300 mb-8 italic">"{testi.text}"</p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center font-bold text-lg text-slate-400">
-                      {testi.name.charAt(0)}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-white">{testi.name}</h4>
-                      <p className="text-xs text-slate-500">{testi.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+
 
         {/* FAQ */}
         <section className="py-24 px-6 relative z-20 max-w-4xl mx-auto">
@@ -257,8 +234,12 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
             {[
               { q: 'Apakah aplikasi ini sepenuhnya gratis?', a: 'Saat ini kami menyediakan banyak fitur yang bisa Anda akses secara gratis untuk membantu meringankan administrasi Anda.' },
               { q: 'Apakah hasil dokumen sesuai dengan standar Kemdikbudristek?', a: 'Ya, seluruh struktur dokumen seperti Modul Ajar, RPP, dan Analisis Hari Efektif telah diprogram untuk menyesuaikan format Kurikulum Merdeka terbaru dari Kemdikbudristek.' },
-              { q: 'Apakah dokumen yang dihasilkan terhindar dari plagiarisme?', a: 'Betul. Karena menggunakan teknologi Generative AI, setiap dokumen disusun secara real-time dan unik berdasarkan konteks sekolah serta topik yang Anda berikan.' },
-              { q: 'Apakah data saya aman di platform ini?', a: 'Sangat aman. Kami menggunakan sistem autentikasi modern dan tidak membagikan atau menjual data pengguna kepada pihak ketiga mana pun.' }
+              { q: 'Bagaimana cara memindahkan dokumen ini ke Microsoft Word?', a: 'Sangat mudah. Di setiap hasil yang dibuat, tersedia tombol "Copy" (Salin). Anda cukup mengkliknya lalu mem-paste (tempel) di Microsoft Word. Format tabel, judul, dan paragraf akan langsung menyesuaikan dengan rapi.' },
+              { q: 'Apakah dokumen yang dihasilkan terhindar dari plagiarisme?', a: 'Betul. Karena menggunakan teknologi Generative AI, setiap dokumen disusun secara unik berdasarkan konteks sekolah, materi, dan variabel spesifik yang Anda masukkan. Tidak ada dua dokumen yang 100% sama.' },
+              { q: 'Apakah saya bisa membuat Modul Ajar untuk mata pelajaran Muatan Lokal (Mulok) atau Kejuruan SMK?', a: 'Tentu bisa! Kecerdasan buatan (AI) kami sangat fleksibel. Anda cukup mengetikkan nama mata pelajaran secara spesifik pada form yang disediakan, dan sistem akan mengontekstualisasikannya secara akurat.' },
+              { q: 'Berapa lama waktu yang dibutuhkan sistem untuk menghasilkan dokumen?', a: 'Rata-rata hanya membutuhkan hitungan detik hingga maksimal 1 menit. Jauh lebih cepat dibandingkan menyusun administrasi berhari-hari secara manual.' },
+              { q: 'Apakah hasil dokumen sebelumnya bisa saya lihat lagi?', a: 'Bisa. Semua riwayat pembuatan dokumen Anda akan tersimpan di dalam menu Riwayat (History) pada peramban (browser) Anda. Anda bisa mengaksesnya kapan pun selama Anda tidak menghapus cache peramban.' },
+              { q: 'Apakah data pribadi atau sekolah saya aman?', a: 'Sangat aman. Seluruh data input yang Anda masukkan dienkripsi dan kami sama sekali tidak membagikan atau menjual data spesifik pengguna kepada pihak ketiga.' }
             ].map((faq, i) => (
               <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300">
                 <button 
