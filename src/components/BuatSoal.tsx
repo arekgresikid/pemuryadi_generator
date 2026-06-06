@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
+
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
 import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2 } from 'lucide-react';
@@ -8,6 +9,7 @@ import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -19,7 +21,7 @@ export default function BuatSoal() {
   
   const [error, setError] = useState('');
   
-  const [formData, setFormData] = useState<{
+  const [formData, setFormData] = useLocalStorage<{
     jenjang: string;
     fase: string;
     kelas: string;
@@ -39,7 +41,7 @@ export default function BuatSoal() {
     abkKategori: string;
     terdapatSoalBergambar: boolean;
     jumlahSoalBergambar: number;
-  }>({
+  }>('BuatSoalData', {
     jenjang: '',
     fase: '',
     kelas: '',
@@ -85,18 +87,8 @@ export default function BuatSoal() {
     setFormData({ ...formData, levelKognitif: current });
   };
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem('BuatSoalData');
-    if (saved) {
-      try {
-        setFormData(prev => ({ ...prev, ...JSON.parse(saved) }));
-      } catch (e) {}
-    }
-  }, []);
-
   const saveProgress = () => {
-    localStorage.setItem('BuatSoalData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {

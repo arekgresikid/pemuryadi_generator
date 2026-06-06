@@ -8,6 +8,7 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ai = new GoogleGenAI({});
 
@@ -20,7 +21,7 @@ const PROVINSI_LIST = [
 
 export default function KalenderPendidikan() {
   const { profile } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('KalenderPendidikanData', {
     provinsi: 'DKI Jakarta',
     jenjang: 'SD',
     tahunAjaran: '2026/2027',
@@ -32,25 +33,16 @@ export default function KalenderPendidikan() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('KalenderPendidikanData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('KalenderPendidikan_selectedModel', 'openai');
 
   const saveProgress = () => {
-    localStorage.setItem('KalenderPendidikanData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('KalenderPendidikanData');
+      localStorage.removeItem('KalenderPendidikan_selectedModel');
       window.location.reload();
     }
   };

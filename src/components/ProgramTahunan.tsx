@@ -8,12 +8,13 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ai = new GoogleGenAI({});
 
 export default function ProgramTahunan() {
   const { profile } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('ProgramTahunanData', {
     jenjang: 'sd',
     kelas: '1',
     fase: 'A',
@@ -59,25 +60,16 @@ export default function ProgramTahunan() {
   }, [formData.mapel]);
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('ProgramTahunanData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('ProgramTahunan_selectedModel', 'openai');
 
   const saveProgress = () => {
-    localStorage.setItem('ProgramTahunanData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('ProgramTahunanData');
+      localStorage.removeItem('ProgramTahunan_selectedModel');
       window.location.reload();
     }
   };

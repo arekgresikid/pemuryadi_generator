@@ -3,6 +3,7 @@ import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Play, Loader2, Trophy, Users, BookOpen, Settings } from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const ai = new GoogleGenAI({});
 
@@ -27,7 +28,7 @@ const DIFFICULTY_LEVELS = [
 ];
 
 export default function GameIFP() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('GameIFPData', {
     topik: '',
     jenjang: 'SD',
     jenisGame: 'puzzle',
@@ -40,8 +41,8 @@ export default function GameIFP() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-  const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('GameIFP_selectedModel', 'openai');
+  const [selectedImageModel, setSelectedImageModel] = useLocalStorage<string>('GameIFP_selectedImageModel', 'flux');
   const [gameHtml, setGameHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);

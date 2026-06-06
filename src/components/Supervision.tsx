@@ -8,53 +8,51 @@ import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save, ClipboardList, Download, Upload, Target, BarChart, MessageCircle, Calculator, Printer , Trash2 } from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function Supervision() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('Supervision_selectedModel', 'openai');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem('SupervisionData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
-
   const saveProgress = () => {
-    localStorage.setItem('SupervisionData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('SupervisionData');
+      localStorage.removeItem('Supervision_selectedModel');
+      localStorage.removeItem('Supervision_sources');
+      localStorage.removeItem('Supervision_eduLevel');
+      localStorage.removeItem('Supervision_fase');
+      localStorage.removeItem('Supervision_kelas');
+      localStorage.removeItem('Supervision_subject');
+      localStorage.removeItem('Supervision_scores');
       window.location.reload();
     }
   };
 
   const [error, setError] = useState('');
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('SupervisionData', {
     guru: '', nipGuru: '', supervisor: '', nipSupervisor: '', 
     sekolah: '', tanggal: new Date().toISOString().split('T')[0], catatan: ''
   });
 
-  const [sources, setSources] = useState({
+  const [sources, setSources] = useLocalStorage('Supervision_sources', {
     rpm: '',
     modulAjar: '',
     modulKokurikuler: ''
   });
   
-  const [eduLevel, setEduLevel] = useState('sd');
-  const [fase, setFase] = useState('A');
-  const [kelas, setKelas] = useState('1');
-  const [subject, setSubject] = useState('bahasa-indonesia');
+  const [eduLevel, setEduLevel] = useLocalStorage('Supervision_eduLevel', 'sd');
+  const [fase, setFase] = useLocalStorage('Supervision_fase', 'A');
+  const [kelas, setKelas] = useLocalStorage('Supervision_kelas', '1');
+  const [subject, setSubject] = useLocalStorage('Supervision_subject', 'bahasa-indonesia');
   
-  const [scores, setScores] = useState<Record<string, number>>({});
+  const [scores, setScores] = useLocalStorage<Record<string, number>>('Supervision_scores', {});
   const [result, setResult] = useState<{total: number, grade: string, plan: number, exec: number, ass: number, ref: number} | null>(null);
 
   // Sync profile data

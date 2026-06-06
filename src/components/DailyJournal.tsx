@@ -7,18 +7,19 @@ import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { GoogleGenAI, Type } from '../lib/genai';
 import ModelSelector from './ModelSelector';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function DailyJournal() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('DailyJournalData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
     semester: '1', tahunAjaran: '', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, tanggal: new Date().toISOString().split('T')[0], jam: '',
     cp: '', atp: '', catatan: '', refleksi: '', ttdGuru: '', ttdKS: ''
   });
   
   const [result, setResult] = useState<any>(null);
-  const [selectedModel, setSelectedModel] = useState<string>('openai');
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('DailyJournal_selectedModel', 'openai');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
 

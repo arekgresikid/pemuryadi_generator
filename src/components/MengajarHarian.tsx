@@ -9,6 +9,7 @@ import PDFRemixUpload from './PDFRemixUpload';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const JENJANG_OPTIONS = ['SD/MI', 'SMP/MTs', 'SMA/MA', 'SMK/MAK'];
 const FASE_OPTIONS = ['Fase A', 'Fase B', 'Fase C', 'Fase D', 'Fase E', 'Fase F'];
@@ -46,7 +47,7 @@ const MAPEL_UMUM = [
 ];
 
 export default function MengajarHarian() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('MengajarHarianData', {
     jenisGuru: 'Guru Kelas',
     semester: 'Ganjil (1)',
     jenjang: 'SD/MI',
@@ -60,7 +61,7 @@ export default function MengajarHarian() {
     jumlahInklusi: ''
   });
 
-  const [selectedFeatures, setSelectedFeatures] = useState({
+  const [selectedFeatures, setSelectedFeatures] = useLocalStorage('MengajarHarian_selectedFeatures', {
     ringkasan: true,
     slide: true,
     petaPikiran: true,
@@ -71,25 +72,17 @@ export default function MengajarHarian() {
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('MengajarHarianData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('MengajarHarian_selectedModel', 'openai');
 
   const saveProgress = () => {
-    localStorage.setItem('MengajarHarianData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('MengajarHarianData');
+      localStorage.removeItem('MengajarHarian_selectedFeatures');
+      localStorage.removeItem('MengajarHarian_selectedModel');
       window.location.reload();
     }
   };

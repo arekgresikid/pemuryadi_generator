@@ -10,37 +10,31 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 export default function DeepLearningPlan() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = React.useState<string>('openai');
-  const [formatPerangkat, setFormatPerangkat] = useState<'standar'|'kemenag'>('standar');
-
-  React.useEffect(() => {
-    const saved = localStorage.getItem('DeepLearningPlanData');
-    if (saved) {
-      try {
-        setFormData(JSON.parse(saved));
-      } catch (e) {}
-    }
-  }, []);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('DeepLearningPlan_selectedModel', 'openai');
+  const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('DeepLearningPlan_formatPerangkat', 'standar');
 
   const saveProgress = () => {
-    localStorage.setItem('DeepLearningPlanData', JSON.stringify(formData));
-    alert('Progress berhasil disimpan!');
+    alert('Progress otomatis disimpan saat Anda mengetik!');
   };
 
   const resetProgress = () => {
     if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
       localStorage.removeItem('DeepLearningPlanData');
+      localStorage.removeItem('DeepLearningPlan_profilLulusan');
+      localStorage.removeItem('DeepLearningPlan_selectedModel');
+      localStorage.removeItem('DeepLearningPlan_formatPerangkat');
       window.location.reload();
     }
   };
 
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useLocalStorage('DeepLearningPlanData', {
     sekolah: '',
     jenisSekolah: 'Negeri',
     namaGuru: '',
@@ -93,7 +87,7 @@ export default function DeepLearningPlan() {
     sekolahRamahAnak: false
   });
 
-  const [profilLulusan, setProfilLulusan] = useState({
+  const [profilLulusan, setProfilLulusan] = useLocalStorage('DeepLearningPlan_profilLulusan', {
     keimanan: false,
     kewargaan: false,
     penalaranKritis: false,
