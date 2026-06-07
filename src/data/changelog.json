@@ -13,7 +13,11 @@
       "Mengubah nama tautan \"Halaman Landing\" di bagian footer (bawah halaman) menjadi \"Beranda\".",
       "Menambahkan fitur Maintenance Mode (Mode Pemeliharaan) di Admin Panel beserta halaman countdown, dilengkapi rute khusus dan akses prioritas untuk Owner/Admin.",
       "Menyempurnakan halaman Maintenance dengan fitur yang lebih responsif, perbaikan ikon kalender, menampilkan kontak nomor WhatsApp secara eksplisit, dan menambahkan fitur Pesan/Alasan kustom.",
-      "Memperbaiki isu Server Error (500) akibat bentrok nama tabel saat mencatat log aktivitas pada Pengaturan Global di Admin Panel."
+      "Memperbaiki isu Server Error (500) akibat bentrok nama tabel saat mencatat log aktivitas pada Pengaturan Global di Admin Panel.",
+      "Merombak UI Pop-up native (browser) untuk aksi krusial (seperti Hapus, Hapus Massal, dan Impor Pengguna) dengan Modal interaktif bergaya modern.",
+      "Menambahkan verifikasi ganda (Checkbox Konfirmasi) pada dialog Impor dan Hapus Massal untuk keamanan tambahan.",
+      "Memecah blok panjang Pengaturan Global di Dashboard Admin menjadi deretan Kartu (Cards) interaktif yang lebih terorganisir.",
+      "Merelokasi widget Grafik Tren Pendaftaran dari atas ke bagian bawah daftar Tabel Pengguna untuk hirarki UI yang lebih fokus."
     ]
   },
   {

@@ -237,7 +237,21 @@ app.get('/admin/stats', async (c) => {
     FROM users
   `).first();
   
-  return c.json(result);
+  let growth = [];
+  try {
+    const growthRes = await db.prepare(`
+      SELECT date(createdAt) as date, COUNT(*) as count 
+      FROM users 
+      WHERE createdAt IS NOT NULL AND createdAt >= date('now', '-30 days')
+      GROUP BY date(createdAt)
+      ORDER BY date ASC
+    `).all();
+    growth = growthRes.results;
+  } catch (e) {
+    // Graceful fallback if sqlite date functions fail
+  }
+  
+  return c.json({ ...result, growth });
 });
 
 app.get('/admin/logs', async (c) => {
@@ -251,8 +265,15 @@ app.get('/admin/logs', async (c) => {
   }
 
   await db.prepare('CREATE TABLE IF NOT EXISTS admin_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, admin_email TEXT, action TEXT, created_at TEXT)').run();
-  const { results } = await db.prepare('SELECT * FROM admin_logs ORDER BY id DESC LIMIT 100').all();
-  return c.json(results);
+  await db.prepare('CREATE TABLE IF NOT EXISTS activity_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, msg TEXT NOT NULL, status TEXT NOT NULL, color TEXT NOT NULL, time TEXT NOT NULL, timestamp INTEGER NOT NULL)').run();
+  
+  const adminLogs = await db.prepare('SELECT * FROM admin_logs ORDER BY id DESC LIMIT 50').all();
+  const activityLogs = await db.prepare('SELECT * FROM activity_logs ORDER BY id DESC LIMIT 50').all();
+  
+  return c.json({
+    adminLogs: adminLogs.results,
+    activityLogs: activityLogs.results
+  });
 });
 
 app.post('/admin/logs', async (c) => {
@@ -366,6 +387,93 @@ app.post('/admin/users', async (c) => {
   ).run();
 
   return c.json({ success: true });
+});
+
+app.post('/admin/users/bulk', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { action, uids, tier, role } = body;
+  
+  if (!uids || !Array.isArray(uids) || uids.length === 0) {
+    return c.json({ error: 'No users selected' }, 400);
+  }
+
+  const placeholders = uids.map(() => '?').join(',');
+
+  if (action === 'delete') {
+    await db.prepare(`DELETE FROM users WHERE uid IN (${placeholders})`).bind(...uids).run();
+  } else if (action === 'updateTier' && tier) {
+    await db.prepare(`UPDATE users SET tier = ? WHERE uid IN (${placeholders})`).bind(tier, ...uids).run();
+  } else if (action === 'updateRole' && role) {
+    await db.prepare(`UPDATE users SET role = ? WHERE uid IN (${placeholders})`).bind(role, ...uids).run();
+  } else {
+    return c.json({ error: 'Invalid bulk action' }, 400);
+  }
+
+  return c.json({ success: true });
+});
+
+app.post('/admin/users/import', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { users } = body;
+  
+  if (!users || !Array.isArray(users) || users.length === 0) {
+    return c.json({ error: 'No users provided' }, 400);
+  }
+
+  const results = { imported: 0, failed: 0, errors: [] as string[] };
+  
+  for (const u of users) {
+    if (!u.email) {
+      results.failed++;
+      continue;
+    }
+    const existing = await db.prepare('SELECT * FROM users WHERE email = ?').bind(u.email).first();
+    if (existing) {
+      results.failed++;
+      results.errors.push(`Duplicate: ${u.email}`);
+      continue;
+    }
+
+    const role = u.role || 'siswa';
+    const tier = u.tier || 'Free';
+    
+    const tempUid = 'import-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+    let initialTokens = 0;
+    if (role === 'owner' || role === 'admin') initialTokens = 999999;
+    else if (tier === 'Titan') initialTokens = 2500;
+    else if (tier === 'Supreme' || tier === 'SUPREME') initialTokens = 1000;
+    else if (tier === 'Ultimate') initialTokens = 600;
+    else if (tier === 'Premium') initialTokens = 250;
+    else if (tier === 'Essential') initialTokens = 85;
+    else if (tier === 'Free') initialTokens = 2;
+
+    await db.prepare(
+      `INSERT INTO users (uid, email, displayName, role, tier, tokens, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      tempUid, u.email, u.displayName || null, role, tier, initialTokens, new Date().toISOString()
+    ).run();
+    results.imported++;
+  }
+
+  return c.json({ success: true, ...results });
 });
 
 app.delete('/admin/users/:uid', async (c) => {
