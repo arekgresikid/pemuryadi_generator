@@ -204,10 +204,12 @@ export default function Pricing() {
     if (!selectedPlan) return;
     const finalPriceStr = isEligibleForDiscount ? getDiscountedPrice(selectedPlan?.price || '') : selectedPlan?.price;
     
-    let finalWaNumber = waNumber;
-    if (waNumber2 && waNumber2.trim() !== '') {
-      // Jika ada WA 2, bagi traffic 50:50
-      finalWaNumber = Math.random() > 0.5 ? waNumber : waNumber2;
+    // Gunakan nomor dari pengaturan Admin, jika kosong gunakan nomor default E-Wallet
+    let finalWaNumber = waNumber && waNumber.trim() !== '' ? waNumber : '081330763633';
+    
+    // Pastikan nomor diawali dengan kode negara
+    if (finalWaNumber.startsWith('0')) {
+      finalWaNumber = '62' + finalWaNumber.substring(1);
     }
     
     const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya (${profile?.email || 'Guest'}) ingin mengkonfirmasi pembayaran untuk upgrade paket *${selectedPlan.name}* senilai *${finalPriceStr}*. Mohon info untuk langkah selanjutnya.`);
