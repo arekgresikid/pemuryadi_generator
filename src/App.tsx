@@ -358,6 +358,11 @@ export default function App() {
     trackClick(tabId);
     addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-blue-500');
     incrementFavorites();
+    
+    // Auto scroll ke atas dengan animasi yang mulus
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -627,7 +632,7 @@ export default function App() {
           </div>
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
-            <button onClick={() => setActiveTab('changelog')} className="text-center group flex flex-col items-center">
+            <button onClick={() => handleTabChange('changelog')} className="text-center group flex flex-col items-center">
               <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.6</p>
               <p className="text-[9px] text-gray-400 group-hover:text-blue-500 transition-colors mt-1 uppercase tracking-widest">Lihat Riwayat Versi</p>
             </button>
