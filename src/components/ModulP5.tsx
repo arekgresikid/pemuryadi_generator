@@ -220,22 +220,22 @@ Format output harus JSON murni:
     if (!result) return;
     const { meta, judulProjek, tujuanProjek, relevansiTema, dimensi, alurKegiatan, rubrikPenilaian } = result;
 
-    const content = \`
+    const content = `
       <h2>MODUL PROJEK PENGUATAN PROFIL PELAJAR PANCASILA (P5)</h2>
-      <h3 style="margin-top: 5px;">\${judulProjek}</h3>
+      <h3 style="margin-top: 5px;">${judulProjek}</h3>
       <div style="margin-bottom: 20px;">
         <table style="width: 100%; border: none;">
-          <tr><td style="width: 150px; border: none; padding: 2px;">Jenjang</td><td style="border: none; padding: 2px;">: \${meta.jenjangLabel}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Kelas/Fase</td><td style="border: none; padding: 2px;">: \${meta.kelas} / \${meta.fase}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Tema Projek</td><td style="border: none; padding: 2px;">: \${meta.tema}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Topik Spesifik</td><td style="border: none; padding: 2px;">: \${meta.topik}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Alokasi Waktu</td><td style="border: none; padding: 2px;">: \${meta.alokasiWaktu}</td></tr>
+          <tr><td style="width: 150px; border: none; padding: 2px;">Jenjang</td><td style="border: none; padding: 2px;">: ${meta.jenjangLabel}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Kelas/Fase</td><td style="border: none; padding: 2px;">: ${meta.kelas} / ${meta.fase}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Tema Projek</td><td style="border: none; padding: 2px;">: ${meta.tema}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Topik Spesifik</td><td style="border: none; padding: 2px;">: ${meta.topik}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Alokasi Waktu</td><td style="border: none; padding: 2px;">: ${meta.alokasiWaktu}</td></tr>
         </table>
       </div>
 
       <h4>A. Tujuan & Relevansi Projek</h4>
-      <p><strong>Tujuan:</strong> \${tujuanProjek}</p>
-      <p><strong>Relevansi Tema:</strong> \${relevansiTema}</p>
+      <p><strong>Tujuan:</strong> ${tujuanProjek}</p>
+      <p><strong>Relevansi Tema:</strong> ${relevansiTema}</p>
 
       <h4>B. Dimensi, Elemen, dan Sub-Elemen Profil Pelajar Pancasila</h4>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -248,14 +248,14 @@ Format output harus JSON murni:
           </tr>
         </thead>
         <tbody>
-          \${dimensi?.map((d: any) => \`
+          ${dimensi?.map((d: any) => `
             <tr>
-              <td style="border: 1px solid black; padding: 8px;">\${d.nama}</td>
-              <td style="border: 1px solid black; padding: 8px;">\${d.elemen}</td>
-              <td style="border: 1px solid black; padding: 8px;">\${d.subElemen}</td>
-              <td style="border: 1px solid black; padding: 8px;">\${d.targetPencapaian}</td>
+              <td style="border: 1px solid black; padding: 8px;">${d.nama}</td>
+              <td style="border: 1px solid black; padding: 8px;">${d.elemen}</td>
+              <td style="border: 1px solid black; padding: 8px;">${d.subElemen}</td>
+              <td style="border: 1px solid black; padding: 8px;">${d.targetPencapaian}</td>
             </tr>
-          \`).join('')}
+          `).join('')}
         </tbody>
       </table>
 
@@ -269,17 +269,17 @@ Format output harus JSON murni:
           </tr>
         </thead>
         <tbody>
-          \${alurKegiatan?.map((a: any) => \`
+          ${alurKegiatan?.map((a: any) => `
             <tr>
-              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">\${a.tahap}</td>
+              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">${a.tahap}</td>
               <td style="border: 1px solid black; padding: 8px;">
                 <ul style="margin: 0; padding-left: 15px;">
-                  \${a.aktivitas?.map((act: string) => \`<li>\${act}</li>\`).join('')}
+                  ${a.aktivitas?.map((act: string) => `<li>${act}</li>`).join('')}
                 </ul>
               </td>
-              <td style="border: 1px solid black; padding: 8px;">\${a.keterangan}</td>
+              <td style="border: 1px solid black; padding: 8px;">${a.keterangan}</td>
             </tr>
-          \`).join('')}
+          `).join('')}
         </tbody>
       </table>
 
@@ -295,41 +295,41 @@ Format output harus JSON murni:
           </tr>
         </thead>
         <tbody>
-          \${rubrikPenilaian?.map((r: any) => \`
+          ${rubrikPenilaian?.map((r: any) => `
             <tr>
-              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">\${r.dimensi}</td>
-              \${r.kriteria?.map((k: any) => \`<td style="border: 1px solid black; padding: 8px; font-size: 11px;">\${k.deskripsi}</td>\`).join('')}
+              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">${r.dimensi}</td>
+              ${r.kriteria?.map((k: any) => `<td style="border: 1px solid black; padding: 8px; font-size: 11px;">${k.deskripsi}</td>`).join('')}
             </tr>
-          \`).join('')}
+          `).join('')}
         </tbody>
       </table>
-    \`;
+    `;
 
-    const docFooter = \`
-      \${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? \`<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+    const docFooter = `
+      ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
           <div style="width: 45%;">
               <p>Mengetahui,</p>
               <p>Kepala Sekolah</p>
               <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">\${profile?.kepalaSekolah || '................................'}</p>
-              <p>\${profile?.jenisNipKepalaSekolah || 'NIP'}. \${profile?.nipKepalaSekolah || '................................'}</p>
+              <p style="font-weight: bold; text-decoration: underline;">${profile?.kepalaSekolah || '................................'}</p>
+              <p>${profile?.jenisNipKepalaSekolah || 'NIP'}. ${profile?.nipKepalaSekolah || '................................'}</p>
           </div>
           <div style="width: 45%;">
-              <p>Dibuat pada, \${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
               <p>Koordinator P5 / Guru</p>
               <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">\${profile?.nama || profile?.displayName || '................................'}</p>
-              <p>\${profile?.jenisNipGuru || 'NIP'}. \${profile?.nip || '................................'}</p>
+              <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
+              <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
           </div>
-      </div>\` : ''}
+      </div>` : ''}
       
       <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; text-align: center; font-size: 11px; color: #666; page-break-inside: avoid;">
         <p>Dokumen ini dihasilkan secara otomatis oleh <b>Generator Modul P5 - Pemuryadi</b></p>
-        <p>Maju Pendidikan Indonesia &copy; \${new Date().getFullYear()}</p>
+        <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
       </div>
-    \`;
+    `;
 
-    printWindow.document.write(\`
+    printWindow.document.write(`
       <html>
         <head>
           <title>Cetak Modul P5</title>
@@ -346,15 +346,15 @@ Format output harus JSON murni:
           </style>
         </head>
         <body>
-          \${getWatermarkHtml()}
-          \${content}
-          \${docFooter}
+          ${getWatermarkHtml()}
+          ${content}
+          ${docFooter}
           <script>
             window.onload = () => { window.print(); window.close(); }
           </script>
         </body>
       </html>
-    \`);
+    `);
     printWindow.document.close();
   };
 
@@ -455,7 +455,7 @@ Format output harus JSON murni:
                   value={formData.topik}
                   onChange={(val) => setFormData({...formData, topik: val})}
                   placeholder="Contoh: Mengolah sampah plastik menjadi kerajinan ecobrick"
-                  context={\`Berikan ide Topik Spesifik Projek P5 yang menarik untuk anak \${educationLevels.find(l => l.id === formData.jenjang)?.label} dengan Tema '\${formData.tema}'.\`}
+                  context={`Berikan ide Topik Spesifik Projek P5 yang menarik untuk anak ${educationLevels.find(l => l.id === formData.jenjang)?.label} dengan Tema '${formData.tema}'.`}
                 />
               </div>
 

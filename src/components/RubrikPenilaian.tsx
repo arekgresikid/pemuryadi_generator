@@ -225,40 +225,40 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
       headerSkor = ['Belum Berkembang', 'Mulai Berkembang', 'Berkembang', 'Membudaya'];
     }
 
-    const content = \`
-      <h2>\${judulInstrumen}</h2>
+    const content = `
+      <h2>${judulInstrumen}</h2>
       <div style="margin-bottom: 20px;">
         <table style="width: 100%; border: none;">
-          <tr><td style="width: 150px; border: none; padding: 2px;">Mata Pelajaran</td><td style="border: none; padding: 2px;">: \${meta.mapelLabel}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Kelas/Semester</td><td style="border: none; padding: 2px;">: \${meta.kelas} / \${meta.fase}</td></tr>
-          <tr><td style="border: none; padding: 2px;">Jenis Asesmen</td><td style="border: none; padding: 2px;">: \${meta.jenisAsesmen}</td></tr>
-          <tr><td style="border: none; padding: 2px; vertical-align: top;">Tujuan</td><td style="border: none; padding: 2px;">: \${meta.tujuanPembelajaran}</td></tr>
+          <tr><td style="width: 150px; border: none; padding: 2px;">Mata Pelajaran</td><td style="border: none; padding: 2px;">: ${meta.mapelLabel}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Kelas/Semester</td><td style="border: none; padding: 2px;">: ${meta.kelas} / ${meta.fase}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Jenis Asesmen</td><td style="border: none; padding: 2px;">: ${meta.jenisAsesmen}</td></tr>
+          <tr><td style="border: none; padding: 2px; vertical-align: top;">Tujuan</td><td style="border: none; padding: 2px;">: ${meta.tujuanPembelajaran}</td></tr>
         </table>
       </div>
 
-      <p style="margin-bottom: 20px; font-style: italic;">\${deskripsiInstrumen}</p>
+      <p style="margin-bottom: 20px; font-style: italic;">${deskripsiInstrumen}</p>
 
       <h4>A. Rubrik Kriteria Penilaian</h4>
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
           <tr>
             <th style="border: 1px solid black; padding: 8px; width: 20%;">Aspek Penilaian</th>
-            <th style="border: 1px solid black; padding: 8px; width: 20%;">\${headerSkor[0]}</th>
-            <th style="border: 1px solid black; padding: 8px; width: 20%;">\${headerSkor[1]}</th>
-            <th style="border: 1px solid black; padding: 8px; width: 20%;">\${headerSkor[2]}</th>
-            \${kriteriaUtama[0]?.skor4 ? \`<th style="border: 1px solid black; padding: 8px; width: 20%;">\${headerSkor[3]}</th>\` : ''}
+            <th style="border: 1px solid black; padding: 8px; width: 20%;">${headerSkor[0]}</th>
+            <th style="border: 1px solid black; padding: 8px; width: 20%;">${headerSkor[1]}</th>
+            <th style="border: 1px solid black; padding: 8px; width: 20%;">${headerSkor[2]}</th>
+            ${kriteriaUtama[0]?.skor4 ? `<th style="border: 1px solid black; padding: 8px; width: 20%;">${headerSkor[3]}</th>` : ''}
           </tr>
         </thead>
         <tbody>
-          \${kriteriaUtama?.map((k: any) => \`
+          ${kriteriaUtama?.map((k: any) => `
             <tr>
-              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">\${k.aspek}</td>
-              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">\${k.skor1 || '-'}</td>
-              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">\${k.skor2 || '-'}</td>
-              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">\${k.skor3 || '-'}</td>
-              \${k.skor4 ? \`<td style="border: 1px solid black; padding: 8px; font-size: 12px;">\${k.skor4}</td>\` : ''}
+              <td style="border: 1px solid black; padding: 8px; font-weight: bold;">${k.aspek}</td>
+              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">${k.skor1 || '-'}</td>
+              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">${k.skor2 || '-'}</td>
+              <td style="border: 1px solid black; padding: 8px; font-size: 12px;">${k.skor3 || '-'}</td>
+              ${k.skor4 ? `<td style="border: 1px solid black; padding: 8px; font-size: 12px;">${k.skor4}</td>` : ''}
             </tr>
-          \`).join('')}
+          `).join('')}
         </tbody>
       </table>
 
@@ -267,45 +267,45 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
         <thead>
           <tr>
             <th style="border: 1px solid black; padding: 8px; width: 5%;">No</th>
-            \${lembarObservasi?.headerKolom?.map((h: string) => \`<th style="border: 1px solid black; padding: 8px;">\${h}</th>\`).join('')}
+            ${lembarObservasi?.headerKolom?.map((h: string) => `<th style="border: 1px solid black; padding: 8px;">${h}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
-          \${Array.from({ length: 15 }).map((_, i) => \`
+          ${Array.from({ length: 15 }).map((_, i) => `
             <tr>
-              <td style="border: 1px solid black; padding: 8px; text-align: center;">\${i + 1}</td>
-              \${lembarObservasi?.headerKolom?.map(() => \`<td style="border: 1px solid black; padding: 12px;"></td>\`).join('')}
+              <td style="border: 1px solid black; padding: 8px; text-align: center;">${i + 1}</td>
+              ${lembarObservasi?.headerKolom?.map(() => `<td style="border: 1px solid black; padding: 12px;"></td>`).join('')}
             </tr>
-          \`).join('')}
+          `).join('')}
         </tbody>
       </table>
-    \`;
+    `;
 
-    const docFooter = \`
-      \${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? \`<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+    const docFooter = `
+      ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
           <div style="width: 45%;">
               <p>Mengetahui,</p>
               <p>Kepala Sekolah</p>
               <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">\${profile?.kepalaSekolah || '................................'}</p>
-              <p>\${profile?.jenisNipKepalaSekolah || 'NIP'}. \${profile?.nipKepalaSekolah || '................................'}</p>
+              <p style="font-weight: bold; text-decoration: underline;">${profile?.kepalaSekolah || '................................'}</p>
+              <p>${profile?.jenisNipKepalaSekolah || 'NIP'}. ${profile?.nipKepalaSekolah || '................................'}</p>
           </div>
           <div style="width: 45%;">
-              <p>Dibuat pada, \${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
               <p>Guru Mata Pelajaran</p>
               <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">\${profile?.nama || profile?.displayName || '................................'}</p>
-              <p>\${profile?.jenisNipGuru || 'NIP'}. \${profile?.nip || '................................'}</p>
+              <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
+              <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
           </div>
-      </div>\` : ''}
+      </div>` : ''}
       
       <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; text-align: center; font-size: 11px; color: #666; page-break-inside: avoid;">
         <p>Dokumen ini dihasilkan secara otomatis oleh <b>Generator Asesmen - Pemuryadi</b></p>
-        <p>Maju Pendidikan Indonesia &copy; \${new Date().getFullYear()}</p>
+        <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
       </div>
-    \`;
+    `;
 
-    printWindow.document.write(\`
+    printWindow.document.write(`
       <html>
         <head>
           <title>Cetak Rubrik Penilaian</title>
@@ -322,15 +322,15 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
           </style>
         </head>
         <body>
-          \${getWatermarkHtml()}
-          \${content}
-          \${docFooter}
+          ${getWatermarkHtml()}
+          ${content}
+          ${docFooter}
           <script>
             window.onload = () => { window.print(); window.close(); }
           </script>
         </body>
       </html>
-    \`);
+    `);
     printWindow.document.close();
   };
 
@@ -446,7 +446,7 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
                   value={formData.tujuanPembelajaran}
                   onChange={(val) => setFormData({...formData, tujuanPembelajaran: val})}
                   placeholder="Contoh: Siswa dapat mendeskripsikan ciri-ciri makhluk hidup melalui observasi lapangan..."
-                  context={\`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen \${formData.jenisAsesmen} Mapel \${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas \${formData.kelas}.\`}
+                  context={`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen ${formData.jenisAsesmen} Mapel ${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas ${formData.kelas}.`}
                   rows={4}
                 />
               </div>
