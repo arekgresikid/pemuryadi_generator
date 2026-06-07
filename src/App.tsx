@@ -388,10 +388,10 @@ export default function App() {
         { id: 'deeplearning', icon: <Clipboard size={16} />, label: 'RPM', premiumOnly: true },
         { id: 'modul', icon: <BookMarked size={16} />, label: 'Modul Ajar', premiumOnly: true },
         { id: 'jurnal', icon: <BookText size={16} />, label: 'Jurnal' },
-        { id: 'modul-p5', icon: <BookMarked size={16} />, label: 'Modul P5' },
+        { id: 'modul-p5', icon: <BookMarked size={16} />, label: 'Modul P5', isBeta: true },
         { id: 'supervisi', icon: <Search size={16} />, label: 'Supervisi' },
         { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
-        { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian' },
+        { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
       ]
