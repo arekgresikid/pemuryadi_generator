@@ -26,7 +26,7 @@ export default function Changelog() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">Riwayat Versi</h1>
-            <p className="text-sm text-gray-500 mt-1 font-medium">Melacak setiap evolusi dan pembaruan sistem digen.id.</p>
+            <p className="text-sm text-gray-500 mt-1 font-medium">Catatan rilis resmi yang mendokumentasikan pembaruan fitur, optimalisasi, dan perbaikan sistem <a href="https://digen.id" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold transition-colors">digen.id</a>.</p>
           </div>
         </div>
       </div>
