@@ -325,6 +325,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
           </div>
         </div>
       </footer>
+      </div>
     </>
   );
 }
