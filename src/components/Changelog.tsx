@@ -63,14 +63,42 @@ export default function Changelog() {
 
                 {/* Commits List */}
                 <div className="space-y-3">
-                  {ver.commits.map((commit, cIdx) => (
-                    <div key={cIdx} className="flex gap-3 items-start">
-                      <GitCommit size={18} className={`mt-0.5 shrink-0 ${isLatest ? 'text-blue-400' : 'text-gray-300'}`} />
-                      <p className={`text-sm leading-relaxed ${isLatest ? 'text-gray-700 font-medium' : 'text-gray-600'}`}>
-                        {commit}
-                      </p>
-                    </div>
-                  ))}
+                  {ver.commits.map((commit, cIdx) => {
+                    // Parse markdown link syntax: [text](url)
+                    const renderText = (text: string) => {
+                      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                      const parts = [];
+                      let lastIndex = 0;
+                      let match;
+                      
+                      while ((match = linkRegex.exec(text)) !== null) {
+                        if (match.index > lastIndex) {
+                          parts.push(text.substring(lastIndex, match.index));
+                        }
+                        parts.push(
+                          <a key={`${cIdx}-${match.index}`} href={match[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">
+                            {match[1]}
+                          </a>
+                        );
+                        lastIndex = match.index + match[0].length;
+                      }
+                      
+                      if (lastIndex < text.length) {
+                        parts.push(text.substring(lastIndex));
+                      }
+                      
+                      return parts.length > 0 ? parts : text;
+                    };
+
+                    return (
+                      <div key={cIdx} className="flex gap-3 items-start">
+                        <GitCommit size={18} className={`mt-0.5 shrink-0 ${isLatest ? 'text-blue-400' : 'text-gray-300'}`} />
+                        <p className={`text-sm leading-relaxed ${isLatest ? 'text-gray-700 font-medium' : 'text-gray-600'}`}>
+                          {renderText(commit)}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
