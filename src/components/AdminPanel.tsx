@@ -39,6 +39,7 @@ export default function AdminPanel() {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [showMaintenanceConfirm, setShowMaintenanceConfirm] = useState(false);
   const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{uid: string, email: string} | null>(null);
   
   const getBtnClass = (key: string, currentValue: string | boolean, baseClass: string) => {
     const isUnsaved = savedSettings[key] !== String(currentValue);
@@ -184,18 +185,24 @@ export default function AdminPanel() {
     setEditActiveUntil('');
   };
 
-  const deleteUser = async (uid: string, email: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus user ini?')) return;
+  const confirmDeleteUser = (uid: string, email: string) => {
+    setUserToDelete({uid, email});
+  };
+
+  const executeDeleteUser = async () => {
+    if (!userToDelete) return;
     try {
-      const res = await fetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/users/${userToDelete.uid}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success("User dihapus");
-        postLog(`Menghapus pengguna: ${email}`);
+        postLog(`Menghapus pengguna: ${userToDelete.email}`);
         await fetchUsers();
         await fetchStats();
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setUserToDelete(null);
     }
   };
 
@@ -453,7 +460,7 @@ export default function AdminPanel() {
                           <Edit2 size={12} /> Edit
                         </button>
                         <button 
-                          onClick={() => deleteUser(u.uid, u.email)}
+                          onClick={() => confirmDeleteUser(u.uid, u.email)}
                           className="inline-flex items-center px-2 py-1.5 bg-white border border-red-200 text-red-500 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
                           title="Hapus Pengguna"
                         >
@@ -1010,6 +1017,40 @@ export default function AdminPanel() {
               >
                 Ya, Lanjutkan
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Delete Confirmation Modal */}
+      {userToDelete && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4" onClick={() => setUserToDelete(null)}>
+          <div 
+            className="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl transform transition-all border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <Trash2 size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Hapus Pengguna?</h3>
+              <p className="text-gray-500 mb-6 text-sm">
+                Tindakan ini permanen dan tidak dapat dibatalkan. Pengguna <span className="font-bold text-gray-800">{userToDelete.email}</span> akan dihapus dari sistem.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button 
+                  onClick={() => setUserToDelete(null)}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={executeDeleteUser}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-500/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Trash2 size={18} /> Hapus
+                </button>
+              </div>
             </div>
           </div>
         </div>
