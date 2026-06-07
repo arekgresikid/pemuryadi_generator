@@ -49,6 +49,8 @@ import MainLandingPage from './components/MainLandingPage';
 
 const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
+  const [isSlow, setIsSlow] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -59,11 +61,42 @@ const LoadingScreen = () => {
         return p + increment;
       });
     }, 50);
-    return () => clearInterval(timer);
+
+    const slowTimer = setTimeout(() => setIsSlow(true), 6000);
+    const errorTimer = setTimeout(() => setIsError(true), 15000);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(slowTimer);
+      clearTimeout(errorTimer);
+    };
   }, []);
 
   const circumference = 2 * Math.PI * 40;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  if (isError) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X size={32} className="text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Koneksi Terputus</h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+            Gagal terhubung ke server. Periksa koneksi internet Anda atau coba lagi nanti.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
@@ -83,11 +116,16 @@ const LoadingScreen = () => {
 
         <div className="flex flex-col items-center text-center">
           <h2 className="text-xl font-bold text-white tracking-widest uppercase mb-2">Memuat Sistem</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-4">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0s' }}></div>
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
           </div>
+          {isSlow && (
+            <p className="text-amber-500/80 text-xs animate-pulse max-w-[250px]">
+              Koneksi internet lambat atau server sedang memproses. Mohon tunggu sebentar...
+            </p>
+          )}
         </div>
       </div>
     </div>
