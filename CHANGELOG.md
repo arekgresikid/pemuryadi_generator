@@ -10,6 +10,8 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Mengubah nama menu dan navigasi breadcrumb dari "Beranda" menjadi "Dashboard".
 - Mengubah nama tautan "Halaman Landing" di bagian footer (bawah halaman) menjadi "Beranda".
 - Menambahkan fitur Maintenance Mode (Mode Pemeliharaan) di Admin Panel beserta halaman countdown, dilengkapi rute khusus dan akses prioritas untuk Owner/Admin.
+- Menyempurnakan halaman Maintenance dengan fitur yang lebih responsif, perbaikan ikon kalender, menampilkan kontak nomor WhatsApp secara eksplisit, dan menambahkan fitur Pesan/Alasan kustom.
+- Memperbaiki isu Server Error (500) akibat bentrok nama tabel saat mencatat log aktivitas pada Pengaturan Global di Admin Panel.
 
 ## [5.2.7] - 8 Juni 2026
 - Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.

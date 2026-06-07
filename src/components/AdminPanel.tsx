@@ -37,6 +37,8 @@ export default function AdminPanel() {
   
   const [savedSettings, setSavedSettings] = useState<Record<string, string>>({});
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [showMaintenanceConfirm, setShowMaintenanceConfirm] = useState(false);
+  const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
   
   const getBtnClass = (key: string, currentValue: string | boolean, baseClass: string) => {
     const isUnsaved = savedSettings[key] !== String(currentValue);
@@ -138,10 +140,16 @@ export default function AdminPanel() {
     await saveSetting('promo_voucher_active', newValue ? 'true' : 'false', false);
   };
 
+  const confirmMaintenanceToggle = () => {
+    setPendingMaintenanceState(!maintenanceActive);
+    setShowMaintenanceConfirm(true);
+  };
+
   const handleMaintenanceToggle = async () => {
-    const newValue = !maintenanceActive;
+    const newValue = pendingMaintenanceState;
     setMaintenanceActive(newValue);
     await saveSetting('maintenance_active', newValue ? 'true' : 'false', false);
+    setShowMaintenanceConfirm(false);
   };
 
   const fetchUsers = async () => {
@@ -525,7 +533,7 @@ export default function AdminPanel() {
                 </div>
                 <div className="ml-auto">
                   <button 
-                    onClick={handleMaintenanceToggle}
+                    onClick={confirmMaintenanceToggle}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${maintenanceActive ? 'bg-indigo-600' : 'bg-gray-200'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${maintenanceActive ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -970,6 +978,43 @@ export default function AdminPanel() {
           </div>
         </div>
       )}
+
+      {/* Maintenance Confirmation Modal */}
+      {showMaintenanceConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-in fade-in p-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95 duration-300 relative border border-gray-100">
+            <button onClick={() => setShowMaintenanceConfirm(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
+              <X size={20} />
+            </button>
+            <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 shadow-sm ${pendingMaintenanceState ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+              <ShieldAlert size={32} />
+            </div>
+            <h3 className="text-xl font-black text-center text-gray-800 mb-2">
+              Konfirmasi {pendingMaintenanceState ? 'Aktivasi' : 'Nonaktifkan'}
+            </h3>
+            <p className="text-center text-gray-500 text-sm mb-8 leading-relaxed">
+              {pendingMaintenanceState 
+                ? 'Mode Pemeliharaan akan diaktifkan. Pengguna umum tidak dapat mengakses aplikasi hingga batas waktu yang ditentukan.' 
+                : 'Mode Pemeliharaan akan dinonaktifkan. Pengguna umum akan dapat mengakses aplikasi kembali.'}
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowMaintenanceConfirm(false)} 
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleMaintenanceToggle} 
+                className={`flex-1 px-4 py-3 rounded-xl text-white font-bold text-sm shadow-md transition-all hover:-translate-y-0.5 ${pendingMaintenanceState ? 'bg-red-600 hover:bg-red-700 shadow-red-500/20' : 'bg-green-600 hover:bg-green-700 shadow-green-500/20'}`}
+              >
+                Ya, Lanjutkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
