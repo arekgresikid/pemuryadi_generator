@@ -47,6 +47,53 @@ import WelcomePopup from './components/WelcomePopup';
 import SEOLandingPage from './components/SEOLandingPage';
 import MainLandingPage from './components/MainLandingPage';
 
+const LoadingScreen = () => {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress(p => {
+        if (p >= 99) return 99;
+        const diff = 100 - p;
+        const increment = Math.max(1, Math.floor(diff * 0.1));
+        return p + increment;
+      });
+    }, 50);
+    return () => clearInterval(timer);
+  }, []);
+
+  const circumference = 2 * Math.PI * 40;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
+      <div className="absolute w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] animate-pulse"></div>
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="relative w-32 h-32 mb-8 flex items-center justify-center">
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-slate-800" />
+            <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-blue-500 transition-all duration-100 ease-out" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl font-black text-white">{progress}</span>
+            <span className="text-[10px] font-bold text-blue-400 -mt-1">%</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-xl font-bold text-white tracking-widest uppercase mb-2">Memuat Sistem</h2>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -494,12 +541,7 @@ export default function App() {
   }, []);
 
   if (loading || isSettingsLoading) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-blue-400 font-medium animate-pulse text-sm">Memuat Sistem...</p>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (maintenanceActive && profile?.role !== 'admin' && profile?.role !== 'owner') {
