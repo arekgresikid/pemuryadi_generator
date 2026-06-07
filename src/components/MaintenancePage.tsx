@@ -116,7 +116,7 @@ export default function MaintenancePage({ endTime, waNumber, reason }: Maintenan
                   onClick={handleWhatsApp}
                   className="flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-full font-bold transition-all shadow-[0_0_20px_rgba(37,211,102,0.4)] hover:shadow-[0_0_30px_rgba(37,211,102,0.6)] hover:-translate-y-1 text-sm"
                 >
-                  <FaWhatsapp size={20} /> Hubungi WhatsApp (+{waNumber.startsWith('0') ? '62' + waNumber.substring(1) : waNumber})
+                  <FaWhatsapp size={20} /> Hubungi WhatsApp
                 </button>
               </div>
             )}
