@@ -67,6 +67,7 @@ export default function AdminPanel() {
   const [adminLogs, setAdminLogs] = useState<any[]>([]);
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [logTab, setLogTab] = useState<'admin'|'activity'>('admin');
+  const [visibleLogsCount, setVisibleLogsCount] = useState<number>(50);
 
   useEffect(() => {
     fetchUsers();
@@ -783,22 +784,22 @@ export default function AdminPanel() {
             </div>
             <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
               <button 
-                onClick={() => setLogTab('admin')}
+                onClick={() => { setLogTab('admin'); setVisibleLogsCount(50); }}
                 className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${logTab === 'admin' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 Log Admin
               </button>
               <button 
-                onClick={() => setLogTab('activity')}
+                onClick={() => { setLogTab('activity'); setVisibleLogsCount(50); }}
                 className={`px-4 py-2 text-xs font-bold rounded-lg transition-all ${logTab === 'activity' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 Aktivitas Pengguna
               </button>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[600px] overflow-y-auto relative scrollbar-thin scrollbar-thumb-gray-200">
             <table className="w-full text-left text-sm whitespace-nowrap">
-              <thead className="bg-gray-50 text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-gray-200">
+              <thead className="bg-gray-50 text-xs uppercase font-bold tracking-wider text-gray-500 border-b border-gray-200 sticky top-0 z-10 shadow-sm">
                 <tr>
                   <th className="px-6 py-4">Waktu</th>
                   {logTab === 'admin' ? (
@@ -820,7 +821,7 @@ export default function AdminPanel() {
                   adminLogs.length === 0 ? (
                     <tr><td colSpan={3} className="px-6 py-8 text-center text-gray-500">Belum ada aktivitas admin tercatat.</td></tr>
                   ) : (
-                    adminLogs.map((log: any) => (
+                    adminLogs.slice(0, visibleLogsCount).map((log: any) => (
                       <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-mono text-xs text-gray-500">
                           {log.created_at ? new Date(log.created_at).toLocaleString('id-ID') : '-'}
@@ -834,7 +835,7 @@ export default function AdminPanel() {
                   activityLogs.length === 0 ? (
                     <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-500">Belum ada aktivitas pengguna tercatat.</td></tr>
                   ) : (
-                    activityLogs.map((log: any) => (
+                    activityLogs.slice(0, visibleLogsCount).map((log: any) => (
                       <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 font-mono text-xs text-gray-500">
                           {log.timestamp ? new Date(log.timestamp).toLocaleString('id-ID') : (log.time || '-')}
@@ -852,6 +853,19 @@ export default function AdminPanel() {
                 )}
               </tbody>
             </table>
+            
+            {/* Load More Button */}
+            {((logTab === 'admin' && adminLogs.length > visibleLogsCount) || 
+              (logTab === 'activity' && activityLogs.length > visibleLogsCount)) && (
+              <div className="p-4 flex justify-center bg-gray-50/90 sticky bottom-0 z-10 backdrop-blur-sm border-t border-gray-100">
+                <button
+                  onClick={() => setVisibleLogsCount(prev => prev + 50)}
+                  className="px-6 py-2.5 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all flex items-center gap-2"
+                >
+                  <Activity size={16} className="text-gray-400"/> Muat Lebih Banyak
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
