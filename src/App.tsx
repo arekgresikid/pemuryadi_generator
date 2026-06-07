@@ -267,7 +267,7 @@ export default function App() {
   };
 
   const menuItems: MenuItem[] = [
-    { id: 'beranda', icon: <LayoutDashboard size={20} />, label: 'Beranda' },
+    { id: 'beranda', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { id: 'kelompok', icon: <Users size={20} />, label: 'Kelompok' },
     { 
       id: 'games', 
@@ -649,7 +649,7 @@ export default function App() {
               setHasEnteredApp(false);
               localStorage.setItem('pemuryadi_hasEnteredApp', 'false');
               window.scrollTo({ top: 0, behavior: 'smooth' });
-            }} className="hover:text-black transition-colors">Halaman Landing</button>
+            }} className="hover:text-black transition-colors">Beranda</button>
             <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
             <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>

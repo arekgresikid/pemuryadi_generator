@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send, AlertTriangle } from 'lucide-react';
+import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send, AlertTriangle, Zap } from 'lucide-react';
 import QuickProfile from '../QuickProfile';
 import FeedbackForm from '../FeedbackForm';
 import { useAuth } from '../../AuthContext';
@@ -104,14 +104,11 @@ export default function Dashboard({
           </div>
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
-              onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
-                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
-              }}
+              onClick={() => onTabChange('pricing')}
               className="w-full md:w-auto bg-white text-indigo-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
             >
-              <Send size={18} />
-              Klaim via WhatsApp
+              <Zap size={18} />
+              Gunakan Sekarang
             </button>
           </div>
         </div>

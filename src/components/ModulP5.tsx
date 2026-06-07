@@ -453,16 +453,16 @@ Format output harus JSON murni:
                 </label>
                 <AIAssistedInput
                   value={formData.topik}
-                  onChange={(val) => setFormData({...formData, topik: val})}
+                  onValueChange={(val) => setFormData({...formData, topik: val})}
                   placeholder="Contoh: Mengolah sampah plastik menjadi kerajinan ecobrick"
-                  context={`Berikan ide Topik Spesifik Projek P5 yang menarik untuk anak ${educationLevels.find(l => l.id === formData.jenjang)?.label} dengan Tema '${formData.tema}'.`}
+                  contextPrompt={`Berikan ide Topik Spesifik Projek P5 yang menarik untuk anak ${educationLevels.find(l => l.id === formData.jenjang)?.label} dengan Tema '${formData.tema}'.`}
                 />
               </div>
 
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
-              <ModelSelector selectedModel={selectedModel} onSelectModel={setSelectedModel} />
+              <ModelSelector value={selectedModel} onChange={setSelectedModel} />
               
               <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
                 <button 
@@ -500,7 +500,7 @@ Format output harus JSON murni:
                 </h2>
                 <button 
                   onClick={() => {
-                    if (profile?.membership === 'free') setShowPrintModal(true);
+                    if (profile?.tier === 'Free') setShowPrintModal(true);
                     else executePrint();
                   }}
                   className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-800 text-sm font-bold rounded-xl shadow-sm border border-gray-200 transition-all flex items-center gap-2"
@@ -601,8 +601,9 @@ Format output harus JSON murni:
       
       {showPrintModal && (
         <PrintSupportModal 
+          isOpen={showPrintModal}
           onClose={() => setShowPrintModal(false)}
-          onProceed={() => {
+          onConfirm={() => {
             setShowPrintModal(false);
             executePrint();
           }}

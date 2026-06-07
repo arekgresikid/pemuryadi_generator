@@ -53,14 +53,14 @@ function Breadcrumb({ activeTab, menuItems }: { activeTab?: string, menuItems?: 
   
   return (
     <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
-      <span className="text-gray-400">Beranda</span>
+      <span className="text-gray-400">Dashboard</span>
       {parentLabel && (
         <>
           <span className="text-gray-300">/</span>
           <span className="text-gray-500">{parentLabel}</span>
         </>
       )}
-      {currentLabel !== 'Beranda' && (
+      {currentLabel !== 'Dashboard' && (
         <>
           <span className="text-gray-300">/</span>
           <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{currentLabel}</span>

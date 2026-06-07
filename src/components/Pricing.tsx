@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send, Copy, Landmark } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
+const getDiscountedPrice = (priceStr?: string) => {
+  if (!priceStr) return '';
+  const num = parseInt(priceStr.replace(/[^0-9]/g, ''), 10);
+  if (isNaN(num)) return priceStr;
+  const discounted = num * 0.8;
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(discounted).replace('IDR', 'Rp').trim();
+};
+
 export default function Pricing() {
   const { user, profile } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [voucherInput, setVoucherInput] = useState('');
+  const [voucherClaimed, setVoucherClaimed] = useState(false);
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -14,7 +24,18 @@ export default function Pricing() {
     setTimeout(() => setCopiedId(null), 2000);
   };
   
+  const handleClaimVoucher = () => {
+    const code = voucherInput.trim().toUpperCase();
+    if (code === 'GURUHEBAT20' || code === 'DISKON20') {
+      setVoucherClaimed(true);
+      alert("Berhasil! Voucher Diskon 20% telah diterapkan secara otomatis pada seluruh paket berlangganan.");
+    } else {
+      alert("Kode voucher tidak valid atau sudah kadaluarsa.");
+    }
+  };
+
   const currentTier = profile?.tier || profile?.role || (user ? 'Free' : null);
+  const isEligibleForDiscount = voucherClaimed && (!currentTier || currentTier.toLowerCase() === 'free');
 
   const plans = [
     {
@@ -90,7 +111,7 @@ export default function Pricing() {
     {
       name: 'SUPREME',
       description: 'Tak terbatas dengan segala kemampuan full power.',
-      price: 'Rp 1.000.000',
+      price: 'Rp 1.250.000',
       period: ' / 1 Tahun',
       tokens: 1000,
       tokenDesc: 'x generate total',
@@ -109,9 +130,9 @@ export default function Pricing() {
       name: 'Titan',
       description: 'Paket Ultimate Terkuat untuk Instansi Skala Besar',
       price: 'Rp 2.000.000',
-      period: ' Selamanya',
-      tokens: 'Unlimited',
-      tokenDesc: 'Akses tanpa batas',
+      period: ' / 1 Tahun',
+      tokens: '2500',
+      tokenDesc: 'x generate / tahun (FUP)',
       features: [
         'Tanpa Watermark (WM)',
         'Akses Lifetime (Selamanya)',
@@ -131,10 +152,11 @@ export default function Pricing() {
     setSelectedPlan(plan);
     setShowModal(true);
   };
-
   const confirmPayment = () => {
-    const phoneNumber = "6281347697809"; // WA number
-    const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya sudah transfer untuk pembelian paket ${selectedPlan?.name} (Akun: ${profile?.email || ''}). Berikut adalah bukti pembayarannya:`);
+    if (!selectedPlan) return;
+    const phoneNumber = "6281347697809";
+    const finalPriceStr = isEligibleForDiscount ? getDiscountedPrice(selectedPlan?.price || '') : selectedPlan?.price;
+    const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya (${profile?.email || 'Guest'}) ingin mengkonfirmasi pembayaran untuk upgrade paket *${selectedPlan.name}* senilai *${finalPriceStr}*. Mohon info untuk langkah selanjutnya.`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
     setShowModal(false);
   };
@@ -152,17 +174,30 @@ export default function Pricing() {
             <h2 className="text-2xl md:text-4xl font-black mb-2 drop-shadow-md">Voucher Diskon 20%</h2>
             <p className="text-white/90 text-sm md:text-lg font-medium">Klaim potongan harga eksklusif Anda untuk berlangganan paket Premium atau Ultimate sekarang juga!</p>
           </div>
-          <div className="relative z-10 shrink-0 w-full md:w-auto">
-            <button 
-              onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
-                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
-              }}
-              className="w-full md:w-auto bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 hover:shadow-xl"
-            >
-              <Send size={20} />
-              Klaim via WhatsApp
-            </button>
+          <div className="relative z-10 shrink-0 w-full md:w-auto flex flex-col gap-2">
+            {!voucherClaimed ? (
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Ketik Kode Voucher..." 
+                  value={voucherInput}
+                  onChange={(e) => setVoucherInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleClaimVoucher()}
+                  className="px-4 py-3 bg-white/95 rounded-xl text-slate-800 font-bold outline-none flex-1 md:w-56 placeholder:text-slate-400 placeholder:font-normal uppercase shadow-inner border-2 border-transparent focus:border-red-300 transition-colors"
+                />
+                <button 
+                  onClick={handleClaimVoucher}
+                  className="bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+                >
+                  Klaim
+                </button>
+              </div>
+            ) : (
+              <div className="bg-green-500 text-white flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg cursor-default">
+                <Check size={20} /> Telah Diklaim
+              </div>
+            )}
+            {!voucherClaimed && <div className="text-white/80 text-xs text-center md:text-right mt-1">Gunakan kode: <span className="font-bold">GURUHEBAT20</span></div>}
           </div>
         </div>
       )}
@@ -231,8 +266,15 @@ export default function Pricing() {
                 <p className="text-xs text-gray-600 mb-6 h-8">{plan.description}</p>
                 
                 <div className="mb-6 pb-6 border-b border-white/10">
-                  <span className="text-3xl font-bold tracking-tighter text-black">{plan.price}</span>
-                  <span className="text-gray-600 text-sm">{plan.period}</span>
+                  <div className="flex items-center flex-wrap gap-2">
+                    <span className="text-3xl font-bold tracking-tighter text-black">
+                      {isEligibleForDiscount && plan.name !== 'Free' ? getDiscountedPrice(plan.price) : plan.price}
+                    </span>
+                    {isEligibleForDiscount && plan.name !== 'Free' && (
+                      <span className="text-sm line-through text-gray-400">{plan.price}</span>
+                    )}
+                  </div>
+                  <span className="text-gray-600 text-sm block mt-1">{plan.period}</span>
                 </div>
 
                 <div className="mb-6">
@@ -299,7 +341,17 @@ export default function Pricing() {
             
             <h3 className="text-2xl font-bold text-black mb-2 pr-6">Pilih Metode Pembayaran</h3>
             <p className="text-gray-600 text-sm mb-6">
-              Selesaikan pembayaran untuk paket <strong className="text-black">{selectedPlan.name}</strong> sebesar <strong className="text-red-300">{selectedPlan.price}</strong>.
+              Selesaikan pembayaran untuk paket <strong className="text-black">{selectedPlan.name}</strong> sebesar{' '}
+              {isEligibleForDiscount ? (
+                <>
+                  <span className="line-through text-gray-400 mr-2">{selectedPlan.price}</span>
+                  <strong className="text-red-500 text-lg">{getDiscountedPrice(selectedPlan.price)}</strong>
+                  <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">Diskon 20%</span>
+                </>
+              ) : (
+                <strong className="text-red-300">{selectedPlan.price}</strong>
+              )}
+              .
             </p>
 
             <div className="space-y-4 mb-8">

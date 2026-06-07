@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
-import { BookOpen, CheckCircle, Sparkles, Printer, Loader2, Save } from 'lucide-react';
+import { BookOpen, CheckCircle, Sparkles, Printer, Loader2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

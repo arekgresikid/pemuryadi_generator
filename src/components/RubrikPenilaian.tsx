@@ -444,9 +444,9 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
                 </label>
                 <AIAssistedTextarea
                   value={formData.tujuanPembelajaran}
-                  onChange={(val) => setFormData({...formData, tujuanPembelajaran: val})}
+                  onValueChange={(val) => setFormData({...formData, tujuanPembelajaran: val})}
                   placeholder="Contoh: Siswa dapat mendeskripsikan ciri-ciri makhluk hidup melalui observasi lapangan..."
-                  context={`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen ${formData.jenisAsesmen} Mapel ${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas ${formData.kelas}.`}
+                  contextPrompt={`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen ${formData.jenisAsesmen} Mapel ${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas ${formData.kelas}.`}
                   rows={4}
                 />
               </div>
@@ -454,7 +454,7 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
-              <ModelSelector selectedModel={selectedModel} onSelectModel={setSelectedModel} />
+              <ModelSelector value={selectedModel} onChange={setSelectedModel} />
               
               <div className="flex flex-wrap gap-3 pt-2 border-t border-gray-100">
                 <button 
@@ -492,7 +492,7 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
                 </h2>
                 <button 
                   onClick={() => {
-                    if (profile?.membership === 'free') setShowPrintModal(true);
+                    if (profile?.tier === 'Free') setShowPrintModal(true);
                     else executePrint();
                   }}
                   className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-800 text-sm font-bold rounded-xl shadow-sm border border-gray-200 transition-all flex items-center gap-2"
@@ -580,8 +580,9 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
       
       {showPrintModal && (
         <PrintSupportModal 
+          isOpen={showPrintModal}
           onClose={() => setShowPrintModal(false)}
-          onProceed={() => {
+          onConfirm={() => {
             setShowPrintModal(false);
             executePrint();
           }}

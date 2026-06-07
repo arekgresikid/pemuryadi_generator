@@ -106,8 +106,8 @@ app.get('/auth/callback', async (c) => {
     let initialTier = isAdmin ? 'Titan' : 'Free';
     
     if (!existingUser) {
-      // Default to 2 tokens for Free tier, or 999 if Titan
-      let initialTokens = isAdmin ? 999 : 2;
+      // Default to 2 tokens for Free tier, or 999999 if admin
+      let initialTokens = isAdmin ? 999999 : 2;
       
       await db.prepare(
         `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, createdAt) 
@@ -281,7 +281,14 @@ app.post('/admin/users', async (c) => {
   }
 
   const tempUid = 'pending-' + Date.now();
-  const initialTokens = tier === 'Titan' || tier === 'Supreme' || role === 'owner' || role === 'admin' ? 999 : (tier === 'Free' ? 2 : 0);
+  let initialTokens = 0;
+  if (role === 'owner' || role === 'admin') initialTokens = 999999;
+  else if (tier === 'Titan') initialTokens = 2500;
+  else if (tier === 'Supreme' || tier === 'SUPREME') initialTokens = 1000;
+  else if (tier === 'Ultimate') initialTokens = 600;
+  else if (tier === 'Premium') initialTokens = 250;
+  else if (tier === 'Essential') initialTokens = 85;
+  else if (tier === 'Free') initialTokens = 2;
   
   await db.prepare(
     `INSERT INTO users (uid, email, displayName, role, tier, tokens, activeUntil, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
@@ -329,12 +336,12 @@ app.post('/tokens/use', async (c) => {
     
     if (!profile) return c.json({ error: 'User not found' }, 404);
     
-    // Privileged roles and supreme/titan tiers bypass token limits completely
+    // Privileged roles bypass token limits completely
     const role = String(profile.role || 'siswa').toLowerCase();
     const tier = String(profile.tier || 'free').toLowerCase();
     const isFree = tier === 'free';
     
-    if (role === 'owner' || role === 'admin' || tier === 'supreme' || tier === 'titan') {
+    if (role === 'owner' || role === 'admin') {
       return c.json({ success: true, tokens: profile.tokens, isFree: false });
     }
 
