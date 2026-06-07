@@ -26,6 +26,8 @@ import MengajarHarian from './components/MengajarHarian';
 import KKTP from './components/KKTP';
 import BuatSoal from './components/BuatSoal';
 import SNP from './components/SNP';
+import ModulP5 from './components/ModulP5';
+import RubrikPenilaian from './components/RubrikPenilaian';
 import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
@@ -292,8 +294,10 @@ export default function App() {
         { id: 'deeplearning', icon: <Clipboard size={16} />, label: 'RPM', premiumOnly: true },
         { id: 'modul', icon: <BookMarked size={16} />, label: 'Modul Ajar', premiumOnly: true },
         { id: 'jurnal', icon: <BookText size={16} />, label: 'Jurnal' },
+        { id: 'modul-p5', icon: <BookMarked size={16} />, label: 'Modul P5' },
         { id: 'supervisi', icon: <Search size={16} />, label: 'Supervisi' },
         { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
+        { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian' },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
       ]
@@ -555,6 +559,8 @@ export default function App() {
             {activeTab === 'deeplearning' && <DeepLearningPlan />}
             {activeTab === 'worksheet' && <WorksheetGenerator />}
             {activeTab === 'modul-kokurikuler' && <ModulKokurikuler />}
+            {activeTab === 'modul-p5' && <ModulP5 />}
+            {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
             {activeTab === 'kalender-pendidikan' && <KalenderPendidikan />}
             {activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif />}
@@ -633,12 +639,17 @@ export default function App() {
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
             <button onClick={() => handleTabChange('changelog')} className="text-center group flex flex-col items-center">
-              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.6</p>
+              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.7</p>
               <p className="text-[9px] text-gray-400 group-hover:text-blue-500 transition-colors mt-1 uppercase tracking-widest">Lihat Riwayat Versi</p>
             </button>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
-          <div className="flex justify-center gap-6 mb-8 text-sm text-gray-500 font-medium">
+          <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm text-gray-500 font-medium">
+            <button onClick={() => {
+              setHasEnteredApp(false);
+              localStorage.setItem('pemuryadi_hasEnteredApp', 'false');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }} className="hover:text-black transition-colors">Halaman Landing</button>
             <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
             <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>

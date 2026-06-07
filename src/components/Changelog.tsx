@@ -6,10 +6,21 @@ export default function Changelog() {
 
   const versions = [
     {
-      version: '5.2.6',
-      date: '7 Juni 2026',
+      version: '5.2.7',
+      date: '8 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.',
+        'Menambahkan modul baru: Rubrik Penilaian & Asesmen Kurikulum Merdeka lengkap dengan skala skor dan lembar observasi.',
+        'Menambahkan tautan Halaman Landing pada bagian bawah (footer) aplikasi untuk mempermudah akses navigasi.',
+        'Memperbaiki masalah (bug) gambar latar belakang pada browser mobile (terutama iOS Safari) yang tergulung bersama konten halaman.'
+      ]
+    },
+    {
+      version: '5.2.6',
+      date: '7 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Menghapus animasi efek jatuh penuh (sliding lines) dari latar belakang Halaman Utama (Landing Page) agar lebih bersih dan elegan.',
         'Menerapkan animasi efek cahaya sapuan (shimmer & shine) pada teks lencana sistem AI dan pada fitur-fitur "Mengapa Pendidik Memilih Kami?".',
