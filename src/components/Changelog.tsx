@@ -6,10 +6,21 @@ export default function Changelog() {
 
   const versions = [
     {
-      version: '5.2.7',
+      version: '5.2.8',
       date: '8 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Menambahkan kolom input kode voucher diskon (GURUHEBAT20) yang memotong harga paket secara otomatis di halaman Berlangganan.',
+        'Mengubah tautan promo banner di Dashboard dan Welcome Popup untuk mengarahkan pengguna ke halaman Berlangganan alih-alih ke WhatsApp Admin.',
+        'Mengubah nama menu dan navigasi breadcrumb dari "Beranda" menjadi "Dashboard".',
+        'Mengubah nama tautan "Halaman Landing" di bagian footer (bawah halaman) menjadi "Beranda".'
+      ]
+    },
+    {
+      version: '5.2.7',
+      date: '8 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.',
         'Menambahkan modul baru: Rubrik Penilaian & Asesmen Kurikulum Merdeka lengkap dengan skala skor dan lembar observasi.',
