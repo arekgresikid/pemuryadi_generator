@@ -34,10 +34,10 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 font-sans selection:bg-blue-500/30 text-slate-300 overflow-x-hidden w-full relative">
-      {/* Global Background Image */}
+    <>
+      {/* Global Background Image (Dipindah ke luar container agar tidak kena bug iOS Safari absolute) */}
       <div 
-        className="fixed inset-0 z-0 pointer-events-none animate-slow-pan" 
+        className="fixed inset-0 z-[-1] pointer-events-none animate-slow-pan bg-slate-950" 
         style={{
           backgroundImage: "url('/hero-bg.png')",
           backgroundSize: 'cover',
@@ -46,6 +46,8 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         }}
       />
       
+      <div className="min-h-screen font-sans selection:bg-blue-500/30 text-slate-300 overflow-x-hidden w-full relative z-0">
+
 
       {/* Navbar */}
       <nav className="border-b border-white/10 bg-slate-950/50 backdrop-blur-md absolute top-0 inset-x-0 z-50">
@@ -323,6 +325,6 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
