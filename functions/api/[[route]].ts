@@ -22,7 +22,7 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>().basePath('/
 app.use('/*', async (c, next) => {
   const path = c.req.path;
   // Public routes
-  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats')) {
+  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings')) {
     return next();
   }
 
@@ -216,6 +216,63 @@ app.post('/profile', async (c) => {
 });
 
 // --- Admin Routes ---
+app.get('/admin/stats', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const result = await db.prepare(`
+    SELECT 
+      COUNT(*) as totalUsers,
+      SUM(CASE WHEN tier = 'Premium' THEN 1 ELSE 0 END) as totalPremium,
+      SUM(CASE WHEN tier = 'Ultimate' THEN 1 ELSE 0 END) as totalUltimate,
+      SUM(CASE WHEN tier = 'Titan' THEN 1 ELSE 0 END) as totalTitan
+    FROM users
+  `).first();
+  
+  return c.json(result);
+});
+
+app.get('/admin/logs', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  await db.prepare('CREATE TABLE IF NOT EXISTS admin_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, admin_email TEXT, action TEXT, created_at TEXT)').run();
+  const { results } = await db.prepare('SELECT * FROM admin_logs ORDER BY id DESC LIMIT 100').all();
+  return c.json(results);
+});
+
+app.post('/admin/logs', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role, email FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const { action } = await c.req.json();
+  if (!action) return c.json({ error: 'Action is required' }, 400);
+  
+  await db.prepare('CREATE TABLE IF NOT EXISTS admin_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, admin_email TEXT, action TEXT, created_at TEXT)').run();
+  await db.prepare('INSERT INTO admin_logs (admin_email, action, created_at) VALUES (?, ?, ?)')
+    .bind(adminProfile.email, action, new Date().toISOString())
+    .run();
+  return c.json({ success: true });
+});
+
 app.get('/admin/users', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Unauthorized' }, 401);
@@ -493,6 +550,43 @@ app.post('/verify-dev-mode', async (c) => {
     return c.json({ success: true });
   }
   return c.json({ success: false }, 401);
+});
+
+// --- Settings Routes ---
+app.get('/settings/:key', async (c) => {
+  try {
+    const db = c.env.DB;
+    await db.prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)').run();
+    const key = c.req.param('key');
+    const result = await db.prepare('SELECT value FROM settings WHERE key = ?').bind(key).first();
+    return c.json({ value: result ? result.value : null });
+  } catch (e) {
+    return c.json({ error: 'Failed to fetch setting' }, 500);
+  }
+});
+
+app.post('/admin/settings', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  const db = c.env.DB;
+  
+  const profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
+  if (profile?.role !== 'owner' && profile?.role !== 'admin') {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const { key, value } = await c.req.json();
+  if (!key) return c.json({ error: 'Key is required' }, 400);
+
+  try {
+    await db.prepare('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)').run();
+    await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = ?')
+      .bind(key, value, value)
+      .run();
+    return c.json({ success: true, key, value });
+  } catch (e) {
+    return c.json({ error: 'Failed to save setting' }, 500);
+  }
 });
 
 export const onRequest = handle(app)

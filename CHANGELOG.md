@@ -3,10 +3,13 @@
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
 ## [5.2.8] - 8 Juni 2026
-- Menambahkan kolom input kode voucher diskon (GURUHEBAT20) yang memotong harga paket secara otomatis di halaman Berlangganan.
+- Merombak total desain kartu Harga (Pricing) menjadi lebih modern dengan gaya bersih (clean) dan penambahan lencana diagonal (ribbon badge) untuk paket unggulan.
+- Mengintegrasikan 5 pilihan varian harga paket berlangganan secara dinamis ke dalam panel Admin Dashboard.
+- Menambahkan kolom input kode voucher diskon (XXXX) yang memotong harga paket secara otomatis di halaman Berlangganan.
 - Mengubah tautan promo banner di Dashboard dan Welcome Popup untuk mengarahkan pengguna ke halaman Berlangganan alih-alih ke WhatsApp Admin.
 - Mengubah nama menu dan navigasi breadcrumb dari "Beranda" menjadi "Dashboard".
 - Mengubah nama tautan "Halaman Landing" di bagian footer (bawah halaman) menjadi "Beranda".
+- Menambahkan fitur Maintenance Mode (Mode Pemeliharaan) di Admin Panel beserta halaman countdown, dilengkapi rute khusus dan akses prioritas untuk Owner/Admin.
 
 ## [5.2.7] - 8 Juni 2026
 - Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.

@@ -4,6 +4,7 @@ import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
 import changelogData from './data/changelog.json';
+import { Toaster } from 'react-hot-toast';
 // Feature Components
 import GroupGenerator from './components/GroupGenerator';
 import WordSearch from './components/WordSearch';
@@ -33,6 +34,7 @@ import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
 import Changelog from './components/Changelog';
 import BarcodeGenerator from './components/BarcodeGenerator';
+import MaintenancePage from './components/MaintenancePage';
 
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
@@ -138,6 +140,13 @@ export default function App() {
     }
     return false;
   });
+
+  const [globalAnnouncement, setGlobalAnnouncement] = useState('');
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+  const [maintenanceEndTime, setMaintenanceEndTime] = useState('');
+  const [maintenanceReason, setMaintenanceReason] = useState('');
+  const [waNumber, setWaNumber] = useState('');
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
 
   useEffect(() => { localStorage.setItem('pemuryadi_activeTab', activeTab); }, [activeTab]);
   useEffect(() => { localStorage.setItem('pemuryadi_isSidebarOpen', String(isSidebarOpen)); }, [isSidebarOpen]);
@@ -439,6 +448,30 @@ export default function App() {
     fetchStats();
     const intervalId = setInterval(fetchStats, 5000);
 
+    const fetchGlobalSettings = async () => {
+      try {
+        const res1 = await fetch('/api/settings/global_announcement');
+        if (res1.ok) { const data = await res1.json() as any; if (data.value) setGlobalAnnouncement(data.value); }
+        
+        const res2 = await fetch('/api/settings/maintenance_active');
+        if (res2.ok) { const data = await res2.json() as any; setMaintenanceActive(data.value === 'true'); }
+
+        const res3 = await fetch('/api/settings/maintenance_end_time');
+        if (res3.ok) { const data = await res3.json() as any; if (data.value) setMaintenanceEndTime(data.value); }
+
+        const res3b = await fetch('/api/settings/maintenance_reason');
+        if (res3b.ok) { const data = await res3b.json() as any; if (data.value) setMaintenanceReason(data.value); }
+
+        const res4 = await fetch('/api/settings/whatsapp_admin_number');
+        if (res4.ok) { const data = await res4.json() as any; if (data.value) setWaNumber(data.value); }
+      } catch(e) {
+        console.error("Failed to fetch settings", e);
+      } finally {
+        setIsSettingsLoading(false);
+      }
+    };
+    fetchGlobalSettings();
+
     return () => {
       mounted = false;
       clearInterval(intervalId);
@@ -459,6 +492,19 @@ export default function App() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
+
+  if (loading || isSettingsLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+        <p className="text-blue-400 font-medium animate-pulse text-sm">Memuat Sistem...</p>
+      </div>
+    );
+  }
+
+  if (maintenanceActive && profile?.role !== 'admin' && profile?.role !== 'owner') {
+    return <MaintenancePage endTime={maintenanceEndTime} waNumber={waNumber} reason={maintenanceReason} />;
+  }
 
   if (isSeoLanding) {
     return (
@@ -499,8 +545,21 @@ export default function App() {
         onDisabledClick={(id) => setDevPromptTarget(id)}
       />
 
-      {/* Main Content Area */}
       <main className={`transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'} pb-20 min-h-screen flex flex-col w-full md:w-auto`}>
+        {globalAnnouncement && (
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 text-center text-xs sm:text-sm font-bold shadow-md z-40 relative flex justify-between items-center">
+            <div className="flex-1"></div>
+            <div className="flex-1 flex justify-center items-center gap-2">
+              <span className="animate-pulse">📢</span>
+              <span>{globalAnnouncement}</span>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <button onClick={() => setGlobalAnnouncement('')} className="text-white/80 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        )}
         <Topbar 
           setIsSidebarOpen={setIsSidebarOpen}
           usageTime={usageTime}
@@ -610,6 +669,38 @@ export default function App() {
 
       {/* Chatbot Overlay */}
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      
+      {/* Toaster for modern notifications */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          },
+          success: {
+            style: {
+              background: '#059669',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#059669',
+            },
+          },
+          error: {
+            style: {
+              background: '#DC2626',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#DC2626',
+            },
+          },
+        }}
+      />
 
       {/* Footer */}
       <footer className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} bg-white/40 border-t border-gray-100 py-8 px-6 no-print`}>

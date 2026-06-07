@@ -41,3 +41,11 @@ CREATE TABLE activity_logs (
   time TEXT NOT NULL,
   timestamp INTEGER NOT NULL
 );
+
+DROP TABLE IF EXISTS admin_logs;
+CREATE TABLE admin_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  admin_email TEXT,
+  action TEXT,
+  created_at TEXT
+);

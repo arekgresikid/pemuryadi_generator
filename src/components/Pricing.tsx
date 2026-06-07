@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send, Copy, Landmark } from 'lucide-react';
 import { useAuth } from '../AuthContext';
+import toast from 'react-hot-toast';
 
 const getDiscountedPrice = (priceStr?: string) => {
   if (!priceStr) return '';
@@ -17,6 +18,41 @@ export default function Pricing() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [voucherInput, setVoucherInput] = useState('');
   const [voucherClaimed, setVoucherClaimed] = useState(false);
+  const [globalVoucherActive, setGlobalVoucherActive] = useState(true); // Default true until fetched
+  const [globalVoucherCode, setGlobalVoucherCode] = useState('');
+  const [waNumber, setWaNumber] = useState('6281347697809');
+  const [waNumber2, setWaNumber2] = useState('');
+  const [priceEssential, setPriceEssential] = useState('Rp 170.000');
+  const [pricePremium, setPricePremium] = useState('Rp 408.000');
+  const [priceUltimate, setPriceUltimate] = useState('Rp 816.000');
+  const [priceSupreme, setPriceSupreme] = useState('Rp 1.250.000');
+  const [priceTitan, setPriceTitan] = useState('Rp 2.000.000');
+
+  useEffect(() => {
+    const fetchVoucherSettings = async () => {
+      try {
+        const fetchSet = async (k: string, setter: any, isBool = false) => {
+          const res = await fetch(`/api/settings/${k}`);
+          if (res.ok) {
+            const data = await res.json() as any;
+            if (data.value) setter(isBool ? data.value === 'true' : data.value);
+          }
+        };
+        await Promise.all([
+          fetchSet('promo_voucher_active', setGlobalVoucherActive, true),
+          fetchSet('promo_voucher_code', setGlobalVoucherCode),
+          fetchSet('whatsapp_admin_number', setWaNumber),
+          fetchSet('whatsapp_admin_number_2', setWaNumber2),
+          fetchSet('price_essential', setPriceEssential),
+          fetchSet('price_premium', setPricePremium),
+          fetchSet('price_ultimate', setPriceUltimate),
+          fetchSet('price_supreme', setPriceSupreme),
+          fetchSet('price_titan', setPriceTitan),
+        ]);
+      } catch (e) {}
+    };
+    fetchVoucherSettings();
+  }, []);
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -25,12 +61,18 @@ export default function Pricing() {
   };
   
   const handleClaimVoucher = () => {
+    if (!globalVoucherActive) {
+      return toast.error("Mohon maaf, promo voucher sedang tidak aktif saat ini.");
+    }
     const code = voucherInput.trim().toUpperCase();
-    if (code === 'GURUHEBAT20' || code === 'DISKON20') {
+    if (globalVoucherCode && code === globalVoucherCode) {
       setVoucherClaimed(true);
-      alert("Berhasil! Voucher Diskon 20% telah diterapkan secara otomatis pada seluruh paket berlangganan.");
+      toast.success("Berhasil! Voucher Diskon 20% telah diterapkan secara otomatis pada seluruh paket berlangganan.");
+    } else if (!globalVoucherCode && (code === 'GURUHEBAT20' || code === 'DISKON20')) {
+      setVoucherClaimed(true);
+      toast.success("Berhasil! Voucher Diskon 20% telah diterapkan secara otomatis pada seluruh paket berlangganan.");
     } else {
-      alert("Kode voucher tidak valid atau sudah kadaluarsa.");
+      toast.error("Kode voucher tidak valid atau sudah kadaluarsa.");
     }
   };
 
@@ -52,12 +94,13 @@ export default function Pricing() {
       ],
       icon: <Shield size={24} className="text-gray-600" />,
       color: 'slate',
-      buttonText: 'Paket Saat Ini'
+      badge: 'PEMULA',
+      buttonText: 'Mulai Gratis'
     },
     {
       name: 'Essential',
       description: 'Cukup untuk kebutuhan ngajar bulanan',
-      price: 'Rp 170.000',
+      price: priceEssential,
       period: ' / 1 Bulan',
       tokens: 85,
       tokenDesc: 'x generate total',
@@ -69,12 +112,13 @@ export default function Pricing() {
       ],
       icon: <Star size={24} className="text-amber-600" />,
       color: 'amber',
+      badge: 'TERJANGKAU',
       buttonText: 'Pilih Essential'
     },
     {
       name: 'Premium',
       description: 'Cocok untuk penyusunan materi padat',
-      price: 'Rp 408.000',
+      price: pricePremium,
       period: ' / 3 Bulan',
       tokens: 250,
       tokenDesc: 'x generate total',
@@ -87,13 +131,14 @@ export default function Pricing() {
       ],
       icon: <Zap size={24} className="text-red-300" />,
       color: 'emerald',
-      buttonText: 'Sangat Direkomendasikan',
+      badge: 'PALING DIMINATI',
+      buttonText: 'Aktivasi Premium',
       popular: true
     },
     {
       name: 'Ultimate',
       description: 'Paket super untuk sekolah / pengawas',
-      price: 'Rp 816.000',
+      price: priceUltimate,
       period: ' / 6 Bulan',
       tokens: 600,
       tokenDesc: 'x generate total',
@@ -106,12 +151,13 @@ export default function Pricing() {
       ],
       icon: <Crown size={24} className="text-red-500" />,
       color: 'blue',
-      buttonText: 'Pilih Ultimate'
+      badge: 'PROFESIONAL',
+      buttonText: 'Aktivasi Ultimate'
     },
     {
       name: 'SUPREME',
       description: 'Tak terbatas dengan segala kemampuan full power.',
-      price: 'Rp 1.250.000',
+      price: priceSupreme,
       period: ' / 1 Tahun',
       tokens: 1000,
       tokenDesc: 'x generate total',
@@ -124,12 +170,13 @@ export default function Pricing() {
       ],
       icon: <Award size={24} className="text-yellow-300" />,
       color: 'supreme',
-      buttonText: 'Beli SUPREME'
+      badge: 'TERBAIK',
+      buttonText: 'Dapatkan Supreme'
     },
     {
       name: 'Titan',
       description: 'Paket Ultimate Terkuat untuk Instansi Skala Besar',
-      price: 'Rp 2.000.000',
+      price: priceTitan,
       period: ' / 1 Tahun',
       tokens: '2500',
       tokenDesc: 'x generate / tahun (FUP)',
@@ -142,7 +189,8 @@ export default function Pricing() {
       ],
       icon: <Crown size={24} className="text-rose-500" />,
       color: 'rose',
-      buttonText: 'Beli Titan'
+      badge: 'ENTERPRISE',
+      buttonText: 'Hubungi Sales'
     }
   ];
 
@@ -154,17 +202,23 @@ export default function Pricing() {
   };
   const confirmPayment = () => {
     if (!selectedPlan) return;
-    const phoneNumber = "6281347697809";
     const finalPriceStr = isEligibleForDiscount ? getDiscountedPrice(selectedPlan?.price || '') : selectedPlan?.price;
+    
+    let finalWaNumber = waNumber;
+    if (waNumber2 && waNumber2.trim() !== '') {
+      // Jika ada WA 2, bagi traffic 50:50
+      finalWaNumber = Math.random() > 0.5 ? waNumber : waNumber2;
+    }
+    
     const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya (${profile?.email || 'Guest'}) ingin mengkonfirmasi pembayaran untuk upgrade paket *${selectedPlan.name}* senilai *${finalPriceStr}*. Mohon info untuk langkah selanjutnya.`);
-    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    window.open(`https://wa.me/${finalWaNumber}?text=${message}`, '_blank');
     setShowModal(false);
   };
 
   return (
     <div className="p-6 md:p-8 animate-in fade-in zoom-in-95 duration-500">
       {/* Banner Khusus Pengguna Baru */}
-      {(!currentTier || currentTier.toLowerCase() === 'free') && (
+      {globalVoucherActive && (!currentTier || currentTier.toLowerCase() === 'free') && (
         <div className="max-w-7xl mx-auto mb-10 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-white/20 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "20px 20px" }}></div>
           <div className="relative z-10 flex-1">
@@ -197,7 +251,7 @@ export default function Pricing() {
                 <Check size={20} /> Telah Diklaim
               </div>
             )}
-            {!voucherClaimed && <div className="text-white/80 text-xs text-center md:text-right mt-1">Gunakan kode: <span className="font-bold">GURUHEBAT20</span></div>}
+            {!voucherClaimed && <div className="text-white/80 text-xs text-center md:text-right mt-1">Gunakan kode: <span className="font-bold">{globalVoucherCode || 'GURUHEBAT20'}</span></div>}
           </div>
         </div>
       )}
@@ -211,7 +265,7 @@ export default function Pricing() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {plans.map((plan, i) => {
           const isSupreme = plan.name === 'SUPREME';
           const isCurrent = currentTier?.toLowerCase() === plan.name.toLowerCase() || (plan.name === 'Free' && !currentTier);
@@ -220,99 +274,120 @@ export default function Pricing() {
           return (
             <div 
               key={i} 
-              className={`relative gen-card rounded-2xl overflow-hidden shadow-2xl flex flex-col transition-all duration-300 hover:-translate-y-2 ${
-                plan.popular ? 'border-2 border-red-300 scale-105 z-10' : 
-                isSupreme ? 'border-2 border-transparent bg-gradient-to-b from-purple-600/30 to-amber-500/20' : 
-                isTitan ? 'border-2 border-rose-500/50 bg-gradient-to-b from-rose-900/40 to-slate-900/80 shadow-sm' :
-                'border border-black bg-white'
+              className={`relative rounded-3xl overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 group ${
+                plan.popular ? 'border-2 border-blue-500 shadow-[0_20px_40px_-15px_rgba(59,130,246,0.3)] scale-105 z-10 bg-white' : 
+                isSupreme ? 'border border-purple-300/50 bg-gradient-to-br from-indigo-50 via-white to-purple-50 shadow-xl' : 
+                isTitan ? 'border border-rose-300/50 bg-gradient-to-br from-rose-50 via-white to-orange-50 shadow-xl' :
+                'border border-gray-100 bg-white shadow-lg hover:shadow-xl'
               }`}
             >
+              {/* Modern Glow Effects */}
               {isSupreme && (
-                <div className="absolute inset-0 bg-gradient-to-dr from-violet-600/20 via-transparent to-amber-400/20 z-0"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               )}
               {isTitan && (
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-red-500/10 z-0 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-400/20 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
               )}
               {plan.popular && (
-                <div className="bg-red-300 text-black text-xs font-bold uppercase tracking-widest text-center py-1 absolute top-0 w-full z-20">
-                  Best Offer
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl -mr-10 -mt-10 transition-transform group-hover:scale-150"></div>
+              )}
+
+              {plan.badge && (
+                <div className="absolute top-6 -right-10 w-40 transform rotate-45 z-20 shadow-md">
+                  <div className={`text-[9px] font-black uppercase tracking-[0.2em] text-center py-1.5 ${
+                    isTitan ? 'bg-rose-600 text-white' :
+                    isSupreme ? 'bg-purple-600 text-white' :
+                    plan.popular ? 'bg-blue-600 text-white' :
+                    'bg-gray-800 text-white'
+                  }`}>
+                    {plan.badge}
+                  </div>
                 </div>
               )}
 
-              <div className={`p-6 z-10 ${plan.popular ? 'pt-8' : ''}`}>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-xl ${
-                    isTitan ? 'bg-gradient-to-br from-rose-500 to-red-600' :
-                    isSupreme ? 'bg-gradient-to-br from-violet-600 to-amber-400' :
-                    plan.name === 'Premium' ? 'bg-emerald-500/20' :
-                    plan.name === 'Ultimate' ? 'bg-blue-500/20' :
-                    plan.name === 'Essential' ? 'bg-amber-500/20' :
-                    'bg-red-50'
+              <div className="p-8 z-10 flex flex-col h-full">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`p-3 rounded-2xl ${
+                    isTitan ? 'bg-gradient-to-br from-rose-100 to-orange-100 text-rose-600' :
+                    isSupreme ? 'bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-600' :
+                    plan.name === 'Premium' ? 'bg-emerald-100 text-emerald-600' :
+                    plan.name === 'Ultimate' ? 'bg-blue-100 text-blue-600' :
+                    plan.name === 'Essential' ? 'bg-amber-100 text-amber-600' :
+                    'bg-slate-100 text-slate-600'
                   }`}>
                     {plan.icon}
                   </div>
-                  <h3 className={`text-xl font-bold uppercase tracking-widest ${
-                    isTitan ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-red-500 drop-shadow-sm' :
-                    isSupreme ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#8A2BE2] to-[#FFD700] drop-shadow-sm' :
-                    plan.name === 'Premium' ? 'text-red-300' :
-                    plan.name === 'Ultimate' ? 'text-red-400' :
-                    plan.name === 'Essential' ? 'text-amber-600' :
-                    'text-black'
-                  }`}>
-                    {plan.name}
-                  </h3>
+                  <div>
+                    <h3 className={`text-xl font-black uppercase tracking-wider ${
+                      isTitan ? 'text-transparent bg-clip-text bg-gradient-to-r from-rose-600 to-orange-500' :
+                      isSupreme ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600' :
+                      plan.name === 'Premium' ? 'text-emerald-700' :
+                      plan.name === 'Ultimate' ? 'text-blue-700' :
+                      plan.name === 'Essential' ? 'text-amber-700' :
+                      'text-slate-700'
+                    }`}>
+                      {plan.name}
+                    </h3>
+                  </div>
                 </div>
                 
-                <p className="text-xs text-gray-600 mb-6 h-8">{plan.description}</p>
+                <p className="text-sm text-gray-500 font-medium mb-6 h-10 leading-relaxed">{plan.description}</p>
                 
-                <div className="mb-6 pb-6 border-b border-white/10">
-                  <div className="flex items-center flex-wrap gap-2">
-                    <span className="text-3xl font-bold tracking-tighter text-black">
+                <div className="mb-6 pb-6 border-b border-gray-100">
+                  <div className="flex items-baseline flex-wrap gap-2">
+                    <span className={`text-4xl font-black tracking-tighter ${plan.popular ? 'text-blue-950' : 'text-gray-900'}`}>
                       {isEligibleForDiscount && plan.name !== 'Free' ? getDiscountedPrice(plan.price) : plan.price}
                     </span>
                     {isEligibleForDiscount && plan.name !== 'Free' && (
-                      <span className="text-sm line-through text-gray-400">{plan.price}</span>
+                      <span className="text-sm font-bold line-through text-gray-400 decoration-red-500/50">{plan.price}</span>
                     )}
                   </div>
-                  <span className="text-gray-600 text-sm block mt-1">{plan.period}</span>
+                  <span className="text-gray-400 text-xs font-bold uppercase tracking-widest block mt-2">{plan.period}</span>
                 </div>
 
-                <div className="mb-6">
-                  <div className="flex items-end gap-2 mb-1">
-                    <span className={`text-4xl font-bold ${isTitan ? 'text-rose-400' : isSupreme ? 'text-amber-600' : 'text-black'}`}>{plan.tokens}</span>
-                    <span className="text-xs text-gray-600 pb-1">{plan.tokenDesc}</span>
+                <div className="mb-8 p-4 rounded-2xl bg-gray-50/50 border border-gray-100 flex items-center justify-between">
+                  <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Kuota</span>
+                  <div className="flex items-baseline gap-1 text-right">
+                    <span className={`text-2xl font-black ${
+                      isTitan ? 'text-rose-600' : 
+                      isSupreme ? 'text-purple-600' : 
+                      plan.popular ? 'text-blue-600' : 
+                      'text-gray-800'
+                    }`}>{plan.tokens}</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Generate</span>
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-8 flex-1">
+                <ul className="space-y-4 mb-8 flex-1">
                   {plan.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
-                      <Check size={16} className={`mt-0.5 shrink-0 ${
-                        isTitan ? 'text-rose-400' :
-                        isSupreme ? 'text-amber-600' :
-                        plan.name === 'Premium' ? 'text-red-300' :
-                        'text-red-500'
-                      }`} />
-                      <span>{feature}</span>
+                    <li key={j} className="flex items-start gap-3 text-sm font-medium text-gray-600">
+                      <div className={`mt-0.5 p-1 rounded-full shrink-0 ${
+                        isTitan ? 'bg-rose-100 text-rose-600' :
+                        isSupreme ? 'bg-purple-100 text-purple-600' :
+                        plan.popular ? 'bg-blue-100 text-blue-600' :
+                        'bg-gray-100 text-gray-500'
+                      }`}>
+                        <Check size={12} strokeWidth={3} />
+                      </div>
+                      <span className="leading-snug">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <div className="mt-auto">
+                <div className="mt-auto pt-4">
                   <button 
                     onClick={() => handleUpgrade(plan)}
                     disabled={isCurrent && plan.name === 'Free'}
-                    className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest transition-all ${
-                      isCurrent && plan.name === 'Free' ? 'bg-red-50 text-gray-500 cursor-not-allowed' :
-                      isTitan ? 'bg-gradient-to-r from-rose-600 to-red-600 text-black hover:shadow-sm shadow-lg hover:scale-105' :
-                      isSupreme ? 'bg-gradient-to-r from-violet-600 to-amber-500 text-black hover:shadow-sm shadow-lg hover:scale-105' :
-                      plan.popular ? 'bg-red-300 text-black hover:bg-red-300/90 shadow-lg shadow-red-300/20' :
-                      plan.name === 'Ultimate' ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30' :
-                      plan.name === 'Essential' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/50 hover:bg-amber-500/30' :
-                      'bg-red-50 text-black hover:bg-red-100'
+                    className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-300 ${
+                      isCurrent && plan.name === 'Free' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' :
+                      isCurrent ? 'bg-gray-900 text-white shadow-lg hover:shadow-xl hover:scale-[1.02]' :
+                      isTitan ? 'bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-[0_10px_20px_-10px_rgba(244,63,94,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(244,63,94,0.6)] hover:scale-[1.02]' :
+                      isSupreme ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-[0_10px_20px_-10px_rgba(147,51,234,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(147,51,234,0.6)] hover:scale-[1.02]' :
+                      plan.popular ? 'bg-blue-600 text-white shadow-[0_10px_20px_-10px_rgba(37,99,235,0.5)] hover:shadow-[0_15px_30px_-10px_rgba(37,99,235,0.6)] hover:bg-blue-700 hover:scale-[1.02]' :
+                      'bg-white text-gray-800 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-md'
                     }`}
                   >
-                    {isCurrent ? (plan.name === 'Free' ? 'Paket Saat Ini' : 'Beli Lagi') : plan.buttonText}
+                    {isCurrent ? (plan.name === 'Free' ? 'Paket Saat Ini' : 'Perpanjang Layanan') : plan.buttonText}
                   </button>
                 </div>
               </div>
