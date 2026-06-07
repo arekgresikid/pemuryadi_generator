@@ -283,8 +283,18 @@ app.get('/admin/users', async (c) => {
     return c.json({ error: 'Forbidden' }, 403);
   }
 
-  const { results } = await db.prepare('SELECT uid, email, displayName, role, tier, activeUntil, createdAt FROM users ORDER BY createdAt DESC').all();
-  return c.json(results);
+  try {
+    const { results } = await db.prepare('SELECT * FROM users ORDER BY createdAt DESC').all();
+    return c.json(results);
+  } catch (e: any) {
+    try {
+      // Fallback if createdAt doesn't exist in production yet
+      const { results } = await db.prepare('SELECT * FROM users ORDER BY uid DESC').all();
+      return c.json(results);
+    } catch (e2: any) {
+      return c.json({ error: e2.message }, 500);
+    }
+  }
 });
 
 app.put('/admin/users/:uid', async (c) => {
