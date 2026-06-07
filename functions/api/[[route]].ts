@@ -229,8 +229,10 @@ app.get('/admin/stats', async (c) => {
   const result = await db.prepare(`
     SELECT 
       COUNT(*) as totalUsers,
+      SUM(CASE WHEN tier = 'Essential' THEN 1 ELSE 0 END) as totalEssential,
       SUM(CASE WHEN tier = 'Premium' THEN 1 ELSE 0 END) as totalPremium,
       SUM(CASE WHEN tier = 'Ultimate' THEN 1 ELSE 0 END) as totalUltimate,
+      SUM(CASE WHEN tier = 'Supreme' OR tier = 'SUPREME' THEN 1 ELSE 0 END) as totalSupreme,
       SUM(CASE WHEN tier = 'Titan' THEN 1 ELSE 0 END) as totalTitan
     FROM users
   `).first();

@@ -208,6 +208,8 @@ export default function AdminPanel() {
 
   const submitAddUser = async () => {
     if (!newEmail) return toast.error('Email wajib diisi');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) return toast.error('Format email tidak valid');
     try {
       setIsSaving(true);
       const res = await fetch('/api/admin/users', {
@@ -273,7 +275,7 @@ export default function AdminPanel() {
     const headers = ['Email', 'Name', 'Role', 'Tier', 'Active Until', 'Created At'];
     const csvContent = [
       headers.join(','),
-      ...users.map(u => `"${u.email || ''}","${u.displayName || ''}","${u.role || ''}","${u.tier || ''}","${u.activeUntil || ''}","${u.createdAt || ''}"`)
+      ...users.map(u => `"${u.email || ''}","${(u.displayName || '').replace(/"/g, '""')}","${u.role || ''}","${u.tier || ''}","${u.activeUntil || ''}","${u.createdAt || ''}"`)
     ].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -338,10 +340,14 @@ export default function AdminPanel() {
         <>
           {/* Stats Cards */}
           {stats && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
               <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-gray-500 text-xs font-bold mb-1">Total Pengguna</div>
                 <div className="text-2xl font-black text-blue-600">{stats.totalUsers}</div>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div className="text-gray-500 text-xs font-bold mb-1">Essential</div>
+                <div className="text-2xl font-black text-yellow-600">{stats.totalEssential || 0}</div>
               </div>
               <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-gray-500 text-xs font-bold mb-1">Premium</div>
@@ -350,6 +356,10 @@ export default function AdminPanel() {
               <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-gray-500 text-xs font-bold mb-1">Ultimate</div>
                 <div className="text-2xl font-black text-indigo-600">{stats.totalUltimate}</div>
+              </div>
+              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div className="text-gray-500 text-xs font-bold mb-1">Supreme</div>
+                <div className="text-2xl font-black text-purple-600">{stats.totalSupreme || 0}</div>
               </div>
               <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-gray-500 text-xs font-bold mb-1">Titan</div>
@@ -375,8 +385,10 @@ export default function AdminPanel() {
               >
                 <option value="All">Semua Tier</option>
                 <option value="Free">Free</option>
+                <option value="Essential">Essential</option>
                 <option value="Premium">Premium</option>
                 <option value="Ultimate">Ultimate</option>
+                <option value="SUPREME">SUPREME</option>
                 <option value="Titan">Titan</option>
               </select>
               <div className="relative flex-1 md:w-64">

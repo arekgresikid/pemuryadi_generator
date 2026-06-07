@@ -38,7 +38,7 @@ export default function MaintenancePage({ endTime, waNumber, reason }: Maintenan
   }, [endTime]);
 
   const handleWhatsApp = () => {
-    let num = waNumber;
+    let num = waNumber ? waNumber.replace(/\D/g, '') : '';
     if (num && num.startsWith('0')) num = '62' + num.substring(1);
     window.open(`https://wa.me/${num}?text=Halo%20Admin,%20saya%20ingin%20bertanya%20seputar%20maintenance%20website...`, '_blank');
   };

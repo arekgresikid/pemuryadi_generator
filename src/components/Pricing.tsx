@@ -207,7 +207,8 @@ export default function Pricing() {
     // Gunakan nomor dari pengaturan Admin, jika kosong gunakan nomor default E-Wallet
     let finalWaNumber = waNumber && waNumber.trim() !== '' ? waNumber : '081330763633';
     
-    // Pastikan nomor diawali dengan kode negara
+    // Bersihkan dari spasi, tanda hubung, atau karakter lain, lalu pastikan diawali dengan kode negara
+    finalWaNumber = finalWaNumber.replace(/\D/g, '');
     if (finalWaNumber.startsWith('0')) {
       finalWaNumber = '62' + finalWaNumber.substring(1);
     }
