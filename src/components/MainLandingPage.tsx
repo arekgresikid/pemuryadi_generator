@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Sparkles, BrainCircuit, ShieldCheck, Clock, BookOpen, Layers, Users, Zap, CheckCircle2, PlayCircle, FileText, Star, Grid, FileEdit, DownloadCloud, ChevronDown, HelpCircle, CalendarCheck, ClipboardCheck, Target, ListChecks, Award, CalendarRange, Calculator, Trophy } from 'lucide-react';
 
+
+
 export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void }) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -33,6 +35,18 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
 
   return (
     <div className="min-h-screen bg-slate-950 font-sans selection:bg-blue-500/30 text-slate-300 overflow-x-hidden w-full relative">
+      {/* Global Background Image */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none animate-slow-pan" 
+        style={{
+          backgroundImage: "url('/hero-bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+
       {/* Navbar */}
       <nav className="border-b border-white/10 bg-slate-950/50 backdrop-blur-md absolute top-0 inset-x-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -63,12 +77,12 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-28 pb-12 lg:pt-32 lg:pb-16 px-6">
           {/* Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none z-0"></div>
           
           <div className="max-w-5xl mx-auto text-center relative z-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-semibold text-sm mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
               <Sparkles size={16} />
-              <span>Sistem Cerdas Bertenaga AI Generatif</span>
+              <span className="text-shine-blue">Sistem Cerdas Bertenaga AI Generatif</span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 md:mb-6 tracking-tight leading-[1.1] animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
@@ -143,7 +157,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
                 { icon: ShieldCheck, title: 'Standar Nasional', desc: 'Format luaran (output) secara otomatis mengikuti struktur yang disyaratkan oleh Kurikulum Merdeka.', color: 'from-emerald-400 to-teal-500', iconColor: 'text-emerald-400', iconBg: 'bg-emerald-500/10' },
                 { icon: DownloadCloud, title: 'Praktis & Siap Pakai', desc: 'Satu kali klik untuk menyalin teks atau mengunduh hasil dokumen secara utuh, siap dicetak langsung.', color: 'from-amber-400 to-orange-500', iconColor: 'text-amber-400', iconBg: 'bg-amber-500/10' }
               ].map((benefit, i) => (
-                <div key={i} className="bg-slate-950 p-8 rounded-3xl border border-white/5 hover:-translate-y-1 transition-all group relative overflow-hidden shadow-lg">
+                <div key={i} className="bg-slate-950 p-8 rounded-3xl border border-white/5 hover:-translate-y-1 transition-all group relative overflow-hidden shadow-lg card-shimmer">
                   <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${benefit.color} opacity-70 group-hover:opacity-100 transition-opacity`}></div>
                   <div className={`w-14 h-14 rounded-2xl ${benefit.iconBg} flex items-center justify-center mb-6 group-hover:scale-110 transition-all`}>
                     <benefit.icon className={benefit.iconColor} size={28} />
@@ -157,7 +171,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         </section>
 
         {/* Modules/Features Section */}
-        <section className="py-24 px-6 bg-slate-950 relative z-20">
+        <section className="py-24 px-6 relative z-20">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Satu Platform, Semua Solusi Administrasi</h2>
@@ -195,7 +209,7 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         </section>
 
         {/* How it Works */}
-        <section className="py-24 px-6 bg-slate-950 relative z-20">
+        <section className="py-24 px-6 relative z-20">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Cara Kerja yang Sangat Mudah</h2>
@@ -203,8 +217,15 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-              {/* Connecting Line */}
-              <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0"></div>
+              {/* Connecting Line (Desktop: Horizontal) */}
+              <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 rounded-full">
+                <div className="absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-transparent via-cyan-300 to-transparent data-flow-animation shadow-[0_0_10px_#22d3ee]"></div>
+              </div>
+              
+              {/* Connecting Line (Mobile: Vertical) */}
+              <div className="block md:hidden absolute top-[10%] bottom-[10%] left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-blue-500/0 via-blue-500/50 to-blue-500/0 rounded-full">
+                <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-transparent via-cyan-300 to-transparent data-flow-y-animation shadow-[0_0_10px_#22d3ee]"></div>
+              </div>
 
               {[
                 { step: '1', title: 'Pilih Kebutuhan Anda', desc: 'Pilih modul yang ingin dibuat, misalnya Modul Ajar, RPP, atau Bank Soal dari dashboard utama.', icon: Grid },

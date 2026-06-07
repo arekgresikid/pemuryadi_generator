@@ -4,10 +4,20 @@ import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lu
 export default function Changelog() {
   const versions = [
     {
-      version: '5.2.5',
+      version: '5.2.6',
       date: '7 Juni 2026',
       badge: 'Terbaru',
       icon: <Rocket className="w-5 h-5 text-blue-600" />,
+      commits: [
+        'Menghapus animasi efek jatuh penuh (sliding lines) dari latar belakang Halaman Utama (Landing Page) agar lebih bersih dan elegan.',
+        'Menerapkan animasi efek cahaya sapuan (shimmer & shine) pada teks lencana sistem AI dan pada fitur-fitur "Mengapa Pendidik Memilih Kami?".',
+        'Menambahkan animasi aliran data (data flow) bercahaya secara horisontal (desktop) dan vertikal (mobile) pada garis penghubung di seksi "Cara Kerja yang Sangat Mudah".'
+      ]
+    },
+    {
+      version: '5.2.5',
+      date: '7 Juni 2026',
+      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
       commits: [
         'Mengganti alur login langsung ke Dashboard dengan Halaman Utama (Landing Page) pemasaran.',
         'Menambahkan bagian Hero dengan Call-to-Action, metrik statistik (Social Proof), dan 3 langkah Cara Kerja.',
