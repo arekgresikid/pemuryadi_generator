@@ -32,8 +32,11 @@
     "commits": [
       "Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.",
       "Menambahkan modul baru: Rubrik Penilaian & Asesmen Kurikulum Merdeka lengkap dengan skala skor dan lembar observasi.",
+      "Menambahkan antarmuka daftar tunggu (Whitelist) menggunakan email khusus untuk pengguna uji coba",
+      "Menambahkan modal konfirmasi (popup) dengan ringkasan fitur saat admin mengaktifkan Manajemen Uji Coba",
       "Menambahkan tautan Halaman Landing pada bagian bawah (footer) aplikasi untuk mempermudah akses navigasi.",
-      "Memperbaiki masalah (bug) gambar latar belakang pada browser mobile (terutama iOS Safari) yang tergulung bersama konten halaman."
+      "Memperbaiki masalah (bug) gambar latar belakang pada browser mobile (terutama iOS Safari) yang tergulung bersama konten halaman.",
+      "Memperbaiki tata letak tombol simpan di Admin Panel agar tidak tumpang tindih di perangkat seluler"
     ]
   },
   {

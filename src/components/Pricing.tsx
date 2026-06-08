@@ -20,6 +20,10 @@ export default function Pricing() {
   const [voucherClaimed, setVoucherClaimed] = useState(false);
   const [globalVoucherActive, setGlobalVoucherActive] = useState(true); // Default true until fetched
   const [globalVoucherCode, setGlobalVoucherCode] = useState('');
+  const [trialActive, setTrialActive] = useState(false);
+  const [trialDays, setTrialDays] = useState('3');
+  const [trialTokens, setTrialTokens] = useState('50');
+  const [trialTier, setTrialTier] = useState('Premium');
   const [waNumber, setWaNumber] = useState('6281347697809');
   const [waNumber2, setWaNumber2] = useState('');
   const [priceEssential, setPriceEssential] = useState('Rp 170.000');
@@ -41,6 +45,10 @@ export default function Pricing() {
         await Promise.all([
           fetchSet('promo_voucher_active', setGlobalVoucherActive, true),
           fetchSet('promo_voucher_code', setGlobalVoucherCode),
+          fetchSet('promo_trial_active', setTrialActive, true),
+          fetchSet('promo_trial_days', setTrialDays),
+          fetchSet('promo_trial_tokens', setTrialTokens),
+          fetchSet('promo_trial_tier', setTrialTier),
           fetchSet('whatsapp_admin_number', setWaNumber),
           fetchSet('whatsapp_admin_number_2', setWaNumber2),
           fetchSet('price_essential', setPriceEssential),
@@ -80,6 +88,24 @@ export default function Pricing() {
   const isEligibleForDiscount = voucherClaimed && (!currentTier || currentTier.toLowerCase() === 'free');
 
   const plans = [
+    ...(trialActive ? [{
+      name: 'Free Trial',
+      description: `Coba gratis fitur ${trialTier} selama ${trialDays} hari`,
+      price: 'Rp 0',
+      period: ` / ${trialDays} Hari`,
+      tokens: parseInt(trialTokens) || 50,
+      tokenDesc: 'x generate total',
+      features: [
+        trialTier === 'Free' ? 'Dengan Watermark (WM)' : 'Tanpa Watermark (WM)',
+        `Masa Aktif ${trialDays} Hari`,
+        'Aktivasi manual via WhatsApp',
+        'Tanpa kartu kredit'
+      ],
+      icon: <Star size={24} className="text-blue-600" />,
+      color: 'blue',
+      badge: 'PROMO KHUSUS',
+      buttonText: 'Klaim via WhatsApp'
+    }] : []),
     {
       name: 'Free',
       description: 'Akses pengenalan untuk mengeksplorasi fitur dasar',
@@ -197,6 +223,19 @@ export default function Pricing() {
   // Removed auto-select useEffect to prevent annoying modal popup on mount
 
   const handleUpgrade = (plan: any) => {
+    if (plan.name === 'Free Trial') {
+      const email = profile?.email || user?.email || '[Tulis email Anda di sini]';
+      const message = encodeURIComponent(`Halo Admin, saya ingin mencoba Free Trial aplikasi. Mohon bantuannya untuk mengaktifkan akses trial untuk akun dengan alamat email: ${email}`);
+      const finalWaNumber = waNumber || '6281347697809';
+      window.open(`https://wa.me/${finalWaNumber}?text=${message}`, '_blank');
+      return;
+    }
+
+    if (!user) {
+      toast.error("Silakan login terlebih dahulu untuk berlangganan");
+      return;
+    }
+
     setSelectedPlan(plan);
     setShowModal(true);
   };

@@ -35,6 +35,7 @@ export default function AdminPanel() {
   const [trialTokens, setTrialTokens] = useState('50');
   const [trialEmails, setTrialEmails] = useState('');
   const [trialEmailInput, setTrialEmailInput] = useState('');
+  const [showTrialConfirm, setShowTrialConfirm] = useState(false);
   const [maintenanceActive, setMaintenanceActive] = useState(false);
   const [maintenanceEndTime, setMaintenanceEndTime] = useState('');
   const [maintenanceReason, setMaintenanceReason] = useState('');
@@ -173,10 +174,19 @@ export default function AdminPanel() {
     await saveSetting('promo_voucher_active', newValue ? 'true' : 'false', false);
   };
 
+  const confirmTrialToggle = () => {
+    if (!trialActive) {
+      setShowTrialConfirm(true);
+    } else {
+      setTrialActive(false);
+      saveSetting('promo_trial_active', 'false', false);
+    }
+  };
+
   const handleTrialToggle = async () => {
-    const newValue = !trialActive;
-    setTrialActive(newValue);
-    await saveSetting('promo_trial_active', newValue ? 'true' : 'false', false);
+    setTrialActive(true);
+    await saveSetting('promo_trial_active', 'true', false);
+    setShowTrialConfirm(false);
   };
 
   const emailsArray = trialEmails ? trialEmails.split(',').map(e => e.trim()).filter(e => e) : [];
@@ -967,7 +977,7 @@ export default function AdminPanel() {
                 </div>
                 <div className="ml-auto">
                   <button 
-                    onClick={handleTrialToggle}
+                    onClick={confirmTrialToggle}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${trialActive ? 'bg-blue-600' : 'bg-gray-200'}`}
                   >
                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${trialActive ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -1666,6 +1676,66 @@ export default function AdminPanel() {
                   className="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-md shadow-red-500/20 transition-colors flex items-center justify-center gap-2"
                 >
                   <Trash2 size={18} /> Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Free Trial Confirmation Modal */}
+      {showTrialConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4" onClick={() => setShowTrialConfirm(false)}>
+          <div 
+            className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl transform transition-all border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <Star size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Aktifkan Free Trial?</h3>
+              <p className="text-gray-500 mb-6 text-sm text-center">
+                Mengaktifkan fitur ini akan memunculkan penawaran <b>Free Trial</b> secara publik di halaman Berlangganan (Pricing).
+              </p>
+              
+              <div className="w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-6 text-left">
+                <p className="text-xs font-bold text-blue-800 mb-2 uppercase tracking-wider">Detail Paket Trial:</p>
+                <ul className="space-y-2 text-sm text-blue-900">
+                  <li className="flex justify-between border-b border-blue-100 pb-1">
+                    <span className="font-medium">Tier Akun:</span> 
+                    <span className="font-bold">{trialTier}</span>
+                  </li>
+                  <li className="flex justify-between border-b border-blue-100 pb-1">
+                    <span className="font-medium">Jumlah Token:</span> 
+                    <span className="font-bold">{trialTokens} Token</span>
+                  </li>
+                  <li className="flex justify-between border-b border-blue-100 pb-1">
+                    <span className="font-medium">Masa Aktif:</span> 
+                    <span className="font-bold">{trialDays} Hari</span>
+                  </li>
+                  <li className="flex justify-between pb-1">
+                    <span className="font-medium">Watermark:</span> 
+                    <span className="font-bold">{trialTier === 'Free' ? 'Ada Watermark' : 'Tanpa Watermark'}</span>
+                  </li>
+                </ul>
+                <p className="text-[10px] text-blue-600 mt-3 bg-blue-100 p-2 rounded-lg leading-tight">
+                  Pengguna akan diarahkan ke WhatsApp Admin saat mengklaim promo ini.
+                </p>
+              </div>
+
+              <div className="flex gap-3 w-full">
+                <button 
+                  onClick={() => setShowTrialConfirm(false)}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={handleTrialToggle}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-colors flex items-center justify-center gap-2"
+                >
+                  Ya, Aktifkan
                 </button>
               </div>
             </div>
