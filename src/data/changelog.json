@@ -20,7 +20,9 @@
       "Mengoptimalkan tabel Log Sistem dengan fitur Virtualization (maksimal ketinggian) dan Pagination (Muat Lebih Banyak) untuk mencegah halaman memanjang tanpa batas.",
       "Menambahkan penanda (badge) BETA merah pada menu sidebar untuk fitur Modul P5 dan Rubrik Penilaian sebagai indikator masih dalam tahap penyempurnaan dan pemilik web [Praswara Eko Muryadi](https://pemuryadi.my.id).",
       "Merombak UI halaman Tentang Kami dengan desain kartu profil melingkar yang modern untuk kolaborator [Praswara Eko Muryadi](https://pemuryadi.my.id) dan [Arif Tirtana](https://ariftirtana.my.id), serta menambahkan blok kemitraan [RuangRiung](https://ruangriung.my.id) yang memukau.",
-      "Memperbaiki tata letak (layout) kotak input dan tombol klaim voucher diskon pada halaman Berlangganan agar tersusun secara vertikal di perangkat mobile sehingga tidak lagi terpotong/melebihi layar."
+      "Memperbaiki tata letak (layout) kotak input dan tombol klaim voucher diskon pada halaman Berlangganan agar tersusun secara vertikal di perangkat mobile sehingga tidak lagi terpotong/melebihi layar.",
+      "Menambahkan fitur Manajemen Uji Coba (Free Trial) di Admin Panel dengan konfigurasi terperinci seperti masa aktif (hari), jumlah token awal, dan pilihan tier (termasuk kontrol watermark).",
+      "Mengimplementasikan fitur Whitelist Email berbasis sistem *badge/tag* di Admin Panel agar akses Free Trial dapat dibatasi hanya untuk daftar email spesifik yang dipilih oleh Admin."
     ]
   },
   {

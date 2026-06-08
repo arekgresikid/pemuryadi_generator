@@ -108,12 +108,46 @@ app.get('/auth/callback', async (c) => {
     if (!existingUser) {
       // Default to 2 tokens for Free tier, or 999999 if admin
       let initialTokens = isAdmin ? 999999 : 2;
+      let activeUntilStr: string | null = null;
+      
+      if (!isAdmin) {
+        try {
+          const trialActiveRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_active'").first();
+          if (trialActiveRow && trialActiveRow.value === 'true') {
+            const trialEmailsRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_emails'").first();
+            const allowedEmails = trialEmailsRow?.value ? (trialEmailsRow.value as string).toLowerCase().split(',').map(e => e.trim()).filter(e => e) : [];
+            
+            const userEmailLower = userData.email.toLowerCase();
+            const isEligible = allowedEmails.length === 0 || allowedEmails.includes(userEmailLower);
+            
+            if (isEligible) {
+              const trialDaysRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_days'").first();
+              const trialTierRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_tier'").first();
+              const trialTokensRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_tokens'").first();
+              
+              const trialDays = trialDaysRow?.value ? parseInt(trialDaysRow.value as string) : 3;
+              initialTier = (trialTierRow?.value as string) || 'Premium';
+              if (trialTokensRow && trialTokensRow.value) {
+                initialTokens = parseInt(trialTokensRow.value as string) || 50;
+              } else {
+                initialTokens = 50; // default for trial
+              }
+              
+              const trialDate = new Date();
+              trialDate.setDate(trialDate.getDate() + trialDays);
+              activeUntilStr = trialDate.toISOString();
+            }
+          }
+        } catch (e) {
+          console.error("Failed to apply trial settings:", e);
+        }
+      }
       
       await db.prepare(
-        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, createdAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).bind(
-        userData.id, userData.email, userData.name, userData.picture, role, initialTier, initialTokens, new Date().toISOString()
+        userData.id, userData.email, userData.name, userData.picture, role, initialTier, initialTokens, activeUntilStr, new Date().toISOString()
       ).run();
     } else {
       // Update uid (if pre-registered), photo, and name

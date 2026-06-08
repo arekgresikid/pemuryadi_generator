@@ -29,6 +29,12 @@ export default function AdminPanel() {
   const [confirmDeleteChecked, setConfirmDeleteChecked] = useState(false);
   const [voucherActive, setVoucherActive] = useState(false);
   const [voucherCode, setVoucherCode] = useState('');
+  const [trialActive, setTrialActive] = useState(false);
+  const [trialDays, setTrialDays] = useState('3');
+  const [trialTier, setTrialTier] = useState('Premium');
+  const [trialTokens, setTrialTokens] = useState('50');
+  const [trialEmails, setTrialEmails] = useState('');
+  const [trialEmailInput, setTrialEmailInput] = useState('');
   const [maintenanceActive, setMaintenanceActive] = useState(false);
   const [maintenanceEndTime, setMaintenanceEndTime] = useState('');
   const [maintenanceReason, setMaintenanceReason] = useState('');
@@ -120,6 +126,11 @@ export default function AdminPanel() {
       await Promise.all([
         fetchSet('promo_voucher_active', setVoucherActive, true),
         fetchSet('promo_voucher_code', setVoucherCode),
+        fetchSet('promo_trial_active', setTrialActive, true),
+        fetchSet('promo_trial_days', setTrialDays),
+        fetchSet('promo_trial_tier', setTrialTier),
+        fetchSet('promo_trial_tokens', setTrialTokens),
+        fetchSet('promo_trial_emails', setTrialEmails),
         fetchSet('maintenance_active', setMaintenanceActive, true),
         fetchSet('maintenance_end_time', setMaintenanceEndTime),
         fetchSet('maintenance_reason', setMaintenanceReason),
@@ -160,6 +171,30 @@ export default function AdminPanel() {
     const newValue = !voucherActive;
     setVoucherActive(newValue);
     await saveSetting('promo_voucher_active', newValue ? 'true' : 'false', false);
+  };
+
+  const handleTrialToggle = async () => {
+    const newValue = !trialActive;
+    setTrialActive(newValue);
+    await saveSetting('promo_trial_active', newValue ? 'true' : 'false', false);
+  };
+
+  const emailsArray = trialEmails ? trialEmails.split(',').map(e => e.trim()).filter(e => e) : [];
+
+  const handleAddTrialEmail = () => {
+    if (!trialEmailInput.trim()) return;
+    const newEmails = [...emailsArray, trialEmailInput.trim()];
+    const newString = newEmails.join(',');
+    setTrialEmails(newString);
+    saveSetting('promo_trial_emails', newString, false);
+    setTrialEmailInput('');
+  };
+
+  const handleRemoveTrialEmail = (emailToRemove: string) => {
+    const newEmails = emailsArray.filter(e => e !== emailToRemove);
+    const newString = newEmails.join(',');
+    setTrialEmails(newString);
+    saveSetting('promo_trial_emails', newString, false);
   };
 
   const confirmMaintenanceToggle = () => {
@@ -915,6 +950,133 @@ export default function AdminPanel() {
                     >
                       Simpan
                     </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Section: Promo Trial */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                  <Star size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-800">Manajemen Uji Coba (Free Trial)</h2>
+                  <p className="text-xs text-gray-500">Berikan akses trial otomatis untuk pengguna yang baru mendaftar dengan pilihan khusus.</p>
+                </div>
+                <div className="ml-auto">
+                  <button 
+                    onClick={handleTrialToggle}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${trialActive ? 'bg-blue-600' : 'bg-gray-200'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${trialActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              </div>
+
+              {trialActive && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2">Durasi Trial (Hari)</label>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="number"
+                        value={trialDays}
+                        onChange={(e) => setTrialDays(e.target.value)}
+                        placeholder="3"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                      />
+                      <button 
+                        onClick={() => saveSetting('promo_trial_days', trialDays)}
+                        className={getBtnClass('promo_trial_days', trialDays, "w-full px-6 py-3 rounded-xl text-sm font-bold shadow-sm")}
+                      >
+                        Simpan
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2">Jumlah Token Awal</label>
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="number"
+                        value={trialTokens}
+                        onChange={(e) => setTrialTokens(e.target.value)}
+                        placeholder="50"
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                      />
+                      <button 
+                        onClick={() => saveSetting('promo_trial_tokens', trialTokens)}
+                        className={getBtnClass('promo_trial_tokens', trialTokens, "w-full px-6 py-3 rounded-xl text-sm font-bold shadow-sm")}
+                      >
+                        Simpan
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-2">Tier Trial (Tanpa WM)</label>
+                    <div className="flex flex-col gap-2">
+                      <select
+                        value={trialTier}
+                        onChange={(e) => setTrialTier(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="Essential">Essential</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Ultimate">Ultimate</option>
+                        <option value="Supreme">Supreme</option>
+                        <option value="Free">Free (Dengan Watermark)</option>
+                      </select>
+                      <button 
+                        onClick={() => saveSetting('promo_trial_tier', trialTier)}
+                        className={getBtnClass('promo_trial_tier', trialTier, "w-full px-6 py-3 rounded-xl text-sm font-bold shadow-sm")}
+                      >
+                        Simpan
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Email Whitelist Spanning Full Width */}
+                  <div className="md:col-span-3 border-t border-gray-100 pt-4 mt-2">
+                    <label className="block text-xs font-bold text-gray-500 mb-1">Target Email Spesifik (Opsional)</label>
+                    <p className="text-[10px] text-gray-400 mb-3">Jika ditambahkan, hanya email di bawah ini yang akan mendapatkan akses trial. Kosongkan daftar ini jika ingin berlaku untuk <b>semua</b> pendaftar baru.</p>
+                    
+                    <div className="flex flex-col gap-3">
+                      {/* Form Tambah Email */}
+                      <div className="flex gap-2 items-stretch">
+                        <input
+                          type="email"
+                          value={trialEmailInput}
+                          onChange={(e) => setTrialEmailInput(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddTrialEmail()}
+                          placeholder="Masukkan email (contoh: budi@gmail.com)"
+                          className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                        />
+                        <button 
+                          onClick={handleAddTrialEmail}
+                          className="px-4 py-3 bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white rounded-xl transition-colors flex items-center justify-center shadow-sm shrink-0"
+                        >
+                          <Plus size={20} />
+                        </button>
+                      </div>
+
+                      {/* List Email */}
+                      {emailsArray.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {emailsArray.map((email, idx) => (
+                            <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-full text-xs text-gray-700 shadow-sm">
+                              <span>{email}</span>
+                              <button 
+                                onClick={() => handleRemoveTrialEmail(email)}
+                                className="text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
