@@ -233,18 +233,18 @@ export default function Pricing() {
           </div>
           <div className="relative z-10 shrink-0 w-full md:w-auto flex flex-col gap-2">
             {!voucherClaimed ? (
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <input 
                   type="text" 
                   placeholder="Ketik Kode Voucher..." 
                   value={voucherInput}
                   onChange={(e) => setVoucherInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleClaimVoucher()}
-                  className="px-4 py-3 bg-white/95 rounded-xl text-slate-800 font-bold outline-none flex-1 md:w-56 placeholder:text-slate-400 placeholder:font-normal uppercase shadow-inner border-2 border-transparent focus:border-red-300 transition-colors"
+                  className="px-4 py-3 w-full bg-white/95 rounded-xl text-slate-800 font-bold outline-none sm:flex-1 md:w-56 placeholder:text-slate-400 placeholder:font-normal uppercase shadow-inner border-2 border-transparent focus:border-red-300 transition-colors"
                 />
                 <button 
                   onClick={handleClaimVoucher}
-                  className="bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+                  className="w-full sm:w-auto bg-white text-red-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105"
                 >
                   Klaim
                 </button>
