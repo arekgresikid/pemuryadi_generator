@@ -169,7 +169,6 @@ export default function App() {
   
   const [visitors, setVisitors] = useState({ today: 0, month: 0, total: 0 });
   const [favorites, setFavorites] = useState(0);
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [activityClicks, setActivityClicks] = useState<Record<string, number>>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('pemuryadi_activityClicks');
@@ -516,14 +515,6 @@ export default function App() {
         if (resStats.ok && mounted) {
           const data = (await resStats.json()) as any;
           setFavorites(data.favorites || 0);
-        }
-        
-        if (user) {
-          const resLogs = await fetch('/api/logs');
-          if (resLogs.ok && mounted) {
-            const logs = (await resLogs.json()) as any[];
-            setActivityLogs(logs);
-          }
         }
       } catch (e) {
         console.error('API Error:', e);
