@@ -12,12 +12,24 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Menambahkan fitur Maintenance Mode (Mode Pemeliharaan) di Admin Panel beserta halaman countdown, dilengkapi rute khusus dan akses prioritas untuk Owner/Admin.
 - Menyempurnakan halaman Maintenance dengan fitur yang lebih responsif, perbaikan ikon kalender, menampilkan kontak nomor WhatsApp secara eksplisit, dan menambahkan fitur Pesan/Alasan kustom.
 - Memperbaiki isu Server Error (500) akibat bentrok nama tabel saat mencatat log aktivitas pada Pengaturan Global di Admin Panel.
+- Merombak UI Pop-up native (browser) untuk aksi krusial (seperti Hapus, Hapus Massal, dan Impor Pengguna) dengan Modal interaktif bergaya modern.
+- Menambahkan verifikasi ganda (Checkbox Konfirmasi) pada dialog Impor dan Hapus Massal untuk keamanan tambahan.
+- Merelokasi widget Grafik Tren Pendaftaran dari atas ke bagian bawah daftar Tabel Pengguna untuk hirarki UI yang lebih fokus.
+- Mengoptimalkan tabel Log Sistem dengan fitur Virtualization (maksimal ketinggian) dan Pagination (Muat Lebih Banyak) untuk mencegah halaman memanjang tanpa batas.
+- Menambahkan penanda (badge) BETA merah pada menu sidebar untuk fitur Modul P5 dan Rubrik Penilaian sebagai indikator masih dalam tahap penyempurnaan dan pemilik web [Praswara Eko Muryadi](https://pemuryadi.my.id).
+- Merombak UI halaman Tentang Kami dengan desain kartu profil melingkar yang modern untuk kolaborator [Praswara Eko Muryadi](https://pemuryadi.my.id) dan [Arif Tirtana](https://ariftirtana.my.id), serta menambahkan blok kemitraan [RuangRiung](https://ruangriung.my.id) yang memukau.
+- Memperbaiki tata letak (layout) kotak input dan tombol klaim voucher diskon pada halaman Berlangganan agar tersusun secara vertikal di perangkat mobile sehingga tidak lagi terpotong/melebihi layar.
+- Menambahkan fitur Manajemen Uji Coba (Free Trial) di Admin Panel dengan konfigurasi terperinci seperti masa aktif (hari), jumlah token awal, dan pilihan tier (termasuk kontrol watermark).
+- Mengimplementasikan fitur Whitelist Email berbasis sistem *badge/tag* di Admin Panel agar akses Free Trial dapat dibatasi hanya untuk daftar email spesifik yang dipilih oleh Admin.
 
 ## [5.2.7] - 8 Juni 2026
 - Menambahkan modul baru: Modul P5 (Projek Penguatan Profil Pelajar Pancasila) dengan generator dimensi dan alur kegiatan.
 - Menambahkan modul baru: Rubrik Penilaian & Asesmen Kurikulum Merdeka lengkap dengan skala skor dan lembar observasi.
+- Menambahkan antarmuka daftar tunggu (Whitelist) menggunakan email khusus untuk pengguna uji coba
+- Menambahkan modal konfirmasi (popup) dengan ringkasan fitur saat admin mengaktifkan Manajemen Uji Coba
 - Menambahkan tautan Halaman Landing pada bagian bawah (footer) aplikasi untuk mempermudah akses navigasi.
 - Memperbaiki masalah (bug) gambar latar belakang pada browser mobile (terutama iOS Safari) yang tergulung bersama konten halaman.
+- Memperbaiki tata letak tombol simpan di Admin Panel agar tidak tumpang tindih di perangkat seluler
 
 ## [5.2.6] - 7 Juni 2026
 - Menghapus animasi efek jatuh penuh (sliding lines) dari latar belakang Halaman Utama (Landing Page) agar lebih bersih dan elegan.

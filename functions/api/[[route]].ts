@@ -18,9 +18,36 @@ type Variables = {
 
 const app = new Hono<{ Bindings: Bindings, Variables: Variables }>().basePath('/api')
 
+let _schemaEnsured = false;
+async function ensureDbSchema(db: D1Database) {
+  if (_schemaEnsured) return;
+  try {
+    const info = await db.prepare("PRAGMA table_info(users)").all();
+    const cols = (info && (info as any).results) || [];
+    const hasActiveUntil = cols.some((c: any) => c.name === 'activeUntil');
+    if (!hasActiveUntil) {
+      try {
+        await db.prepare("ALTER TABLE users ADD COLUMN activeUntil TEXT").run();
+      } catch (e) {
+        // ignore failures (e.g., older SQLite restrictions) and continue
+        console.error('Failed to add activeUntil column:', e);
+      }
+    }
+  } catch (e) {
+    // If PRAGMA fails, don't block the app; log and continue
+    console.error('Failed to ensure DB schema:', e);
+  }
+  _schemaEnsured = true;
+}
+
 // --- Middleware for Auth ---
 app.use('/*', async (c, next) => {
   const path = c.req.path;
+  try {
+    await ensureDbSchema(c.env.DB as D1Database);
+  } catch (e) {
+    // ignore
+  }
   // Public routes
   if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings')) {
     return next();
