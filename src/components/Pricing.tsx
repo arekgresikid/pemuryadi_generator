@@ -128,8 +128,8 @@ export default function Pricing() {
 
   const administrasiPlans = [
     {
-      name: 'Paket Starter',
-      description: 'Siap Guru - Paket Starter',
+      name: 'Guru Pertama',
+      description: 'Paket Administrasi Guru Pertama',
       price: 'Rp 46.000',
       period: ' / 1 Bulan',
       tokens: 80,
@@ -141,11 +141,11 @@ export default function Pricing() {
       ],
       icon: <BookOpen size={24} className="text-blue-500" />,
       color: 'blue',
-      buttonText: 'Pilih Paket Starter'
+      buttonText: 'Pilih Guru Pertama'
     },
     {
-      name: 'Paket Basic',
-      description: 'Siap Guru - Paket Basic',
+      name: 'Guru Muda',
+      description: 'Paket Administrasi Guru Muda',
       price: 'Rp 125.000',
       period: ' / 3 Bulan',
       tokens: 220,
@@ -157,11 +157,11 @@ export default function Pricing() {
       ],
       icon: <Shield size={24} className="text-indigo-500" />,
       color: 'indigo',
-      buttonText: 'Pilih Paket Basic'
+      buttonText: 'Pilih Guru Muda'
     },
     {
-      name: 'Paket Pro',
-      description: 'Siap Guru - Paket Pro',
+      name: 'Guru Madya',
+      description: 'Paket Administrasi Guru Madya',
       price: 'Rp 550.000',
       period: ' / 6 Bulan',
       tokens: 880,
@@ -173,12 +173,12 @@ export default function Pricing() {
       ],
       icon: <Award size={24} className="text-purple-500" />,
       color: 'purple',
-      buttonText: 'Pilih Paket Pro',
+      buttonText: 'Pilih Guru Madya',
       popular: true
     },
     {
-      name: 'Paket Premium',
-      description: 'Siap Guru - Paket Premium',
+      name: 'Guru Utama',
+      description: 'Paket Administrasi Guru Utama',
       price: 'Rp 1.240.000',
       period: ' / 1 Tahun',
       tokens: 2110,
@@ -190,14 +190,14 @@ export default function Pricing() {
       ],
       icon: <Crown size={24} className="text-rose-500" />,
       color: 'rose',
-      buttonText: 'Pilih Paket Premium'
+      buttonText: 'Pilih Guru Utama'
     }
   ];
 
   const gamesPlans = [
     {
-      name: 'Games Starter',
-      description: 'Siap Guru - Games Starter',
+      name: 'Gold',
+      description: 'Paket Games - Rank Gold',
       price: 'Rp 79.000',
       period: ' / 1 Bulan',
       tokens: 85,
@@ -209,11 +209,11 @@ export default function Pricing() {
       ],
       icon: <Gamepad2 size={24} className="text-amber-500" />,
       color: 'amber',
-      buttonText: 'Pilih Games Starter'
+      buttonText: 'Pilih Paket Gold'
     },
     {
-      name: 'Games Basic',
-      description: 'Siap Guru - Games Basic',
+      name: 'Platinum',
+      description: 'Paket Games - Rank Platinum',
       price: 'Rp 245.000',
       period: ' / 3 Bulan',
       tokens: 240,
@@ -225,11 +225,11 @@ export default function Pricing() {
       ],
       icon: <Zap size={24} className="text-red-500" />,
       color: 'red',
-      buttonText: 'Pilih Games Basic'
+      buttonText: 'Pilih Paket Platinum'
     },
     {
-      name: 'Games Pro',
-      description: 'Siap Guru - Games Pro',
+      name: 'Diamond',
+      description: 'Paket Games - Rank Diamond',
       price: 'Rp 735.000',
       period: ' / 6 Bulan',
       tokens: 710,
@@ -241,12 +241,12 @@ export default function Pricing() {
       ],
       icon: <Award size={24} className="text-rose-500" />,
       color: 'rose',
-      buttonText: 'Pilih Games Pro',
+      buttonText: 'Pilih Paket Diamond',
       popular: true
     },
     {
-      name: 'Games Premium',
-      description: 'Siap Guru - Games Premium',
+      name: 'Grandmaster',
+      description: 'Paket Games - Rank Grandmaster',
       price: 'Rp 1.650.000',
       period: ' / 1 Tahun',
       tokens: 1610,
@@ -258,7 +258,7 @@ export default function Pricing() {
       ],
       icon: <Crown size={24} className="text-purple-500" />,
       color: 'purple',
-      buttonText: 'Pilih Games Premium'
+      buttonText: 'Pilih Grandmaster'
     }
   ];
 
