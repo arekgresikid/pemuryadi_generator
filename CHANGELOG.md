@@ -2,6 +2,14 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.0] - 11 Juni 2026
+- Menyinkronkan logika paket Harga (Pricing) di Frontend dengan daftar paket yang tersimpan di Database Cloudflare D1 agar konsisten.
+- Menambahkan fitur kontrol penuh bagi Admin untuk menambah atau mengurangi token pengguna secara manual melalui Admin Panel.
+- Menambahkan fitur Suspend Sementara (dengan batas hari) pada status pengguna, melengkapi opsi Banned permanen.
+- Menambahkan riwayat Log Audit Penggunaan Token (Token Usage Logs) yang dapat dilihat admin untuk memantau aliran masuk dan keluar token tiap pengguna.
+- Merapikan tata letak (layout) dan ukuran lebar Modal di perangkat Desktop/Laptop agar tidak terpotong dan elemen tabel admin tidak saling berhimpitan.
+- Menyempurnakan Aksi Massal (Bulk Actions) pada Admin Panel yang mencakup Banned, Suspend Sementara, dan Unsuspend.
+
 ## [5.2.9] - 10 Juni 2026
 - Memastikan kolom users.activeUntil tersedia pada database (runtime migration).
 - Menghapus berkas old_landing.txt yang sudah tidak digunakan.
