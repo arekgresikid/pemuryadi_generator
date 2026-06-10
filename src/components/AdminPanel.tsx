@@ -631,7 +631,7 @@ export default function AdminPanel() {
                 <div className="text-xl font-black text-purple-600">{users.filter(u => u.tier === 'Supreme' || u.tier === 'SUPREME').length}</div>
               </div>
               <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Titan / Paripurna</div>
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Titan</div>
                 <div className="text-xl font-black text-amber-500">{users.filter(u => u.tier === 'Titan').length}</div>
               </div>
               <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
