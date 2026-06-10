@@ -415,20 +415,21 @@ export default function Pricing() {
         </p>
       </div>
 
-      <div className="flex justify-center mb-12 mt-4">
-        <div className="inline-flex bg-white rounded-full p-1.5 border border-gray-200 shadow-sm relative flex-col sm:flex-row">
+      <div className="flex justify-center mb-12 mt-4 px-2">
+        <div className="inline-flex items-center bg-slate-100 rounded-full p-1.5 border border-slate-200 shadow-inner w-full sm:w-auto max-w-[360px] sm:max-w-none">
           <button 
             onClick={() => setPackageCategory('administrasi')}
-            className={`relative px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-bold transition-all z-10 ${packageCategory === 'administrasi' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-gray-500 hover:text-gray-800'}`}
+            className={`flex-1 sm:flex-none relative flex items-center justify-center px-2 sm:px-8 py-3 rounded-full text-[11px] sm:text-sm md:text-base font-bold transition-all duration-300 z-10 ${packageCategory === 'administrasi' ? 'bg-[#1a1a1a] text-white shadow-lg ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'}`}
           >
-            <div className="absolute -top-3 right-0 sm:right-2 transform rotate-12 bg-white rounded-full p-1 shadow-sm border border-yellow-100 z-20 animate-bounce" style={{ animationDuration: '3s' }}>
-              <GraduationCap size={16} className="text-yellow-500 fill-yellow-500/20" />
+            <div className="absolute -top-3 right-0 sm:right-2 transform rotate-12 bg-white rounded-full p-1 shadow-sm border border-yellow-200 z-20 animate-bounce" style={{ animationDuration: '3s' }}>
+              <GraduationCap size={14} className="text-yellow-500 fill-yellow-500/20" />
             </div>
             Paket Administrasi
           </button>
+          
           <button 
             onClick={() => setPackageCategory('kombinasi')}
-            className={`px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-bold transition-all z-10 ${packageCategory === 'kombinasi' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-gray-500 hover:text-gray-800'}`}
+            className={`flex-1 sm:flex-none relative flex items-center justify-center px-2 sm:px-8 py-3 rounded-full text-[11px] sm:text-sm md:text-base font-bold transition-all duration-300 z-10 ${packageCategory === 'kombinasi' ? 'bg-[#1a1a1a] text-white shadow-lg ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200/50'}`}
           >
             Paket Lengkap
           </button>

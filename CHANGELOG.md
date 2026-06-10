@@ -9,6 +9,11 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Menambahkan riwayat Log Audit Penggunaan Token (Token Usage Logs) yang dapat dilihat admin untuk memantau aliran masuk dan keluar token tiap pengguna.
 - Merapikan tata letak (layout) dan ukuran lebar Modal di perangkat Desktop/Laptop agar tidak terpotong dan elemen tabel admin tidak saling berhimpitan.
 - Menyempurnakan Aksi Massal (Bulk Actions) pada Admin Panel yang mencakup Banned, Suspend Sementara, dan Unsuspend.
+- Memperbaiki masalah pada Admin Panel dimana data pengguna tidak diperbarui secara otomatis setelah aksi massal atau impor dengan menambahkan mekanisme bypass cache browser.
+- Menambahkan kartu statistik (Stats Cards) yang dinamis pada Admin Panel untuk menampilkan jumlah pengguna Suspended/Banned secara real-time dan rincian statistik setiap paket tier (Guru Pertama, Guru Muda, dsb).
+- Memperbarui kartu statistik di Admin Panel agar interaktif dan berfungsi sebagai filter langsung pada tabel daftar pengguna.
+- Mengoptimalkan visualisasi Grafik Tren Pendaftaran dengan gaya yang lebih modern, interaktif (hover effect & tooltip), sumbu grid, dan label tanggal.
+- Mengganti Grafik Tren Pendaftaran berbasis CSS dengan AreaChart interaktif menggunakan pustaka Recharts untuk visualisasi data yang lebih profesional.
 
 ## [5.2.9] - 10 Juni 2026
 - Memastikan kolom users.activeUntil tersedia pada database (runtime migration).
