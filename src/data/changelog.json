@@ -1,8 +1,21 @@
 [
   {
+    "version": "5.3.0",
+    "date": "11 Juni 2026",
+    "badge": "Terbaru",
+    "icon": "Rocket",
+    "commits": [
+      "Menyinkronkan logika paket Harga (Pricing) di Frontend dengan daftar paket yang tersimpan di Database Cloudflare D1 agar konsisten.",
+      "Menambahkan fitur kontrol penuh bagi Admin untuk menambah atau mengurangi token pengguna secara manual melalui Admin Panel.",
+      "Menambahkan fitur Suspend Sementara (dengan batas hari) pada status pengguna, melengkapi opsi Banned permanen.",
+      "Menambahkan riwayat Log Audit Penggunaan Token (Token Usage Logs) yang dapat dilihat admin untuk memantau aliran masuk dan keluar token tiap pengguna.",
+      "Merapikan tata letak (layout) dan ukuran lebar Modal di perangkat Desktop/Laptop agar tidak terpotong dan elemen tabel admin tidak saling berhimpitan.",
+      "Menyempurnakan Aksi Massal (Bulk Actions) pada Admin Panel yang mencakup Banned, Suspend Sementara, dan Unsuspend."
+    ]
+  },
+  {
     "version": "5.2.9",
     "date": "10 Juni 2026",
-    "badge": "Terbaru",
     "icon": "Rocket",
     "commits": [
       "Memastikan kolom users.activeUntil tersedia pada database (runtime migration).",
