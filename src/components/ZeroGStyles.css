@@ -1,0 +1,238 @@
+.zerog-wrapper {
+  --bg-space: #060913;
+  --neon-cyan: #00f0ff;
+  --neon-green: #39ff14;
+  --neon-purple: #bd00ff;
+  --neon-pink: #ff007f;
+  --glass-panel: rgba(16, 22, 42, 0.7);
+  --text-light: #e2e8f0;
+  color: var(--text-light);
+  user-select: none;
+  overflow: hidden;
+  position: relative;
+  border-radius: 1rem;
+}
+
+/* Base styles inside wrapper */
+.zerog-wrapper .zerog-container {
+  background: radial-gradient(circle at center, #101426 0%, var(--bg-space) 100%);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient Zero-G Background Elements */
+.zerog-wrapper .space-dust {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: floatUp 15s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(400px) translateX(0); opacity: 0; }
+  50% { opacity: 0.6; }
+  100% { transform: translateY(-50px) translateX(50px); opacity: 0; }
+}
+
+.zerog-wrapper header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  background: linear-gradient(to right, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+  animation: titleLevitate 4s ease-in-out infinite;
+  text-align: center;
+}
+
+@keyframes titleLevitate {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.zerog-wrapper .game-viewport {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  z-index: 5;
+}
+
+/* Notification Toast Success/Fail System */
+.zerog-wrapper .toast-feedback {
+  margin-top: 15px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-height: 24px;
+  text-align: center;
+  z-index: 5;
+}
+
+/* GAME 1: MEMORY ENGINE SYSTEM */
+.zerog-wrapper .grid-memory {
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .zerog-wrapper .grid-memory {
+    grid-template-columns: repeat(3, 70px);
+  }
+}
+.zerog-wrapper .mem-card {
+  width: 70px; height: 70px;
+  background: #151a30;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid rgba(255,255,255,0.05);
+  transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
+  transform-style: preserve-3d;
+  color: transparent;
+  text-align: center;
+  padding: 4px;
+  word-break: break-word;
+  line-height: 1.1;
+}
+.zerog-wrapper .mem-card.flipped {
+  background: var(--glass-panel);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  color: var(--text-light);
+}
+
+/* GAME 2: MATCHING PAIRS LINK SYSTEM */
+.zerog-wrapper .pairs-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  gap: 20px;
+}
+.zerog-wrapper .pairs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 48%;
+}
+.zerog-wrapper .pair-item {
+  background: #151a30;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.2s;
+  font-weight: 600;
+  font-size: 14px;
+}
+.zerog-wrapper .pair-item.selected {
+  border-color: var(--neon-green);
+  background: rgba(57, 255, 20, 0.1);
+  box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+}
+.zerog-wrapper .pair-item.matched {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* GAME 3: FILL IN THE BLANKS ENGINE */
+.zerog-wrapper .blank-text {
+  font-size: 1.2rem;
+  line-height: 2;
+  text-align: center;
+  margin-bottom: 25px;
+  max-width: 80%;
+}
+.zerog-wrapper .blank-input-box {
+  background: transparent;
+  border: none;
+  border-bottom: 3px dashed var(--neon-pink);
+  color: #fff;
+  font-size: 1.2rem;
+  width: 140px;
+  text-align: center;
+  outline: none;
+  padding: 2px 5px;
+  transition: border-color 0.3s;
+}
+.zerog-wrapper .blank-input-box:focus {
+  border-bottom-style: solid;
+}
+.zerog-wrapper .submit-action-btn {
+  background: var(--neon-pink);
+  color: #000;
+  font-weight: bold;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.zerog-wrapper .submit-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+}
+
+/* GAME 4: UNSCRAMBLE LETTERS ENGINE */
+.zerog-wrapper .scrambled-pool {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.zerog-wrapper .letter-node {
+  width: 50px; height: 50px;
+  background: rgba(189, 0, 255, 0.15);
+  border: 2px solid var(--neon-purple);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(189, 0, 255, 0.2);
+  transition: all 0.2s ease;
+  animation: antiGravityNode 3s ease-in-out infinite alternate;
+}
+@keyframes antiGravityNode {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(5deg); }
+}
+.zerog-wrapper .letter-node:nth-child(even) { animation-delay: -1.5s; }
+.zerog-wrapper .letter-node:hover {
+  background: var(--neon-purple);
+  color: white;
+  transform: scale(1.1) translateY(-4px);
+}
+.zerog-wrapper .unscramble-slots {
+  display: flex;
+  gap: 12px;
+  min-height: 55px;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  width: 80%;
+  justify-content: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #fff;
+}
