@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send, Copy, Landmark } from 'lucide-react';
+import { Shield, Check, Star, Zap, Crown, Award, X, CreditCard, Send, Copy, Landmark, BookOpen, Gamepad2 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import toast from 'react-hot-toast';
 
@@ -31,6 +31,7 @@ export default function Pricing() {
   const [priceUltimate, setPriceUltimate] = useState('Rp 816.000');
   const [priceSupreme, setPriceSupreme] = useState('Rp 1.250.000');
   const [priceTitan, setPriceTitan] = useState('Rp 2.000.000');
+  const [packageCategory, setPackageCategory] = useState<'administrasi' | 'games' | 'kombinasi'>('kombinasi');
 
   useEffect(() => {
     const fetchVoucherSettings = async () => {
@@ -220,7 +221,143 @@ export default function Pricing() {
     }
   ];
 
-  // Removed auto-select useEffect to prevent annoying modal popup on mount
+  const administrasiPlans = [
+    {
+      name: 'Guru Pertama',
+      description: 'Paket Administrasi Guru Pertama',
+      price: 'Rp 46.000',
+      period: ' / 1 Bulan',
+      tokens: 80,
+      tokenDesc: 'x generate total',
+      features: [
+        '70 Kali Buat Dokumen',
+        'Semua Akses Administrasi',
+        'Bonus 10x Generate'
+      ],
+      icon: <BookOpen size={24} className="text-blue-500" />,
+      color: 'blue',
+      buttonText: 'Pilih Guru Pertama'
+    },
+    {
+      name: 'Guru Muda',
+      description: 'Paket Administrasi Guru Muda',
+      price: 'Rp 125.000',
+      period: ' / 3 Bulan',
+      tokens: 220,
+      tokenDesc: 'x generate total',
+      features: [
+        '210 Kali Buat Dokumen',
+        'Semua Akses Administrasi',
+        'Bonus 10x Generate'
+      ],
+      icon: <Shield size={24} className="text-indigo-500" />,
+      color: 'indigo',
+      buttonText: 'Pilih Guru Muda'
+    },
+    {
+      name: 'Guru Madya',
+      description: 'Paket Administrasi Guru Madya',
+      price: 'Rp 550.000',
+      period: ' / 6 Bulan',
+      tokens: 880,
+      tokenDesc: 'x generate total',
+      features: [
+        '870 Kali Buat Dokumen',
+        'Semua Akses Administrasi',
+        'Bonus 10x Generate'
+      ],
+      icon: <Award size={24} className="text-purple-500" />,
+      color: 'purple',
+      buttonText: 'Pilih Guru Madya',
+      popular: true
+    },
+    {
+      name: 'Guru Utama',
+      description: 'Paket Administrasi Guru Utama',
+      price: 'Rp 1.240.000',
+      period: ' / 1 Tahun',
+      tokens: 2110,
+      tokenDesc: 'x generate total',
+      features: [
+        '2100 Kali Buat Dokumen',
+        'Semua Akses Administrasi',
+        'Bonus 10x Generate'
+      ],
+      icon: <Crown size={24} className="text-rose-500" />,
+      color: 'rose',
+      buttonText: 'Pilih Guru Utama'
+    }
+  ];
+
+  const gamesPlans = [
+    {
+      name: 'Gold',
+      description: 'Paket Games - Rank Gold',
+      price: 'Rp 79.000',
+      period: ' / 1 Bulan',
+      tokens: 85,
+      tokenDesc: 'x generate total',
+      features: [
+        '75 Kali Buat Game',
+        'Akses Semua Template Game',
+        'Bonus 10x Generate'
+      ],
+      icon: <Gamepad2 size={24} className="text-amber-500" />,
+      color: 'amber',
+      buttonText: 'Pilih Paket Gold'
+    },
+    {
+      name: 'Platinum',
+      description: 'Paket Games - Rank Platinum',
+      price: 'Rp 245.000',
+      period: ' / 3 Bulan',
+      tokens: 240,
+      tokenDesc: 'x generate total',
+      features: [
+        '230 Kali Buat Game',
+        'Akses Semua Template Game',
+        'Bonus 10x Generate'
+      ],
+      icon: <Zap size={24} className="text-red-500" />,
+      color: 'red',
+      buttonText: 'Pilih Paket Platinum'
+    },
+    {
+      name: 'Diamond',
+      description: 'Paket Games - Rank Diamond',
+      price: 'Rp 735.000',
+      period: ' / 6 Bulan',
+      tokens: 710,
+      tokenDesc: 'x generate total',
+      features: [
+        '700 Kali Buat Game',
+        'Akses Semua Template Game',
+        'Bonus 10x Generate'
+      ],
+      icon: <Award size={24} className="text-rose-500" />,
+      color: 'rose',
+      buttonText: 'Pilih Paket Diamond',
+      popular: true
+    },
+    {
+      name: 'Grandmaster',
+      description: 'Paket Games - Rank Grandmaster',
+      price: 'Rp 1.650.000',
+      period: ' / 1 Tahun',
+      tokens: 1610,
+      tokenDesc: 'x generate total',
+      features: [
+        '1600 Kali Buat Game',
+        'Akses Semua Template Game',
+        'Bonus 10x Generate'
+      ],
+      icon: <Crown size={24} className="text-purple-500" />,
+      color: 'purple',
+      buttonText: 'Pilih Grandmaster'
+    }
+  ];
+
+  const activePlans = packageCategory === 'administrasi' ? administrasiPlans : packageCategory === 'games' ? gamesPlans : plans;
 
   const handleUpgrade = (plan: any) => {
     if (plan.name === 'Free Trial') {
@@ -298,7 +435,7 @@ export default function Pricing() {
         </div>
       )}
 
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tighter">
           Tingkatkan <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-400">Performa Mengajar</span> Anda
         </h1>
@@ -307,8 +444,31 @@ export default function Pricing() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {plans.map((plan, i) => {
+      <div className="flex justify-center mb-12">
+        <div className="inline-flex bg-white rounded-full p-1.5 border border-gray-200 shadow-sm relative overflow-hidden flex-col sm:flex-row">
+          <button 
+            onClick={() => setPackageCategory('administrasi')}
+            className={`px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-bold transition-all z-10 ${packageCategory === 'administrasi' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Paket Administrasi
+          </button>
+          <button 
+            onClick={() => setPackageCategory('games')}
+            className={`px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-bold transition-all z-10 ${packageCategory === 'games' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Paket Games
+          </button>
+          <button 
+            onClick={() => setPackageCategory('kombinasi')}
+            className={`px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm md:text-base font-bold transition-all z-10 ${packageCategory === 'kombinasi' ? 'bg-[#1a1a1a] text-white shadow-md' : 'text-gray-500 hover:text-gray-800'}`}
+          >
+            Paket Kombinasi
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        {activePlans.map((plan, i) => {
           const isSupreme = plan.name === 'SUPREME';
           const isCurrent = currentTier?.toLowerCase() === plan.name.toLowerCase() || (plan.name === 'Free' && !currentTier);
           const isTitan = plan.name === 'Titan';

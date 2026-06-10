@@ -35,6 +35,10 @@ import AdminPanel from './components/AdminPanel';
 import Changelog from './components/Changelog';
 import BarcodeGenerator from './components/BarcodeGenerator';
 import MaintenancePage from './components/MaintenancePage';
+import MemoryMatrix from './components/MemoryMatrix';
+import MatchingPairs from './components/MatchingPairs';
+import FillBlanks from './components/FillBlanks';
+import UnscrambleLetters from './components/UnscrambleLetters';
 
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
@@ -371,7 +375,11 @@ export default function App() {
         { id: 'puzzle', icon: <Puzzle size={16} />, label: 'Puzzle Kata' },
         { id: 'snake', icon: <Dices size={16} />, label: 'Snake & Ladder', premiumOnly: true },
         { id: 'ranking-satu', icon: <Trophy size={16} />, label: 'Ranking #1', premiumOnly: true },
-        { id: 'crossword', icon: <Grid size={16} />, label: 'Teka Teki Silang' }
+        { id: 'crossword', icon: <Grid size={16} />, label: 'Teka Teki Silang' },
+        { id: 'memory-matrix', icon: <Gamepad2 size={16} />, label: 'Memory Matrix' },
+        { id: 'matching-pairs', icon: <Gamepad2 size={16} />, label: 'Matching Pairs' },
+        { id: 'fill-blanks', icon: <Gamepad2 size={16} />, label: 'Fill in the Blanks' },
+        { id: 'unscramble-letters', icon: <Gamepad2 size={16} />, label: 'Unscramble Letters' }
       ]
     },
     { 
@@ -682,6 +690,10 @@ export default function App() {
             {activeTab === 'snake' && <SnakeLadder />}
             {activeTab === 'ranking-satu' && <RankingSatu />}
             {activeTab === 'crossword' && <CrosswordGenerator />}
+            {activeTab === 'memory-matrix' && <MemoryMatrix />}
+            {activeTab === 'matching-pairs' && <MatchingPairs />}
+            {activeTab === 'fill-blanks' && <FillBlanks />}
+            {activeTab === 'unscramble-letters' && <UnscrambleLetters />}
             {activeTab === 'supervisi' && <Supervision />}
             {activeTab === 'modul' && <ModuleGenerator />}
             {activeTab === 'mengajar-harian' && <MengajarHarian />}

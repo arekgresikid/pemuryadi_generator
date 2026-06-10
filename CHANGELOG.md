@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.2.9] - 10 Juni 2026
+- Memastikan kolom users.activeUntil tersedia pada database (runtime migration).
+- Menghapus berkas old_landing.txt yang sudah tidak digunakan.
+- Menghapus pemanggilan log aktivitas yang tidak terpakai di App.tsx dan menambahkan logo Google pada tombol login.
+
 ## [5.2.8] - 8 Juni 2026
 - Merombak total desain kartu Harga (Pricing) menjadi lebih modern dengan gaya bersih (clean) dan penambahan lencana diagonal (ribbon badge) untuk paket unggulan.
 - Mengintegrasikan 5 pilihan varian harga paket berlangganan secara dinamis ke dalam panel Admin Dashboard.
