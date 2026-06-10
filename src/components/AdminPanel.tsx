@@ -905,26 +905,71 @@ export default function AdminPanel() {
       </div>
 
       {stats?.growth && stats.growth.length > 0 && (
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-6 mb-6">
-          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Activity size={16} className="text-blue-500" /> Tren Pendaftaran (30 Hari Terakhir)
-          </h3>
-          <div className="flex items-end gap-1 h-32 w-full overflow-hidden">
-            {stats.growth.map((g: any, i: number) => {
-              const maxCount = Math.max(...stats.growth.map((x: any) => x.count), 1);
-              const heightPercentage = (g.count / maxCount) * 100;
-              return (
-                <div key={i} className="flex-1 flex flex-col justify-end group relative" style={{ height: '100%' }}>
-                  <div 
-                    className="w-full bg-blue-100 hover:bg-blue-500 transition-colors rounded-t-sm" 
-                    style={{ height: `${heightPercentage}%` }}
-                  ></div>
-                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
-                    {g.date}: {g.count} pendaftar
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm mt-6 mb-6 relative overflow-hidden group/chart animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* Decorative background glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-50 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div className="flex justify-between items-end mb-6 relative z-10">
+            <div>
+              <h3 className="text-lg font-black italic text-gray-800 flex items-center gap-2">
+                <Activity size={20} className="text-blue-500 animate-pulse" /> TREN PENDAFTARAN
+              </h3>
+              <p className="text-xs text-gray-500">Statistik pertumbuhan pengguna dalam 30 hari terakhir</p>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-black text-blue-600">
+                {stats.growth.reduce((sum: number, g: any) => sum + g.count, 0)}
+              </div>
+              <div className="text-[10px] uppercase font-bold text-gray-400">Total Pendaftar Baru</div>
+            </div>
+          </div>
+
+          {/* Grid lines */}
+          <div className="relative h-48 w-full mt-4">
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="w-full border-t border-gray-100 border-dashed opacity-50"></div>
+              ))}
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            
+            {/* Chart Bars */}
+            <div className="absolute inset-0 flex items-end gap-1.5 sm:gap-2 px-1 pt-4 pb-8">
+              {stats.growth.map((g: any, i: number) => {
+                const maxCount = Math.max(...stats.growth.map((x: any) => x.count), 1);
+                // Ensure minimum height of 2px so zero values are at least visible as a baseline
+                const heightPercentage = Math.max((g.count / maxCount) * 100, 2); 
+                // Only show date labels for every 5th item or first/last on small screens
+                const dateParts = g.date.split('-');
+                const shortDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : g.date;
+                
+                return (
+                  <div key={i} className="flex-1 flex flex-col justify-end items-center group relative h-full">
+                    {/* Tooltip */}
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-1 whitespace-nowrap z-20 pointer-events-none shadow-xl flex flex-col items-center">
+                      <span className="text-blue-300">{g.date}</span>
+                      <span>{g.count} Pengguna</span>
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                    </div>
+                    
+                    {/* Bar */}
+                    <div 
+                      className={`w-full rounded-t-md transition-all duration-500 ease-out origin-bottom cursor-pointer
+                        ${g.count > 0 ? 'bg-gradient-to-t from-blue-600 to-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'bg-gray-100'} 
+                        group-hover:opacity-100 opacity-80 hover:scale-y-[1.05]`}
+                      style={{ height: `${heightPercentage}%`, animationDelay: `${i * 20}ms` }}
+                    ></div>
+                    
+                    {/* Date label (X-Axis) - only show some to prevent clutter */}
+                    <div className="absolute -bottom-6 w-full flex justify-center">
+                      <span className={`text-[8px] sm:text-[9px] font-mono text-gray-400 transition-colors group-hover:text-blue-600 group-hover:font-bold ${i % 5 === 0 || i === stats.growth.length - 1 ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
+                        {shortDate}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
