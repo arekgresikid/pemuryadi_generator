@@ -93,14 +93,14 @@ export default function AdminPanel() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/admin/stats');
+      const res = await fetch(`/api/admin/stats?t=${Date.now()}`);
       if (res.ok) setStats(await res.json());
     } catch(e) {}
   };
 
   const fetchLogs = async () => {
     try {
-      const res = await fetch('/api/admin/logs');
+      const res = await fetch(`/api/admin/logs?t=${Date.now()}`);
       if (res.ok) {
         const data = await res.json() as any;
         setAdminLogs(data.adminLogs || []);
@@ -123,7 +123,7 @@ export default function AdminPanel() {
   const fetchSettings = async () => {
     try {
       const fetchSet = async (k: string, setter: any, isBool = false) => {
-        const res = await fetch(`/api/settings/${k}`);
+        const res = await fetch(`/api/settings/${k}?t=${Date.now()}`);
         if (res.ok) {
           const data = await res.json() as any;
           if (data.value) {
@@ -230,7 +230,7 @@ export default function AdminPanel() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/users');
+      const res = await fetch(`/api/admin/users?t=${Date.now()}`);
       if (res.ok) {
         const data = (await res.json()) as any[];
         setUsers(data);
@@ -604,31 +604,57 @@ export default function AdminPanel() {
       {activeTab === 'users' && (
         <>
           {/* Stats Cards */}
-          {stats && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Total Pengguna</div>
-                <div className="text-2xl font-black text-blue-600">{stats.totalUsers}</div>
+          {users && users.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-3 mb-6">
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Total Pengguna</div>
+                <div className="text-xl font-black text-blue-600">{users.length}</div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Essential</div>
-                <div className="text-2xl font-black text-yellow-600">{stats.totalEssential || 0}</div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Free</div>
+                <div className="text-xl font-black text-slate-500">{users.filter(u => u.tier === 'Free' || !u.tier).length}</div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Premium</div>
-                <div className="text-2xl font-black text-green-600">{stats.totalPremium}</div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Essential</div>
+                <div className="text-xl font-black text-yellow-600">{users.filter(u => u.tier === 'Essential').length}</div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Ultimate</div>
-                <div className="text-2xl font-black text-indigo-600">{stats.totalUltimate}</div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Premium</div>
+                <div className="text-xl font-black text-green-600">{users.filter(u => u.tier === 'Premium').length}</div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Supreme</div>
-                <div className="text-2xl font-black text-purple-600">{stats.totalSupreme || 0}</div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Ultimate</div>
+                <div className="text-xl font-black text-indigo-600">{users.filter(u => u.tier === 'Ultimate').length}</div>
               </div>
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <div className="text-gray-500 text-xs font-bold mb-1">Titan</div>
-                <div className="text-2xl font-black text-amber-500">{stats.totalTitan}</div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Supreme</div>
+                <div className="text-xl font-black text-purple-600">{users.filter(u => u.tier === 'Supreme' || u.tier === 'SUPREME').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Titan / Paripurna</div>
+                <div className="text-xl font-black text-amber-500">{users.filter(u => u.tier === 'Titan').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Pertama</div>
+                <div className="text-xl font-black text-lime-600">{users.filter(u => u.tier === 'Guru Pertama').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Muda</div>
+                <div className="text-xl font-black text-teal-600">{users.filter(u => u.tier === 'Guru Muda').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Madya</div>
+                <div className="text-xl font-black text-pink-600">{users.filter(u => u.tier === 'Guru Madya').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Utama</div>
+                <div className="text-xl font-black text-orange-600">{users.filter(u => u.tier === 'Guru Utama').length}</div>
+              </div>
+              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
+                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Suspend/Banned</div>
+                <div className="text-xl font-black text-red-600">
+                  {users.filter(u => u.isBanned === 1 || (u.suspendedUntil && new Date(u.suspendedUntil) > new Date())).length}
+                </div>
               </div>
             </div>
           )}
