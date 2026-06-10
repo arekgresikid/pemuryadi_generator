@@ -222,6 +222,41 @@ export default function Pricing() {
   ];
 
   const administrasiPlans = [
+    ...(trialActive ? [{
+      name: 'Free Trial',
+      description: `Coba gratis fitur ${trialTier} selama ${trialDays} hari`,
+      price: 'Rp 0',
+      period: ` / ${trialDays} Hari`,
+      tokens: parseInt(trialTokens) || 50,
+      tokenDesc: 'x generate total',
+      features: [
+        trialTier === 'Free' ? 'Dengan Watermark (WM)' : 'Tanpa Watermark (WM)',
+        `Masa Aktif ${trialDays} Hari`,
+        'Aktivasi manual via WhatsApp',
+        'Tanpa kartu kredit'
+      ],
+      icon: <Star size={24} className="text-blue-600" />,
+      color: 'blue',
+      badge: 'PROMO KHUSUS',
+      buttonText: 'Klaim via WhatsApp'
+    }] : []),
+    {
+      name: 'Free',
+      description: 'Akses pengenalan untuk mengeksplorasi fitur dasar',
+      price: 'Rp 0',
+      period: ' Selamanya',
+      tokens: 2,
+      tokenDesc: 'x generate / hari',
+      features: [
+        'Hasil dokumen menyertakan Watermark',
+        'Pembaruan otomatis kuota setiap hari',
+        'Akses ke fitur administrasi dasar'
+      ],
+      icon: <Shield size={24} className="text-gray-600" />,
+      color: 'slate',
+      badge: 'PEMULA',
+      buttonText: 'Mulai Gratis'
+    },
     {
       name: 'Guru Pertama',
       description: 'Paket Administrasi Guru Pertama',
@@ -290,6 +325,41 @@ export default function Pricing() {
   ];
 
   const gamesPlans = [
+    ...(trialActive ? [{
+      name: 'Free Trial',
+      description: `Coba gratis fitur ${trialTier} selama ${trialDays} hari`,
+      price: 'Rp 0',
+      period: ` / ${trialDays} Hari`,
+      tokens: parseInt(trialTokens) || 50,
+      tokenDesc: 'x generate total',
+      features: [
+        trialTier === 'Free' ? 'Dengan Watermark (WM)' : 'Tanpa Watermark (WM)',
+        `Masa Aktif ${trialDays} Hari`,
+        'Aktivasi manual via WhatsApp',
+        'Tanpa kartu kredit'
+      ],
+      icon: <Star size={24} className="text-blue-600" />,
+      color: 'blue',
+      badge: 'PROMO KHUSUS',
+      buttonText: 'Klaim via WhatsApp'
+    }] : []),
+    {
+      name: 'Free',
+      description: 'Akses pengenalan untuk mengeksplorasi fitur dasar',
+      price: 'Rp 0',
+      period: ' Selamanya',
+      tokens: 2,
+      tokenDesc: 'x generate / hari',
+      features: [
+        'Hasil game menyertakan Watermark',
+        'Pembaruan otomatis kuota setiap hari',
+        'Akses ke fitur template dasar'
+      ],
+      icon: <Shield size={24} className="text-gray-600" />,
+      color: 'slate',
+      badge: 'PEMULA',
+      buttonText: 'Mulai Gratis'
+    },
     {
       name: 'Gold',
       description: 'Paket Games - Rank Gold',

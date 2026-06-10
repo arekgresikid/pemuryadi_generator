@@ -6,6 +6,8 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Memastikan kolom users.activeUntil tersedia pada database (runtime migration).
 - Menghapus berkas old_landing.txt yang sudah tidak digunakan.
 - Menghapus pemanggilan log aktivitas yang tidak terpakai di App.tsx dan menambahkan logo Google pada tombol login.
+- Memperbarui penamaan, deskripsi, dan pengelompokkan kategori paket harga (Administrasi, Games, Kombinasi) pada halaman berlangganan.
+- Menambahkan 4 game arcade zero-g dengan dukungan pembuat soal AI (AI generation).
 
 ## [5.2.8] - 8 Juni 2026
 - Merombak total desain kartu Harga (Pricing) menjadi lebih modern dengan gaya bersih (clean) dan penambahan lencana diagonal (ribbon badge) untuk paket unggulan.

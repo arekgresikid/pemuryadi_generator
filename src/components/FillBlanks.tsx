@@ -116,7 +116,7 @@ PENTING:
 
   const startGame = () => {
     setError('');
-    const lines = inputText.split('\\n').filter(line => line.trim() !== '');
+    const lines = inputText.split('\n').filter(line => line.trim() !== '');
     const parsedQuestions = [];
 
     for (let i = 0; i < lines.length; i++) {
@@ -170,7 +170,7 @@ PENTING:
       if (currentIndex < questions.length - 1) {
         setGameMessage("✓ CORRECT! LOADING NEXT SEQUENCE...");
         setTimeout(() => {
-          setCurrentIndex(currentIndex + 1);
+          setCurrentIndex(prev => prev + 1);
           setGameMessage('');
         }, 1000);
       } else {
