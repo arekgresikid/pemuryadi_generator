@@ -1,9 +1,25 @@
 import React, { JSX, useState } from 'react';
-import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2, ChevronDown } from 'lucide-react';
+import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2, ChevronDown, Lock, Eye, EyeOff, Key } from 'lucide-react';
 import changelogData from '../data/changelog.json';
 
 export default function Changelog() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Gunakan DEV_PASSWORD dari .env
+    if (password === (import.meta as any).env.DEV_PASSWORD) {
+      setIsAuthenticated(true);
+      setError(false);
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 3000);
+    }
+  };
 
   const iconMap: Record<string, JSX.Element> = {
     'Rocket': <Rocket className="w-5 h-5 text-blue-600" />,
@@ -15,6 +31,52 @@ export default function Changelog() {
     ...v,
     icon: iconMap[v.icon] || <CheckCircle2 className="w-5 h-5 text-gray-500" />
   }));
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-lg mx-auto pb-12 pt-16 px-4 animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+          <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-blue-100 transform rotate-3">
+            <Lock size={36} strokeWidth={2.5} className="-rotate-3" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">Akses Terkunci</h2>
+          <p className="text-gray-500 mb-8 text-sm sm:text-base font-medium">Halaman Riwayat Versi ini dikhususkan untuk tim pengembang. Masukkan sandi keamanan untuk melihat changelog.</p>
+          
+          <form onSubmit={handleLogin} className="space-y-5 text-left">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Key size={20} className={`transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-500'}`} />
+              </div>
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan kata sandi..."
+                className={`w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 ${error ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-gray-100 bg-gray-50 focus:border-blue-500 focus:bg-white focus:ring-blue-100'} focus:ring-4 transition-all outline-none font-bold text-gray-800 placeholder:font-normal placeholder:text-gray-400`}
+                autoFocus
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-xs font-bold px-1 animate-pulse">Kata sandi yang Anda masukkan salah!</p>}
+            <button 
+              type="submit"
+              className="w-full bg-gray-900 hover:bg-black text-white font-black py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2 tracking-wide"
+            >
+              Buka Akses
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto pb-12">
