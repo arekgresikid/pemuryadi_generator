@@ -476,11 +476,23 @@ export default function AdminPanel() {
     }
   };
 
-  const filteredUsers = users.filter(u => 
-    ((u.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (filterTier === 'All' || u.tier === filterTier)
-  );
+  const filteredUsers = users.filter(u => {
+    const searchMatch = ((u.displayName || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         (u.email || '').toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    let tierMatch = true;
+    if (filterTier === 'Suspend/Banned') {
+      tierMatch = u.isBanned === 1 || (u.suspendedUntil && new Date(u.suspendedUntil) > new Date());
+    } else if (filterTier === 'Free') {
+      tierMatch = u.tier === 'Free' || !u.tier;
+    } else if (filterTier === 'Supreme' || filterTier === 'SUPREME') {
+      tierMatch = u.tier === 'Supreme' || u.tier === 'SUPREME';
+    } else if (filterTier !== 'All') {
+      tierMatch = u.tier === filterTier;
+    }
+
+    return searchMatch && tierMatch;
+  });
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -606,56 +618,29 @@ export default function AdminPanel() {
           {/* Stats Cards */}
           {users && users.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-3 mb-6">
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Total Pengguna</div>
-                <div className="text-xl font-black text-blue-600">{users.length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Free</div>
-                <div className="text-xl font-black text-slate-500">{users.filter(u => u.tier === 'Free' || !u.tier).length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Essential</div>
-                <div className="text-xl font-black text-yellow-600">{users.filter(u => u.tier === 'Essential').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Premium</div>
-                <div className="text-xl font-black text-green-600">{users.filter(u => u.tier === 'Premium').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Ultimate</div>
-                <div className="text-xl font-black text-indigo-600">{users.filter(u => u.tier === 'Ultimate').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Supreme</div>
-                <div className="text-xl font-black text-purple-600">{users.filter(u => u.tier === 'Supreme' || u.tier === 'SUPREME').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Titan</div>
-                <div className="text-xl font-black text-amber-500">{users.filter(u => u.tier === 'Titan').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Pertama</div>
-                <div className="text-xl font-black text-lime-600">{users.filter(u => u.tier === 'Guru Pertama').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Muda</div>
-                <div className="text-xl font-black text-teal-600">{users.filter(u => u.tier === 'Guru Muda').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Madya</div>
-                <div className="text-xl font-black text-pink-600">{users.filter(u => u.tier === 'Guru Madya').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Guru Utama</div>
-                <div className="text-xl font-black text-orange-600">{users.filter(u => u.tier === 'Guru Utama').length}</div>
-              </div>
-              <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-center">
-                <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">Suspend/Banned</div>
-                <div className="text-xl font-black text-red-600">
-                  {users.filter(u => u.isBanned === 1 || (u.suspendedUntil && new Date(u.suspendedUntil) > new Date())).length}
+              {[
+                { title: 'Total Pengguna', count: users.length, filterVal: 'All', colorClass: 'text-blue-600' },
+                { title: 'Free', count: users.filter(u => u.tier === 'Free' || !u.tier).length, filterVal: 'Free', colorClass: 'text-slate-500' },
+                { title: 'Essential', count: users.filter(u => u.tier === 'Essential').length, filterVal: 'Essential', colorClass: 'text-yellow-600' },
+                { title: 'Premium', count: users.filter(u => u.tier === 'Premium').length, filterVal: 'Premium', colorClass: 'text-green-600' },
+                { title: 'Ultimate', count: users.filter(u => u.tier === 'Ultimate').length, filterVal: 'Ultimate', colorClass: 'text-indigo-600' },
+                { title: 'Supreme', count: users.filter(u => u.tier === 'Supreme' || u.tier === 'SUPREME').length, filterVal: 'SUPREME', colorClass: 'text-purple-600' },
+                { title: 'Titan', count: users.filter(u => u.tier === 'Titan').length, filterVal: 'Titan', colorClass: 'text-amber-500' },
+                { title: 'Guru Pertama', count: users.filter(u => u.tier === 'Guru Pertama').length, filterVal: 'Guru Pertama', colorClass: 'text-lime-600' },
+                { title: 'Guru Muda', count: users.filter(u => u.tier === 'Guru Muda').length, filterVal: 'Guru Muda', colorClass: 'text-teal-600' },
+                { title: 'Guru Madya', count: users.filter(u => u.tier === 'Guru Madya').length, filterVal: 'Guru Madya', colorClass: 'text-pink-600' },
+                { title: 'Guru Utama', count: users.filter(u => u.tier === 'Guru Utama').length, filterVal: 'Guru Utama', colorClass: 'text-orange-600' },
+                { title: 'Suspend/Banned', count: users.filter(u => u.isBanned === 1 || (u.suspendedUntil && new Date(u.suspendedUntil) > new Date())).length, filterVal: 'Suspend/Banned', colorClass: 'text-red-600' }
+              ].map((card, idx) => (
+                <div 
+                  key={idx}
+                  onClick={() => setFilterTier(card.filterVal)}
+                  className={`bg-white p-3 rounded-xl border ${filterTier === card.filterVal ? 'border-blue-500 ring-1 ring-blue-500' : 'border-gray-200'} shadow-sm flex flex-col justify-center cursor-pointer hover:border-blue-300 transition-colors`}
+                >
+                  <div className="text-gray-500 text-[10px] uppercase font-bold mb-1">{card.title}</div>
+                  <div className={`text-xl font-black ${card.colorClass}`}>{card.count}</div>
                 </div>
-              </div>
+              ))}
             </div>
           )}
 
@@ -691,6 +676,7 @@ export default function AdminPanel() {
                 <option value="Ultimate">Ultimate</option>
                 <option value="SUPREME">SUPREME</option>
                 <option value="Titan">Titan</option>
+                <option value="Suspend/Banned">Suspend/Banned</option>
               </select>
               <div className="relative flex-1 md:w-64">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
