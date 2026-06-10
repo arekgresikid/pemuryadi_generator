@@ -25,13 +25,24 @@ async function ensureDbSchema(db: D1Database) {
     const info = await db.prepare("PRAGMA table_info(users)").all();
     const cols = (info && (info as any).results) || [];
     const hasActiveUntil = cols.some((c: any) => c.name === 'activeUntil');
-    if (!hasActiveUntil) {
-      try {
-        await db.prepare("ALTER TABLE users ADD COLUMN activeUntil TEXT").run();
-      } catch (e) {
-        // ignore failures (e.g., older SQLite restrictions) and continue
-        console.error('Failed to add activeUntil column:', e);
-      }
+    const hasIsBanned = cols.some((c: any) => c.name === 'isBanned');
+    const hasLastActive = cols.some((c: any) => c.name === 'lastActive');
+    const hasSuspendedUntil = cols.some((c: any) => c.name === 'suspendedUntil');
+    
+    try {
+      if (!hasActiveUntil) await db.prepare("ALTER TABLE users ADD COLUMN activeUntil TEXT").run();
+      if (!hasIsBanned) await db.prepare("ALTER TABLE users ADD COLUMN isBanned INTEGER DEFAULT 0").run();
+      if (!hasLastActive) await db.prepare("ALTER TABLE users ADD COLUMN lastActive TEXT").run();
+      if (!hasSuspendedUntil) await db.prepare("ALTER TABLE users ADD COLUMN suspendedUntil TEXT").run();
+      await db.prepare(`CREATE TABLE IF NOT EXISTS token_usage_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uid TEXT NOT NULL,
+        action TEXT NOT NULL,
+        tokens_spent INTEGER NOT NULL,
+        timestamp TEXT NOT NULL
+      )`).run();
+    } catch (e) {
+      console.error('Failed to update columns:', e);
     }
   } catch (e) {
     // If PRAGMA fails, don't block the app; log and continue
@@ -246,6 +257,27 @@ app.get('/auth/me', async (c) => {
         profile = await db.prepare('SELECT * FROM users WHERE uid = ?').bind(user.uid).first();
       }
     }
+
+    try {
+      const nowIso = new Date().toISOString();
+      await db.prepare('UPDATE users SET lastActive = ? WHERE uid = ?').bind(nowIso, user.uid).run();
+      profile.lastActive = nowIso;
+    } catch (e) { }
+
+    let isSuspended = false;
+    if (profile.suspendedUntil) {
+      if (new Date() < new Date(profile.suspendedUntil as string)) {
+        isSuspended = true;
+      } else {
+        await db.prepare('UPDATE users SET suspendedUntil = NULL WHERE uid = ?').bind(user.uid).run();
+        profile.suspendedUntil = null;
+      }
+    }
+
+    if (profile.isBanned === 1 || isSuspended) {
+      deleteCookie(c, 'auth_token', { path: '/' });
+      return c.json({ user: null, profile: null, error: 'Banned or Suspended' });
+    }
   }
   
   return c.json({ user, profile });
@@ -294,7 +326,11 @@ app.get('/admin/stats', async (c) => {
       SUM(CASE WHEN tier = 'Premium' THEN 1 ELSE 0 END) as totalPremium,
       SUM(CASE WHEN tier = 'Ultimate' THEN 1 ELSE 0 END) as totalUltimate,
       SUM(CASE WHEN tier = 'Supreme' OR tier = 'SUPREME' THEN 1 ELSE 0 END) as totalSupreme,
-      SUM(CASE WHEN tier = 'Titan' THEN 1 ELSE 0 END) as totalTitan
+      SUM(CASE WHEN tier = 'Titan' THEN 1 ELSE 0 END) as totalTitan,
+      SUM(CASE WHEN tier = 'Guru Pertama' THEN 1 ELSE 0 END) as totalGuruPertama,
+      SUM(CASE WHEN tier = 'Guru Muda' THEN 1 ELSE 0 END) as totalGuruMuda,
+      SUM(CASE WHEN tier = 'Guru Madya' THEN 1 ELSE 0 END) as totalGuruMadya,
+      SUM(CASE WHEN tier = 'Guru Utama' THEN 1 ELSE 0 END) as totalGuruUtama
     FROM users
   `).first();
   
@@ -393,15 +429,18 @@ app.put('/admin/users/:uid', async (c) => {
 
   const targetUid = c.req.param('uid');
   const body = await c.req.json();
-  const { role, tier, activeUntil, displayName } = body;
+  const { role, tier, activeUntil, displayName, tokens, isBanned, suspendedUntil } = body;
 
-  // Build dynamic update for role, tier, activeUntil, displayName
+  // Build dynamic update for role, tier, activeUntil, displayName, isBanned, suspendedUntil
   const updates = [];
   const values = [];
   if (role !== undefined) { updates.push('role = ?'); values.push(role); }
   if (tier !== undefined) { updates.push('tier = ?'); values.push(tier); }
   if (activeUntil !== undefined) { updates.push('activeUntil = ?'); values.push(activeUntil === '' ? null : activeUntil); }
   if (displayName !== undefined) { updates.push('displayName = ?'); values.push(displayName); }
+  if (tokens !== undefined) { updates.push('tokens = ?'); values.push(tokens); }
+  if (isBanned !== undefined) { updates.push('isBanned = ?'); values.push(isBanned ? 1 : 0); }
+  if (suspendedUntil !== undefined) { updates.push('suspendedUntil = ?'); values.push(suspendedUntil === '' ? null : suspendedUntil); }
 
   if (updates.length > 0) {
     values.push(targetUid);
@@ -422,7 +461,7 @@ app.post('/admin/users', async (c) => {
   }
 
   const body = await c.req.json();
-  const { email, displayName, role, tier, activeUntil } = body;
+  const { email, displayName, role, tier, activeUntil, tokens } = body;
   
   if (!email) return c.json({ error: 'Email is required' }, 400);
 
@@ -433,12 +472,17 @@ app.post('/admin/users', async (c) => {
 
   const tempUid = 'pending-' + Date.now();
   let initialTokens = 0;
-  if (role === 'owner' || role === 'admin') initialTokens = 999999;
+  if (tokens !== undefined) initialTokens = tokens;
+  else if (role === 'owner' || role === 'admin') initialTokens = 999999;
   else if (tier === 'Titan') initialTokens = 2500;
   else if (tier === 'Supreme' || tier === 'SUPREME') initialTokens = 1000;
   else if (tier === 'Ultimate') initialTokens = 600;
   else if (tier === 'Premium') initialTokens = 250;
   else if (tier === 'Essential') initialTokens = 85;
+  else if (tier === 'Guru Utama') initialTokens = 1000;
+  else if (tier === 'Guru Madya') initialTokens = 500;
+  else if (tier === 'Guru Muda') initialTokens = 250;
+  else if (tier === 'Guru Pertama') initialTokens = 80;
   else if (tier === 'Free') initialTokens = 2;
   
   await db.prepare(
@@ -461,7 +505,7 @@ app.post('/admin/users/bulk', async (c) => {
   }
 
   const body = await c.req.json();
-  const { action, uids, tier, role } = body;
+  const { action, uids, tier, role, tokens, suspendedUntil } = body;
   
   if (!uids || !Array.isArray(uids) || uids.length === 0) {
     return c.json({ error: 'No users selected' }, 400);
@@ -475,11 +519,38 @@ app.post('/admin/users/bulk', async (c) => {
     await db.prepare(`UPDATE users SET tier = ? WHERE uid IN (${placeholders})`).bind(tier, ...uids).run();
   } else if (action === 'updateRole' && role) {
     await db.prepare(`UPDATE users SET role = ? WHERE uid IN (${placeholders})`).bind(role, ...uids).run();
+  } else if (action === 'suspend') {
+    await db.prepare(`UPDATE users SET isBanned = 1, suspendedUntil = NULL WHERE uid IN (${placeholders})`).bind(...uids).run();
+  } else if (action === 'suspendTemp' && suspendedUntil !== undefined) {
+    await db.prepare(`UPDATE users SET isBanned = 0, suspendedUntil = ? WHERE uid IN (${placeholders})`).bind(suspendedUntil, ...uids).run();
+  } else if (action === 'unsuspend') {
+    await db.prepare(`UPDATE users SET isBanned = 0, suspendedUntil = NULL WHERE uid IN (${placeholders})`).bind(...uids).run();
+  } else if (action === 'addTokens' && tokens !== undefined) {
+    await db.prepare(`UPDATE users SET tokens = tokens + ? WHERE uid IN (${placeholders})`).bind(tokens, ...uids).run();
   } else {
     return c.json({ error: 'Invalid bulk action' }, 400);
   }
 
   return c.json({ success: true });
+});
+
+app.get('/admin/users/:uid/logs', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const targetUid = c.req.param('uid');
+  try {
+    const { results } = await db.prepare('SELECT * FROM token_usage_logs WHERE uid = ? ORDER BY id DESC LIMIT 50').bind(targetUid).all();
+    return c.json(results);
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500);
+  }
 });
 
 app.post('/admin/users/import', async (c) => {
@@ -524,6 +595,10 @@ app.post('/admin/users/import', async (c) => {
     else if (tier === 'Ultimate') initialTokens = 600;
     else if (tier === 'Premium') initialTokens = 250;
     else if (tier === 'Essential') initialTokens = 85;
+    else if (tier === 'Guru Utama') initialTokens = 1000;
+    else if (tier === 'Guru Madya') initialTokens = 500;
+    else if (tier === 'Guru Muda') initialTokens = 250;
+    else if (tier === 'Guru Pertama') initialTokens = 80;
     else if (tier === 'Free') initialTokens = 2;
 
     await db.prepare(
@@ -590,6 +665,14 @@ app.post('/tokens/use', async (c) => {
     await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ?')
       .bind(user.uid)
       .run();
+      
+    try {
+      const body = await c.req.json().catch(() => ({}));
+      const actionName = body.action || 'AI Generation';
+      await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)')
+        .bind(user.uid, actionName, 1, new Date().toISOString())
+        .run();
+    } catch (e) { }
       
     return c.json({ success: true, tokens: (profile.tokens as number) - 1, isFree: isFree });
   } catch (error) {

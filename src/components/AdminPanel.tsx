@@ -13,6 +13,7 @@ export default function AdminPanel() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editRole, setEditRole] = useState('guest');
   const [editTier, setEditTier] = useState('Free');
+  const [editTokens, setEditTokens] = useState('');
   const [editActiveUntil, setEditActiveUntil] = useState('');
   const [editName, setEditName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -21,6 +22,13 @@ export default function AdminPanel() {
   const [newName, setNewName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [editIsBanned, setEditIsBanned] = useState(false);
+  const [editSuspendedUntil, setEditSuspendedUntil] = useState('');
+  const [editStatusMode, setEditStatusMode] = useState<'active' | 'suspend' | 'banned'>('active');
+  const [bulkTokens, setBulkTokens] = useState('');
+  const [bulkSuspendDays, setBulkSuspendDays] = useState('');
+  const [historyModalData, setHistoryModalData] = useState<any[] | null>(null);
+  const [historyModalUser, setHistoryModalUser] = useState<any>(null);
 
   const [activeTab, setActiveTab] = useState('users');
   const [importConfirmData, setImportConfirmData] = useState<any[] | null>(null);
@@ -239,7 +247,18 @@ export default function AdminPanel() {
     setEditName(user.displayName || '');
     setEditRole(user.role || 'siswa');
     setEditTier(user.tier || 'Free');
+    setEditTokens(user.tokens != null ? String(user.tokens) : '');
     setEditActiveUntil(user.activeUntil || '');
+    setEditIsBanned(user.isBanned === 1);
+    setEditSuspendedUntil(user.suspendedUntil || '');
+    
+    if (user.isBanned === 1) {
+      setEditStatusMode('banned');
+    } else if (user.suspendedUntil && new Date() < new Date(user.suspendedUntil)) {
+      setEditStatusMode('suspend');
+    } else {
+      setEditStatusMode('active');
+    }
   };
 
   const handleAdd = () => {
@@ -248,7 +267,11 @@ export default function AdminPanel() {
     setNewName('');
     setEditRole('siswa');
     setEditTier('Free');
+    setEditTokens('');
     setEditActiveUntil('');
+    setEditIsBanned(false);
+    setEditSuspendedUntil('');
+    setEditStatusMode('active');
   };
 
   const confirmDeleteUser = (uid: string, email: string) => {
@@ -272,6 +295,18 @@ export default function AdminPanel() {
     }
   };
 
+  const fetchUserHistory = async (user: any) => {
+    try {
+      const res = await fetch(`/api/admin/users/${user.uid}/logs`);
+      if (res.ok) {
+        setHistoryModalUser(user);
+        setHistoryModalData(await res.json());
+      }
+    } catch (e) {
+      toast.error('Gagal mengambil history');
+    }
+  };
+
   const submitAddUser = async () => {
     if (!newEmail) return toast.error('Email wajib diisi');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -281,7 +316,7 @@ export default function AdminPanel() {
       const res = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newEmail, displayName: newName, role: editRole, tier: editTier, activeUntil: editActiveUntil })
+        body: JSON.stringify({ email: newEmail, displayName: newName, role: editRole, tier: editTier, activeUntil: editActiveUntil, tokens: editTokens ? parseInt(editTokens) : undefined })
       });
       if (res.ok) {
         setIsAdding(false);
@@ -312,7 +347,10 @@ export default function AdminPanel() {
           role: editRole,
           tier: editTier,
           activeUntil: editActiveUntil,
-          displayName: editName
+          displayName: editName,
+          tokens: editTokens ? parseInt(editTokens) : undefined,
+          isBanned: editStatusMode === 'banned',
+          suspendedUntil: editStatusMode === 'suspend' ? editSuspendedUntil : null
         })
       });
       
@@ -462,10 +500,24 @@ export default function AdminPanel() {
     
     try {
       setIsBulkSaving(true);
+      let payload: any = { action: bulkAction, uids: selectedUsers };
+      if (bulkAction === 'updateTier') payload.tier = bulkTier;
+      if (bulkAction === 'addTokens') payload.tokens = bulkTokens ? parseInt(bulkTokens) : undefined;
+      if (bulkAction === 'suspendTemp') {
+        if (!bulkSuspendDays) {
+          toast.error('Masukkan jumlah hari suspend');
+          setIsBulkSaving(false);
+          return;
+        }
+        const suspendDate = new Date();
+        suspendDate.setDate(suspendDate.getDate() + parseInt(bulkSuspendDays));
+        payload.suspendedUntil = suspendDate.toISOString();
+      }
+
       const res = await fetch('/api/admin/users/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: bulkAction, uids: selectedUsers, tier: bulkTier })
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         toast.success(`Berhasil memproses ${selectedUsers.length} pengguna`);
@@ -604,6 +656,10 @@ export default function AdminPanel() {
               >
                 <option value="All">Semua Tier</option>
                 <option value="Free">Free</option>
+                <option value="Guru Pertama">Guru Pertama</option>
+                <option value="Guru Muda">Guru Muda</option>
+                <option value="Guru Madya">Guru Madya</option>
+                <option value="Guru Utama">Guru Utama</option>
                 <option value="Essential">Essential</option>
                 <option value="Premium">Premium</option>
                 <option value="Ultimate">Ultimate</option>
@@ -636,6 +692,10 @@ export default function AdminPanel() {
             >
               <option value="">-- Pilih Aksi --</option>
               <option value="updateTier">Ubah Tier</option>
+              <option value="addTokens">Tambah Token</option>
+              <option value="suspend">Banned Permanen</option>
+              <option value="suspendTemp">Suspend Sementara</option>
+              <option value="unsuspend">Unsuspend User</option>
               <option value="delete">Hapus Massal</option>
             </select>
             
@@ -647,12 +707,36 @@ export default function AdminPanel() {
               >
                 <option value="">-- Pilih Tier --</option>
                 <option value="Free">Free</option>
+                <option value="Guru Pertama">Guru Pertama</option>
+                <option value="Guru Muda">Guru Muda</option>
+                <option value="Guru Madya">Guru Madya</option>
+                <option value="Guru Utama">Guru Utama</option>
                 <option value="Essential">Essential</option>
                 <option value="Premium">Premium</option>
                 <option value="Ultimate">Ultimate</option>
                 <option value="SUPREME">SUPREME</option>
                 <option value="Titan">Titan</option>
               </select>
+            )}
+            
+            {bulkAction === 'addTokens' && (
+              <input
+                type="number"
+                placeholder="Jml Token"
+                value={bulkTokens}
+                onChange={e => setBulkTokens(e.target.value)}
+                className="px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-bold text-blue-700 w-24 focus:outline-none"
+              />
+            )}
+            
+            {bulkAction === 'suspendTemp' && (
+              <input
+                type="number"
+                placeholder="Jml Hari"
+                value={bulkSuspendDays}
+                onChange={e => setBulkSuspendDays(e.target.value)}
+                className="px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-bold text-blue-700 w-24 focus:outline-none"
+              />
             )}
 
             <button 
@@ -707,7 +791,14 @@ export default function AdminPanel() {
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-gray-800">{u.displayName || 'Unknown'}</div>
+                      <div className="font-bold text-gray-800 flex items-center gap-2">
+                        {u.displayName || 'Unknown'}
+                        {u.isBanned === 1 ? (
+                          <span className="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-bold">BANNED</span>
+                        ) : u.suspendedUntil && new Date() < new Date(u.suspendedUntil) ? (
+                          <span className="bg-orange-100 text-orange-700 text-[10px] px-1.5 py-0.5 rounded font-bold" title={`Hingga: ${new Date(u.suspendedUntil).toLocaleString('id-ID')}`}>SUSPENDED</span>
+                        ) : null}
+                      </div>
                       <div className="text-[10px] text-gray-500 font-mono">{u.email}</div>
                     </td>
                     <td className="px-6 py-4">
@@ -727,6 +818,10 @@ export default function AdminPanel() {
                         u.tier === 'Ultimate' ? 'bg-indigo-100 text-indigo-700' :
                         u.tier === 'Premium' ? 'bg-blue-100 text-blue-700' :
                         u.tier === 'Essential' ? 'bg-green-100 text-green-700' :
+                        u.tier === 'Guru Utama' ? 'bg-orange-100 text-orange-700' :
+                        u.tier === 'Guru Madya' ? 'bg-pink-100 text-pink-700' :
+                        u.tier === 'Guru Muda' ? 'bg-teal-100 text-teal-700' :
+                        u.tier === 'Guru Pertama' ? 'bg-lime-100 text-lime-700' :
                         'bg-slate-100 text-slate-600'
                       }`}>
                         {u.tier}
@@ -743,6 +838,12 @@ export default function AdminPanel() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={() => fetchUserHistory(u)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg text-xs font-bold uppercase transition-colors"
+                        >
+                          <Activity size={12} /> Log
+                        </button>
                         <button 
                           onClick={() => handleEdit(u)}
                           className="inline-flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-xs font-bold uppercase transition-colors"
@@ -1035,6 +1136,10 @@ export default function AdminPanel() {
                         <option value="Premium">Premium</option>
                         <option value="Ultimate">Ultimate</option>
                         <option value="Supreme">Supreme</option>
+                        <option value="Guru Pertama">Guru Pertama</option>
+                        <option value="Guru Muda">Guru Muda</option>
+                        <option value="Guru Madya">Guru Madya</option>
+                        <option value="Guru Utama">Guru Utama</option>
                         <option value="Free">Free (Dengan Watermark)</option>
                       </select>
                       <button 
@@ -1331,8 +1436,8 @@ export default function AdminPanel() {
       {/* Edit Modal */}
       {editingUser && (
         <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50 shrink-0">
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
                 <Edit2 size={16} className="text-blue-500" /> Edit User
               </h3>
@@ -1341,65 +1446,120 @@ export default function AdminPanel() {
               </button>
             </div>
             
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">User Info</label>
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Nama Pengguna"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500 mb-2"
-                />
-                <div className="text-[10px] font-mono text-gray-500">{editingUser.email}</div>
-              </div>
+            <div className="p-6 overflow-y-auto min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Kolom Kiri */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">User Info</label>
+                    <input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      placeholder="Nama Pengguna"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500 mb-1"
+                    />
+                    <div className="text-[11px] font-mono text-gray-500 pl-1">{editingUser.email}</div>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Role</label>
-                <div className="flex gap-2 flex-wrap">
-                  {['siswa', 'staf', 'admin', 'owner'].map(r => (
-                    <button
-                      key={r}
-                      onClick={() => setEditRole(r)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${editRole === r ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Role / Hak Akses</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {['siswa', 'staf', 'admin', 'owner'].map(r => (
+                        <button
+                          key={r}
+                          onClick={() => setEditRole(r)}
+                          className={`flex-1 min-w-[60px] py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-all ${editRole === r ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
-                <div className="flex gap-2 flex-wrap">
-                  {['Free', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
-                    <button
-                      key={t}
-                      onClick={() => setEditTier(t)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${editTier === t ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Masa Aktif (YYYY-MM-DD)</label>
+                    <div className="relative mb-2">
+                      <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="date"
+                        value={editActiveUntil}
+                        onChange={(e) => setEditActiveUntil(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditActiveUntil('')} className="flex-1 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase">Clear</button>
+                      <button onClick={() => setPresetDate(30)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+30 Hari</button>
+                      <button onClick={() => setPresetDate(180)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+6 Bln</button>
+                      <button onClick={() => setPresetDate(365)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+1 Thn</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Active Until (YYYY-MM-DD)</label>
-                <div className="relative mb-2">
-                  <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="date"
-                    value={editActiveUntil}
-                    onChange={(e) => setEditActiveUntil(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setEditActiveUntil('')} className="flex-1 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase">Clear</button>
-                  <button onClick={() => setPresetDate(30)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+30 Hari</button>
-                  <button onClick={() => setPresetDate(180)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+6 Bln</button>
-                  <button onClick={() => setPresetDate(365)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+1 Thn</button>
+                {/* Kolom Kanan */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['Free', 'Guru Pertama', 'Guru Muda', 'Guru Madya', 'Guru Utama', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
+                        <button
+                          key={t}
+                          onClick={() => setEditTier(t)}
+                          className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all ${editTier === t ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Sisa Token (Opsional)</label>
+                    <p className="text-[10px] text-gray-400 mb-2 leading-tight">Kosongkan kolom ini jika ingin token diisi otomatis mengikuti bawaan paket Tier di atas.</p>
+                    <input
+                      type="number"
+                      value={editTokens}
+                      onChange={(e) => setEditTokens(e.target.value)}
+                      placeholder="Contoh: 1500"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Status Akun</label>
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <button
+                        onClick={() => setEditStatusMode('active')}
+                        className={`py-2 px-3 border rounded-lg text-xs font-bold transition-colors ${editStatusMode === 'active' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        Active
+                      </button>
+                      <button
+                        onClick={() => setEditStatusMode('suspend')}
+                        className={`py-2 px-3 border rounded-lg text-xs font-bold transition-colors ${editStatusMode === 'suspend' ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        Suspend Temp
+                      </button>
+                      <button
+                        onClick={() => setEditStatusMode('banned')}
+                        className={`py-2 px-3 border rounded-lg text-xs font-bold transition-colors ${editStatusMode === 'banned' ? 'bg-red-50 border-red-500 text-red-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                      >
+                        Banned
+                      </button>
+                    </div>
+                    {editStatusMode === 'suspend' && (
+                      <div className="mt-2">
+                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Sampai Tanggal (Suspend)</label>
+                        <input
+                          type="datetime-local"
+                          value={editSuspendedUntil ? new Date(new Date(editSuspendedUntil).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16) : ''}
+                          onChange={(e) => setEditSuspendedUntil(new Date(e.target.value).toISOString())}
+                          className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1425,8 +1585,8 @@ export default function AdminPanel() {
       {/* Add Modal */}
       {isAdding && (
         <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50 shrink-0">
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
                 <Plus size={16} className="text-blue-500" /> Tambah User Baru
               </h3>
@@ -1435,73 +1595,93 @@ export default function AdminPanel() {
               </button>
             </div>
             
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Nama Pengguna (Opsional)</label>
-                <input
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Nama Lengkap"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-4"
-                />
-                
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Alamat Email</label>
-                <input
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
-                />
-              </div>
+            <div className="p-6 overflow-y-auto min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Kolom Kiri */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Nama Pengguna (Opsional)</label>
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      placeholder="Nama Lengkap"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 mb-3"
+                    />
+                    
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Alamat Email *</label>
+                    <input
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Role</label>
-                <div className="flex gap-2 flex-wrap">
-                  {['siswa', 'staf', 'admin', 'owner'].map(r => (
-                    <button
-                      key={r}
-                      onClick={() => setEditRole(r)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${editRole === r ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Role / Hak Akses</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {['siswa', 'staf', 'admin', 'owner'].map(r => (
+                        <button
+                          key={r}
+                          onClick={() => setEditRole(r)}
+                          className={`flex-1 min-w-[60px] py-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest border transition-all ${editRole === r ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
-                <div className="flex gap-2 flex-wrap">
-                  {['Free', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
-                    <button
-                      key={t}
-                      onClick={() => setEditTier(t)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all ${editTier === t ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Masa Aktif (YYYY-MM-DD)</label>
+                    <div className="relative mb-2">
+                      <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="date"
+                        value={editActiveUntil}
+                        onChange={(e) => setEditActiveUntil(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditActiveUntil('')} className="flex-1 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase">Clear</button>
+                      <button onClick={() => setPresetDate(30)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+30 Hari</button>
+                      <button onClick={() => setPresetDate(180)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+6 Bln</button>
+                      <button onClick={() => setPresetDate(365)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+1 Thn</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Active Until (YYYY-MM-DD)</label>
-                <div className="relative mb-2">
-                  <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="date"
-                    value={editActiveUntil}
-                    onChange={(e) => setEditActiveUntil(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setEditActiveUntil('')} className="flex-1 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded text-[10px] font-bold uppercase">Clear</button>
-                  <button onClick={() => setPresetDate(30)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+30 Hari</button>
-                  <button onClick={() => setPresetDate(180)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+6 Bln</button>
-                  <button onClick={() => setPresetDate(365)} className="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-[10px] font-bold uppercase">+1 Thn</button>
+                {/* Kolom Kanan */}
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Subscription Tier</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['Free', 'Guru Pertama', 'Guru Muda', 'Guru Madya', 'Guru Utama', 'Essential', 'Premium', 'Ultimate', 'SUPREME', 'Titan'].map(t => (
+                        <button
+                          key={t}
+                          onClick={() => setEditTier(t)}
+                          className={`py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all ${editTier === t ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Sisa Token (Opsional)</label>
+                    <p className="text-[10px] text-gray-400 mb-2 leading-tight">Kosongkan kolom ini jika ingin token diisi otomatis mengikuti bawaan paket Tier di atas.</p>
+                    <input
+                      type="number"
+                      value={editTokens}
+                      onChange={(e) => setEditTokens(e.target.value)}
+                      placeholder="Contoh: 1500"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1738,6 +1918,42 @@ export default function AdminPanel() {
                   Ya, Aktifkan
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {historyModalData && historyModalUser && (
+        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50 shrink-0">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <Activity size={16} className="text-purple-500" /> Riwayat Token: <span className="font-mono text-sm ml-1">{historyModalUser.email}</span>
+              </h3>
+              <button onClick={() => setHistoryModalData(null)} className="text-gray-400 hover:text-red-500 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto min-h-0 bg-gray-50">
+              {historyModalData.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">Belum ada riwayat penggunaan token.</div>
+              ) : (
+                <div className="space-y-3">
+                  {historyModalData.map((log: any) => (
+                    <div key={log.id} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+                      <div>
+                        <div className="font-bold text-gray-800 text-sm">{log.action}</div>
+                        <div className="text-xs text-gray-400 mt-1">{new Date(log.timestamp).toLocaleString('id-ID')}</div>
+                      </div>
+                      <div className="font-mono text-red-600 font-bold bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
+                        -{log.tokens_spent} Token
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
