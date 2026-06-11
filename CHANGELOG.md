@@ -14,6 +14,8 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Memperbarui kartu statistik di Admin Panel agar interaktif dan berfungsi sebagai filter langsung pada tabel daftar pengguna.
 - Mengoptimalkan visualisasi Grafik Tren Pendaftaran dengan gaya yang lebih modern, interaktif (hover effect & tooltip), sumbu grid, dan label tanggal.
 - Mengganti Grafik Tren Pendaftaran berbasis CSS dengan AreaChart interaktif menggunakan pustaka Recharts untuk visualisasi data yang lebih profesional.
+- Memperbaiki desain tombol Tab (Paket Administrasi & Paket Lengkap) pada halaman Pricing agar tampil lebih elegan dan proporsional di seluruh ukuran layar (mempertahankan bentuk pill sempurna).
+- Mengunci halaman Riwayat Versi (Changelog) dengan sistem sandi keamanan (password protection) menggunakan variabel lingkungan (environment variable) untuk membatasi akses publik.
 
 ## [5.2.9] - 10 Juni 2026
 - Memastikan kolom users.activeUntil tersedia pada database (runtime migration).
