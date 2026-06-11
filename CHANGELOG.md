@@ -2,6 +2,16 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.1] - 11 Juni 2026
+- Meningkatkan dokumentasi README.md menjadi profesional dengan penambahan badges status, statistik platform, architecture diagram (Mermaid), dan detailed tech stack.
+- Menambahkan dokumentasi API endpoints lengkap, database schema, dan troubleshooting guide untuk developer.
+- Menambahkan roadmap Q1-Q4 2026, contributing guidelines, FAQ section, license information, dan contact badges ke README.
+- Memperkuat SEO llms.txt dengan metadata terstruktur (canonical URL, meta description, OG image) untuk optimasi AI search engines.
+- Mengkategorikan keywords SEO menjadi 6 bagian: Modul Ajar, RPP & Administrasi, Soal & Penilaian, AI & Platform, English Keywords, dan Intent-Based Queries.
+- Menambahkan daftar lengkap 20+ fitur platform dan structured data/entity information ke llms.txt untuk AI knowledge graph.
+- Mengganti og-image.jpg dengan OGI.png di seluruh referensi (index.html dan llms.txt) untuk konsistensi branding.
+- Menambahkan enhanced imports ke Dashboard component untuk persiapan fitur analytics dan metrics mendatang.
+
 ## [5.3.0] - 11 Juni 2026
 - Menyinkronkan logika paket Harga (Pricing) di Frontend dengan daftar paket yang tersimpan di Database Cloudflare D1 agar konsisten.
 - Menambahkan fitur kontrol penuh bagi Admin untuk menambah atau mengurangi token pengguna secara manual melalui Admin Panel.
