@@ -83,11 +83,11 @@ export default function GameIFP() {
         if (index < logs.length) {
           setTerminalLines(prev => [...prev, logs[index]]);
           index++;
-          timeout = setTimeout(addLog, Math.random() * 800 + 400);
+          timeout = setTimeout(addLog, Math.random() * 200 + 100);
         }
       };
       
-      timeout = setTimeout(addLog, 500);
+      timeout = setTimeout(addLog, 200);
     } else {
       setTerminalLines([]);
     }
@@ -111,7 +111,7 @@ export default function GameIFP() {
 
       const selectedGameType = GAME_TYPES.find(g => g.id === formData.jenisGame);
 
-      const prompt = `Buatlah sebuah game edukatif berbasis web (HTML, CSS, JS dalam satu file) yang interaktif dan dapat dimainkan langsung di browser.
+      const prompt = `Bertindaklah sebagai developer gamer terkemuka sesuai dengan jenis game. Buatlah sebuah game edukatif berbasis web (HTML, CSS, JS dalam satu file) yang interaktif dan dapat dimainkan langsung di browser.
 
 Spesifikasi Game:
 - Topik Pembelajaran: ${formData.topik}
@@ -130,6 +130,7 @@ Persyaratan Wajib:
 5. WAJIB ada sistem Leaderboard (Papan Peringkat) yang terus diperbarui selama game berjalan dan ditampilkan di akhir permainan, menunjukkan skor masing-masing siswa.
 6. Kode harus lengkap dalam satu file HTML (menggunakan tag <style> dan <script>). Tidak boleh ada file eksternal selain font/gambar dari CDN publik. Pastikan kode JavaScript bebas dari error sintaks, terutama pada game Simulasi yang kompleks.
 7. Pastikan game responsif dan bisa dimainkan dengan mouse/touch.
+8. Pastikan kode dioptimalkan agar render game berjalan sangat cepat, efisien, ringan, dan pengunjung tidak terlalu lama menunggu. Game harus memiliki loading awal yang instan dan animasi yang sangat mulus (60fps).
 
 Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri dengan </html>). Jangan berikan penjelasan atau teks markdown lainnya.`;
 

@@ -116,7 +116,7 @@ PENTING:
 
   const startGame = () => {
     setError('');
-    const lines = inputText.split('\\n').filter(line => line.trim() !== '');
+    const lines = inputText.split('\n').filter(line => line.trim() !== '');
     const parsedQuestions = [];
 
     for (let i = 0; i < lines.length; i++) {
