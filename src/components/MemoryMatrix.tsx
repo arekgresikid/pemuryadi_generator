@@ -34,6 +34,8 @@ export default function MemoryMatrix() {
   const [matchedCount, setMatchedCount] = useState(0);
   const [isGameActive, setIsGameActive] = useState(false);
   const [gameMessage, setGameMessage] = useState('');
+  const [currentLevel, setCurrentLevel] = useState(0);
+  const [allWords, setAllWords] = useState<string[]>([]);
 
   useEffect(() => {
     const phases = phaseClassMap[eduLevel]?.phases || [];
@@ -132,8 +134,15 @@ PENTING:
       return;
     }
 
-    // Duplicate words to make pairs, max 8 pairs (16 cards) to fit grid
-    const gameWords = words.slice(0, 8);
+    setAllWords(words);
+    setCurrentLevel(0);
+    loadLevel(words, 0);
+    setIsGameActive(true);
+  };
+
+  const loadLevel = (wordList: string[], levelIndex: number) => {
+    const startIndex = levelIndex * 8;
+    const gameWords = wordList.slice(startIndex, startIndex + 8);
     const pairedWords = [...gameWords, ...gameWords];
     
     // Shuffle
@@ -150,7 +159,6 @@ PENTING:
     setSelectedCards([]);
     setMatchedCount(0);
     setGameMessage('');
-    setIsGameActive(true);
   };
 
   const handleCardClick = (id: number) => {
@@ -178,7 +186,16 @@ PENTING:
           setMatchedCount(prev => {
             const newCount = prev + 2;
             if (newCount === cards.length) {
-              setGameMessage("✓ SYSTEM COMPATIBLE: EXCELLENT!");
+              const nextLevel = currentLevel + 1;
+              if (nextLevel * 8 < allWords.length) {
+                setGameMessage("✓ LEVEL COMPLETE! LOADING NEXT...");
+                setTimeout(() => {
+                  setCurrentLevel(nextLevel);
+                  loadLevel(allWords, nextLevel);
+                }, 1500);
+              } else {
+                setGameMessage("✓ SYSTEM COMPATIBLE: EXCELLENT!");
+              }
             }
             return newCount;
           });
@@ -326,6 +343,11 @@ PENTING:
                   <h1 style={{ background: 'linear-gradient(to right, #fff, var(--neon-cyan))', WebkitBackgroundClip: 'text' }}>
                     {title || "Memory Matrix"}
                   </h1>
+                  {allWords.length > 8 && (
+                    <p style={{ color: 'var(--neon-cyan)', fontSize: '0.8rem', marginTop: '10px' }}>
+                      Level {currentLevel + 1} / {Math.ceil(allWords.length / 8)}
+                    </p>
+                  )}
                 </header>
 
                 <div className="game-viewport">
