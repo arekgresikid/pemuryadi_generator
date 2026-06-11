@@ -1990,11 +1990,14 @@ export default function AdminPanel() {
       {historyModalData && historyModalUser && (
         <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50 shrink-0">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Activity size={16} className="text-purple-500" /> Riwayat Token: <span className="font-mono text-sm ml-1">{historyModalUser.email}</span>
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4 bg-gray-50 shrink-0">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2 min-w-0">
+                <Activity size={16} className="text-purple-500 shrink-0" />
+                <span className="shrink-0 hidden sm:inline">Riwayat Token:</span>
+                <span className="shrink-0 sm:hidden">Riwayat:</span>
+                <span className="font-mono text-sm ml-1 truncate text-gray-500" title={historyModalUser.email}>{historyModalUser.email}</span>
               </h3>
-              <button onClick={() => setHistoryModalData(null)} className="text-gray-400 hover:text-red-500 transition-colors">
+              <button onClick={() => setHistoryModalData(null)} className="text-gray-400 hover:text-red-500 transition-colors shrink-0 p-1 rounded-md hover:bg-gray-200">
                 <X size={18} />
               </button>
             </div>
