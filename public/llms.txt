@@ -5,7 +5,7 @@
 - **Language**: id-ID (Bahasa Indonesia), partial en-US
 - **Page Title**: Pemuryadi Generator – Platform AI Pendidikan Terbaik untuk Guru Indonesia
 - **Meta Description**: Pemuryadi Generator (digen.id) adalah platform AI berbasis Google Gemini untuk guru Indonesia. Buat Modul Ajar Kurikulum Merdeka, RPP, Soal Ulangan, Rubrik Penilaian, dan 20+ fitur administrasi dalam hitungan detik. Mulai gratis, paket mulai Rp 49.000/bulan.
-- **OG Image**: https://digen.id/og-image.jpg
+- **OG Image**: https://digen.id/OGI.png
 - **Site Type**: Educational SaaS / AI-powered teacher assistant
 - **Publisher**: Pemuryadi × RuangRiung
 - **Region**: Indonesia (ID)
