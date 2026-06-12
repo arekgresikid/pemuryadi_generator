@@ -2261,7 +2261,7 @@ export default function AdminPanel() {
                   <span className="text-[10px] text-gray-500 block mt-1">(Untuk pengguna Mac/Linux: `~/.gemini/config/skills/pemuryadi-generator-dev`)</span>
                 </li>
                 <li>
-                  <span className="font-semibold text-gray-900">Pindahkan & Ganti Nama:</span> Pindahkan file yang baru diunduh ke dalam folder tersebut, dan <strong>ubah namanya menjadi <code>SKILL.md</code></strong>.
+                  <span className="font-semibold text-gray-900">Pindahkan:</span> Pindahkan file <code>SKILL.md</code> yang baru saja Anda unduh ke dalam folder tersebut.
                 </li>
                 <li>
                   <span className="font-semibold text-gray-900">Selesai!</span> Buka kembali AI Editor Anda. AI akan otomatis mendeteksi dan mematuhi aturan arsitektur & kolaborasi (Git Workflow) Pemuryadi tanpa perlu diajari ulang!
@@ -2271,7 +2271,7 @@ export default function AdminPanel() {
               <div className="mt-6 flex justify-center">
                 <a 
                   href="/pemuryadi-generator-dev-skill.md" 
-                  download="pemuryadi-generator-dev-skill.md"
+                  download="SKILL.md"
                   onClick={() => setShowSkillModal(false)}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-black transition-all shadow-lg hover:shadow-blue-500/30 w-full sm:w-auto"
                 >
