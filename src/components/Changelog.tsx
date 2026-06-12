@@ -1,113 +1,102 @@
-import React from 'react';
-import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2 } from 'lucide-react';
+import React, { JSX, useState } from 'react';
+import { History, GitCommit, Calendar, Rocket, Sparkles, CheckCircle2, ChevronDown, Lock, Eye, EyeOff, Key } from 'lucide-react';
+import changelogData from '../data/changelog.json';
 
 export default function Changelog() {
-  const versions = [
-    {
-      version: '5.2.2',
-      date: '6 Juni 2026',
-      badge: 'Terbaru',
-      icon: <Rocket className="w-5 h-5 text-blue-600" />,
-      commits: [
-        'Mengimplementasikan fitur penyimpanan otomatis (Auto-Save) dengan localStorage pada seluruh modul generator.',
-        'Mengintegrasikan pengiriman otomatis form Masukan & Saran (Feedback) langsung ke pesan WhatsApp Admin.',
-        'Menambahkan panel informasi instruksi pelaporan Bug & Error pada antarmuka Dashboard.'
-      ]
-    },
-    {
-      version: '5.2.1',
-      date: '4 Juni 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Memperbarui branding Footer dengan menambahkan seksi "Global Partners & Tech Support" beserta deretan logo ekosistem AI.',
-        'Merapikan struktur direktori aset publik dengan memindahkan seluruh logo SVG eksternal ke dalam folder khusus /asset.',
-        'Menambahkan menu pintasan khusus "Admin Dashboard" pada dropdown profil untuk hak akses admin/owner.',
-        'Mengimplementasikan sistem navigasi Breadcrumbs dinamis di Topbar sesuai dengan menu yang sedang aktif.'
-      ]
-    },
-    {
-      version: '5.2.1',
-      date: '4 Juni 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Memperbaiki error tipe TypeScript terkait HTMLRewriter pada fungsi Cloudflare Pages dan tipe response unknown pada App & AdminPanel.',
-        'Menambahkan teks tautan digen.id pada judul Dashboard dan memberikan warna khusus (sorotan) pada bagian teks "di Gen".',
-        'Memperbarui indikator System Online di Dashboard dengan animasi titik radar berwarna hijau yang berkedip.',
-        'Menambahkan prefix www (https://www.digen.id) pada Authorized redirect URIs dan Authorized JavaScript origins di konsol Google OAuth.'
-      ]
-    },
-    {
-      version: '5.2.0',
-      date: '4 Juni 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Menambahkan lebih banyak variasi kalimat pada animasi mengetik di Dashboard.',
-        'Memperbaiki tampilan nama aplikasi untuk keperluan kelancaran verifikasi Google OAuth.',
-        'Pembersihan kode dan skrip utilitas lama.',
-        'Memperbarui desain OG Image (gambar bagikan sosial media) dengan tema pendidikan yang elegan.',
-        'Meningkatkan fitur Programmatic SEO dan perluasan fitur Admin Panel.',
-        'Penyelesaian konflik kode (merge conflicts) dan perbaikan komponen WelcomePopup.',
-        'Membuat halaman dokumentasi Riwayat Versi (Changelog) interaktif yang dapat diakses langsung dari Footer.'
-      ]
-    },
-    {
-      version: '5.1.9',
-      date: '3 Juni 2026',
-      icon: <Sparkles className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Memperbarui instruksi sistem Chatbot AI, UI, dan memperbaiki tampilan modal login.',
-        'Melakukan refaktor besar-besaran pada App.tsx menjadi komponen tata letak (layout) modular.',
-        'Mengamankan sistem autentikasi untuk akses mode pengembang (Dev Mode).',
-        'Pembaruan logo dan branding pada header dan footer Pemuryadi Generator.',
-        'Penguatan keamanan antarmuka dari celah XSS (Penambahan dompurify).'
-      ]
-    },
-    {
-      version: '5.1.8',
-      date: '1 - 2 Juni 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Menerapkan sinkronisasi format administrasi agar sesuai dengan standar Kemendikbud & Kemenag.',
-        'Menyembunyikan kolom tanda tangan (Signature) yang dibiarkan kosong di seluruh halaman cetak dokumen.',
-        'Memperbarui UI antarmuka Profil Singkat (QuickProfile) dan logika Paket Harga (Pricing).',
-        'Memperbaiki pembacaan saldo Token pada paket pengguna gratis (Free Tier).'
-      ]
-    },
-    {
-      version: '5.1.7',
-      date: '30 - 31 Mei 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Menambahkan notifikasi peringatan penggunaan Token bagi pengguna gratis sebelum men-generate modul AI.',
-        'Optimalisasi tampilan tata letak cetak kertas (Print Layouts), manajemen hak akses, dan Ekspor/Impor JSON.',
-        'Penyesuaian tata letak KOP Surat Sekolah dan perbaikan fitur logika cetak khusus Kemenag.',
-        'Meningkatkan fitur AI Image Generation untuk menyertakan pengaturan model AI secara lengkap ke seluruh form visual.',
-        'Penyempurnaan antarmuka modul RPM (Rencana Pembelajaran Mendalam) dan peralihan dari karakter Emoji standar ke Ikon UI.'
-      ]
-    },
-    {
-      version: '5.1.6',
-      date: '29 Mei 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Menambahkan komponen kepatuhan hukum: Kebijakan Privasi (Privacy Policy), Persyaratan Layanan (Terms of Service) dan Meta Tag verifikasi Google Sites.',
-        'Integrasi PWA, optimalisasi caching offline, dan bypass autentikasi untuk localhost.',
-        'Peningkatan UI dan Estetika: Penyesuaian kontras layar, animasi AI Sparkles, peralihan ke react-simple-maps, desain logo baru, animasi Dadu 3D murni dan Ikon Lucide untuk Game Ular Tangga.',
-        'Penyempurnaan Sistem Admin Panel: Sensitivitas peran Admin, CRUD Pengguna, visibilitas Token dan Watermark.',
-        'Pembaruan Sistem Paket Langganan: Perincian masa aktif paket Premium dan pembaruan tabel langganan.',
-        'Perbaikan tata letak kerangka utama (Dashboard grid layout) serta form umpan balik (feedback form) resizable.'
-      ]
-    },
-    {
-      version: '5.0.0',
-      date: '19 April 2026',
-      icon: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
-      commits: [
-        'Initial Commit: Inisialisasi awal repositori proyek Pemuryadi Generator.',
-        'Menyiapkan fondasi dan kerangka awal sistem dengan integrasi AI Studio.'
-      ]
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!password) return;
+
+    setIsVerifying(true);
+    setError(false);
+
+    try {
+      const response = await fetch('/api/verify-dev-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = (await response.json()) as { success?: boolean };
+      if (response.ok && data.success) {
+        setIsAuthenticated(true);
+        setError(false);
+      } else {
+        setError(true);
+        setTimeout(() => setError(false), 3000);
+      }
+    } catch (err) {
+      setError(true);
+      setTimeout(() => setError(false), 3000);
+    } finally {
+      setIsVerifying(false);
     }
-  ];
+  };
+
+  const iconMap: Record<string, JSX.Element> = {
+    'Rocket': <Rocket className="w-5 h-5 text-blue-600" />,
+    'CheckCircle2': <CheckCircle2 className="w-5 h-5 text-gray-500" />,
+    'Sparkles': <Sparkles className="w-5 h-5 text-gray-500" />
+  };
+
+  const versions = changelogData.map((v) => ({
+    ...v,
+    icon: iconMap[v.icon] || <CheckCircle2 className="w-5 h-5 text-gray-500" />
+  }));
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-lg mx-auto pb-12 pt-16 px-4 animate-in fade-in zoom-in-95 duration-500">
+        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+          <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner border border-blue-100 transform rotate-3">
+            <Lock size={36} strokeWidth={2.5} className="-rotate-3" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">Akses Terkunci</h2>
+          <p className="text-gray-500 mb-8 text-sm sm:text-base font-medium">Halaman Riwayat Versi ini dikhususkan untuk tim pengembang. Masukkan sandi keamanan untuk melihat changelog.</p>
+          
+          <form onSubmit={handleLogin} className="space-y-5 text-left">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Key size={20} className={`transition-colors ${error ? 'text-red-400' : 'text-gray-400 group-focus-within:text-blue-500'}`} />
+              </div>
+              <input 
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan kata sandi..."
+                className={`w-full pl-12 pr-12 py-3.5 rounded-2xl border-2 ${error ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-gray-100 bg-gray-50 focus:border-blue-500 focus:bg-white focus:ring-blue-100'} focus:ring-4 transition-all outline-none font-bold text-gray-800 placeholder:font-normal placeholder:text-gray-400`}
+                autoFocus
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-xs font-bold px-1 animate-pulse">Kata sandi yang Anda masukkan salah!</p>}
+            <button 
+              type="submit"
+              disabled={isVerifying || !password}
+              className="w-full bg-gray-900 hover:bg-black text-white font-black py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isVerifying ? 'Memverifikasi...' : 'Buka Akses'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto pb-12">
@@ -119,7 +108,7 @@ export default function Changelog() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900">Riwayat Versi</h1>
-            <p className="text-sm text-gray-500 mt-1 font-medium">Melacak setiap evolusi dan pembaruan sistem Pemuryadi Generator.</p>
+            <p className="text-sm text-gray-500 mt-1 font-medium">Catatan rilis resmi yang mendokumentasikan pembaruan fitur, optimalisasi, dan perbaikan sistem <a href="https://digen.id" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold transition-colors">digen.id</a>.</p>
           </div>
         </div>
       </div>
@@ -128,7 +117,7 @@ export default function Changelog() {
       <div className="bg-white px-6 sm:px-10 py-8 rounded-b-3xl border border-t-0 border-gray-100 shadow-sm">
         <div className="relative border-l-2 border-gray-100/80 ml-3 sm:ml-4 space-y-12 pb-8">
           
-          {versions.map((ver, idx) => {
+          {versions.slice(0, visibleCount).map((ver, idx) => {
             const isLatest = idx === 0;
             return (
               <div key={ver.version} className="relative group pl-8 sm:pl-10">
@@ -156,20 +145,61 @@ export default function Changelog() {
 
                 {/* Commits List */}
                 <div className="space-y-3">
-                  {ver.commits.map((commit, cIdx) => (
-                    <div key={cIdx} className="flex gap-3 items-start">
-                      <GitCommit size={18} className={`mt-0.5 shrink-0 ${isLatest ? 'text-blue-400' : 'text-gray-300'}`} />
-                      <p className={`text-sm leading-relaxed ${isLatest ? 'text-gray-700 font-medium' : 'text-gray-600'}`}>
-                        {commit}
-                      </p>
-                    </div>
-                  ))}
+                  {ver.commits.map((commit, cIdx) => {
+                    // Parse markdown link syntax: [text](url)
+                    const renderText = (text: string) => {
+                      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                      const parts = [];
+                      let lastIndex = 0;
+                      let match;
+                      
+                      while ((match = linkRegex.exec(text)) !== null) {
+                        if (match.index > lastIndex) {
+                          parts.push(text.substring(lastIndex, match.index));
+                        }
+                        parts.push(
+                          <a key={`${cIdx}-${match.index}`} href={match[2]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors">
+                            {match[1]}
+                          </a>
+                        );
+                        lastIndex = match.index + match[0].length;
+                      }
+                      
+                      if (lastIndex < text.length) {
+                        parts.push(text.substring(lastIndex));
+                      }
+                      
+                      return parts.length > 0 ? parts : text;
+                    };
+
+                    return (
+                      <div key={cIdx} className="flex gap-3 items-start">
+                        <GitCommit size={18} className={`mt-0.5 shrink-0 ${isLatest ? 'text-blue-400' : 'text-gray-300'}`} />
+                        <p className={`text-sm leading-relaxed ${isLatest ? 'text-gray-700 font-medium' : 'text-gray-600'}`}>
+                          {renderText(commit)}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
 
         </div>
+
+        {/* Load More Button */}
+        {visibleCount < versions.length && (
+          <div className="flex justify-center mt-8 pt-4">
+            <button 
+              onClick={() => setVisibleCount(prev => prev + 5)}
+              className="px-6 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold rounded-full transition-colors duration-200 flex items-center gap-2 group"
+            >
+              Muat Lebih Banyak
+              <ChevronDown size={18} className="group-hover:translate-y-0.5 transition-transform" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

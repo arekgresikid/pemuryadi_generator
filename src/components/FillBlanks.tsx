@@ -170,7 +170,7 @@ PENTING:
       if (currentIndex < questions.length - 1) {
         setGameMessage("✓ CORRECT! LOADING NEXT SEQUENCE...");
         setTimeout(() => {
-          setCurrentIndex(currentIndex + 1);
+          setCurrentIndex(prev => prev + 1);
           setGameMessage('');
         }, 1000);
       } else {

@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Heart, Activity, Coffee, ShoppingCart, MessageSquare, X, Send, AlertTriangle, Zap,
+  TrendingUp, Clock, Target, Award, Bell, Sparkles, BarChart3, ChevronRight,
+  Calendar, Users, FileText, CheckCircle2, Star, Flame, Trophy
+} from 'lucide-react';
 import QuickProfile from '../QuickProfile';
 import FeedbackForm from '../FeedbackForm';
 import { useAuth } from '../../AuthContext';
@@ -31,7 +35,50 @@ export default function Dashboard({
 }: DashboardProps) {
   const { user, profile } = useAuth();
   const [showPromo, setShowPromo] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
   const currentTier = profile?.tier || profile?.role || (user ? 'Free' : null);
+
+  // Calculate statistics
+  const totalClicks = useMemo(() => 
+    Object.values(activityClicks).reduce((sum, count) => sum + count, 0), 
+    [activityClicks]
+  );
+
+  const mostUsedFeature = useMemo(() => {
+    const entries = Object.entries(activityClicks);
+    if (entries.length === 0) return null;
+    const [featureId, count] = entries.reduce((max, curr) => curr[1] > max[1] ? curr : max);
+    const menuItem = menuItems.flatMap(item => [item, ...(item.dropdown || [])]).find(item => item.id === featureId);
+    return { label: menuItem?.label || featureId, count };
+  }, [activityClicks, menuItems]);
+
+  // Mock data for enhanced features
+  const [recentActivity] = useState([
+    { id: 1, action: 'Membuat Modul Ajar', time: '5 menit lalu', icon: FileText, color: 'blue' },
+    { id: 2, action: 'Generate RPP', time: '15 menit lalu', icon: CheckCircle2, color: 'green' },
+    { id: 3, action: 'Buat Soal Pilihan Ganda', time: '1 jam lalu', icon: Target, color: 'purple' },
+  ]);
+
+  const [achievements] = useState([
+    { id: 1, title: 'First Steps', desc: 'Membuat dokumen pertama', icon: Star, earned: true },
+    { id: 2, title: 'Productive', desc: 'Generate 10 dokumen', icon: Flame, earned: true },
+    { id: 3, title: 'Master Educator', desc: 'Generate 50 dokumen', icon: Trophy, earned: false },
+  ]);
+
+  const [quickActions] = useState([
+    { id: 'modul-ajar', label: 'Modul Ajar', icon: FileText, color: 'blue' },
+    { id: 'buat-soal', label: 'Buat Soal', icon: Target, color: 'green' },
+    { id: 'rpp-generator', label: 'RPP Generator', icon: Calendar, color: 'purple' },
+    { id: 'chatbot', label: 'AI Assistant', icon: MessageSquare, color: 'orange' },
+  ]);
+
+  const [notifications] = useState([
+    { id: 1, title: 'Update Fitur Baru', desc: 'Generator Soal AKM telah tersedia!', time: '2 jam lalu', unread: true },
+    { id: 2, title: 'Token Hampir Habis', desc: 'Tersisa 5 token. Segera upgrade!', time: '1 hari lalu', unread: true },
+  ]);
+
+  const tokenUsage = profile?.tokens || { used: 0, total: 100 };
+  const tokenPercentage = (tokenUsage.used / tokenUsage.total) * 100;
 
   const [typedText, setTypedText] = useState('');
   const phrases = [
@@ -104,14 +151,11 @@ export default function Dashboard({
           </div>
           <div className="relative z-10 shrink-0 w-full md:w-auto">
             <button 
-              onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (${profile?.email || 'Guest'}) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
-                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
-              }}
+              onClick={() => onTabChange('pricing')}
               className="w-full md:w-auto bg-white text-indigo-600 hover:bg-gray-50 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold uppercase tracking-widest transition-all shadow-lg hover:scale-105"
             >
-              <Send size={18} />
-              Klaim via WhatsApp
+              <Zap size={18} />
+              Gunakan Sekarang
             </button>
           </div>
         </div>

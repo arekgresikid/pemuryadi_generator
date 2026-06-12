@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
-import { BookOpen, CheckCircle, Sparkles, Printer, Loader2, Save } from 'lucide-react';
+import { BookOpen, CheckCircle, Sparkles, Printer, Loader2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -111,6 +111,21 @@ export default function ModulKokurikuler() {
   const [isCustomSumatif, setIsCustomSumatif] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    data: true,
+    konten: false,
+    strategi: false,
+    lampiran: false,
+    asesmen: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState('');
@@ -439,617 +454,658 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
         <div className="space-y-6">
           {/* Identitas */}
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">👨‍🏫 Data Guru & Sekolah</h4>
-            <div className="space-y-3">
-              <AIAssistedInput type="text" placeholder="Nama Guru" value={namaGuru} onChange={e => setNamaGuru(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
-              <div className="flex gap-2">
-                <select value={jenisNipGuru} onChange={e => setJenisNipGuru(e.target.value)} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                  <option value="NIP">NIP</option>
-                  <option value="NUPTK">NUPTK</option>
-                  <option value="NIY">NIY</option>
-                  <option value="NRG">NRG</option>
-                  <option value="NPK">NPK</option>
-                </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={nipGuru} onChange={e => setNipGuru(e.target.value)} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
-              </div>
-              <AIAssistedInput type="text" placeholder="Nama Sekolah" value={namaSekolah} onChange={e => setNamaSekolah(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
-              <select value={jenisSekolah} onChange={e => setJenisSekolah(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                <option value="Negeri">Negeri</option>
-                <option value="Swasta">Swasta</option>
-                <option value="Islam Terpadu">Islam Terpadu</option>
-              </select>
-              <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={kepalaSekolah} onChange={e => setKepalaSekolah(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
-              <div className="flex gap-2">
-                <select value={jenisNipKepalaSekolah} onChange={e => setJenisNipKepalaSekolah(e.target.value)} className="w-1/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                  <option value="NIP">NIP</option>
-                  <option value="NUPTK">NUPTK</option>
-                  <option value="NIY">NIY</option>
-                  <option value="NRG">NRG</option>
-                  <option value="NPK">NPK</option>
-                </select>
-                <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={nipKepalaSekolah} onChange={e => setNipKepalaSekolah(e.target.value)} className="w-2/3 bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
-                  <select value={eduLevel} onChange={e => setEduLevel(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                    {educationLevels.map(level => (
-                      <option key={level.id} value={level.id}>{level.label}</option>
-                    ))}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('data')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-amber-600 flex items-center gap-2">👨‍🏫 Data Guru & Sekolah</h4>
+              {expandedSections['data'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['data'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-3">
+                  <AIAssistedInput type="text" placeholder="Nama Guru" value={namaGuru} onChange={e => setNamaGuru(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <div className="flex gap-2">
+                    <select value={jenisNipGuru} onChange={e => setJenisNipGuru(e.target.value)} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                      <option value="NIP">NIP</option>
+                      <option value="NUPTK">NUPTK</option>
+                      <option value="NIY">NIY</option>
+                      <option value="NRG">NRG</option>
+                      <option value="NPK">NPK</option>
+                    </select>
+                    <AIAssistedInput type="text" placeholder="Nomor Induk Guru" value={nipGuru} onChange={e => setNipGuru(e.target.value)} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  </div>
+                  <AIAssistedInput type="text" placeholder="Nama Sekolah" value={namaSekolah} onChange={e => setNamaSekolah(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <select value={jenisSekolah} onChange={e => setJenisSekolah(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                    <option value="Negeri">Negeri</option>
+                    <option value="Swasta">Swasta</option>
+                    <option value="Islam Terpadu">Islam Terpadu</option>
                   </select>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
-                    <select value={fase} onChange={e => setFase(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                      {phaseClassMap[eduLevel]?.phases.map(p => (
-                        <option key={p.id} value={p.id}>{p.label}</option>
+                  <AIAssistedInput type="text" placeholder="Nama Kepala Sekolah" value={kepalaSekolah} onChange={e => setKepalaSekolah(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  <div className="flex gap-2">
+                    <select value={jenisNipKepalaSekolah} onChange={e => setJenisNipKepalaSekolah(e.target.value)} className="w-1/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                      <option value="NIP">NIP</option>
+                      <option value="NUPTK">NUPTK</option>
+                      <option value="NIY">NIY</option>
+                      <option value="NRG">NRG</option>
+                      <option value="NPK">NPK</option>
+                    </select>
+                    <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={nipKepalaSekolah} onChange={e => setNipKepalaSekolah(e.target.value)} className="w-2/3 bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang</label>
+                      <select value={eduLevel} onChange={e => setEduLevel(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                        {educationLevels.map(level => (
+                          <option key={level.id} value={level.id}>{level.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Fase</label>
+                        <select value={fase} onChange={e => setFase(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                          {phaseClassMap[eduLevel]?.phases.map(p => (
+                            <option key={p.id} value={p.id}>{p.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
+                        <select value={kelas} onChange={e => setKelas(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                          {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
+                            <option key={c.id} value={c.id}>{c.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
+                    <select value={tahunAjaran} onChange={e => setTahunAjaran(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                      <option value="2023/2024">2023/2024</option>
+                      <option value="2024/2025">2024/2025</option>
+                      <option value="2025/2026">2025/2026</option>
+                      <option value="2026/2027">2026/2027</option>
+                    </select>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
+                    <select value={mapel} onChange={e => setMapel(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                      {subjectsByLevel[eduLevel]?.map(sub => (
+                        <option key={sub.id} value={sub.id}>{sub.label}</option>
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label>
-                    <select value={kelas} onChange={e => setKelas(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                      {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
-                        <option key={c.id} value={c.id}>{c.label}</option>
+                  
+                  <div className="mt-4">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi</label>
+                    <select 
+                      value={isCustomTopik ? 'lainnya' : topikMateri} 
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (val === 'lainnya') {
+                          setIsCustomTopik(true);
+                          setTopikMateri('');
+                        } else {
+                          setIsCustomTopik(false);
+                          setTopikMateri(val);
+                        }
+                      }} 
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
+                    >
+                      {(topicsBySubject[mapel] || topicsBySubject['default']).map((topic, idx) => (
+                        <option key={idx} value={topic}>{topic}</option>
                       ))}
+                      <option value="lainnya">Lainnya (+)</option>
+                    </select>
+                    {isCustomTopik && (
+                      <AIAssistedInput type="text" 
+                        placeholder="Masukkan Topik/Materi secara manual..." 
+                        value={topikMateri} 
+                        onChange={e => setTopikMateri(e.target.value)} 
+                        className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all mt-3" 
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
+                    <select value={tingkatanKognitif} onChange={e => setTingkatanKognitif(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                      <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
+                      <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
+                      <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
+                      <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
+                      <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
+                      <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
+                      <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
                     </select>
                   </div>
+
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={hasInklusi}
+                        onChange={(e) => setHasInklusi(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-500 focus:ring-offset-white bg-white"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
+                    </label>
+                    
+                    {hasInklusi && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
+                        <input 
+                          type="number"
+                          min="1"
+                          className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
+                          placeholder="Masukkan jumlah siswa inklusi..."
+                          value={jumlahInklusi}
+                          onChange={(e) => setJumlahInklusi(e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <PDFRemixUpload 
+                    onTextExtracted={(text) => setRemixText(text)}
+                    label="Remix dari PDF (Opsional)"
+                  />
                 </div>
               </div>
-              
-              <div className="mt-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
-                <select value={tahunAjaran} onChange={e => setTahunAjaran(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                  <option value="2023/2024">2023/2024</option>
-                  <option value="2024/2025">2024/2025</option>
-                  <option value="2025/2026">2025/2026</option>
-                  <option value="2026/2027">2026/2027</option>
-                </select>
-              </div>
-
-              <div className="mt-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Mata Pelajaran</label>
-                <select value={mapel} onChange={e => setMapel(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                  {subjectsByLevel[eduLevel]?.map(sub => (
-                    <option key={sub.id} value={sub.id}>{sub.label}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="mt-4">
-                <label className="block text-xs font-medium text-gray-600 mb-1">Topik/Materi</label>
-                <select 
-                  value={isCustomTopik ? 'lainnya' : topikMateri} 
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val === 'lainnya') {
-                      setIsCustomTopik(true);
-                      setTopikMateri('');
-                    } else {
-                      setIsCustomTopik(false);
-                      setTopikMateri(val);
-                    }
-                  }} 
-                  className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
-                >
-                  {(topicsBySubject[mapel] || topicsBySubject['default']).map((topic, idx) => (
-                    <option key={idx} value={topic}>{topic}</option>
-                  ))}
-                  <option value="lainnya">Lainnya (+)</option>
-                </select>
-                {isCustomTopik && (
-                  <AIAssistedInput type="text" 
-                    placeholder="Masukkan Topik/Materi secara manual..." 
-                    value={topikMateri} 
-                    onChange={e => setTopikMateri(e.target.value)} 
-                    className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all mt-3" 
-                  />
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                <select value={tingkatanKognitif} onChange={e => setTingkatanKognitif(e.target.value)} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
-                </select>
-              </div>
-
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={hasInklusi}
-                    onChange={(e) => setHasInklusi(e.target.checked)}
-                    className="w-4 h-4 rounded border-black text-amber-500 focus:ring-amber-500 focus:ring-offset-white bg-white"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
-                </label>
-                
-                {hasInklusi && (
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Siswa Inklusi</label>
-                    <input 
-                      type="number"
-                      min="1"
-                      className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
-                      placeholder="Masukkan jumlah siswa inklusi..."
-                      value={jumlahInklusi}
-                      onChange={(e) => setJumlahInklusi(e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <PDFRemixUpload 
-                onTextExtracted={(text) => setRemixText(text)}
-                label="Remix dari PDF (Opsional)"
-              />
-            </div>
+            )}
           </div>
 
           {/* Konten Modul */}
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">🏕️ Konten Modul</h4>
-            <div className="space-y-4">
-              {/* Tema */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih tema</label>
-                <select 
-                  value={tema}
-                  onChange={(e) => setTema(e.target.value)}
-                  className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Pilih tema</option>
-                  {TEMA_OPTIONS.map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('konten')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-amber-600 flex items-center gap-2">🏕️ Konten Modul</h4>
+              {expandedSections['konten'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['konten'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4">
+                  {/* Tema */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Pilih tema</label>
+                    <select 
+                      value={tema}
+                      onChange={(e) => setTema(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Pilih tema</option>
+                      {TEMA_OPTIONS.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
 
-              {/* Dimensi Profil Lulusan */}
-              <div className="border border-black rounded-xl p-4 bg-red-50">
-                <label className="block text-sm font-medium text-gray-700 mb-3">Dimensi Profil Lulusan</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    { id: 'keimanan', label: 'Keimanan dan ketakwaan terhadap Tuhan YME' },
-                    { id: 'kewargaan', label: 'Kewargaan' },
-                    { id: 'penalaranKritis', label: 'Penalaran Kritis' },
-                    { id: 'kreativitas', label: 'Kreativitas' },
-                    { id: 'kolaborasi', label: 'Kolaborasi' },
-                    { id: 'kemandirian', label: 'Kemandirian' },
-                    { id: 'kesehatan', label: 'Kesehatan' },
-                    { id: 'komunikasi', label: 'Komunikasi' }
-                  ].map(item => (
-                    <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center">
-                        <input 
-                          type="checkbox" 
-                          checked={dimensiProfil[item.id as keyof typeof dimensiProfil]}
-                          onChange={() => handleDimensiChange(item.id as keyof typeof dimensiProfil)}
-                          className="peer sr-only" 
-                        />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                      </div>
-                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{item.label}</span>
-                    </label>
-                  ))}
+                  {/* Dimensi Profil Lulusan */}
+                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Dimensi Profil Lulusan</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {[
+                        { id: 'keimanan', label: 'Keimanan dan ketakwaan terhadap Tuhan YME' },
+                        { id: 'kewargaan', label: 'Kewargaan' },
+                        { id: 'penalaranKritis', label: 'Penalaran Kritis' },
+                        { id: 'kreativitas', label: 'Kreativitas' },
+                        { id: 'kolaborasi', label: 'Kolaborasi' },
+                        { id: 'kemandirian', label: 'Kemandirian' },
+                        { id: 'kesehatan', label: 'Kesehatan' },
+                        { id: 'komunikasi', label: 'Komunikasi' }
+                      ].map(item => (
+                        <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
+                          <div className="relative flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              checked={dimensiProfil[item.id as keyof typeof dimensiProfil]}
+                              onChange={() => handleDimensiChange(item.id as keyof typeof dimensiProfil)}
+                              className="peer sr-only" 
+                            />
+                            <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                            <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                          <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Subtema */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Subtema</label>
+                    <select 
+                      value={isCustomSubtema ? 'lainnya' : subtema}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'lainnya') {
+                          setIsCustomSubtema(true);
+                          setSubtema('');
+                        } else {
+                          setIsCustomSubtema(false);
+                          setSubtema(val);
+                        }
+                      }}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Pilih subtema</option>
+                      {Array.from(new Set(
+                        Object.entries(dimensiProfil)
+                          .filter(([_, isSelected]) => isSelected)
+                          .flatMap(([key]) => SUBTEMA_OPTIONS[key] || [])
+                      )).map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                      <option value="lainnya">Lainnya (+)</option>
+                    </select>
+                    {isCustomSubtema && (
+                      <AIAssistedInput type="text" 
+                        placeholder="Masukkan Subtema secara manual..." 
+                        value={subtema} 
+                        onChange={e => setSubtema(e.target.value)} 
+                        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
+                      />
+                    )}
+                  </div>
+
+                  {/* Gerakan 7 KAIH */}
+                  <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Gerakan 7 KAIH</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {[
+                        { id: 'beribadah', label: 'Beribadah' },
+                        { id: 'berolahraga', label: 'Berolahraga' },
+                        { id: 'bermasyarakat', label: 'Bermasyarakat' },
+                        { id: 'gemarBelajar', label: 'Gemar Belajar' },
+                        { id: 'bangunPagi', label: 'Bangun Pagi' },
+                        { id: 'tidurTepatWaktu', label: 'Tidur Tepat Waktu' },
+                        { id: 'makanSehat', label: 'Makan Sehat dan Bergizi' }
+                      ].map(item => (
+                        <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
+                          <div className="relative flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              checked={gerakan7Kaih[item.id as keyof typeof gerakan7Kaih]}
+                              onChange={() => handleGerakanChange(item.id as keyof typeof gerakan7Kaih)}
+                              className="peer sr-only" 
+                            />
+                            <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                            <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                          <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pemanfaatan Digital */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Pemanfaatan Digital</label>
+                    <AIAssistedInput type="text" 
+                      placeholder="Contoh: Penggunaan Canva untuk poster, Google Forms untuk survei..." 
+                      value={pemanfaatanDigital} 
+                      onChange={e => setPemanfaatanDigital(e.target.value)} 
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                    />
+                  </div>
                 </div>
               </div>
-
-              {/* Subtema */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Subtema</label>
-                <select 
-                  value={isCustomSubtema ? 'lainnya' : subtema}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === 'lainnya') {
-                      setIsCustomSubtema(true);
-                      setSubtema('');
-                    } else {
-                      setIsCustomSubtema(false);
-                      setSubtema(val);
-                    }
-                  }}
-                  className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Pilih subtema</option>
-                  {Array.from(new Set(
-                    Object.entries(dimensiProfil)
-                      .filter(([_, isSelected]) => isSelected)
-                      .flatMap(([key]) => SUBTEMA_OPTIONS[key] || [])
-                  )).map(opt => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                  <option value="lainnya">Lainnya (+)</option>
-                </select>
-                {isCustomSubtema && (
-                  <AIAssistedInput type="text" 
-                    placeholder="Masukkan Subtema secara manual..." 
-                    value={subtema} 
-                    onChange={e => setSubtema(e.target.value)} 
-                    className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
-                  />
-                )}
-              </div>
-
-              {/* Gerakan 7 KAIH */}
-              <div className="border border-black rounded-xl p-4 bg-red-50">
-                <label className="block text-sm font-medium text-gray-700 mb-3">Gerakan 7 KAIH</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    { id: 'beribadah', label: 'Beribadah' },
-                    { id: 'berolahraga', label: 'Berolahraga' },
-                    { id: 'bermasyarakat', label: 'Bermasyarakat' },
-                    { id: 'gemarBelajar', label: 'Gemar Belajar' },
-                    { id: 'bangunPagi', label: 'Bangun Pagi' },
-                    { id: 'tidurTepatWaktu', label: 'Tidur Tepat Waktu' },
-                    { id: 'makanSehat', label: 'Makan Sehat dan Bergizi' }
-                  ].map(item => (
-                    <label key={item.id} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center">
-                        <input 
-                          type="checkbox" 
-                          checked={gerakan7Kaih[item.id as keyof typeof gerakan7Kaih]}
-                          onChange={() => handleGerakanChange(item.id as keyof typeof gerakan7Kaih)}
-                          className="peer sr-only" 
-                        />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                      </div>
-                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{item.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pemanfaatan Digital */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pemanfaatan Digital</label>
-                <AIAssistedInput type="text" 
-                  placeholder="Contoh: Penggunaan Canva untuk poster, Google Forms untuk survei..." 
-                  value={pemanfaatanDigital} 
-                  onChange={e => setPemanfaatanDigital(e.target.value)} 
-                  className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                />
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Strategi & Lingkungan */}
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">⚙️ Strategi & Lingkungan</h4>
-            <div className="space-y-4">
-              {/* Praktik Pedagogis */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Praktik Pedagogis</label>
-                <select 
-                  value={praktik}
-                  onChange={(e) => setPraktik(e.target.value)}
-                  className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Pilih praktik</option>
-                  <option value="Pembelajaran Berbasis Proyek (PjBL)">Pembelajaran Berbasis Proyek (PjBL)</option>
-                  <option value="Pembelajaran Berbasis Masalah (PBL)">Pembelajaran Berbasis Masalah (PBL)</option>
-                  <option value="Inkuiri">Inkuiri</option>
-                  <option value="Diskusi Kelompok">Diskusi Kelompok</option>
-                  <option value="Bermain Peran (Role Play)">Bermain Peran (Role Play)</option>
-                </select>
-              </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('strategi')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-amber-600 flex items-center gap-2">⚙️ Strategi & Lingkungan</h4>
+              {expandedSections['strategi'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['strategi'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4">
+                  {/* Praktik Pedagogis */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Praktik Pedagogis</label>
+                    <select 
+                      value={praktik}
+                      onChange={(e) => setPraktik(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Pilih praktik</option>
+                      <option value="Pembelajaran Berbasis Proyek (PjBL)">Pembelajaran Berbasis Proyek (PjBL)</option>
+                      <option value="Pembelajaran Berbasis Masalah (PBL)">Pembelajaran Berbasis Masalah (PBL)</option>
+                      <option value="Inkuiri">Inkuiri</option>
+                      <option value="Diskusi Kelompok">Diskusi Kelompok</option>
+                      <option value="Bermain Peran (Role Play)">Bermain Peran (Role Play)</option>
+                    </select>
+                  </div>
 
-              {/* Kondisi Lingkungan */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Kondisi Lingkungan</label>
-                <select 
-                  value={lingkungan}
-                  onChange={(e) => setLingkungan(e.target.value)}
-                  className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                >
-                  <option value="">Pilih lingkungan</option>
-                  <option value="Dalam Ruangan (Indoor)">Dalam Ruangan (Indoor)</option>
-                  <option value="Luar Ruangan (Outdoor)">Luar Ruangan (Outdoor)</option>
-                  <option value="Daring (Online)">Daring (Online)</option>
-                  <option value="Campuran (Blended)">Campuran (Blended)</option>
-                </select>
-              </div>
+                  {/* Kondisi Lingkungan */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Kondisi Lingkungan</label>
+                    <select 
+                      value={lingkungan}
+                      onChange={(e) => setLingkungan(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">Pilih lingkungan</option>
+                      <option value="Dalam Ruangan (Indoor)">Dalam Ruangan (Indoor)</option>
+                      <option value="Luar Ruangan (Outdoor)">Luar Ruangan (Outdoor)</option>
+                      <option value="Daring (Online)">Daring (Online)</option>
+                      <option value="Campuran (Blended)">Campuran (Blended)</option>
+                    </select>
+                  </div>
 
-              {/* Kemitraan Pembelajaran */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Kemitraan Pembelajaran</label>
-                <div className="flex flex-wrap gap-6">
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input 
-                        type="checkbox" 
-                        checked={kemitraan.satuanPendidikan}
-                        onChange={() => handleKemitraanChange('satuanPendidikan')}
-                        className="peer sr-only" 
-                      />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                      <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  {/* Kemitraan Pembelajaran */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">Kemitraan Pembelajaran</label>
+                    <div className="flex flex-wrap gap-6">
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center">
+                          <input 
+                            type="checkbox" 
+                            checked={kemitraan.satuanPendidikan}
+                            onChange={() => handleKemitraanChange('satuanPendidikan')}
+                            className="peer sr-only" 
+                          />
+                          <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                          <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                        <span className="text-gray-700 group-hover:text-black transition-colors">Satuan Pendidikan</span>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center">
+                          <input 
+                            type="checkbox" 
+                            checked={kemitraan.keluarga}
+                            onChange={() => handleKemitraanChange('keluarga')}
+                            className="peer sr-only" 
+                          />
+                          <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                          <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                        <span className="text-gray-700 group-hover:text-black transition-colors">Keluarga</span>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center">
+                          <input 
+                            type="checkbox" 
+                            checked={kemitraan.masyarakat}
+                            onChange={() => handleKemitraanChange('masyarakat')}
+                            className="peer sr-only" 
+                          />
+                          <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                          <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                        </div>
+                        <span className="text-gray-700 group-hover:text-black transition-colors">Masyarakat</span>
+                      </label>
                     </div>
-                    <span className="text-gray-700 group-hover:text-black transition-colors">Satuan Pendidikan</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input 
-                        type="checkbox" 
-                        checked={kemitraan.keluarga}
-                        onChange={() => handleKemitraanChange('keluarga')}
-                        className="peer sr-only" 
-                      />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                      <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                    </div>
-                    <span className="text-gray-700 group-hover:text-black transition-colors">Keluarga</span>
-                  </label>
-
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input 
-                        type="checkbox" 
-                        checked={kemitraan.masyarakat}
-                        onChange={() => handleKemitraanChange('masyarakat')}
-                        className="peer sr-only" 
-                      />
-                      <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                      <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                    </div>
-                    <span className="text-gray-700 group-hover:text-black transition-colors">Masyarakat</span>
-                  </label>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Lampiran Modul (Premium Only) */}
-          <div className="gen-card bg-red-50 rounded-xl p-5 mb-4 shadow-sm border border-amber-500/30">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-4 border-amber-500/30">
+            <button 
+              onClick={() => toggleSection('lampiran')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
               <h4 className="font-semibold text-amber-600 flex items-center gap-2">📂 Lampiran Modul (Premium Only)</h4>
-              {!isPremium && (
-                <span className="bg-gradient-to-r from-yellow-500 to-amber-600 text-black text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
-                  🔒 Titan Only
-                </span>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              <p className="text-xs text-gray-600">
-                Generate lampiran tambahan otomatis untuk modul kokurikuler Anda.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <div className="relative flex items-center justify-center">
-                    <input 
-                      type="checkbox" 
-                      checked={generateCover && isPremium}
-                      disabled={!isPremium}
-                      onChange={(e) => setGenerateCover(e.target.checked)}
-                      className="peer sr-only" 
-                    />
-                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
-                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Cover Modul</span>
-                </label>
-
-                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <div className="relative flex items-center justify-center">
-                    <input 
-                      type="checkbox" 
-                      checked={generateRubrik && isPremium}
-                      disabled={!isPremium}
-                      onChange={(e) => setGenerateRubrik(e.target.checked)}
-                      className="peer sr-only" 
-                    />
-                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
-                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rubrik Deskripsi (3 Level)</span>
-                </label>
-
-                <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <div className="relative flex items-center justify-center">
-                    <input 
-                      type="checkbox" 
-                      checked={generateRancanganSesi && isPremium}
-                      disabled={!isPremium}
-                      onChange={(e) => setGenerateRancanganSesi(e.target.checked)}
-                      className="peer sr-only" 
-                    />
-                    <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
-                    <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                  </div>
-                  <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rancangan Sesi</span>
-                </label>
+              <div className="flex items-center gap-3">
+                {!isPremium && (
+                  <span className="bg-gradient-to-r from-yellow-500 to-amber-600 text-black text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
+                    🔒 Titan Only
+                  </span>
+                )}
+                {expandedSections['lampiran'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
               </div>
+            </button>
+            {expandedSections['lampiran'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="space-y-4">
+                  <p className="text-xs text-gray-600">
+                    Generate lampiran tambahan otomatis untuk modul kokurikuler Anda.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <div className="relative flex items-center justify-center">
+                        <input 
+                          type="checkbox" 
+                          checked={generateCover && isPremium}
+                          disabled={!isPremium}
+                          onChange={(e) => setGenerateCover(e.target.checked)}
+                          className="peer sr-only" 
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Cover Modul</span>
+                    </label>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Alokasi Waktu (JP)</label>
-                  <input 
-                    type="text"
-                    placeholder="Contoh: 16 JP, 32 JP..."
-                    value={alokasiJP}
-                    disabled={!isPremium}
-                    onChange={(e) => setAlokasiJP(e.target.value)}
-                    className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Pertemuan</label>
-                  <input 
-                    type="number"
-                    min="1"
-                    placeholder="Contoh: 4, 8..."
-                    value={jumlahPertemuan}
-                    disabled={!isPremium}
-                    onChange={(e) => setJumlahPertemuan(e.target.value)}
-                    className="w-full bg-white border border-black rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
-                  />
+                    <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <div className="relative flex items-center justify-center">
+                        <input 
+                          type="checkbox" 
+                          checked={generateRubrik && isPremium}
+                          disabled={!isPremium}
+                          onChange={(e) => setGenerateRubrik(e.target.checked)}
+                          className="peer sr-only" 
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rubrik Deskripsi (3 Level)</span>
+                    </label>
+
+                    <label className={`flex items-center gap-3 cursor-pointer group ${!isPremium ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <div className="relative flex items-center justify-center">
+                        <input 
+                          type="checkbox" 
+                          checked={generateRancanganSesi && isPremium}
+                          disabled={!isPremium}
+                          onChange={(e) => setGenerateRancanganSesi(e.target.checked)}
+                          className="peer sr-only" 
+                        />
+                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-amber-500 peer-checked:border-amber-500 transition-all"></div>
+                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                      </div>
+                      <span className="text-sm text-gray-700 group-hover:text-black transition-colors">Rancangan Sesi</span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Alokasi Waktu (JP)</label>
+                      <input 
+                        type="text"
+                        placeholder="Contoh: 16 JP, 32 JP..."
+                        value={alokasiJP}
+                        disabled={!isPremium}
+                        onChange={(e) => setAlokasiJP(e.target.value)}
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Pertemuan</label>
+                      <input 
+                        type="number"
+                        min="1"
+                        placeholder="Contoh: 4, 8..."
+                        value={jumlahPertemuan}
+                        disabled={!isPremium}
+                        onChange={(e) => setJumlahPertemuan(e.target.value)}
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-black focus:border-amber-500 transition-all disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
-              
-              {!isPremium && (
-                <p className="text-[10px] text-amber-600 font-medium italic mt-2">
-                  * Fitur lampiran hanya aktif untuk pengguna dengan tier Titan / Administrator.
-                </p>
-              )}
-            </div>
+            )}
           </div>
 
           {/* Konfigurasi Asesmen */}
-          <div className="border border-black rounded-xl overflow-hidden bg-red-50">
-            <div className="p-4 border-b border-black bg-red-50">
-              <h3 className="text-lg font-medium text-black">Konfigurasi Asesmen</h3>
-            </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('asesmen')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-amber-600 flex items-center gap-2">📊 Konfigurasi Asesmen</h4>
+              {expandedSections['asesmen'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
             
-            <div className="flex border-b border-black">
-              <button 
-                onClick={() => setActiveAsesmenTab('formatif')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${activeAsesmenTab === 'formatif' ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-500/5' : 'text-gray-600 hover:text-gray-700 hover:bg-red-100/30'}`}
-              >
-                Asesmen Formatif
-              </button>
-              <button 
-                onClick={() => setActiveAsesmenTab('sumatif')}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${activeAsesmenTab === 'sumatif' ? 'text-blue-400 border-b-2 border-blue-400 bg-blue-500/5' : 'text-gray-600 hover:text-gray-700 hover:bg-red-100/30'}`}
-              >
-                Asesmen Sumatif
-              </button>
-            </div>
+            {expandedSections['asesmen'] && (
+              <div className="border-t border-gray-100">
+                <div className="flex border-b border-gray-100">
+                  <button 
+                    onClick={() => setActiveAsesmenTab('formatif')}
+                    className={`flex-1 py-4 text-sm font-medium transition-colors ${activeAsesmenTab === 'formatif' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`}
+                  >
+                    Asesmen Formatif
+                  </button>
+                  <button 
+                    onClick={() => setActiveAsesmenTab('sumatif')}
+                    className={`flex-1 py-4 text-sm font-medium transition-colors ${activeAsesmenTab === 'sumatif' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'}`}
+                  >
+                    Asesmen Sumatif
+                  </button>
+                </div>
 
-            <div className="p-5">
-              {activeAsesmenTab === 'formatif' && (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-700 mb-3">Pilih Teknik Asesmen Formatif</p>
+                <div className="p-6">
+                  {activeAsesmenTab === 'formatif' && (
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-700 mb-3">Pilih Teknik Asesmen Formatif</p>
+                      
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <div className="relative flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              checked={teknikFormatif.observasi}
+                              onChange={() => handleTeknikChange('observasi')}
+                              className="peer sr-only" 
+                            />
+                            <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                            <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                          <span className="text-gray-700 group-hover:text-black transition-colors">Teknik observasi (Catatan Anekdotal)</span>
+                        </label>
+
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <div className="relative flex items-center justify-center">
+                            <input 
+                              type="checkbox" 
+                              checked={teknikFormatif.checklist}
+                              onChange={() => handleTeknikChange('checklist')}
+                              className="peer sr-only" 
+                            />
+                            <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
+                            <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          </div>
+                          <span className="text-gray-700 group-hover:text-black transition-colors">Instrumen checklist (Daftar Periksa)</span>
+                        </label>
+                      </div>
+
+                      {(teknikFormatif.observasi || teknikFormatif.checklist) && (
+                        <div className="mt-6 space-y-4">
+                          <p className="text-sm text-gray-700">Pratinjau Instrumen</p>
+                          
+                          {teknikFormatif.observasi && (
+                            <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                              <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                <span className="text-xs font-medium text-gray-700">Teknik Observasi (Catatan Anekdotal)</span>
+                              </div>
+                              <div className="bg-white p-4">
+                                <div className="grid grid-cols-2 gap-4 text-xs font-medium text-gray-600 mb-2 uppercase tracking-wider">
+                                  <div>Nama Murid</div>
+                                  <div>Catatan Guru</div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                                  <div className="italic">[Nama Siswa]</div>
+                                  <div className="italic">[Guru mencatat observasi spesifik di sini...]</div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {teknikFormatif.checklist && (
+                            <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                              <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                <span className="text-xs font-medium text-gray-700">Instrumen Checklist (Daftar Periksa)</span>
+                              </div>
+                              <div className="bg-white p-4">
+                                <div className="grid grid-cols-3 gap-4 text-xs font-medium text-gray-600 mb-2 uppercase tracking-wider">
+                                  <div>Nama Murid</div>
+                                  <div>Hasil Pengamatan (Checklist)</div>
+                                  <div>Catatan Guru</div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4 text-sm text-gray-700">
+                                  <div className="italic">[Nama Siswa]</div>
+                                  <div className="italic">[Daftar periksa yang dibuat AI akan muncul di sini]</div>
+                                  <div className="italic">[Catatan tambahan guru...]</div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          
+                          <p className="text-xs text-gray-500 mt-2">Pilih teknik asesmen formatif. Instrumen detail akan dibuat di modul yang dihasilkan.</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   
-                  <div className="space-y-3">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center">
-                        <input 
-                          type="checkbox" 
-                          checked={teknikFormatif.observasi}
-                          onChange={() => handleTeknikChange('observasi')}
-                          className="peer sr-only" 
+                  {activeAsesmenTab === 'sumatif' && (
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-700 mb-3">Pilih Teknik Asesmen Sumatif</p>
+                      <select 
+                        value={isCustomSumatif ? 'lainnya' : teknikSumatif}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === 'lainnya') {
+                            setIsCustomSumatif(true);
+                            setTeknikSumatif('');
+                          } else {
+                            setIsCustomSumatif(false);
+                            setTeknikSumatif(val);
+                          }
+                        }}
+                        className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      >
+                        <option value="">Pilih teknik asesmen sumatif</option>
+                        <option value="Poster kampanye yang dibuat murid dalam proyek kolaboratif">Poster kampanye yang dibuat murid dalam proyek kolaboratif</option>
+                        <option value="Presentasi akhir proyek kokurikuler">Presentasi akhir proyek kokurikuler</option>
+                        <option value="Laporan pengamatan atau refleksi tertulis">Laporan pengamatan atau refleksi tertulis</option>
+                        <option value="Produk berbasis kebudayaan lokal (dalam bentuk karya seni, video, atau pertunjukan)">Produk berbasis kebudayaan lokal (dalam bentuk karya seni, video, atau pertunjukan)</option>
+                        <option value="Lembar penilaian kebiasaan (dalam G7KAIH) berdasarkan catatan harian">Lembar penilaian kebiasaan (dalam G7KAIH) berdasarkan catatan harian</option>
+                        <option value="lainnya">Bentuk penilaian lainnya (+)</option>
+                      </select>
+                      {isCustomSumatif && (
+                        <AIAssistedInput type="text" 
+                          placeholder="Masukkan bentuk penilaian lainnya..." 
+                          value={teknikSumatif} 
+                          onChange={e => setTeknikSumatif(e.target.value)} 
+                          className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
                         />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                      </div>
-                      <span className="text-gray-700 group-hover:text-black transition-colors">Teknik observasi (Catatan Anekdotal)</span>
-                    </label>
-
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className="relative flex items-center justify-center">
-                        <input 
-                          type="checkbox" 
-                          checked={teknikFormatif.checklist}
-                          onChange={() => handleTeknikChange('checklist')}
-                          className="peer sr-only" 
-                        />
-                        <div className="w-5 h-5 border-2 border-slate-500 rounded bg-white peer-checked:bg-blue-500 peer-checked:border-blue-500 transition-all"></div>
-                        <CheckCircle className="absolute w-3.5 h-3.5 text-black opacity-0 peer-checked:opacity-100 transition-opacity" />
-                      </div>
-                      <span className="text-gray-700 group-hover:text-black transition-colors">Instrumen checklist (Daftar Periksa)</span>
-                    </label>
-                  </div>
-
-                  {(teknikFormatif.observasi || teknikFormatif.checklist) && (
-                    <div className="mt-6 space-y-4">
-                      <p className="text-sm text-gray-700">Pratinjau Instrumen</p>
-                      
-                      {teknikFormatif.observasi && (
-                        <div className="border border-black rounded-lg overflow-hidden">
-                          <div className="bg-red-50 px-4 py-2 border-b border-black">
-                            <span className="text-xs font-medium text-gray-700">Teknik Observasi (Catatan Anekdotal)</span>
-                          </div>
-                          <div className="bg-white p-4">
-                            <div className="grid grid-cols-2 gap-4 text-xs font-medium text-gray-600 mb-2 uppercase tracking-wider">
-                              <div>Nama Murid</div>
-                              <div>Catatan Guru</div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-                              <div className="italic">[Nama Siswa]</div>
-                              <div className="italic">[Guru mencatat observasi spesifik di sini...]</div>
-                            </div>
-                          </div>
-                        </div>
                       )}
-
-                      {teknikFormatif.checklist && (
-                        <div className="border border-black rounded-lg overflow-hidden">
-                          <div className="bg-red-50 px-4 py-2 border-b border-black">
-                            <span className="text-xs font-medium text-gray-700">Instrumen Checklist (Daftar Periksa)</span>
-                          </div>
-                          <div className="bg-white p-4">
-                            <div className="grid grid-cols-3 gap-4 text-xs font-medium text-gray-600 mb-2 uppercase tracking-wider">
-                              <div>Nama Murid</div>
-                              <div>Hasil Pengamatan (Checklist)</div>
-                              <div>Catatan Guru</div>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 text-sm text-gray-700">
-                              <div className="italic">[Nama Siswa]</div>
-                              <div className="italic">[Daftar periksa yang dibuat AI akan muncul di sini]</div>
-                              <div className="italic">[Catatan tambahan guru...]</div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      <p className="text-xs text-gray-500 mt-2">Pilih teknik asesmen formatif. Instrumen detail akan dibuat di modul yang dihasilkan.</p>
+                      <p className="text-xs text-gray-500 mt-2">Instrumen detail akan dibuat di modul yang dihasilkan.</p>
                     </div>
                   )}
                 </div>
-              )}
-              
-              {activeAsesmenTab === 'sumatif' && (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-700 mb-3">Pilih Teknik Asesmen Sumatif</p>
-                  <select 
-                    value={isCustomSumatif ? 'lainnya' : teknikSumatif}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === 'lainnya') {
-                        setIsCustomSumatif(true);
-                        setTeknikSumatif('');
-                      } else {
-                        setIsCustomSumatif(false);
-                        setTeknikSumatif(val);
-                      }
-                    }}
-                    className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  >
-                    <option value="">Pilih teknik asesmen sumatif</option>
-                    <option value="Poster kampanye yang dibuat murid dalam proyek kolaboratif">Poster kampanye yang dibuat murid dalam proyek kolaboratif</option>
-                    <option value="Presentasi akhir proyek kokurikuler">Presentasi akhir proyek kokurikuler</option>
-                    <option value="Laporan pengamatan atau refleksi tertulis">Laporan pengamatan atau refleksi tertulis</option>
-                    <option value="Produk berbasis kebudayaan lokal (dalam bentuk karya seni, video, atau pertunjukan)">Produk berbasis kebudayaan lokal (dalam bentuk karya seni, video, atau pertunjukan)</option>
-                    <option value="Lembar penilaian kebiasaan (dalam G7KAIH) berdasarkan catatan harian">Lembar penilaian kebiasaan (dalam G7KAIH) berdasarkan catatan harian</option>
-                    <option value="lainnya">Bentuk penilaian lainnya (+)</option>
-                  </select>
-                  {isCustomSumatif && (
-                    <AIAssistedInput type="text" 
-                      placeholder="Masukkan bentuk penilaian lainnya..." 
-                      value={teknikSumatif} 
-                      onChange={e => setTeknikSumatif(e.target.value)} 
-                      className="w-full bg-white border border-black rounded-xl px-4 py-3 text-black focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all mt-3" 
-                    />
-                  )}
-                  <p className="text-xs text-gray-500 mt-2">Instrumen detail akan dibuat di modul yang dihasilkan.</p>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2 mt-4 w-full">

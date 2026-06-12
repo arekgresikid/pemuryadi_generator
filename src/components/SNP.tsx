@@ -286,7 +286,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
             <AIAssistedTextarea value={inputData}
               onChange={(e) => setInputData(e.target.value)}
               placeholder={config.placeholder}
-              className="w-full h-40 bg-white border border-black rounded-xl p-4 text-black placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none" />
+              className="w-full h-40 bg-white border border-gray-300 rounded-xl p-4 text-black placeholder-slate-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all resize-none" />
           </div>
 
           <DocumentUpload onFileUploaded={setUploadedFile} label="Upload Dokumen / Formulir Sebelumnya (Wajib Lampirkan)" />

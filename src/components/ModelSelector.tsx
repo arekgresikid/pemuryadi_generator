@@ -51,7 +51,7 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
     const defaults = modality === 'image' ? defaultImageModels : defaultTextModels;
     setModels(defaults);
 
-    fetch(`https://gen.pollinations.ai/${modality}/models`)
+    fetch(`https://gen.pollinations.ai/models`)
       .then(res => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -59,7 +59,10 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
       .then((data: any[]) => {
         if (!isMounted || !Array.isArray(data)) return;
         
-        const mapped = data.map(m => {
+        // Filter out by category ('text' or 'image')
+        const filteredData = data.filter(m => m.category === modality || (modality === 'text' && !m.category));
+        
+        const mapped = filteredData.map(m => {
           if (typeof m === 'string') {
             return { name: m, description: m };
           }
@@ -76,7 +79,7 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
       })
       .catch((e) => {
         if (isMounted) {
-          console.error("Failed to fetch models from", `https://gen.pollinations.ai/${modality}/models`, e);
+          console.error("Failed to fetch models from", `https://gen.pollinations.ai/models`, e);
           // Defaults are already set
         }
       })

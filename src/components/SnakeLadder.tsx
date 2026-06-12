@@ -406,7 +406,7 @@ PENTING:
             <select 
               value={eduLevel}
               onChange={(e) => setEduLevel(e.target.value)}
-              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all"
             >
               {educationLevels.map(level => (
                 <option key={level.id} value={level.id}>{level.label}</option>
@@ -420,7 +420,7 @@ PENTING:
               <select 
                 value={fase}
                 onChange={(e) => setFase(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.phases.map(p => (
                   <option key={p.id} value={p.id}>{p.label}</option>
@@ -432,7 +432,7 @@ PENTING:
               <select 
                 value={kelas}
                 onChange={(e) => setKelas(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {phaseClassMap[eduLevel]?.classes[fase]?.map(c => (
                   <option key={c.id} value={c.id}>{c.label}</option>
@@ -447,7 +447,7 @@ PENTING:
               <select 
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 {subjectsByLevel[eduLevel]?.map(sub => (
                   <option key={sub.id} value={sub.id}>{sub.label}</option>
@@ -460,7 +460,7 @@ PENTING:
               <select 
                 value={questionType}
                 onChange={(e) => setQuestionType(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all"
               >
                 <option value="isian">Isian Singkat</option>
                 <option value="pg">Pilihan Ganda</option>
@@ -474,7 +474,7 @@ PENTING:
               value={numPlayers}
               onChange={handleNumPlayersChange}
               disabled={gameStarted}
-              className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-orange-500 transition-all disabled:opacity-50"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-orange-500 transition-all disabled:opacity-50"
             >
               <option value={2}>2 Pemain</option>
               <option value={3}>3 Pemain</option>
@@ -509,7 +509,7 @@ PENTING:
             </div>
           )}
           
-          <div className="gen-card bg-red-50 rounded-xl p-4">
+          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h4 className="font-semibold mb-3 flex items-center gap-2 text-black"><Info size={20} /> Cara Main</h4>
             <ol className="text-sm text-gray-600 space-y-2">
               <li>1. Buat soal lalu klik Mulai Main</li>
@@ -522,7 +522,7 @@ PENTING:
         </div>
         
         <div className="lg:col-span-2">
-          <div className="gen-card bg-red-50 rounded-xl p-4 min-h-[500px] flex items-center justify-center relative">
+          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm min-h-[500px] flex items-center justify-center relative">
             {winner && (
               <div className="absolute inset-0 z-20 bg-black/80  rounded-xl flex flex-col items-center justify-center animate-in fade-in zoom-in">
                 <Trophy size={64} className="mb-4 animate-bounce text-yellow-500" />

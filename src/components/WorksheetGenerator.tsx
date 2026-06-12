@@ -10,7 +10,7 @@ import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import DOMPurify from 'dompurify';
-
+import { FileText, Settings, List, Palette, Loader2, Sparkles, Printer, ChevronDown, ChevronUp } from 'lucide-react';
 
 const INFOGRAPHIC_BASE_PROMPT = `
 Create a vertical worksheet, portrait orientation, optimized to fit entirely on a single A4 page.
@@ -104,6 +104,19 @@ export default function WorksheetGenerator() {
     }
     if (current.length === 0) current = ['Pilihan Ganda'];
     setFormData(prev => ({ ...prev, jenisSoal: current }));
+  };
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    pengaturan: true,
+    detail: false,
+    gaya: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   const [result, setResult] = useState<string | null>(null);
@@ -378,10 +391,10 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
+    <div className="w-full flex flex-col gap-6">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">
-          📝
+        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white shadow-lg">
+          <FileText size={28} />
         </div>
         <div>
           <h3 className="text-2xl font-bold text-black">AI Worksheet Generator</h3>
@@ -389,149 +402,186 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
         </div>
       </div>
       
-      <div className="grid lg:grid-cols-2 gap-8">
-        <div className="space-y-6 h-[700px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="w-full flex flex-col gap-8">
+        {/* Form Panel (Top) */}
+        <div className="w-full flex flex-col gap-6">
           
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">⚙️ Pengaturan Worksheet</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
-                <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {educationLevels.map(level => (
-                    <option key={level.id} value={level.id}>{level.label}</option>
-                  ))}
-                </select>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('pengaturan')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                <Settings size={18} /> Pengaturan Worksheet
+              </h4>
+              {expandedSections['pengaturan'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['pengaturan'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Jenjang</label>
+                    <select value={formData.jenjang} onChange={e => setFormData({...formData, jenjang: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      {educationLevels.map(level => (
+                        <option key={level.id} value={level.id}>{level.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
+                    <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      {phaseClassMap[formData.jenjang]?.phases?.map(p => (
+                        <option key={p.id} value={p.id}>{p.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                    <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => (
+                        <option key={c.id} value={c.id}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                    <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      {subjectsByLevel[formData.jenjang]?.map(s => (
+                        <option key={s.id} value={s.id}>{s.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Topik / Materi Pembelajaran</label>
+                    <AIAssistedInput type="text" placeholder="Contoh: Sistem Pencernaan Manusia" value={formData.topik} onChange={e => setFormData({...formData, topik: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
+                  </div>
+                </div>
               </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Fase</label>
-                <select value={formData.fase} onChange={e => setFormData({...formData, fase: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {phaseClassMap[formData.jenjang]?.phases?.map(p => (
-                    <option key={p.id} value={p.id}>{p.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
-                <select value={formData.kelas} onChange={e => setFormData({...formData, kelas: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => (
-                    <option key={c.id} value={c.id}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
-                <select value={formData.mapel} onChange={e => setFormData({...formData, mapel: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {subjectsByLevel[formData.jenjang]?.map(s => (
-                    <option key={s.id} value={s.id}>{s.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Topik / Materi Pembelajaran</label>
-                <AIAssistedInput type="text" placeholder="Contoh: Sistem Pencernaan Manusia" value={formData.topik} onChange={e => setFormData({...formData, topik: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">📝 Detail Soal</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Bentuk/Jenis Soal</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
-                    <label key={bentuk} className="flex items-center gap-2 cursor-pointer bg-red-50 p-2.5 rounded-xl border border-black hover:border-blue-500 transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={formData.jenisSoal.includes(bentuk)}
-                        onChange={() => handleJenisSoalChange(bentuk)}
-                        className="w-4 h-4 rounded border-black text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 bg-red-50"
-                      />
-                      <span className="text-xs text-black">{bentuk}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal</label>
-                <input type="number" min="1" max="20" value={formData.jumlahSoal} onChange={e => setFormData({...formData, jumlahSoal: parseInt(e.target.value) || 5})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
-                <select value={formData.tingkatKesulitan} onChange={e => setFormData({...formData, tingkatKesulitan: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  <option value="Mudah (LOTS)">Mudah (LOTS)</option>
-                  <option value="Sedang (MOTS)">Sedang (MOTS)</option>
-                  <option value="Sulit (HOTS)">Sulit (HOTS)</option>
-                  <option value="Campuran">Campuran</option>
-                </select>
-              </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-2">Kerangka Taksonomi</label>
-                <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'Bloom', tingkatanKognitif: 'C1 - Mengingat'})}
-                    className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
-                  >
-                    Taksonomi Bloom
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'SOLO', tingkatanKognitif: 'Pra-struktural'})}
-                    className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
-                  >
-                    Taksonomi SOLO
-                  </button>
-                </div>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <button 
+              onClick={() => toggleSection('detail')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                <List size={18} /> Detail Soal
+              </h4>
+              {expandedSections['detail'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['detail'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Bentuk/Jenis Soal</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
+                        <label key={bentuk} className="flex items-center gap-2 cursor-pointer bg-white p-2.5 rounded-xl border border-gray-300 hover:border-blue-500 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={formData.jenisSoal.includes(bentuk)}
+                            onChange={() => handleJenisSoalChange(bentuk)}
+                            className="w-4 h-4 rounded border-black text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900 bg-white"
+                          />
+                          <span className="text-xs text-black">{bentuk}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal</label>
+                    <input type="number" min="1" max="20" value={formData.jumlahSoal} onChange={e => setFormData({...formData, jumlahSoal: parseInt(e.target.value) || 5})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
+                    <select value={formData.tingkatKesulitan} onChange={e => setFormData({...formData, tingkatKesulitan: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      <option value="Mudah (LOTS)">Mudah (LOTS)</option>
+                      <option value="Sedang (MOTS)">Sedang (MOTS)</option>
+                      <option value="Sulit (HOTS)">Sulit (HOTS)</option>
+                      <option value="Campuran">Campuran</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Kerangka Taksonomi</label>
+                    <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, kerangkaTaksonomi: 'Bloom', tingkatanKognitif: 'C1 - Mengingat'})}
+                        className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                      >
+                        Taksonomi Bloom
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, kerangkaTaksonomi: 'SOLO', tingkatanKognitif: 'Pra-struktural'})}
+                        className={`flex-1 py-2 text-sm font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                      >
+                        Taksonomi SOLO
+                      </button>
+                    </div>
 
-                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
-                <div className="flex flex-wrap gap-2">
-                  {(formData.kerangkaTaksonomi === 'Bloom' 
-                    ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Menerapkan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta']
-                    : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
-                  ).map(level => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setFormData({...formData, tingkatanKognitif: level})}
-                      className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${formData.tingkatanKognitif === level ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
-                    >
-                      {level}
-                    </button>
-                  ))}
+                    <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
+                    <div className="flex flex-wrap gap-2">
+                      {(formData.kerangkaTaksonomi === 'Bloom' 
+                        ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Menerapkan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta']
+                        : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
+                      ).map(level => (
+                        <button
+                          key={level}
+                          type="button"
+                          onClick={() => setFormData({...formData, tingkatanKognitif: level})}
+                          className={`px-4 py-2 text-xs font-bold rounded-full border transition-all ${formData.tingkatanKognitif === level ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Instruksi Tambahan (Opsional)</label>
+                    <AIAssistedTextarea rows={2} placeholder="Contoh: Buat soal yang berkaitan dengan kehidupan sehari-hari siswa di daerah pesisir." value={formData.instruksiTambahan} onChange={e => setFormData({...formData, instruksiTambahan: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
+                  </div>
+
+                  <div className="col-span-2">
+                    <PDFRemixUpload 
+                      onTextExtracted={(text) => setFormData(prev => ({ ...prev, remixText: text }))}
+                      label="Remix dari PDF (Opsional)"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Instruksi Tambahan (Opsional)</label>
-                <AIAssistedTextarea rows={2} placeholder="Contoh: Buat soal yang berkaitan dengan kehidupan sehari-hari siswa di daerah pesisir." value={formData.instruksiTambahan} onChange={e => setFormData({...formData, instruksiTambahan: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black text-sm focus:border-blue-500 transition-all" />
-              </div>
-
-              <div className="col-span-2">
-                <PDFRemixUpload 
-                  onTextExtracted={(text) => setFormData(prev => ({ ...prev, remixText: text }))}
-                  label="Remix dari PDF (Opsional)"
-                />
-              </div>
-            </div>
+            )}
           </div>
           
-          <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
-            <h4 className="font-semibold text-blue-400 mb-4 flex items-center gap-2">🎨 Gaya Desain</h4>
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Gaya Desain Worksheet</label>
-                <select value={formData.gayaDesain} onChange={e => setFormData({...formData, gayaDesain: e.target.value})} className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all">
-                  {Object.keys(designPrompts).map(style => (
-                    <option key={style} value={style}>{style}</option>
-                  ))}
-                </select>
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+            <button 
+              onClick={() => toggleSection('gaya')}
+              className="w-full flex items-center justify-between p-6 bg-white hover:bg-gray-50 transition-colors"
+            >
+              <h4 className="font-semibold text-blue-600 flex items-center gap-2">
+                <Palette size={18} /> Gaya Desain
+              </h4>
+              {expandedSections['gaya'] ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+            </button>
+            {expandedSections['gaya'] && (
+              <div className="p-6 pt-0 border-t border-gray-100">
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Pilih Gaya Desain Worksheet</label>
+                    <select value={formData.gayaDesain} onChange={e => setFormData({...formData, gayaDesain: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all">
+                      {Object.keys(designPrompts).map(style => (
+                        <option key={style} value={style}>{style}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg text-red-700 p-4 rounded-xl text-sm">
+            <div className="bg-white border border-red-200 rounded-lg text-red-700 p-4 rounded-xl text-sm">
               {error}
             </div>
           )}
@@ -551,26 +601,27 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
           >
             {isGenerating ? (
               <>
-                <span className="animate-spin text-2xl">⏳</span>
+                <Loader2 size={20} className="animate-spin" />
                 <span>Menyusun Worksheet...</span>
               </>
             ) : (
               <>
-                <span>✨</span> Generate Worksheet
+                <Sparkles size={20} /> Generate Worksheet
               </>
             )}
           </button>
         </div>
         
-        <div className="gen-card bg-red-50 rounded-xl p-4 h-[700px] overflow-y-auto custom-scrollbar">
+        {/* Result Panel (Bottom) */}
+        <div className="w-full bg-white border border-gray-200 rounded-2xl p-6 min-h-[400px]">
           {result ? (
             <div className="space-y-6 text-sm">
               <div className="flex flex-col items-end gap-2">
                 <button 
                   onClick={() => setIsPrintModalOpen(true)}
-                  className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-black font-bold transition-all shadow-lg flex items-center gap-2"
+                  className="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-lg flex items-center gap-2"
                 >
-                  <span>🖨️</span> Print Worksheet
+                  <Printer size={18} /> Print Worksheet
                 </button>
                 <p className="text-[10px] text-gray-500 italic text-right">
                   * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
@@ -578,7 +629,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
                 </p>
               </div>
               <div 
-                className="bg-white rounded-xl overflow-hidden shadow-inner min-h-[500px]"
+                className="w-full min-h-[500px]"
                 dangerouslySetInnerHTML={{ 
                   __html: DOMPurify.sanitize(result, { 
                     ADD_TAGS: ['style', 'iframe'], 
@@ -589,7 +640,7 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
             </div>
           ) : (
             <div className="text-center text-gray-500 h-full flex flex-col items-center justify-center">
-              <div className="text-6xl mb-4 opacity-50">📝</div>
+              <FileText size={64} className="mb-4 text-gray-300" />
               <p>Worksheet yang dihasilkan akan muncul di sini</p>
             </div>
           )}

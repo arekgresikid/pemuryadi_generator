@@ -34,7 +34,7 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-sm">
             <Sparkles size={20} />
           </div>
-          <span className="font-bold text-xl text-slate-800 tracking-tight">Pemuryadi Generator</span>
+          <span className="font-bold text-xl text-slate-800 tracking-tight">digen.id</span>
         </div>
         <button 
           onClick={() => onEnterApp()} 
@@ -182,7 +182,7 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">P</div>
-              <span className="font-bold text-xl text-white">Pemuryadi Generator</span>
+              <span className="font-bold text-xl text-white">digen.id</span>
             </div>
             <p className="text-slate-400 max-w-sm leading-relaxed mb-6">
               Platform AI inovatif yang memberdayakan guru Indonesia untuk menciptakan perangkat pembelajaran Kurikulum Merdeka berkualitas tinggi dengan efisien.
@@ -211,9 +211,9 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
             <h4 className="text-white font-bold mb-6">Dukungan</h4>
             <ul className="space-y-4">
               <li><button onClick={() => onEnterApp('beranda')} className="hover:text-blue-400 transition-colors cursor-pointer text-left">Panduan Penggunaan</button></li>
+              <li><a href="/about.html" className="hover:text-blue-400 transition-colors cursor-pointer">Tentang Kami</a></li>
               <li><a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors cursor-pointer">Kebijakan Privasi</a></li>
               <li><a href="/terms-of-service.html" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors cursor-pointer">Syarat & Ketentuan</a></li>
-              <li><a href="mailto:support@digen.id" className="hover:text-blue-400 transition-colors cursor-pointer">Hubungi Kami</a></li>
             </ul>
           </div>
         </div>

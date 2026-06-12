@@ -3,7 +3,7 @@ import ModelSelector from './ModelSelector';
 
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
-import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle } from 'lucide-react';
+import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
@@ -18,6 +18,7 @@ export default function BuatSoal() {
   const [liveQuizAnswers, setLiveQuizAnswers] = useState<Record<number, string>>({});
   const [liveQuizFinished, setLiveQuizFinished] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [printTypeToProceed, setPrintTypeToProceed] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | null>(null);
@@ -109,7 +110,8 @@ export default function BuatSoal() {
     setGeneratingImageIndex({ index, isABK });
     try {
       const cleanDescription = encodeURIComponent(`${description}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
-      const url = `https://image.pollinations.ai/prompt/${cleanDescription}?width=512&height=512&nologo=true&private=true&model=flux`;
+      const seed = Math.floor(Math.random() * 1000000);
+      const url = `/api/generate-image?prompt=${cleanDescription}&model=${selectedImageModel}&seed=${seed}`;
       
       setResultSoal((prev: any) => {
         if (!prev) return prev;
@@ -266,7 +268,7 @@ Berikan output dalam format JSON murni:
         }
 
         if (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0) {
-          extraInstructions += `\n- Soal Bergambar: Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Buatlah ${formData.jumlahSoalBergambar} soal yang memerlukan gambar/diagram pendukung untuk dapat diselesaikan. Untuk soal-soal tersebut, WAJIB mengisi bidang "gambarDeskripsi" dengan PROMPT DALAM BAHASA INGGRIS yang sangat spesifik dan deskriptif untuk image generator (contoh: "A detailed black and white line art diagram of plant growth stages", "A vector line drawing of a pyramid with labels", "A clear map showing distribution of flora and fauna in Indonesia"). Harus dalam bahasa Inggris. Untuk soal reguler yang tidak memerlukan gambar, biarkan bidang "gambarDeskripsi" kosong atau null.`;
+          extraInstructions += `\n- SOAL BERGAMBAR (SANGAT PENTING): Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Anda WAJIB membuat tepat ${formData.jumlahSoalBergambar} soal yang membutuhkan gambar/diagram ilustrasi visual. Untuk soal bergambar ini, Anda MUTLAK harus mengisi field "gambarDeskripsi" di format JSON dengan prompt gambar (bahasa Inggris) yang sangat detail. JANGAN KOSONGKAN "gambarDeskripsi" untuk soal bergambar! Contoh: "A detailed map of Indonesia showing major islands", "A diagram of human digestive system". Untuk soal reguler yang tidak butuh gambar, biarkan kosong.`;
         }
 
         if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
@@ -339,7 +341,8 @@ Berikan output dalam format JSON murni:
                 levelKognitif: { type: Type.STRING },
                 gambarDeskripsi: { type: Type.STRING },
                 gambarUrl: { type: Type.STRING }
-              }
+              },
+              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan", "gambarDeskripsi"]
             }
           }
         };
@@ -363,7 +366,8 @@ Berikan output dalam format JSON murni:
                 levelKognitif: { type: Type.STRING },
                 gambarDeskripsi: { type: Type.STRING },
                 gambarUrl: { type: Type.STRING }
-              }
+              },
+              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan", "gambarDeskripsi"]
             }
           };
         }
@@ -389,6 +393,27 @@ Berikan output dalam format JSON murni:
       responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
       const generatedData = JSON.parse(responseText);
+
+      if (type === 'soal') {
+        const processSoalImages = (soalList: any[]) => {
+          if (!soalList) return [];
+          return soalList.map(s => {
+            if (s.gambarDeskripsi && !s.gambarUrl) {
+              const cleanDescription = encodeURIComponent(`${s.gambarDeskripsi}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
+              const seed = Math.floor(Math.random() * 1000000);
+              s.gambarUrl = `/api/generate-image?prompt=${cleanDescription}&model=${selectedImageModel}&seed=${seed}`;
+            }
+            return s;
+          });
+        };
+
+        if (generatedData.soalList) {
+          generatedData.soalList = processSoalImages(generatedData.soalList);
+        }
+        if (generatedData.soalABKList) {
+          generatedData.soalABKList = processSoalImages(generatedData.soalABKList);
+        }
+      }
 
       if (type === 'kisi-kisi') {
         setResultKisiKisi({ ...generatedData, meta: { mapelLabel, jenjangLabel, ...formData } });
@@ -750,7 +775,7 @@ Berikan output dalam format JSON murni:
             </h2>
                 
                 {/* Section 1: Informasi Ujian & Kelas */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-5">
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-5">
                   <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2">1. Informasi Ujian & Kelas</h3>
                   
                   {/* Row 1: Tipe Ujian */}
@@ -851,7 +876,7 @@ Berikan output dalam format JSON murni:
                 </div>
 
                 {/* Section 2: Materi & Indikator */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col">
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col">
                   <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">2. Materi & Indikator</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -884,7 +909,7 @@ Berikan output dalam format JSON murni:
                 </div></div>
 
                 {/* Section 3: Struktur & Level Kognitif */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-5">
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-5">
                   <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2">3. Struktur & Level Kognitif</h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     
@@ -979,7 +1004,7 @@ Berikan output dalam format JSON murni:
                 </div>
 
                 {/* Section 4: Opsi Tambahan */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                   <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">4. Opsi Tambahan</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1068,6 +1093,38 @@ Berikan output dalam format JSON murni:
                 </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            <ModelSelector modality="text" label="Model Teks AI" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
+            <ModelSelector modality="image" label="Model Gambar AI" value={selectedImageModel} onChange={setSelectedImageModel} disabled={isGenerating} />
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mt-4 w-full">
+            <button 
+              onClick={saveProgress}
+              className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+              title="Simpan Progress"
+            >
+              <Save size={18} /> Simpan
+            </button>
+            <button 
+              onClick={resetProgress}
+              className="px-4 py-3 bg-red-100 hover:bg-red-200 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
+              title="Reset Data"
+            >
+              <Trash2 size={18} /> Reset
+            </button>
+            <button
+              onClick={() => generateContent(activeSubTab === 'kisi-kisi' ? 'kisi-kisi' : 'soal')}
+              disabled={isGenerating}
+              className={`flex-1 py-4 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 ${
+                isGenerating ? 'bg-slate-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90'
+              }`}
+            >
+              {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
+              Generate {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : 'Soal'}
+            </button>
+          </div>
+
           {/* Result Section (Bottom Panel) */}
           <div className="w-full flex flex-col h-[800px]">
             <div className="bg-white rounded-t-2xl border-x border-t border-gray-200 p-2 flex gap-2 relative overflow-hidden flex-wrap">
@@ -1111,41 +1168,15 @@ Berikan output dalam format JSON murni:
                 </div>
               )}
 
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-gray-900 tracking-wide">
+              <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
+                <h2 className="text-lg font-bold text-gray-900 tracking-wide shrink-0">
                   Pratinjau {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : activeSubTab === 'naskah' ? 'Naskah Soal' : activeSubTab === 'kunci' ? 'Kunci Jawaban' : 'Kartu Soal'}
                 </h2>
-                <div className="mb-4">
-            <ModelSelector modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
-          </div>
-          <div className="flex gap-2">
-                  <button
-                    onClick={saveProgress}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-gray-900 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
-                    title="Simpan Progress"
-                  >
-                    <Save size={16} /> Simpan
-                  </button>
-              <button 
-                onClick={resetProgress}
-                className="px-4 py-3 bg-red-100 hover:bg-slate-600 text-black rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
-                title="Reset Data"
-              >
-                <Trash2 size={18} /> Reset
-              </button>
-                  <button
-                    onClick={() => generateContent(activeSubTab === 'kisi-kisi' ? 'kisi-kisi' : 'soal')}
-                    disabled={isGenerating}
-                    className={`px-4 py-2 text-gray-900 rounded-lg text-sm font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg bg-blue-600 hover:bg-blue-600/80 shadow-sm`}
-                  >
-                    {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    Generate {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : 'Soal'}
-                  </button>
-                  
+                <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full xl:w-auto">
                   {((activeSubTab === 'kisi-kisi' && resultKisiKisi) || (activeSubTab !== 'kisi-kisi' && resultSoal)) && (
                     <button
                       onClick={() => handlePrintClick(activeSubTab as 'kisi-kisi' | 'naskah' | 'kunci' | 'kartu')}
-                      className="px-4 py-2 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg text-sm font-bold hover:bg-slate-700 transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg text-sm font-bold hover:bg-slate-200 transition-colors flex items-center gap-2"
                     >
                       <Printer size={16} /> Cetak
                     </button>
@@ -1219,10 +1250,15 @@ Berikan output dalam format JSON murni:
                                 <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
                                 <button 
                                   onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100"
+                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
+                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
                                   title="Regenerate Gambar"
                                 >
-                                  🔄
+                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                  ) : (
+                                    <span>🔄</span>
+                                  )}
                                 </button>
                               </div>
                             ) : (
@@ -1292,10 +1328,15 @@ Berikan output dalam format JSON murni:
                                     <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
                                     <button 
                                       onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100"
+                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
                                       title="Regenerate Gambar"
                                     >
-                                      🔄
+                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                      ) : (
+                                        <span>🔄</span>
+                                      )}
                                     </button>
                                   </div>
                                 ) : (
@@ -1369,21 +1410,60 @@ Berikan output dalam format JSON murni:
                         <div className="mb-3 text-sm text-gray-600"><strong>Soal No. {s.no}</strong> ({s.jenisSoal})</div>
                         <p className="text-gray-700 mb-4 italic pl-4 border-l-2 border-gray-300 line-clamp-2">{s.pertanyaan}</p>
                         
-                        <div className="bg-emerald-900/20 border border-emerald-900/50 p-4 rounded-lg">
+                        {s.gambarDeskripsi && (
+                          <div className="pl-4 mb-4">
+                            {s.gambarUrl ? (
+                              <div className="relative group max-w-[200px]">
+                                <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                <button 
+                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
+                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
+                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                                  title="Regenerate Gambar"
+                                >
+                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                  ) : (
+                                    <span>🔄</span>
+                                  )}
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
+                                disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
+                                className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                              >
+                                {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
+                                  <>
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    <span>Memproses...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>🎨 Generate Gambar Ilustrasi</span>
+                                  </>
+                                )}
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
                           <div className="flex gap-2">
-                            <span className="text-emerald-500 font-bold">Kunci:</span>
-                            <span className="text-emerald-300 whitespace-pre-wrap">{s.kunci}</span>
+                            <span className="text-emerald-700 font-bold shrink-0">Kunci:</span>
+                            <div className="text-emerald-900 whitespace-pre-wrap flex-1 leading-relaxed">{s.kunci}</div>
                           </div>
                           
                           {s.pembahasan && (
                             <div className="mt-3 text-sm">
-                              <span className="text-gray-600 font-bold block mb-1">Pembahasan:</span>
-                              <span className="text-gray-700 whitespace-pre-wrap">{s.pembahasan}</span>
+                              <span className="text-gray-700 font-bold block mb-1">Pembahasan:</span>
+                              <div className="text-gray-800 whitespace-pre-wrap leading-relaxed">{s.pembahasan}</div>
                             </div>
                           )}
                           
                           <div className="mt-3 text-xs flex justify-end">
-                            <span className="bg-emerald-900/50 px-2 py-1 rounded text-emerald-600">Skor: {s.skor}</span>
+                            <span className="bg-emerald-100 px-2 py-1 rounded text-emerald-700 font-medium">Skor: {s.skor}</span>
                           </div>
                         </div>
                       </div>
@@ -1397,21 +1477,60 @@ Berikan output dalam format JSON murni:
                             <div className="mb-3 text-sm text-blue-500"><strong>Soal No. {s.no}</strong> ({s.jenisSoal})</div>
                             <p className="text-gray-700 mb-4 italic pl-4 border-l-2 border-blue-200 line-clamp-2">{s.pertanyaan}</p>
                             
-                            <div className="bg-emerald-900/20 border border-emerald-900/50 p-4 rounded-lg">
+                            {s.gambarDeskripsi && (
+                              <div className="pl-4 mb-4">
+                                {s.gambarUrl ? (
+                                  <div className="relative group max-w-[200px]">
+                                    <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                    <button 
+                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                                      title="Regenerate Gambar"
+                                    >
+                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                      ) : (
+                                        <span>🔄</span>
+                                      )}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                    disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                                  >
+                                    {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                      <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Memproses...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>🎨 Generate Gambar Ilustrasi</span>
+                                      </>
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                            
+                            <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
                               <div className="flex gap-2">
-                                <span className="text-emerald-500 font-bold">Kunci:</span>
-                                <span className="text-emerald-300 whitespace-pre-wrap">{s.kunci}</span>
+                                <span className="text-emerald-700 font-bold shrink-0">Kunci:</span>
+                                <div className="text-emerald-900 whitespace-pre-wrap flex-1 leading-relaxed">{s.kunci}</div>
                               </div>
                               
                               {s.pembahasan && (
                                 <div className="mt-3 text-sm">
-                                  <span className="text-gray-600 font-bold block mb-1">Pembahasan:</span>
-                                  <span className="text-gray-700 whitespace-pre-wrap">{s.pembahasan}</span>
+                                  <span className="text-gray-700 font-bold block mb-1">Pembahasan:</span>
+                                  <div className="text-gray-800 whitespace-pre-wrap leading-relaxed">{s.pembahasan}</div>
                                 </div>
                               )}
                               
                               <div className="mt-3 text-xs flex justify-end">
-                                <span className="bg-emerald-900/50 px-2 py-1 rounded text-emerald-600">Skor: {s.skor}</span>
+                                <span className="bg-emerald-100 px-2 py-1 rounded text-emerald-700 font-medium">Skor: {s.skor}</span>
                               </div>
                             </div>
                           </div>
@@ -1434,11 +1553,14 @@ Berikan output dalam format JSON murni:
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="font-bold text-amber-600 text-lg border-b border-amber-500/30 pb-2 mb-4 mt-8">C. KARTU SOAL (REGULER)</h3>
                     {resultSoal.soalList.map((s: any, i: number) => (
-                      <div key={i} className="p-0 border border-gray-300 bg-gray-50 rounded-xl overflow-hidden mb-8 shadow-lg">
-                         <div className="bg-gray-100 border-b border-gray-300 p-4 text-center font-bold text-gray-900 tracking-wider flex justify-between items-center">
+                      <details key={i} className="p-0 border border-gray-300 bg-gray-50 rounded-xl overflow-hidden mb-8 shadow-lg group" open>
+                         <summary className="bg-gray-100 border-b border-gray-300 p-4 text-center font-bold text-gray-900 tracking-wider flex justify-between items-center cursor-pointer list-none">
                            <span>KARTU SOAL NOMOR {s.no}</span>
-                           <span className="bg-amber-500 text-slate-900 px-2 py-0.5 rounded text-xs">Level: {s.levelKognitif}</span>
-                         </div>
+                           <div className="flex items-center gap-3">
+                             <span className="bg-amber-500 text-slate-900 px-2 py-0.5 rounded text-xs">Level: {s.levelKognitif}</span>
+                             <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+                           </div>
+                         </summary>
                          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                            <div className="p-4 space-y-4 md:col-span-1 text-sm">
                              <div>
@@ -1495,18 +1617,21 @@ Berikan output dalam format JSON murni:
                              </div>
                            </div>
                          </div>
-                      </div>
+                      </details>
                     ))}
 
                     {resultSoal.soalABKList && resultSoal.soalABKList.length > 0 && (
                       <div className="mt-12 pt-8 border-t border-gray-300">
                         <h3 className="font-bold text-blue-600 text-lg border-b border-blue-200 pb-2 mb-4">KARTU SOAL - ADAPTASI INKLUSI (ABK)</h3>
                         {resultSoal.soalABKList.map((s: any, i: number) => (
-                          <div key={i} className="p-0 border border-blue-200 bg-gray-50 rounded-xl overflow-hidden mb-8 shadow-lg shadow-sm">
-                             <div className="bg-gray-100 border-b border-blue-200 p-4 text-center font-bold text-gray-900 tracking-wider flex justify-between items-center">
+                          <details key={i} className="p-0 border border-blue-200 bg-gray-50 rounded-xl overflow-hidden mb-8 shadow-lg shadow-sm group" open>
+                             <summary className="bg-gray-100 border-b border-blue-200 p-4 text-center font-bold text-gray-900 tracking-wider flex justify-between items-center cursor-pointer list-none">
                                <span className="text-blue-600">KARTU SOAL NOMOR {s.no} (ABK)</span>
-                               <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs">Level: {s.levelKognitif}</span>
-                             </div>
+                               <div className="flex items-center gap-3">
+                                 <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs">Level: {s.levelKognitif}</span>
+                                 <ChevronDown className="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" />
+                               </div>
+                             </summary>
                              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                                <div className="p-4 space-y-4 md:col-span-1 text-sm bg-blue-50">
                                  <div>
@@ -1526,6 +1651,45 @@ Berikan output dalam format JSON murni:
                                <div className="p-4 md:col-span-2 flex flex-col">
                                  <div className="text-[10px] text-gray-500 font-bold uppercase mb-2">Buku Sumber / Rumusan Soal:</div>
                                  <div className="text-gray-900 mb-4 flex-1 whitespace-pre-wrap">{s.pertanyaan}</div>
+                                 
+                                 {s.gambarDeskripsi && (
+                                   <div className="mb-4">
+                                     {s.gambarUrl ? (
+                                       <div className="relative group max-w-xs">
+                                         <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                         <button 
+                                           onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                           disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                           className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                                           title="Regenerate Gambar"
+                                         >
+                                           {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                             <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                                           ) : (
+                                             <span>🔄</span>
+                                           )}
+                                         </button>
+                                       </div>
+                                     ) : (
+                                       <button
+                                         onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                         disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                         className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                                       >
+                                         {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                           <>
+                                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                             <span>Memproses...</span>
+                                           </>
+                                         ) : (
+                                           <>
+                                             <span>🎨 Generate Gambar Ilustrasi</span>
+                                           </>
+                                         )}
+                                       </button>
+                                     )}
+                                   </div>
+                                 )}
                                  
                                  {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                                    <div className="space-y-1 mb-4 text-sm text-gray-700">
@@ -1563,7 +1727,7 @@ Berikan output dalam format JSON murni:
                                  </div>
                                </div>
                              </div>
-                          </div>
+                          </details>
                         ))}
                       </div>
                     )}

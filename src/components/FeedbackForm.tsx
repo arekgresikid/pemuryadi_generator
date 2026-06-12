@@ -118,7 +118,7 @@ export default function FeedbackForm({ inline = false }: FeedbackFormProps) {
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tambahkan masukan atau saran..."
               contextPrompt="Berikan contoh kalimat masukan (feedback) atau saran dari seorang guru/pengguna terkait fitur atau desain aplikasi pendidikan ini."
-              className="w-full bg-red-50 border border-black rounded-xl p-2 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-y min-h-[80px] text-[11px] leading-relaxed transition-colors"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2 text-black placeholder-gray-500 focus:outline-none focus:border-blue-500 resize-y min-h-[80px] text-[11px] leading-relaxed transition-colors"
             />
 
             <button

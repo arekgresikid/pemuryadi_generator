@@ -49,16 +49,13 @@ const WelcomePopup: React.FC<WelcomePopupProps> = ({ onComplete, onNavigateToPri
           <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white p-3 rounded-xl mb-6 shadow-md text-left flex items-center justify-between gap-3">
             <div>
               <div className="text-[10px] font-bold bg-white text-indigo-600 px-2 py-0.5 rounded-full w-max mb-1 uppercase tracking-wider">Pengguna Baru</div>
-              <div className="text-sm font-bold">Voucher Diskon 20%</div>
+              <div className="text-sm font-bold">Voucher 20%: GURUHEBAT20</div>
             </div>
             <button 
-              onClick={() => {
-                const message = encodeURIComponent(`Hallo Admin Pemuryadi Generator, saya pengguna baru (Guest) dan ingin mengklaim Voucher Diskon 20% untuk berlangganan.`);
-                window.open(`https://wa.me/6281347697809?text=${message}`, '_blank');
-              }}
+              onClick={handlePricing}
               className="bg-white text-indigo-600 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1 text-xs font-bold shadow-sm"
             >
-              <Send size={14} /> Klaim
+              Gunakan Sekarang
             </button>
           </div>
 

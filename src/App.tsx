@@ -3,7 +3,8 @@ import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shie
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
-
+import changelogData from './data/changelog.json';
+import { Toaster } from 'react-hot-toast';
 // Feature Components
 import GroupGenerator from './components/GroupGenerator';
 import WordSearch from './components/WordSearch';
@@ -26,11 +27,14 @@ import MengajarHarian from './components/MengajarHarian';
 import KKTP from './components/KKTP';
 import BuatSoal from './components/BuatSoal';
 import SNP from './components/SNP';
+import ModulP5 from './components/ModulP5';
+import RubrikPenilaian from './components/RubrikPenilaian';
 import RankingSatu from './components/RankingSatu';
 import Pricing from './components/Pricing';
 import AdminPanel from './components/AdminPanel';
 import Changelog from './components/Changelog';
 import BarcodeGenerator from './components/BarcodeGenerator';
+import MaintenancePage from './components/MaintenancePage';
 import MemoryMatrix from './components/MemoryMatrix';
 import MatchingPairs from './components/MatchingPairs';
 import FillBlanks from './components/FillBlanks';
@@ -45,6 +49,92 @@ import PremiumLockModal from './components/layout/PremiumLockModal';
 import LoginRequiredModal from './components/layout/LoginRequiredModal';
 import WelcomePopup from './components/WelcomePopup';
 import SEOLandingPage from './components/SEOLandingPage';
+import MainLandingPage from './components/MainLandingPage';
+
+const LoadingScreen = () => {
+  const [progress, setProgress] = useState(0);
+  const [isSlow, setIsSlow] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setProgress(p => {
+        if (p >= 99) return 99;
+        const diff = 100 - p;
+        const increment = Math.max(1, Math.floor(diff * 0.1));
+        return p + increment;
+      });
+    }, 50);
+
+    const slowTimer = setTimeout(() => setIsSlow(true), 6000);
+    const errorTimer = setTimeout(() => setIsError(true), 15000);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(slowTimer);
+      clearTimeout(errorTimer);
+    };
+  }, []);
+
+  const circumference = 2 * Math.PI * 40;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  if (isError) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="max-w-sm w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X size={32} className="text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Koneksi Terputus</h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+            Gagal terhubung ke server. Periksa koneksi internet Anda atau coba lagi nanti.
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center overflow-hidden">
+      <div className="absolute w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px] animate-pulse"></div>
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="relative w-32 h-32 mb-8 flex items-center justify-center">
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="6" fill="transparent" className="text-slate-800" />
+            <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="6" fill="transparent" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} strokeLinecap="round" className="text-blue-500 transition-all duration-100 ease-out" />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl font-black text-white">{progress}</span>
+            <span className="text-[10px] font-bold text-blue-400 -mt-1">%</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-xl font-bold text-white tracking-widest uppercase mb-2">Memuat Sistem</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+          {isSlow && (
+            <p className="text-amber-500/80 text-xs animate-pulse max-w-[250px]">
+              Koneksi internet lambat atau server sedang memproses. Mohon tunggu sebentar...
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
@@ -73,10 +163,16 @@ export default function App() {
     }
     return false;
   });
+  const [hasEnteredApp, setHasEnteredApp] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pemuryadi_hasEnteredApp');
+      return saved === 'true';
+    }
+    return false;
+  });
   
   const [visitors, setVisitors] = useState({ today: 0, month: 0, total: 0 });
   const [favorites, setFavorites] = useState(0);
-  const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [activityClicks, setActivityClicks] = useState<Record<string, number>>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('pemuryadi_activityClicks');
@@ -132,6 +228,13 @@ export default function App() {
     }
     return false;
   });
+
+  const [globalAnnouncement, setGlobalAnnouncement] = useState('');
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+  const [maintenanceEndTime, setMaintenanceEndTime] = useState('');
+  const [maintenanceReason, setMaintenanceReason] = useState('');
+  const [waNumber, setWaNumber] = useState('');
+  const [isSettingsLoading, setIsSettingsLoading] = useState(true);
 
   useEffect(() => { localStorage.setItem('pemuryadi_activeTab', activeTab); }, [activeTab]);
   useEffect(() => { localStorage.setItem('pemuryadi_isSidebarOpen', String(isSidebarOpen)); }, [isSidebarOpen]);
@@ -261,7 +364,7 @@ export default function App() {
   };
 
   const menuItems: MenuItem[] = [
-    { id: 'beranda', icon: <LayoutDashboard size={20} />, label: 'Beranda' },
+    { id: 'beranda', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { id: 'kelompok', icon: <Users size={20} />, label: 'Kelompok' },
     { 
       id: 'games', 
@@ -292,8 +395,10 @@ export default function App() {
         { id: 'deeplearning', icon: <Clipboard size={16} />, label: 'RPM', premiumOnly: true },
         { id: 'modul', icon: <BookMarked size={16} />, label: 'Modul Ajar', premiumOnly: true },
         { id: 'jurnal', icon: <BookText size={16} />, label: 'Jurnal' },
+        { id: 'modul-p5', icon: <BookMarked size={16} />, label: 'Modul P5', isBeta: true },
         { id: 'supervisi', icon: <Search size={16} />, label: 'Supervisi' },
         { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
+        { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
       ]
@@ -358,6 +463,11 @@ export default function App() {
     trackClick(tabId);
     addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-blue-500');
     incrementFavorites();
+    
+    // Auto scroll ke atas dengan animasi yang mulus
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -414,14 +524,6 @@ export default function App() {
           const data = (await resStats.json()) as any;
           setFavorites(data.favorites || 0);
         }
-        
-        if (user) {
-          const resLogs = await fetch('/api/logs');
-          if (resLogs.ok && mounted) {
-            const logs = (await resLogs.json()) as any[];
-            setActivityLogs(logs);
-          }
-        }
       } catch (e) {
         console.error('API Error:', e);
       }
@@ -429,6 +531,30 @@ export default function App() {
 
     fetchStats();
     const intervalId = setInterval(fetchStats, 5000);
+
+    const fetchGlobalSettings = async () => {
+      try {
+        const res1 = await fetch('/api/settings/global_announcement');
+        if (res1.ok) { const data = await res1.json() as any; if (data.value) setGlobalAnnouncement(data.value); }
+        
+        const res2 = await fetch('/api/settings/maintenance_active');
+        if (res2.ok) { const data = await res2.json() as any; setMaintenanceActive(data.value === 'true'); }
+
+        const res3 = await fetch('/api/settings/maintenance_end_time');
+        if (res3.ok) { const data = await res3.json() as any; if (data.value) setMaintenanceEndTime(data.value); }
+
+        const res3b = await fetch('/api/settings/maintenance_reason');
+        if (res3b.ok) { const data = await res3b.json() as any; if (data.value) setMaintenanceReason(data.value); }
+
+        const res4 = await fetch('/api/settings/whatsapp_admin_number');
+        if (res4.ok) { const data = await res4.json() as any; if (data.value) setWaNumber(data.value); }
+      } catch(e) {
+        console.error("Failed to fetch settings", e);
+      } finally {
+        setIsSettingsLoading(false);
+      }
+    };
+    fetchGlobalSettings();
 
     return () => {
       mounted = false;
@@ -451,17 +577,38 @@ export default function App() {
     };
   }, []);
 
+  if (loading || isSettingsLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (maintenanceActive && profile?.role !== 'admin' && profile?.role !== 'owner') {
+    return <MaintenancePage endTime={maintenanceEndTime} waNumber={waNumber} reason={maintenanceReason} />;
+  }
+
   if (isSeoLanding) {
     return (
       <SEOLandingPage 
         onEnterApp={(tab?: string) => {
           setIsSeoLanding(false);
+          setHasEnteredApp(true);
+          localStorage.setItem('pemuryadi_hasEnteredApp', 'true');
           if (tab) setActiveTab(tab);
-          window.history.pushState({}, '', '/');
-        }} 
+        }}
       />
     );
   }
+
+  if (!hasEnteredApp && !user && window.location.pathname === '/') {
+    return (
+      <MainLandingPage 
+        onEnterApp={() => {
+          setHasEnteredApp(true);
+          localStorage.setItem('pemuryadi_hasEnteredApp', 'true');
+        }}
+      />
+    );
+  }
+
 
   return (
     <div 
@@ -477,8 +624,21 @@ export default function App() {
         onDisabledClick={(id) => setDevPromptTarget(id)}
       />
 
-      {/* Main Content Area */}
       <main className={`transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : 'md:ml-20'} pb-20 min-h-screen flex flex-col w-full md:w-auto`}>
+        {globalAnnouncement && (
+          <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-4 py-2 text-center text-xs sm:text-sm font-bold shadow-md z-40 relative flex justify-between items-center">
+            <div className="flex-1"></div>
+            <div className="flex-1 flex justify-center items-center gap-2">
+              <span className="animate-pulse">📢</span>
+              <span>{globalAnnouncement}</span>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <button onClick={() => setGlobalAnnouncement('')} className="text-white/80 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        )}
         <Topbar 
           setIsSidebarOpen={setIsSidebarOpen}
           usageTime={usageTime}
@@ -541,6 +701,8 @@ export default function App() {
             {activeTab === 'deeplearning' && <DeepLearningPlan />}
             {activeTab === 'worksheet' && <WorksheetGenerator />}
             {activeTab === 'modul-kokurikuler' && <ModulKokurikuler />}
+            {activeTab === 'modul-p5' && <ModulP5 />}
+            {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
             {activeTab === 'kalender-pendidikan' && <KalenderPendidikan />}
             {activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif />}
@@ -590,6 +752,38 @@ export default function App() {
 
       {/* Chatbot Overlay */}
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      
+      {/* Toaster for modern notifications */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          },
+          success: {
+            style: {
+              background: '#059669',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#059669',
+            },
+          },
+          error: {
+            style: {
+              background: '#DC2626',
+            },
+            iconTheme: {
+              primary: '#fff',
+              secondary: '#DC2626',
+            },
+          },
+        }}
+      />
 
       {/* Footer */}
       <footer className={`transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} bg-white/40 border-t border-gray-100 py-8 px-6 no-print`}>
@@ -618,16 +812,21 @@ export default function App() {
           </div>
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
-            <button onClick={() => setActiveTab('changelog')} className="text-center group flex flex-col items-center">
-              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version 5.2.2</p>
+            <button onClick={() => handleTabChange('changelog')} className="text-center group flex flex-col items-center">
+              <p className="text-xs font-mono text-blue-600 uppercase tracking-widest group-hover:underline">System Version {changelogData[0].version}</p>
               <p className="text-[9px] text-gray-400 group-hover:text-blue-500 transition-colors mt-1 uppercase tracking-widest">Lihat Riwayat Versi</p>
             </button>
             <div className="h-[1px] w-12 bg-blue-600/30"></div>
           </div>
-          <div className="flex justify-center flex-wrap gap-4 md:gap-6 mb-4">
-            <a href="/about.html" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Tentang Kami</a>
-            <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
-            <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="text-[10px] uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors">Terms of Service</a>
+          <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm text-gray-500 font-medium">
+            <button onClick={() => {
+              setHasEnteredApp(false);
+              localStorage.setItem('pemuryadi_hasEnteredApp', 'false');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }} className="hover:text-black transition-colors">Beranda</button>
+            <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
+            <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
+            <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.

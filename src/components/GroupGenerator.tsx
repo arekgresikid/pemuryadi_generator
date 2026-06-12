@@ -80,7 +80,7 @@ export default function GroupGenerator() {
             <AIAssistedTextarea value={studentNames}
               onChange={(e) => setStudentNames(e.target.value)}
               rows={8} 
-              className="w-full bg-red-50 border border-black rounded-xl p-4 text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-4 text-black focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all" 
               placeholder="Masukkan nama siswa...&#10;Ahmad&#10;Budi&#10;Citra&#10;Diana&#10;..." 
               contextPrompt="Berikan daftar 10-15 nama siswa-siswi Indonesia secara acak (kombinasi nama laki-laki dan perempuan). HANYA TULIS NAMA, SATU NAMA PER BARIS, TANPA NOMOR, TANPA TEKS LAINNYA." />
           </div>
@@ -92,7 +92,7 @@ export default function GroupGenerator() {
                 value={groupCount}
                 onChange={(e) => handleGroupCountChange(parseInt(e.target.value) || 2)}
                 min="2" max="20" 
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all"
               />
             </div>
             <div>
@@ -100,7 +100,7 @@ export default function GroupGenerator() {
               <select 
                 value={groupType}
                 onChange={(e) => setGroupType(e.target.value)}
-                className="w-full bg-red-50 border border-black rounded-xl p-3 text-black focus:border-blue-500 transition-all"
+                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-blue-500 transition-all"
               >
                 <option value="random">Acak Total</option>
                 <option value="balanced">Seimbang Gender</option>
@@ -118,7 +118,7 @@ export default function GroupGenerator() {
                   onChange={(e) => handleGroupNameChange(i, e.target.value)}
                   placeholder={`Kelompok ${i + 1}`}
                   contextPrompt="Berikan 1 ide nama kelompok yang sangat kreatif, keren, dan singkat untuk anak sekolah (contoh: 'Garuda', 'Pioneers', 'Alpha', atau nama ilmuwan). HANYA TULIS NAMA KELOMPOK, tanpa tanda kutip, tanpa penjelasan."
-                  className="w-full bg-red-50 border border-black rounded-lg p-2 text-sm text-black focus:border-blue-500 transition-all"
+                  className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2 text-sm text-black focus:border-blue-500 transition-all"
                 />
               ))}
             </div>
