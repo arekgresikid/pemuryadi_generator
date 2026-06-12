@@ -56,6 +56,10 @@ export default function AdminPanel() {
   const [priceUltimate, setPriceUltimate] = useState('');
   const [priceSupreme, setPriceSupreme] = useState('');
   const [priceTitan, setPriceTitan] = useState('');
+  const [priceGuruPertama, setPriceGuruPertama] = useState('');
+  const [priceGuruMuda, setPriceGuruMuda] = useState('');
+  const [priceGuruMadya, setPriceGuruMadya] = useState('');
+  const [priceGuruUtama, setPriceGuruUtama] = useState('');
   
   const [savedSettings, setSavedSettings] = useState<Record<string, string>>({});
   const [isSavingSettings, setIsSavingSettings] = useState(false);
@@ -152,6 +156,10 @@ export default function AdminPanel() {
         fetchSet('price_ultimate', setPriceUltimate),
         fetchSet('price_supreme', setPriceSupreme),
         fetchSet('price_titan', setPriceTitan),
+        fetchSet('price_guru_pertama', setPriceGuruPertama),
+        fetchSet('price_guru_muda', setPriceGuruMuda),
+        fetchSet('price_guru_madya', setPriceGuruMadya),
+        fetchSet('price_guru_utama', setPriceGuruUtama),
       ]);
     } catch (e) {
       console.error('Failed to fetch settings', e);
@@ -1454,6 +1462,70 @@ export default function AdminPanel() {
                     <button 
                       onClick={() => saveSetting('price_titan', priceTitan)}
                       className={getBtnClass('price_titan', priceTitan, "absolute right-1 top-1 bottom-1 px-3 rounded-lg text-xs font-bold")}
+                    >Simpan</button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-800 mb-1">Harga Guru Pertama</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceGuruPertama}
+                      onChange={(e) => setPriceGuruPertama(e.target.value)}
+                      placeholder="Rp 49.000"
+                      className="w-full pl-4 pr-20 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                    />
+                    <button 
+                      onClick={() => saveSetting('price_guru_pertama', priceGuruPertama)}
+                      className={getBtnClass('price_guru_pertama', priceGuruPertama, "absolute right-1 top-1 bottom-1 px-3 rounded-lg text-xs font-bold")}
+                    >Simpan</button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-800 mb-1">Harga Guru Muda</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceGuruMuda}
+                      onChange={(e) => setPriceGuruMuda(e.target.value)}
+                      placeholder="Rp 135.000"
+                      className="w-full pl-4 pr-20 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                    />
+                    <button 
+                      onClick={() => saveSetting('price_guru_muda', priceGuruMuda)}
+                      className={getBtnClass('price_guru_muda', priceGuruMuda, "absolute right-1 top-1 bottom-1 px-3 rounded-lg text-xs font-bold")}
+                    >Simpan</button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-800 mb-1">Harga Guru Madya</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceGuruMadya}
+                      onChange={(e) => setPriceGuruMadya(e.target.value)}
+                      placeholder="Rp 249.000"
+                      className="w-full pl-4 pr-20 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                    />
+                    <button 
+                      onClick={() => saveSetting('price_guru_madya', priceGuruMadya)}
+                      className={getBtnClass('price_guru_madya', priceGuruMadya, "absolute right-1 top-1 bottom-1 px-3 rounded-lg text-xs font-bold")}
+                    >Simpan</button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-800 mb-1">Harga Guru Utama</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceGuruUtama}
+                      onChange={(e) => setPriceGuruUtama(e.target.value)}
+                      placeholder="Rp 449.000"
+                      className="w-full pl-4 pr-20 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500"
+                    />
+                    <button 
+                      onClick={() => saveSetting('price_guru_utama', priceGuruUtama)}
+                      className={getBtnClass('price_guru_utama', priceGuruUtama, "absolute right-1 top-1 bottom-1 px-3 rounded-lg text-xs font-bold")}
                     >Simpan</button>
                   </div>
                 </div>

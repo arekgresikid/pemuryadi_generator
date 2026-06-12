@@ -31,6 +31,10 @@ export default function Pricing() {
   const [priceUltimate, setPriceUltimate] = useState('Rp 499.000');
   const [priceSupreme, setPriceSupreme] = useState('Rp 899.000');
   const [priceTitan, setPriceTitan] = useState('Rp 1.999.000');
+  const [priceGuruPertama, setPriceGuruPertama] = useState('Rp 49.000');
+  const [priceGuruMuda, setPriceGuruMuda] = useState('Rp 135.000');
+  const [priceGuruMadya, setPriceGuruMadya] = useState('Rp 249.000');
+  const [priceGuruUtama, setPriceGuruUtama] = useState('Rp 449.000');
   const [packageCategory, setPackageCategory] = useState<'administrasi' | 'kombinasi'>('kombinasi');
 
   useEffect(() => {
@@ -57,6 +61,10 @@ export default function Pricing() {
           fetchSet('price_ultimate', setPriceUltimate),
           fetchSet('price_supreme', setPriceSupreme),
           fetchSet('price_titan', setPriceTitan),
+          fetchSet('price_guru_pertama', setPriceGuruPertama),
+          fetchSet('price_guru_muda', setPriceGuruMuda),
+          fetchSet('price_guru_madya', setPriceGuruMadya),
+          fetchSet('price_guru_utama', setPriceGuruUtama),
         ]);
       } catch (e) {}
     };
@@ -260,7 +268,7 @@ export default function Pricing() {
     {
       name: 'Guru Pertama',
       description: 'Paket Administrasi Guru Pertama',
-      price: 'Rp 49.000',
+      price: priceGuruPertama,
       period: ' / 1 Bulan',
       tokens: 80,
       tokenDesc: 'x generate total',
@@ -277,7 +285,7 @@ export default function Pricing() {
     {
       name: 'Guru Muda',
       description: 'Paket Administrasi Guru Muda',
-      price: 'Rp 135.000',
+      price: priceGuruMuda,
       period: ' / 3 Bulan',
       tokens: 250,
       tokenDesc: 'x generate total',
@@ -294,7 +302,7 @@ export default function Pricing() {
     {
       name: 'Guru Madya',
       description: 'Paket Administrasi Guru Madya',
-      price: 'Rp 249.000',
+      price: priceGuruMadya,
       period: ' / 6 Bulan',
       tokens: 500,
       tokenDesc: 'x generate total',
@@ -312,7 +320,7 @@ export default function Pricing() {
     {
       name: 'Guru Utama',
       description: 'Paket Administrasi Guru Utama',
-      price: 'Rp 449.000',
+      price: priceGuruUtama,
       period: ' / 1 Tahun',
       tokens: 1000,
       tokenDesc: 'x generate total',
