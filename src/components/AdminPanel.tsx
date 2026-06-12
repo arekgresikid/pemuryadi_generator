@@ -589,7 +589,14 @@ export default function AdminPanel() {
           <h2 className="text-2xl font-black italic text-blue-600 flex items-center gap-2">
             <Shield size={24} /> ADMIN DASHBOARD
           </h2>
-          <p className="text-xs text-gray-500">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
+          <p className="text-xs text-gray-500 mb-2">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
+          <a 
+            href="/pemuryadi-generator-dev-skill.md" 
+            download="pemuryadi-generator-dev-skill.md"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors"
+          >
+            <Download size={12} /> Unduh Skill Dev
+          </a>
         </div>
         
         <div className="flex flex-wrap gap-2 w-full md:w-auto bg-gray-100 p-1 rounded-xl">
