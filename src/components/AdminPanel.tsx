@@ -187,39 +187,6 @@ export default function AdminPanel() {
     }
   };
 
-  const exportUsersToCSV = () => {
-    if (!users || users.length === 0) {
-      toast.error('Tidak ada data pengguna untuk diekspor');
-      return;
-    }
-    
-    // Headers
-    const headers = ['UID', 'Email', 'Nama', 'Role', 'Tier', 'Token', 'Aktif Sampai', 'Status Banned'];
-    
-    // Rows
-    const rows = users.map(u => [
-      u.uid || '',
-      u.email || '',
-      `"${(u.name || '').replace(/"/g, '""')}"`,
-      u.role || 'guest',
-      u.tier || 'Free',
-      u.tokens || 0,
-      u.activeUntil ? new Date(u.activeUntil).toLocaleDateString('id-ID') : '-',
-      u.isBanned ? 'Ya' : 'Tidak'
-    ]);
-    
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `data_pengguna_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success('Data pengguna berhasil diekspor!');
-  };
-
   const handleVoucherToggle = async () => {
     const newValue = !voucherActive;
     setVoucherActive(newValue);
@@ -658,7 +625,7 @@ export default function AdminPanel() {
             onClick={() => setActiveTab('overview')}
             className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'overview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
-            <PieChart size={16} /> Overview
+            <Star size={16} /> Overview
           </button>
           <button 
             onClick={() => setActiveTab('users')}
@@ -729,7 +696,7 @@ export default function AdminPanel() {
                           acc[t] = (acc[t] || 0) + 1;
                           return acc;
                         }, {} as Record<string, number>)
-                      ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)}
+                      ).map(([name, value]) => ({ name, value })).sort((a, b) => (b.value as number) - (a.value as number))}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -840,13 +807,6 @@ export default function AdminPanel() {
               </button>
             </div>
             <div className="flex gap-2 w-full md:w-auto">
-              <button
-                onClick={exportUsersToCSV}
-                className="px-3 py-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 rounded-xl text-sm font-bold transition-colors flex items-center gap-1 shrink-0"
-                title="Export data pengguna ke format CSV untuk Excel"
-              >
-                <Download size={16} /> <span className="hidden sm:inline">Export CSV</span>
-              </button>
               <select
                 value={filterTier}
                 onChange={(e) => setFilterTier(e.target.value)}
