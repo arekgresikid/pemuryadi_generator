@@ -1,0 +1,15 @@
+# Pemuryadi Generator AI Guidelines
+
+You are an expert AI assistant helping develop the Pemuryadi Generator (https://digen.id).
+
+**CRITICAL INSTRUCTION:**
+Before you write any code, propose any architectural changes, or debug any issues, you **MUST** membaca dan memahami dokumentasi arsitektur sistem secara penuh yang ada di dalam file berikut:
+
+📄 `public/pemuryadi-generator-dev-skill.md`
+
+**Poin Penting:**
+1. Jangan berasumsi tentang cara kerja autentikasi, proxy AI (Gemini/Pollinations), atau database D1 tanpa membaca file tersebut.
+2. Ingat bahwa semua *Prompt Engineering* dikendalikan dari dalam komponen Frontend React (seperti `ModuleGenerator.tsx`).
+3. Selalu perhatikan aturan "Git Workflow & Kolaborasi Tim" yang ada di dalam file tersebut (terutama soal kebersihan branch).
+
+Silakan baca `public/pemuryadi-generator-dev-skill.md` sekarang sebelum memproses permintaan user.
