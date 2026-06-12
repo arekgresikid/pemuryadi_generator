@@ -21,6 +21,26 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>().basePath('/
 // --- Middleware for Auth ---
 app.use('/*', async (c, next) => {
   const path = c.req.path;
+  // Local Development Bypass
+  const url = new URL(c.req.url);
+  const isLocal = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+  
+  if (isLocal) {
+    try {
+      const db = c.env.DB as D1Database;
+      const existing = await db.prepare('SELECT uid FROM users WHERE uid = ?').bind('local-dev-user').first();
+      if (!existing) {
+        await db.prepare(
+          `INSERT INTO users (uid, email, displayName, role, tier, tokens, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          'local-dev-user', 'local@dev.com', 'Local Developer', 'owner', 'Titan', 999999, new Date().toISOString()
+        ).run();
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   // Public routes
   if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats')) {
     return next();
@@ -28,6 +48,10 @@ app.use('/*', async (c, next) => {
 
   const token = getCookie(c, 'auth_token');
   if (!token) {
+    if (isLocal) {
+      c.set('user', { uid: 'local-dev-user', email: 'local@dev.com', role: 'owner', tier: 'Titan' });
+      return next();
+    }
     if (path === '/api/auth/me') return c.json({ user: null });
     return c.json({ error: 'Unauthorized' }, 401);
   }
@@ -37,6 +61,10 @@ app.use('/*', async (c, next) => {
     c.set('user', payload);
     return next();
   } catch (e) {
+    if (isLocal) {
+      c.set('user', { uid: 'local-dev-user', email: 'local@dev.com', role: 'owner', tier: 'Titan' });
+      return next();
+    }
     if (path === '/api/auth/me') return c.json({ user: null });
     return c.json({ error: 'Unauthorized' }, 401);
   }
