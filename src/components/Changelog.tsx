@@ -7,17 +7,36 @@ export default function Changelog() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Gunakan DEV_PASSWORD dari .env
-    if (password === (import.meta as any).env.DEV_PASSWORD) {
-      setIsAuthenticated(true);
-      setError(false);
-    } else {
+    if (!password) return;
+
+    setIsVerifying(true);
+    setError(false);
+
+    try {
+      const response = await fetch('/api/verify-dev-mode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = (await response.json()) as { success?: boolean };
+      if (response.ok && data.success) {
+        setIsAuthenticated(true);
+        setError(false);
+      } else {
+        setError(true);
+        setTimeout(() => setError(false), 3000);
+      }
+    } catch (err) {
       setError(true);
       setTimeout(() => setError(false), 3000);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -68,9 +87,10 @@ export default function Changelog() {
             {error && <p className="text-red-500 text-xs font-bold px-1 animate-pulse">Kata sandi yang Anda masukkan salah!</p>}
             <button 
               type="submit"
-              className="w-full bg-gray-900 hover:bg-black text-white font-black py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2 tracking-wide"
+              disabled={isVerifying || !password}
+              className="w-full bg-gray-900 hover:bg-black text-white font-black py-3.5 rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Buka Akses
+              {isVerifying ? 'Memverifikasi...' : 'Buka Akses'}
             </button>
           </form>
         </div>
