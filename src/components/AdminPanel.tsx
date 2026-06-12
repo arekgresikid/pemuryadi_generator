@@ -67,6 +67,7 @@ export default function AdminPanel() {
   const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{uid: string, email: string} | null>(null);
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Pagination & Bulk Actions
   const [currentPage, setCurrentPage] = useState(1);
@@ -599,16 +600,24 @@ export default function AdminPanel() {
             <Shield size={24} /> ADMIN DASHBOARD
           </h2>
           <p className="text-xs text-gray-500 mb-2">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
-          <button 
-            onClick={() => setShowSkillModal(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
-          >
-            <Download size={12} /> Unduh Skill Dev
-            <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[8px] font-black uppercase tracking-wider border border-red-200">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-              Update
-            </span>
-          </button>
+          <div className="flex gap-2 items-center flex-wrap">
+            <button 
+              onClick={() => setShowSkillModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+            >
+              <Download size={12} /> Unduh Skill Dev
+              <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[8px] font-black uppercase tracking-wider border border-red-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                Update
+              </span>
+            </button>
+            <button 
+              onClick={() => setShowHelpModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+            >
+              <ShieldAlert size={12} /> Panduan Admin
+            </button>
+          </div>
         </div>
         
         <div className="flex flex-wrap gap-2 w-full md:w-auto bg-gray-100 p-1 rounded-xl">
@@ -2151,6 +2160,59 @@ export default function AdminPanel() {
                   <Download size={18} />
                   UNDUH FILE SKILL SEKARANG
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 p-4 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <Shield size={20} /> Panduan Admin Dashboard
+              </h3>
+              <button onClick={() => setShowHelpModal(false)} className="text-white/80 hover:text-white transition-colors shrink-0 p-1 rounded-md hover:bg-white/10">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-5 text-sm text-gray-700">
+              <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                <h4 className="font-bold text-amber-800 flex items-center gap-2 mb-2"><Users size={16} /> Tab Pengguna</h4>
+                <ul className="list-disc pl-5 space-y-1 text-amber-900/80 text-xs">
+                  <li><strong>Manajemen Akun:</strong> Ubah Role, atur Tier langganan, dan pantau tanggal kedaluwarsa.</li>
+                  <li><strong>Kontrol Akses:</strong> Tambah/kurangi Token secara manual, atau Banned/Suspend user yang melanggar.</li>
+                  <li><strong>Aksi Massal:</strong> Pilih banyak user sekaligus untuk ditambah token atau di-suspend via "Bulk Actions".</li>
+                </ul>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h4 className="font-bold text-blue-800 flex items-center gap-2 mb-2"><Activity size={16} /> Tab Log</h4>
+                <ul className="list-disc pl-5 space-y-1 text-blue-900/80 text-xs">
+                  <li><strong>Riwayat Sistem:</strong> Pantau semua aktivitas penggunaan token oleh pengguna.</li>
+                  <li><strong>Aktivitas Admin:</strong> Melacak perubahan yang dilakukan oleh admin lain untuk transparansi.</li>
+                </ul>
+              </div>
+
+              <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                <h4 className="font-bold text-purple-800 flex items-center gap-2 mb-2"><Settings size={16} /> Tab Pengaturan</h4>
+                <ul className="list-disc pl-5 space-y-1 text-purple-900/80 text-xs">
+                  <li><strong>Harga & Promo:</strong> Atur harga paket langganan secara dinamis dan setel kode voucher/trial.</li>
+                  <li><strong>Komunikasi:</strong> Ubah nomor WhatsApp CS dan buat Pengumuman Global di layar depan pengguna.</li>
+                  <li><strong>Sistem:</strong> Aktifkan "Maintenance Mode" jika sedang ada perbaikan untuk mencegah akses user.</li>
+                </ul>
+              </div>
+
+              <div className="mt-4 flex justify-center">
+                <button 
+                  onClick={() => setShowHelpModal(false)}
+                  className="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors w-full sm:w-auto"
+                >
+                  Tutup Panduan
+                </button>
               </div>
             </div>
           </div>
