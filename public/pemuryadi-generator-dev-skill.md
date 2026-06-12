@@ -148,7 +148,8 @@ Untuk menjaga kebersihan riwayat *commit* dan menghindari konflik antar kontribu
 
 1. **Gunakan `main` sebagai dasar utama:** Pastikan seluruh pengembangan fitur baru selalu berawal dari *branch* `main` yang paling mutakhir.
 2. **Pembersihan Branch Lokal:** Jika sebuah *feature branch* atau *fix branch* (seperti `fix/ui-layout-and-dropdown`) telah di-*merge* ke `main` dan dihapus dari repositori remote (GitHub), kontributor **wajib** segera menyingkirkan *branch* tersebut di lokal mereka untuk mencegah *push* yang tidak disengaja.
-3. **Standar Perintah Pembersihan:**
+3. **Pencatatan Changelog:** Sebelum melakukan *commit* dan *push* (baik untuk fitur baru, revisi, maupun perbaikan bug), agen AI **WAJIB** mencatat perubahan tersebut di dalam file `CHANGELOG.md`. Hal ini penting agar seluruh rekam jejak pengembangan terekam dengan baik.
+4. **Standar Perintah Pembersihan:**
    ```bash
    git checkout main
    git pull origin main
@@ -156,7 +157,7 @@ Untuk menjaga kebersihan riwayat *commit* dan menghindari konflik antar kontribu
    # Hapus branch lama secara lokal (opsional namun sangat disarankan)
    git branch -D nama-branch-yang-sudah-selesai
    ```
-4. **Agen AI:** Jika agen AI menemukan *branch* lama setelah *merge*, agen harus proaktif berpindah ke `main` dan membersihkan sisa *checkout* sebelum melanjutkan instruksi.
+5. **Agen AI:** Jika agen AI menemukan *branch* lama setelah *merge*, agen harus proaktif berpindah ke `main` dan membersihkan sisa *checkout* sebelum melanjutkan instruksi.
 
 ---
 
