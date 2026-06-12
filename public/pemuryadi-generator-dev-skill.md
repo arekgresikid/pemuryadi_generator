@@ -139,6 +139,24 @@ Aplikasi ini menggunakan pendekatan unik di mana **semua logika kecerdasan buata
 
 ---
 
+## 🤝 Git Workflow & Kolaborasi Tim
+
+Untuk menjaga kebersihan riwayat *commit* dan menghindari konflik antar kontributor, agen dan developer **wajib** mengikuti standar *workflow* berikut:
+
+1. **Gunakan `main` sebagai dasar utama:** Pastikan seluruh pengembangan fitur baru selalu berawal dari *branch* `main` yang paling mutakhir.
+2. **Pembersihan Branch Lokal:** Jika sebuah *feature branch* atau *fix branch* (seperti `fix/ui-layout-and-dropdown`) telah di-*merge* ke `main` dan dihapus dari repositori remote (GitHub), kontributor **wajib** segera menyingkirkan *branch* tersebut di lokal mereka untuk mencegah *push* yang tidak disengaja.
+3. **Standar Perintah Pembersihan:**
+   ```bash
+   git checkout main
+   git pull origin main
+   git fetch --prune
+   # Hapus branch lama secara lokal (opsional namun sangat disarankan)
+   git branch -D nama-branch-yang-sudah-selesai
+   ```
+4. **Agen AI:** Jika agen AI menemukan *branch* lama setelah *merge*, agen harus proaktif berpindah ke `main` dan membersihkan sisa *checkout* sebelum melanjutkan instruksi.
+
+---
+
 ## 🚀 Deployment ke Production
 
 Deployment sepenuhnya dikelola oleh **Cloudflare Pages**.
