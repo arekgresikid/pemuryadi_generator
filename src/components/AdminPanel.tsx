@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Shield, ShieldAlert, Edit2, Users, Search, Save, X, Calendar, Crown, Trash2, Plus, Settings, Power, Download, Activity, MessageSquare, Phone, DollarSign, Star } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import toast from 'react-hot-toast';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
 
 export default function AdminPanel() {
   const { profile } = useAuth();
@@ -31,7 +31,7 @@ export default function AdminPanel() {
   const [historyModalData, setHistoryModalData] = useState<any[] | null>(null);
   const [historyModalUser, setHistoryModalUser] = useState<any>(null);
 
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState('overview');
   const [importConfirmData, setImportConfirmData] = useState<any[] | null>(null);
   const [bulkDeleteConfirmData, setBulkDeleteConfirmData] = useState<{count: number} | null>(null);
   const [confirmImportChecked, setConfirmImportChecked] = useState(false);
@@ -185,6 +185,39 @@ export default function AdminPanel() {
     } finally {
       setIsSavingSettings(false);
     }
+  };
+
+  const exportUsersToCSV = () => {
+    if (!users || users.length === 0) {
+      toast.error('Tidak ada data pengguna untuk diekspor');
+      return;
+    }
+    
+    // Headers
+    const headers = ['UID', 'Email', 'Nama', 'Role', 'Tier', 'Token', 'Aktif Sampai', 'Status Banned'];
+    
+    // Rows
+    const rows = users.map(u => [
+      u.uid || '',
+      u.email || '',
+      `"${(u.name || '').replace(/"/g, '""')}"`,
+      u.role || 'guest',
+      u.tier || 'Free',
+      u.tokens || 0,
+      u.activeUntil ? new Date(u.activeUntil).toLocaleDateString('id-ID') : '-',
+      u.isBanned ? 'Ya' : 'Tidak'
+    ]);
+    
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `data_pengguna_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Data pengguna berhasil diekspor!');
   };
 
   const handleVoucherToggle = async () => {
@@ -622,6 +655,12 @@ export default function AdminPanel() {
         
         <div className="flex flex-wrap gap-2 w-full md:w-auto bg-gray-100 p-1 rounded-xl">
           <button 
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'overview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <PieChart size={16} /> Overview
+          </button>
+          <button 
             onClick={() => setActiveTab('users')}
             className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'users' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
@@ -641,6 +680,118 @@ export default function AdminPanel() {
           </button>
         </div>
       </div>
+
+      {activeTab === 'overview' && (
+        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Users size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold">Total Pengguna</p>
+                <h3 className="text-2xl font-black text-gray-800">{users.length}</h3>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-3 bg-amber-100 text-amber-600 rounded-xl"><Crown size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold">Pengguna Premium+</p>
+                <h3 className="text-2xl font-black text-gray-800">{users.filter(u => u.tier !== 'Free').length}</h3>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-3 bg-green-100 text-green-600 rounded-xl"><Activity size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold">Total Token (All)</p>
+                <h3 className="text-2xl font-black text-gray-800">{users.reduce((acc, u) => acc + (Number(u.tokens) || 0), 0).toLocaleString('id-ID')}</h3>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
+              <div className="p-3 bg-purple-100 text-purple-600 rounded-xl"><ShieldAlert size={24} /></div>
+              <div>
+                <p className="text-xs text-gray-500 font-bold">Banned/Suspend</p>
+                <h3 className="text-2xl font-black text-gray-800">{users.filter(u => u.isBanned || (u.suspendedUntil && new Date(u.suspendedUntil) > new Date())).length}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Tier Distribution PieChart */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-800 mb-4">Distribusi Tier Pengguna</h3>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={Object.entries(
+                        users.reduce((acc, u) => {
+                          const t = u.tier || 'Free';
+                          acc[t] = (acc[t] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>)
+                      ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {Object.entries(
+                        users.reduce((acc, u) => {
+                          const t = u.tier || 'Free';
+                          acc[t] = (acc[t] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>)
+                      ).map((entry, index) => {
+                        const colors = ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899', '#6366f1', '#eab308'];
+                        return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                      })}
+                    </Pie>
+                    <RechartsTooltip formatter={(value) => [`${value} User`, 'Jumlah']} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Role Distribution BarChart */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-800 mb-4">Distribusi Peran (Role)</h3>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={Object.entries(
+                      users.reduce((acc, u) => {
+                        const r = u.role || 'guest';
+                        acc[r] = (acc[r] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>)
+                    ).map(([name, value]) => ({ name, value }))}
+                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                    <RechartsTooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Jumlah User">
+                      {Object.entries(
+                        users.reduce((acc, u) => {
+                          const r = u.role || 'guest';
+                          acc[r] = (acc[r] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>)
+                      ).map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry[0] === 'admin' ? '#f59e0b' : '#3b82f6'} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'users' && (
         <>
@@ -689,6 +840,13 @@ export default function AdminPanel() {
               </button>
             </div>
             <div className="flex gap-2 w-full md:w-auto">
+              <button
+                onClick={exportUsersToCSV}
+                className="px-3 py-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 rounded-xl text-sm font-bold transition-colors flex items-center gap-1 shrink-0"
+                title="Export data pengguna ke format CSV untuk Excel"
+              >
+                <Download size={16} /> <span className="hidden sm:inline">Export CSV</span>
+              </button>
               <select
                 value={filterTier}
                 onChange={(e) => setFilterTier(e.target.value)}
