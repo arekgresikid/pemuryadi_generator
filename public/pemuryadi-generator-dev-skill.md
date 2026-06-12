@@ -68,7 +68,10 @@ Sebagian besar logika aplikasi tertanam langsung dalam komponen di `src/componen
 - **Modul & RPP:** `ModuleGenerator.tsx`, `ModulP5.tsx`, `ModulKokurikuler.tsx`, `ProgramTahunan.tsx`, `ProgramSemester.tsx`, `KKTP.tsx`, `RubrikPenilaian.tsx`
 - **Soal & Evaluasi:** `BuatSoal.tsx`, `CrosswordGenerator.tsx`, `WordSearch.tsx`, `FillBlanks.tsx`
 - **Game & Media:** `AdventureJourney.tsx`, `RankingSatu.tsx`, `SnakeLadder.tsx`, `MemoryMatrix.tsx`, `MatchingPairs.tsx`
-- **Admin & Dashboard:** `AdminPanel.tsx` -> Merupakan panel super-admin yang sangat masif, memuat ratusan baris kode untuk mengelola *CRUD User*, *Bulk Actions* (Suspend/Ubah Tier), impor/ekspor pengguna ke CSV, modifikasi tabel D1 dinamis, *Global Announcements*, dan manajemen harga langganan.
+- **Admin & Dashboard:** `AdminPanel.tsx` -> Merupakan panel super-admin yang sangat masif, memuat ratusan baris kode untuk mengelola:
+  - **Analitik (Overview):** Visualisasi data pengguna berdasarkan Tier dan Role menggunakan grafik *Recharts*.
+  - **Manajemen Pengguna:** *CRUD User*, *Bulk Actions* (Suspend/Ubah Tier), impor/ekspor pengguna ke file Excel (CSV).
+  - **Pengaturan:** Modifikasi tabel D1 dinamis, *Global Announcements*, dan manajemen harga langganan.
 
 ---
 

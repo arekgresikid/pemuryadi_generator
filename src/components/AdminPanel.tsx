@@ -2298,10 +2298,19 @@ export default function AdminPanel() {
             </div>
             
             <div className="p-6 overflow-y-auto space-y-5 text-sm text-gray-700">
+              <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                <h4 className="font-bold text-emerald-800 flex items-center gap-2 mb-2"><Star size={16} /> Tab Overview</h4>
+                <ul className="list-disc pl-5 space-y-1 text-emerald-900/80 text-xs">
+                  <li><strong>Analitik Visual:</strong> Pantau distribusi pengguna berdasarkan Tier dan Role melalui grafik dinamis.</li>
+                  <li><strong>Ringkasan Data:</strong> Lihat metrik utama seperti total pengguna, pengguna berbayar, dan akun yang ditangguhkan.</li>
+                </ul>
+              </div>
+
               <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
                 <h4 className="font-bold text-amber-800 flex items-center gap-2 mb-2"><Users size={16} /> Tab Pengguna</h4>
                 <ul className="list-disc pl-5 space-y-1 text-amber-900/80 text-xs">
                   <li><strong>Manajemen Akun:</strong> Ubah Role, atur Tier langganan, dan pantau tanggal kedaluwarsa.</li>
+                  <li><strong>Ekspor & Impor:</strong> Unduh semua data ke file Excel (CSV) atau impor massal data pengguna baru.</li>
                   <li><strong>Kontrol Akses:</strong> Tambah/kurangi Token secara manual, atau Banned/Suspend user yang melanggar.</li>
                   <li><strong>Aksi Massal:</strong> Pilih banyak user sekaligus untuk ditambah token atau di-suspend via "Bulk Actions".</li>
                 </ul>
