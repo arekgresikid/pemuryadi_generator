@@ -5,7 +5,7 @@ description: Panduan komprehensif dan instruksi pengembangan tingkat lanjut untu
 
 # 🎓 Pemuryadi Generator Development Skill
 
-Panduan komprehensif ini dirancang untuk memandu agen dan developer saat mengerjakan proyek **Pemuryadi Generator** (berada di `E:\pemuryadi_generator`), sebuah platform AI pendidikan terbaik untuk Guru Indonesia (https://digen.id).
+Panduan komprehensif ini dirancang untuk memandu agen dan developer saat mengerjakan proyek **Pemuryadi Generator** (di direktori kerja saat ini), sebuah platform AI pendidikan terbaik untuk Guru Indonesia (https://digen.id).
 
 ---
 

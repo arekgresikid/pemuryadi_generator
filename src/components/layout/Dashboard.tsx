@@ -77,8 +77,7 @@ export default function Dashboard({
     { id: 2, title: 'Token Hampir Habis', desc: 'Tersisa 5 token. Segera upgrade!', time: '1 hari lalu', unread: true },
   ]);
 
-  const tokenUsage = profile?.tokens || { used: 0, total: 100 };
-  const tokenPercentage = (tokenUsage.used / tokenUsage.total) * 100;
+
 
   const [typedText, setTypedText] = useState('');
   const phrases = [
