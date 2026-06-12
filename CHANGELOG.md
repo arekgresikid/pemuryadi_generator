@@ -2,6 +2,12 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.2] - 13 Juni 2026
+- Menambahkan tab "Overview" pada Admin Dashboard yang dilengkapi dengan analitik visual (Pie Chart untuk distribusi Tier dan Bar Chart untuk distribusi Role) menggunakan pustaka Recharts.
+- Menambahkan fitur Export ke CSV pada tab Pengguna di Admin Dashboard agar admin dapat mengunduh data pengguna secara menyeluruh.
+- Memperbarui dokumentasi skill AI (SKILL.md) dan Panduan Admin (modal) untuk menyertakan instruksi terkait fitur Overview dan Export CSV.
+- Menambahkan aturan wajib pada dokumen Git Workflow agar agen AI selalu mencatat setiap perubahan pada CHANGELOG.md sebelum melakukan commit dan push.
+
 ## [5.3.1] - 11 Juni 2026
 - Meningkatkan dokumentasi README.md menjadi profesional dengan penambahan badges status, statistik platform, architecture diagram (Mermaid), dan detailed tech stack.
 - Menambahkan dokumentasi API endpoints lengkap, database schema, dan troubleshooting guide untuk developer.
