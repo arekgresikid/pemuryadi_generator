@@ -66,6 +66,7 @@ export default function AdminPanel() {
   const [showMaintenanceConfirm, setShowMaintenanceConfirm] = useState(false);
   const [pendingMaintenanceState, setPendingMaintenanceState] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{uid: string, email: string} | null>(null);
+  const [showSkillModal, setShowSkillModal] = useState(false);
 
   // Pagination & Bulk Actions
   const [currentPage, setCurrentPage] = useState(1);
@@ -598,13 +599,16 @@ export default function AdminPanel() {
             <Shield size={24} /> ADMIN DASHBOARD
           </h2>
           <p className="text-xs text-gray-500 mb-2">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
-          <a 
-            href="/pemuryadi-generator-dev-skill.md" 
-            download="pemuryadi-generator-dev-skill.md"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors"
+          <button 
+            onClick={() => setShowSkillModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
           >
             <Download size={12} /> Unduh Skill Dev
-          </a>
+            <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[8px] font-black uppercase tracking-wider border border-red-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+              Update
+            </span>
+          </button>
         </div>
         
         <div className="flex flex-wrap gap-2 w-full md:w-auto bg-gray-100 p-1 rounded-xl">
@@ -2099,6 +2103,55 @@ export default function AdminPanel() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skill Modal */}
+      {showSkillModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex justify-between items-center text-white shrink-0">
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <Download size={20} /> Panduan Instalasi Skill AI
+              </h3>
+              <button onClick={() => setShowSkillModal(false)} className="text-white/80 hover:text-white transition-colors shrink-0 p-1 rounded-md hover:bg-white/10">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-4 text-sm text-gray-700">
+              <p className="font-semibold">Agar agen AI (seperti Google Antigravity, Cursor, atau Roo Code) di komputer admin/developer lain bisa otomatis memahami arsitektur Pemuryadi Generator, ikuti langkah berikut:</p>
+              
+              <ol className="list-decimal list-inside space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <li>
+                  <span className="font-semibold text-gray-900">Unduh File Skill:</span> Klik tombol unduh di bawah ini.
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">Buat Folder Konfigurasi:</span> Buka File Explorer/Finder dan buat folder berikut (jika belum ada):<br/>
+                  <code className="block mt-1 bg-gray-200 p-2 rounded text-xs select-all text-blue-700 break-all">C:\Users\NAMA_USER_ANDA\.gemini\config\skills\pemuryadi-generator-dev</code>
+                  <span className="text-[10px] text-gray-500 block mt-1">(Untuk pengguna Mac/Linux: `~/.gemini/config/skills/pemuryadi-generator-dev`)</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">Pindahkan & Ganti Nama:</span> Pindahkan file yang baru diunduh ke dalam folder tersebut, dan <strong>ubah namanya menjadi <code>SKILL.md</code></strong>.
+                </li>
+                <li>
+                  <span className="font-semibold text-gray-900">Selesai!</span> Buka kembali AI Editor Anda. AI akan otomatis mendeteksi dan mematuhi aturan arsitektur & kolaborasi (Git Workflow) Pemuryadi tanpa perlu diajari ulang!
+                </li>
+              </ol>
+
+              <div className="mt-6 flex justify-center">
+                <a 
+                  href="/pemuryadi-generator-dev-skill.md" 
+                  download="pemuryadi-generator-dev-skill.md"
+                  onClick={() => setShowSkillModal(false)}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-black transition-all shadow-lg hover:shadow-blue-500/30 w-full sm:w-auto"
+                >
+                  <Download size={18} />
+                  UNDUH FILE SKILL SEKARANG
+                </a>
+              </div>
             </div>
           </div>
         </div>
