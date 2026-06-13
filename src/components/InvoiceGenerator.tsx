@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Trash2, Download, Printer, Save, RefreshCw } from 'lucide-react';
+import { FileText, Plus, Trash2, Download, Printer, Save, RefreshCw, Upload, Image as ImageIcon } from 'lucide-react';
 import { QRCode } from 'react-qrcode-logo';
 
 interface InvoiceItem {
   id: string;
   description: string;
-  quantity: number;
-  price: number;
+  quantity: number | string;
+  price: number | string;
 }
 
 export default function InvoiceGenerator() {
@@ -20,7 +20,7 @@ export default function InvoiceGenerator() {
   const [fromAddress, setFromAddress] = useState('Jl. Pendidikan No. 1, Samarinda');
   const [fromEmail, setFromEmail] = useState('admin@digen.id');
   const [fromPhone, setFromPhone] = useState('0812-3456-7890');
-  const [fromLogo, setFromLogo] = useState(''); // URL logo
+  const [fromLogo, setFromLogo] = useState(''); // Base64 or URL
 
   const [toName, setToName] = useState('');
   const [toAddress, setToAddress] = useState('');
@@ -31,9 +31,17 @@ export default function InvoiceGenerator() {
     { id: Date.now().toString(), description: 'Paket Ultimate (1 Tahun)', quantity: 1, price: 500000 }
   ]);
 
-  const [taxPercent, setTaxPercent] = useState(0);
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [taxPercent, setTaxPercent] = useState<number | string>(0);
+  const [discountType, setDiscountType] = useState<'FIXED' | 'PERCENT'>('FIXED');
+  const [discountValue, setDiscountValue] = useState<number | string>(0);
   const [notes, setNotes] = useState('Terima kasih atas kepercayaan Anda menggunakan layanan kami.');
+
+  // New features state
+  const [themeColor, setThemeColor] = useState('blue');
+  const [paymentStatus, setPaymentStatus] = useState('NONE');
+  const [signatureImage, setSignatureImage] = useState('');
+  const [signatureName, setSignatureName] = useState('');
+  const [signatureRole, setSignatureRole] = useState('');
 
   const [isSaved, setIsSaved] = useState(false);
 
@@ -59,8 +67,16 @@ export default function InvoiceGenerator() {
         if (data.toPhone) setToPhone(data.toPhone);
         if (data.items) setItems(data.items);
         if (data.taxPercent !== undefined) setTaxPercent(data.taxPercent);
-        if (data.discountAmount !== undefined) setDiscountAmount(data.discountAmount);
+        if (data.discountType) setDiscountType(data.discountType);
+        if (data.discountValue !== undefined) setDiscountValue(data.discountValue);
+        // legacy support
+        if (data.discountAmount !== undefined && data.discountValue === undefined) setDiscountValue(data.discountAmount);
         if (data.notes) setNotes(data.notes);
+        if (data.themeColor) setThemeColor(data.themeColor);
+        if (data.paymentStatus) setPaymentStatus(data.paymentStatus);
+        if (data.signatureImage) setSignatureImage(data.signatureImage);
+        if (data.signatureName) setSignatureName(data.signatureName);
+        if (data.signatureRole) setSignatureRole(data.signatureRole);
       } catch (e) {
         console.error('Failed to parse saved invoice data', e);
       }
@@ -80,14 +96,30 @@ export default function InvoiceGenerator() {
     const timer = setTimeout(() => {
       const data = {
         invoiceNo, invoiceTitle, qrData, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo,
-        toName, toAddress, toEmail, toPhone, items, taxPercent, discountAmount, notes
+        toName, toAddress, toEmail, toPhone, items, taxPercent, discountType, discountValue, notes,
+        themeColor, paymentStatus, signatureImage, signatureName, signatureRole
       };
       localStorage.setItem('digen_id_admin_invoice', JSON.stringify(data));
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [invoiceNo, invoiceTitle, qrData, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo, toName, toAddress, toEmail, toPhone, items, taxPercent, discountAmount, notes]);
+  }, [invoiceNo, invoiceTitle, qrData, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo, toName, toAddress, toEmail, toPhone, items, taxPercent, discountType, discountValue, notes, themeColor, paymentStatus, signatureImage, signatureName, signatureRole]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // Limit to 2MB
+        alert('Ukuran file terlalu besar. Maksimal 2MB.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setter(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const addItem = () => {
     setItems([...items, { id: Date.now().toString(), description: '', quantity: 1, price: 0 }]);
@@ -105,113 +137,132 @@ export default function InvoiceGenerator() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
   };
 
-  const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
-  const taxAmount = (subtotal - discountAmount) * (taxPercent / 100);
-  const total = subtotal - discountAmount + taxAmount;
+  const subtotal = items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * (Number(item.price) || 0)), 0);
+  const discountAmountCalc = discountType === 'PERCENT' ? subtotal * ((Number(discountValue) || 0) / 100) : (Number(discountValue) || 0);
+  const taxAmount = (subtotal - discountAmountCalc) * ((Number(taxPercent) || 0) / 100);
+  const total = subtotal - discountAmountCalc + taxAmount;
+
+  // Theme definitions for print & preview
+  const themes: Record<string, { primary: string, light: string, text: string }> = {
+    blue: { primary: '#2563eb', light: '#eff6ff', text: 'text-blue-600' },
+    green: { primary: '#16a34a', light: '#f0fdf4', text: 'text-green-600' },
+    red: { primary: '#dc2626', light: '#fef2f2', text: 'text-red-600' },
+    purple: { primary: '#9333ea', light: '#faf5ff', text: 'text-purple-600' },
+    slate: { primary: '#475569', light: '#f8fafc', text: 'text-slate-600' },
+  };
+
+  const currentTheme = themes[themeColor] || themes.blue;
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
     const qrCanvas = document.getElementById('invoice-qr') as HTMLCanvasElement;
-    const qrImageHtml = qrCanvas ? `<img src="${qrCanvas.toDataURL()}" alt="QR Code" width="80" height="80" />` : `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}" alt="QR Code" width="80" height="80" />`;
+    const qrImageHtml = qrCanvas ? `<img src="${qrCanvas.toDataURL()}" alt="QR Code" width="80" height="80" />` : (qrData ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}" alt="QR Code" width="80" height="80" />` : '');
 
     const itemsHtml = items.map(item => `
-      <tr class="border-b border-gray-100">
-        <td class="py-3 px-4 text-gray-800">${item.description || '-'}</td>
-        <td class="py-3 px-4 text-gray-800 text-center">${item.quantity}</td>
-        <td class="py-3 px-4 text-gray-800 text-right">${formatRupiah(item.price)}</td>
-        <td class="py-3 px-4 text-gray-800 text-right font-medium">${formatRupiah(item.quantity * item.price)}</td>
+      <tr style="border-bottom: 1px solid #f3f4f6;">
+        <td style="padding: 12px 16px; color: #1f2937;">${item.description || '-'}</td>
+        <td style="padding: 12px 16px; color: #1f2937; text-align: center;">${item.quantity}</td>
+        <td style="padding: 12px 16px; color: #1f2937; text-align: right;">${formatRupiah(Number(item.price) || 0)}</td>
+        <td style="padding: 12px 16px; color: #1f2937; text-align: right; font-weight: 500;">${formatRupiah((Number(item.quantity) || 0) * (Number(item.price) || 0))}</td>
       </tr>
     `).join('');
+
+    let watermarkHtml = '';
+    if (paymentStatus === 'PAID') {
+      watermarkHtml = `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 8rem; font-weight: 900; color: rgba(34, 197, 94, 0.1); border: 8px solid rgba(34, 197, 94, 0.1); padding: 20px 40px; border-radius: 16px; z-index: 0; pointer-events: none; user-select: none;">LUNAS</div>`;
+    } else if (paymentStatus === 'OVERDUE') {
+      watermarkHtml = `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 6rem; font-weight: 900; color: rgba(239, 68, 68, 0.1); border: 8px solid rgba(239, 68, 68, 0.1); padding: 20px 40px; border-radius: 16px; z-index: 0; pointer-events: none; user-select: none; text-align: center; line-height: 1.1;">JATUH<br/>TEMPO</div>`;
+    }
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
           <title>${invoiceTitle || 'INVOICE'} ${invoiceNo}</title>
-          <script src="https://cdn.tailwindcss.com"></script>
           <style>
               @page { size: A4; margin: 0; }
               @media print {
                   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
               }
-              body { font-family: 'Arial', sans-serif; background: white; margin: 0; padding: 40px; }
+              body { font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: white; margin: 0; padding: 40px; position: relative; }
+              * { box-sizing: border-box; }
           </style>
       </head>
       <body>
-          <div class="max-w-4xl mx-auto">
+          <div style="max-width: 800px; margin: 0 auto; position: relative; z-index: 1;">
             <!-- Header Invoice -->
-            <div class="flex justify-between items-start border-b-2 border-gray-100 pb-6 mb-8">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid ${currentTheme.primary}; padding-bottom: 24px; margin-bottom: 32px;">
               <div>
-                ${fromLogo ? `<img src="${fromLogo}" alt="Logo" class="h-16 mb-4 object-contain max-w-[200px]" />` : `<div class="text-3xl font-black text-blue-600 mb-4 tracking-tighter">${invoiceTitle || 'INVOICE'}</div>`}
-                <div class="text-gray-800 font-bold text-lg mb-1">${fromName || 'Nama Perusahaan'}</div>
-                <div class="text-gray-500 text-sm whitespace-pre-wrap">${fromAddress || 'Alamat Perusahaan'}</div>
-                <div class="text-gray-500 text-sm">${fromPhone} ${fromEmail ? ` • ${fromEmail}` : ''}</div>
+                ${fromLogo ? `<img src="${fromLogo}" alt="Logo" style="height: 64px; margin-bottom: 16px; object-fit: contain; max-width: 200px;" />` : `<div style="font-size: 30px; font-weight: 900; color: ${currentTheme.primary}; margin-bottom: 16px; letter-spacing: -1px;">${invoiceTitle || 'INVOICE'}</div>`}
+                <div style="color: #1f2937; font-weight: bold; font-size: 18px; margin-bottom: 4px;">${fromName || 'Nama Perusahaan'}</div>
+                <div style="color: #6b7280; font-size: 14px; white-space: pre-wrap;">${fromAddress || 'Alamat Perusahaan'}</div>
+                <div style="color: #6b7280; font-size: 14px;">${fromPhone} ${fromEmail ? ` • ${fromEmail}` : ''}</div>
               </div>
-              <div class="text-right">
-                <h1 class="text-4xl font-black text-gray-200 uppercase tracking-widest mb-4">${invoiceTitle || 'INVOICE'}</h1>
-                <div class="text-sm">
-                  <div class="grid grid-cols-2 gap-x-4 mb-1">
-                    <span class="text-gray-500 font-medium text-left">Nomor Invoice:</span>
-                    <span class="font-bold text-gray-800 text-right">${invoiceNo || '-'}</span>
+              <div style="text-align: right;">
+                <h1 style="font-size: 40px; font-weight: 900; color: #e5e7eb; text-transform: uppercase; letter-spacing: 4px; margin: 0 0 16px 0;">${invoiceTitle || 'INVOICE'}</h1>
+                <div style="font-size: 14px;">
+                  <div style="display: flex; justify-content: flex-end; margin-bottom: 4px;">
+                    <span style="color: #6b7280; font-weight: 500; margin-right: 16px;">Nomor Invoice:</span>
+                    <span style="font-weight: bold; color: #1f2937; width: 120px; text-align: right;">${invoiceNo || '-'}</span>
                   </div>
-                  <div class="grid grid-cols-2 gap-x-4 mb-1">
-                    <span class="text-gray-500 font-medium text-left">Tanggal:</span>
-                    <span class="font-bold text-gray-800 text-right">${date || '-'}</span>
+                  <div style="display: flex; justify-content: flex-end; margin-bottom: 4px;">
+                    <span style="color: #6b7280; font-weight: 500; margin-right: 16px;">Tanggal:</span>
+                    <span style="font-weight: bold; color: #1f2937; width: 120px; text-align: right;">${date || '-'}</span>
                   </div>
-                  <div class="grid grid-cols-2 gap-x-4">
-                    <span class="text-gray-500 font-medium text-left">Jatuh Tempo:</span>
-                    <span class="font-bold text-gray-800 text-right">${dueDate || '-'}</span>
+                  <div style="display: flex; justify-content: flex-end;">
+                    <span style="color: #6b7280; font-weight: 500; margin-right: 16px;">Jatuh Tempo:</span>
+                    <span style="font-weight: bold; color: #1f2937; width: 120px; text-align: right;">${dueDate || '-'}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- Bill To -->
-            <div class="mb-8">
-              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Tagihan Kepada:</h3>
-              <div class="text-gray-800 font-bold text-lg mb-1">${toName || 'Nama Klien'}</div>
-              <div class="text-gray-600 text-sm whitespace-pre-wrap mb-1">${toAddress || 'Alamat Klien'}</div>
-              <div class="text-gray-600 text-sm">${toPhone} ${toEmail ? ` • ${toEmail}` : ''}</div>
+            <div style="margin-bottom: 32px;">
+              <h3 style="font-size: 12px; font-weight: bold; color: ${currentTheme.primary}; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0; border-bottom: 1px solid #f3f4f6; padding-bottom: 4px; display: inline-block;">Tagihan Kepada:</h3>
+              <div style="color: #1f2937; font-weight: bold; font-size: 18px; margin-bottom: 4px; margin-top: 4px;">${toName || 'Nama Klien'}</div>
+              <div style="color: #4b5563; font-size: 14px; white-space: pre-wrap; margin-bottom: 4px;">${toAddress || 'Alamat Klien'}</div>
+              <div style="color: #4b5563; font-size: 14px;">${toPhone} ${toEmail ? ` • ${toEmail}` : ''}</div>
             </div>
 
             <!-- Table Items -->
-            <div class="mb-8">
-              <table class="w-full text-left text-sm">
+            <div style="margin-bottom: 32px;">
+              <table style="width: 100%; text-align: left; font-size: 14px; border-collapse: collapse;">
                 <thead>
-                  <tr class="bg-gray-50 border-y border-gray-200">
-                    <th class="py-3 px-4 font-bold text-gray-700">Deskripsi</th>
-                    <th class="py-3 px-4 font-bold text-gray-700 text-center w-24">Kuantitas</th>
-                    <th class="py-3 px-4 font-bold text-gray-700 text-right w-40">Harga Satuan</th>
-                    <th class="py-3 px-4 font-bold text-gray-700 text-right w-40">Jumlah</th>
+                  <tr style="background-color: ${currentTheme.light}; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+                    <th style="padding: 12px 16px; font-weight: bold; color: ${currentTheme.primary};">Deskripsi</th>
+                    <th style="padding: 12px 16px; font-weight: bold; color: ${currentTheme.primary}; text-align: center; width: 96px;">Kuantitas</th>
+                    <th style="padding: 12px 16px; font-weight: bold; color: ${currentTheme.primary}; text-align: right; width: 160px;">Harga Satuan</th>
+                    <th style="padding: 12px 16px; font-weight: bold; color: ${currentTheme.primary}; text-align: right; width: 160px;">Jumlah</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${itemsHtml || `<tr><td colspan="4" class="py-8 text-center text-gray-400 italic">Belum ada item tagihan.</td></tr>`}
+                  ${itemsHtml || `<tr><td colspan="4" style="padding: 32px; text-align: center; color: #9ca3af; font-style: italic;">Belum ada item tagihan.</td></tr>`}
                 </tbody>
               </table>
             </div>
 
             <!-- Totals -->
-            <div class="flex justify-end mb-12">
-              <div class="w-full sm:w-1/2 lg:w-2/3 xl:w-1/2">
-                <div class="space-y-3 text-sm">
-                  <div class="flex justify-between text-gray-600">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 48px;">
+              <div style="width: 50%;">
+                <div style="font-size: 14px;">
+                  <div style="display: flex; justify-content: space-between; color: #4b5563; margin-bottom: 12px;">
                     <span>Subtotal</span>
                     <span>${formatRupiah(subtotal)}</span>
                   </div>
-                  ${discountAmount > 0 ? `
-                  <div class="flex justify-between text-red-500">
-                    <span>Diskon</span>
-                    <span>- ${formatRupiah(discountAmount)}</span>
+                  ${discountAmountCalc > 0 ? `
+                  <div style="display: flex; justify-content: space-between; color: #ef4444; margin-bottom: 12px;">
+                    <span>Diskon ${discountType === 'PERCENT' ? `(${discountValue}%)` : ''}</span>
+                    <span>- ${formatRupiah(discountAmountCalc)}</span>
                   </div>` : ''}
                   ${taxPercent > 0 ? `
-                  <div class="flex justify-between text-gray-600">
+                  <div style="display: flex; justify-content: space-between; color: #4b5563; margin-bottom: 12px;">
                     <span>Pajak (${taxPercent}%)</span>
                     <span>${formatRupiah(taxAmount)}</span>
                   </div>` : ''}
-                  <div class="flex justify-between text-lg font-black text-blue-600 border-t-2 border-gray-200 pt-3 mt-3">
+                  <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: ${currentTheme.primary}; border-top: 2px solid #e5e7eb; padding-top: 12px; margin-top: 12px;">
                     <span>Total Tagihan</span>
                     <span>${formatRupiah(total)}</span>
                   </div>
@@ -220,17 +271,25 @@ export default function InvoiceGenerator() {
             </div>
 
             <!-- Notes & Footer -->
-            <div class="mt-auto border-t border-gray-100 pt-8 flex justify-between items-end">
-              <div class="w-3/4">
-                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
-                <p class="text-sm text-gray-600 whitespace-pre-wrap">${notes}</p>
+            <div style="margin-top: auto; border-top: 1px solid #f3f4f6; padding-top: 32px; display: flex; justify-content: space-between; align-items: flex-start;">
+              <div style="width: 50%; padding-right: 20px;">
+                <h4 style="font-size: 12px; font-weight: bold; color: ${currentTheme.primary}; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 8px 0;">Catatan / Syarat & Ketentuan:</h4>
+                <p style="font-size: 12px; color: #4b5563; white-space: pre-wrap; margin: 0; line-height: 1.5;">${notes}</p>
               </div>
-              <div class="w-1/4 flex justify-end">
+              <div style="width: 50%; display: flex; justify-content: flex-end; align-items: flex-end; gap: 20px;">
+                ${(signatureName || signatureImage) ? `
+                  <div style="text-align: center; margin-right: 20px;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">Hormat Kami,</div>
+                    ${signatureImage ? `<img src="${signatureImage}" alt="Signature" style="height: 60px; object-fit: contain; margin: 8px auto;" />` : `<div style="height: 60px;"></div>`}
+                    <div style="font-size: 14px; font-weight: bold; color: #1f2937; border-bottom: 1px solid #1f2937; display: inline-block; padding-bottom: 2px;">${signatureName || '_________________'}</div>
+                    ${signatureRole ? `<div style="font-size: 11px; color: #6b7280; margin-top: 4px;">${signatureRole}</div>` : ''}
+                  </div>
+                ` : ''}
                 ${qrData ? qrImageHtml : ''}
               </div>
             </div>
           </div>
-
+          ${watermarkHtml}
           <script>
             window.onload = () => {
               setTimeout(() => {
@@ -260,17 +319,23 @@ export default function InvoiceGenerator() {
       setToPhone('');
       setItems([{ id: Date.now().toString(), description: '', quantity: 1, price: 0 }]);
       setTaxPercent(0);
-      setDiscountAmount(0);
+      setDiscountValue(0);
       setNotes('Terima kasih atas kepercayaan Anda menggunakan layanan kami.');
+      setThemeColor('blue');
+      setPaymentStatus('NONE');
+      setSignatureImage('');
+      setSignatureName('');
+      setSignatureRole('');
+      setFromLogo('');
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
         <div>
           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-            <FileText size={24} className="text-blue-600" />
+            <FileText size={24} className={currentTheme.text} />
             Invoice Generator
           </h2>
           <p className="text-xs text-gray-500">Kelola dan terbitkan faktur secara profesional.</p>
@@ -280,7 +345,7 @@ export default function InvoiceGenerator() {
           <button onClick={resetForm} className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-bold transition-colors flex items-center gap-2">
             <RefreshCw size={14} /> Reset
           </button>
-          <button onClick={handlePrint} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors shadow-sm flex items-center gap-2">
+          <button onClick={handlePrint} className={`px-4 py-2 text-white rounded-lg text-xs font-bold transition-colors shadow-sm flex items-center gap-2`} style={{ backgroundColor: currentTheme.primary }}>
             <Printer size={16} /> Cetak / Simpan PDF
           </button>
         </div>
@@ -291,6 +356,40 @@ export default function InvoiceGenerator() {
         
         {/* KOLOM KIRI: Form Input */}
         <div className="space-y-6 print:hidden">
+          
+          {/* Tampilan & Tema */}
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <h3 className="font-bold text-gray-700 text-sm border-b pb-2">Tampilan & Status</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-2">Tema Warna</label>
+                <div className="flex gap-2">
+                  {Object.keys(themes).map(color => (
+                    <button
+                      key={color}
+                      onClick={() => setThemeColor(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-transform ${themeColor === color ? 'border-gray-800 scale-110' : 'border-transparent'}`}
+                      style={{ backgroundColor: themes[color].primary }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-2">Status Pembayaran</label>
+                <select 
+                  value={paymentStatus} 
+                  onChange={e => setPaymentStatus(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="NONE">Tidak Ada (Normal)</option>
+                  <option value="PAID">Lunas (PAID)</option>
+                  <option value="OVERDUE">Jatuh Tempo (OVERDUE)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Detail Invoice */}
           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 className="font-bold text-gray-700 text-sm border-b pb-2">Detail Invoice</h3>
@@ -315,32 +414,45 @@ export default function InvoiceGenerator() {
                   <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm" />
                 </div>
               </div>
-              <div className="col-span-1 sm:col-span-2">
-                <label className="block text-xs font-bold text-gray-600 mb-1">Data QR Code (Link/Teks)</label>
-                <input type="text" value={qrData} onChange={e => setQrData(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="https://digen.id" />
-              </div>
             </div>
           </div>
 
           {/* Dari & Kepada */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3 flex flex-col">
               <h3 className="font-bold text-gray-700 text-sm border-b pb-2">Dari (Pengirim)</h3>
-              <div>
-                <input type="text" value={fromName} onChange={e => setFromName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Nama Perusahaan/Instansi" />
-                <textarea value={fromAddress} onChange={e => setFromAddress(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Alamat" rows={2} />
-                <input type="text" value={fromEmail} onChange={e => setFromEmail(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Email" />
-                <input type="text" value={fromPhone} onChange={e => setFromPhone(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Nomor Telepon/WA" />
-                <input type="text" value={fromLogo} onChange={e => setFromLogo(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="URL Logo (Opsional)" />
+              <div className="flex-1 space-y-2">
+                <input type="text" value={fromName} onChange={e => setFromName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Nama Perusahaan/Instansi" />
+                <textarea value={fromAddress} onChange={e => setFromAddress(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Alamat" rows={2} />
+                <input type="text" value={fromEmail} onChange={e => setFromEmail(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Email" />
+                <input type="text" value={fromPhone} onChange={e => setFromPhone(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Nomor Telepon/WA" />
+                
+                <div className="pt-2">
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Logo Perusahaan</label>
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 cursor-pointer bg-gray-50 border border-gray-200 border-dashed rounded-lg p-2 text-center hover:bg-gray-100 transition-colors">
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setFromLogo)} />
+                      <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                        <Upload size={14} /> Upload Logo
+                      </div>
+                    </label>
+                    {fromLogo && (
+                      <button onClick={() => setFromLogo('')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-100">
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                  <input type="text" value={fromLogo} onChange={e => setFromLogo(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs mt-2" placeholder="Atau paste URL gambar..." />
+                </div>
               </div>
             </div>
             
             <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
               <h3 className="font-bold text-gray-700 text-sm border-b pb-2">Kepada (Klien)</h3>
-              <div>
-                <input type="text" value={toName} onChange={e => setToName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Nama Klien/Sekolah" />
-                <textarea value={toAddress} onChange={e => setToAddress(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Alamat Klien" rows={2} />
-                <input type="text" value={toEmail} onChange={e => setToEmail(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm mb-2" placeholder="Email Klien" />
+              <div className="space-y-2">
+                <input type="text" value={toName} onChange={e => setToName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Nama Klien/Sekolah" />
+                <textarea value={toAddress} onChange={e => setToAddress(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Alamat Klien" rows={2} />
+                <input type="text" value={toEmail} onChange={e => setToEmail(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Email Klien" />
                 <input type="text" value={toPhone} onChange={e => setToPhone(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Nomor Telepon/WA" />
               </div>
             </div>
@@ -356,18 +468,18 @@ export default function InvoiceGenerator() {
             </div>
             
             <div className="space-y-3">
-              {items.map((item, idx) => (
+              {items.map((item) => (
                 <div key={item.id} className="flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-gray-50 p-3 rounded-xl border border-gray-100">
                   <div className="w-full sm:w-2/5">
                     <input type="text" value={item.description} onChange={e => updateItem(item.id, 'description', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm" placeholder="Deskripsi layanan/produk" />
                   </div>
                   <div className="w-full sm:w-1/5 flex items-center gap-2">
                     <span className="text-[10px] text-gray-400 sm:hidden">Qty:</span>
-                    <input type="number" min="1" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', parseInt(e.target.value) || 0)} className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm" placeholder="Qty" />
+                    <input type="number" min="1" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm" placeholder="Qty" />
                   </div>
                   <div className="w-full sm:w-1/4 flex items-center gap-2">
                     <span className="text-[10px] text-gray-400 sm:hidden">Harga:</span>
-                    <input type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', parseInt(e.target.value) || 0)} className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm" placeholder="Harga Satuan" />
+                    <input type="number" min="0" value={item.price} onChange={e => updateItem(item.id, 'price', e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm" placeholder="Harga Satuan" />
                   </div>
                   <div className="w-full sm:w-auto flex justify-end shrink-0">
                     <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
@@ -381,11 +493,21 @@ export default function InvoiceGenerator() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100 mt-4">
               <div>
                 <label className="block text-xs font-bold text-gray-600 mb-1">Pajak (%)</label>
-                <input type="number" min="0" max="100" value={taxPercent} onChange={e => setTaxPercent(parseFloat(e.target.value) || 0)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" />
+                <input type="number" min="0" max="100" value={taxPercent} onChange={e => setTaxPercent(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">Diskon (Rp)</label>
-                <input type="number" min="0" value={discountAmount} onChange={e => setDiscountAmount(parseInt(e.target.value) || 0)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" />
+                <label className="block text-xs font-bold text-gray-600 mb-1">Diskon</label>
+                <div className="flex gap-2">
+                  <select 
+                    value={discountType} 
+                    onChange={e => setDiscountType(e.target.value as 'FIXED' | 'PERCENT')}
+                    className="bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm w-1/3"
+                  >
+                    <option value="FIXED">Rp</option>
+                    <option value="PERCENT">%</option>
+                  </select>
+                  <input type="number" min="0" value={discountValue} onChange={e => setDiscountValue(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Nilai Diskon" />
+                </div>
               </div>
             </div>
             
@@ -394,121 +516,191 @@ export default function InvoiceGenerator() {
               <textarea value={notes} onChange={e => setNotes(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" rows={3} />
             </div>
           </div>
+
+          {/* Tanda Tangan & QR Code */}
+          <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <h3 className="font-bold text-gray-700 text-sm border-b pb-2">Footer & Tanda Tangan</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Upload Tanda Tangan (Opsional)</label>
+                  <div className="flex items-center gap-2">
+                    <label className="flex-1 cursor-pointer bg-gray-50 border border-gray-200 border-dashed rounded-lg p-2 text-center hover:bg-gray-100 transition-colors">
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, setSignatureImage)} />
+                      <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                        <Upload size={14} /> Upload TTD
+                      </div>
+                    </label>
+                    {signatureImage && (
+                      <button onClick={() => setSignatureImage('')} className="p-2 text-red-500 hover:bg-red-50 rounded-lg border border-red-100">
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Nama Penandatangan</label>
+                  <input type="text" value={signatureName} onChange={e => setSignatureName(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Cth: Ahmad Fulan" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Jabatan / Peran</label>
+                  <input type="text" value={signatureRole} onChange={e => setSignatureRole(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="Cth: Direktur Utama" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Data QR Code (Opsional)</label>
+                  <input type="text" value={qrData} onChange={e => setQrData(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" placeholder="https://digen.id" />
+                </div>
+                <p className="text-[10px] text-gray-400">QR Code akan muncul di sebelah tanda tangan. Kosongkan jika tidak ingin menampilkan QR Code.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* KOLOM KANAN: Preview Invoice */}
         <div className="print:col-span-2">
-          <div id="printArea" className="bg-white rounded-xl shadow-md border border-gray-200 p-8 min-h-[800px] print:shadow-none print:border-none print:p-0 print:min-h-auto print:w-full print:m-0 w-full overflow-hidden">
+          <div id="printArea" className="bg-white rounded-xl shadow-md border border-gray-200 p-8 min-h-[800px] print:shadow-none print:border-none print:p-0 print:min-h-auto print:w-full print:m-0 w-full overflow-hidden relative z-0">
             
-            {/* Header Invoice */}
-            <div className="flex justify-between items-start border-b-2 border-gray-100 pb-6 mb-8">
-              <div>
-                {fromLogo ? (
-                  <img src={fromLogo} alt="Logo" className="h-16 mb-4 object-contain max-w-[200px]" />
-                ) : (
-                  <div className="text-3xl font-black text-blue-600 mb-4 tracking-tighter">{invoiceTitle || 'INVOICE'}</div>
-                )}
-                <div className="text-gray-800 font-bold text-lg mb-1">{fromName || 'Nama Perusahaan'}</div>
-                <div className="text-gray-500 text-sm whitespace-pre-wrap">{fromAddress || 'Alamat Perusahaan'}</div>
-                <div className="text-gray-500 text-sm">{fromPhone} {fromEmail ? ` • ${fromEmail}` : ''}</div>
+            {/* Watermark */}
+            {paymentStatus === 'PAID' && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 text-green-500 opacity-10 font-black text-8xl md:text-9xl tracking-widest border-8 border-green-500 p-8 rounded-2xl z-0 pointer-events-none select-none">
+                LUNAS
               </div>
-              <div className="text-right">
-                <h1 className="text-4xl font-black text-gray-200 uppercase tracking-widest mb-4">{invoiceTitle || 'INVOICE'}</h1>
-                <div className="text-sm">
-                  <div className="grid grid-cols-2 gap-x-4 mb-1">
-                    <span className="text-gray-500 font-medium">Nomor Invoice:</span>
-                    <span className="font-bold text-gray-800">{invoiceNo || '-'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 mb-1">
-                    <span className="text-gray-500 font-medium">Tanggal:</span>
-                    <span className="font-bold text-gray-800">{date || '-'}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4">
-                    <span className="text-gray-500 font-medium">Jatuh Tempo:</span>
-                    <span className="font-bold text-gray-800">{dueDate || '-'}</span>
+            )}
+            {paymentStatus === 'OVERDUE' && (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-45 text-red-500 opacity-10 font-black text-6xl md:text-8xl tracking-widest border-8 border-red-500 p-8 rounded-2xl z-0 pointer-events-none select-none text-center leading-tight">
+                JATUH<br/>TEMPO
+              </div>
+            )}
+
+            <div className="relative z-10">
+              {/* Header Invoice */}
+              <div className="flex justify-between items-start border-b-2 pb-6 mb-8" style={{ borderColor: currentTheme.primary }}>
+                <div>
+                  {fromLogo ? (
+                    <img src={fromLogo} alt="Logo" className="h-16 mb-4 object-contain max-w-[200px]" />
+                  ) : (
+                    <div className="text-3xl font-black mb-4 tracking-tighter" style={{ color: currentTheme.primary }}>{invoiceTitle || 'INVOICE'}</div>
+                  )}
+                  <div className="text-gray-800 font-bold text-lg mb-1">{fromName || 'Nama Perusahaan'}</div>
+                  <div className="text-gray-500 text-sm whitespace-pre-wrap">{fromAddress || 'Alamat Perusahaan'}</div>
+                  <div className="text-gray-500 text-sm">{fromPhone} {fromEmail ? ` • ${fromEmail}` : ''}</div>
+                </div>
+                <div className="text-right">
+                  <h1 className="text-4xl font-black text-gray-200 uppercase tracking-widest mb-4">{invoiceTitle || 'INVOICE'}</h1>
+                  <div className="text-sm">
+                    <div className="grid grid-cols-2 gap-x-4 mb-1">
+                      <span className="text-gray-500 font-medium">Nomor Invoice:</span>
+                      <span className="font-bold text-gray-800">{invoiceNo || '-'}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 mb-1">
+                      <span className="text-gray-500 font-medium">Tanggal:</span>
+                      <span className="font-bold text-gray-800">{date || '-'}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4">
+                      <span className="text-gray-500 font-medium">Jatuh Tempo:</span>
+                      <span className="font-bold text-gray-800">{dueDate || '-'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Bill To */}
-            <div className="mb-8">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-100 pb-1">Tagihan Kepada:</h3>
-              <div className="text-gray-800 font-bold text-lg mb-1">{toName || 'Nama Klien'}</div>
-              <div className="text-gray-600 text-sm whitespace-pre-wrap mb-1">{toAddress || 'Alamat Klien'}</div>
-              <div className="text-gray-600 text-sm">{toPhone} {toEmail ? ` • ${toEmail}` : ''}</div>
-            </div>
+              {/* Bill To */}
+              <div className="mb-8">
+                <h3 className="text-xs font-bold uppercase tracking-widest mb-2 border-b border-gray-100 pb-1 inline-block" style={{ color: currentTheme.primary }}>Tagihan Kepada:</h3>
+                <div className="text-gray-800 font-bold text-lg mb-1 mt-1">{toName || 'Nama Klien'}</div>
+                <div className="text-gray-600 text-sm whitespace-pre-wrap mb-1">{toAddress || 'Alamat Klien'}</div>
+                <div className="text-gray-600 text-sm">{toPhone} {toEmail ? ` • ${toEmail}` : ''}</div>
+              </div>
 
-            {/* Table Items */}
-            <div className="mb-8">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="bg-gray-50 border-y border-gray-200">
-                    <th className="py-3 px-4 font-bold text-gray-700">Deskripsi</th>
-                    <th className="py-3 px-4 font-bold text-gray-700 text-center w-24">Kuantitas</th>
-                    <th className="py-3 px-4 font-bold text-gray-700 text-right w-40">Harga Satuan</th>
-                    <th className="py-3 px-4 font-bold text-gray-700 text-right w-40">Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, idx) => (
-                    <tr key={item.id} className="border-b border-gray-100">
-                      <td className="py-3 px-4 text-gray-800">{item.description || '-'}</td>
-                      <td className="py-3 px-4 text-gray-800 text-center">{item.quantity}</td>
-                      <td className="py-3 px-4 text-gray-800 text-right">{formatRupiah(item.price)}</td>
-                      <td className="py-3 px-4 text-gray-800 text-right font-medium">{formatRupiah(item.quantity * item.price)}</td>
+              {/* Table Items */}
+              <div className="mb-8">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-y border-gray-200" style={{ backgroundColor: currentTheme.light }}>
+                      <th className="py-3 px-4 font-bold" style={{ color: currentTheme.primary }}>Deskripsi</th>
+                      <th className="py-3 px-4 font-bold text-center w-24" style={{ color: currentTheme.primary }}>Kuantitas</th>
+                      <th className="py-3 px-4 font-bold text-right w-40" style={{ color: currentTheme.primary }}>Harga Satuan</th>
+                      <th className="py-3 px-4 font-bold text-right w-40" style={{ color: currentTheme.primary }}>Jumlah</th>
                     </tr>
-                  ))}
-                  {items.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-gray-400 italic">Belum ada item tagihan.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item.id} className="border-b border-gray-100">
+                        <td className="py-3 px-4 text-gray-800">{item.description || '-'}</td>
+                        <td className="py-3 px-4 text-gray-800 text-center">{item.quantity}</td>
+                        <td className="py-3 px-4 text-gray-800 text-right">{formatRupiah(Number(item.price) || 0)}</td>
+                        <td className="py-3 px-4 text-gray-800 text-right font-medium">{formatRupiah((Number(item.quantity) || 0) * (Number(item.price) || 0))}</td>
+                      </tr>
+                    ))}
+                    {items.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="py-8 text-center text-gray-400 italic">Belum ada item tagihan.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-            {/* Totals */}
-            <div className="flex justify-end mb-12">
-              <div className="w-full sm:w-1/2 lg:w-2/3 xl:w-1/2">
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
-                    <span>{formatRupiah(subtotal)}</span>
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between text-red-500">
-                      <span>Diskon</span>
-                      <span>- {formatRupiah(discountAmount)}</span>
-                    </div>
-                  )}
-                  {taxPercent > 0 && (
+              {/* Totals */}
+              <div className="flex justify-end mb-12">
+                <div className="w-full sm:w-1/2 lg:w-2/3 xl:w-1/2">
+                  <div className="space-y-3 text-sm">
                     <div className="flex justify-between text-gray-600">
-                      <span>Pajak ({taxPercent}%)</span>
-                      <span>{formatRupiah(taxAmount)}</span>
+                      <span>Subtotal</span>
+                      <span>{formatRupiah(subtotal)}</span>
                     </div>
-                  )}
-                  <div className="flex justify-between text-lg font-black text-blue-600 border-t-2 border-gray-200 pt-3 mt-3">
-                    <span>Total Tagihan</span>
-                    <span>{formatRupiah(total)}</span>
+                    {discountAmountCalc > 0 && (
+                      <div className="flex justify-between text-red-500">
+                        <span>Diskon {discountType === 'PERCENT' ? `(${discountValue}%)` : ''}</span>
+                        <span>- {formatRupiah(discountAmountCalc)}</span>
+                      </div>
+                    )}
+                    {taxPercent > 0 && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>Pajak ({taxPercent}%)</span>
+                        <span>{formatRupiah(taxAmount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-lg font-black border-t-2 border-gray-200 pt-3 mt-3" style={{ color: currentTheme.primary }}>
+                      <span>Total Tagihan</span>
+                      <span>{formatRupiah(total)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Notes & Footer */}
-            <div className="mt-auto border-t border-gray-100 pt-8 flex justify-between items-end">
-              <div className="w-3/4">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
-                <p className="text-sm text-gray-600 whitespace-pre-wrap">{notes}</p>
+              {/* Notes & Footer */}
+              <div className="mt-auto border-t border-gray-100 pt-8 flex justify-between items-end">
+                <div className="w-1/2 pr-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: currentTheme.primary }}>Catatan / Syarat & Ketentuan:</h4>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{notes}</p>
+                </div>
+                <div className="w-1/2 flex justify-end items-end gap-6">
+                  {(signatureName || signatureImage) && (
+                    <div className="text-center shrink-0">
+                      <div className="text-xs text-gray-500 mb-1">Hormat Kami,</div>
+                      {signatureImage ? (
+                        <img src={signatureImage} alt="Signature" className="h-16 object-contain mx-auto my-2" />
+                      ) : (
+                        <div className="h-16"></div>
+                      )}
+                      <div className="font-bold text-gray-800 text-sm border-b border-gray-800 inline-block px-2 pb-0.5">{signatureName || '_________________'}</div>
+                      {signatureRole && <div className="text-[10px] text-gray-500 mt-1">{signatureRole}</div>}
+                    </div>
+                  )}
+                  {qrData && (
+                    <div className="shrink-0">
+                      <QRCode id="invoice-qr" value={qrData} size={80} qrStyle="squares" eyeRadius={4} />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="w-1/4 flex justify-end">
-                {qrData && (
-                  <QRCode id="invoice-qr" value={qrData} size={80} qrStyle="squares" eyeRadius={4} />
-                )}
-              </div>
+              
             </div>
-            
           </div>
         </div>
 
