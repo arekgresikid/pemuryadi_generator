@@ -13,7 +13,9 @@
       "Menambahkan daftar lengkap 20+ fitur platform dan structured data/entity information ke llms.txt untuk AI knowledge graph.",
       "Mengganti og-image.jpg dengan OGI.png di seluruh referensi (index.html dan llms.txt) untuk konsistensi branding.",
       "Menambahkan enhanced imports ke Dashboard component untuk persiapan fitur analytics dan metrics mendatang.",
-      "Memperbaiki masalah sintaks tag JSX dan penyesuaian nama state variabel (tingkatanKognitif ke levelTaksonomi) pada komponen ModulKokurikuler setelah proses penggabungan branch."
+      "Memperbaiki masalah sintaks tag JSX dan penyesuaian nama state variabel (tingkatanKognitif ke levelTaksonomi) pada komponen ModulKokurikuler setelah proses penggabungan branch.",
+      "Menambahkan fitur generator Barcode/QR Code interaktif dan menyempurnakan teks deskripsi pada modul Invoice Generator.",
+      "Memperbaiki isu kritis Service Worker (PWA) yang menyebabkan siklus error 'net::ERR_FAILED' dan gagal muat pada localhost mode development."
     ]
   },
   {
