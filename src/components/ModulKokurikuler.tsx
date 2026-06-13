@@ -617,7 +617,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                    <select value={tingkatanKognitif} onChange={e => setTingkatanKognitif(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
+                    <select value={levelTaksonomi} onChange={e => setLevelTaksonomi(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
                       <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
                       <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
                       <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
@@ -1217,7 +1217,6 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             </div>
           </div>
         )}
-      </div>
 
       <PrintSupportModal 
         isOpen={isPrintModalOpen} 

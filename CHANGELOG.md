@@ -2,12 +2,6 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
-## [5.3.2] - 13 Juni 2026
-- Menambahkan tab "Overview" pada Admin Dashboard yang dilengkapi dengan analitik visual (Pie Chart untuk distribusi Tier dan Bar Chart untuk distribusi Role) menggunakan pustaka Recharts.
-- Menambahkan fitur Export ke CSV pada tab Pengguna di Admin Dashboard agar admin dapat mengunduh data pengguna secara menyeluruh.
-- Memperbarui dokumentasi skill AI (SKILL.md) dan Panduan Admin (modal) untuk menyertakan instruksi terkait fitur Overview dan Export CSV.
-- Menambahkan aturan wajib pada dokumen Git Workflow agar agen AI selalu mencatat setiap perubahan pada CHANGELOG.md sebelum melakukan commit dan push.
-
 ## [5.3.1] - 11 Juni 2026
 - Meningkatkan dokumentasi README.md menjadi profesional dengan penambahan badges status, statistik platform, architecture diagram (Mermaid), dan detailed tech stack.
 - Menambahkan dokumentasi API endpoints lengkap, database schema, dan troubleshooting guide untuk developer.
@@ -17,6 +11,7 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Menambahkan daftar lengkap 20+ fitur platform dan structured data/entity information ke llms.txt untuk AI knowledge graph.
 - Mengganti og-image.jpg dengan OGI.png di seluruh referensi (index.html dan llms.txt) untuk konsistensi branding.
 - Menambahkan enhanced imports ke Dashboard component untuk persiapan fitur analytics dan metrics mendatang.
+- Memperbaiki masalah sintaks tag JSX dan penyesuaian nama state variabel (tingkatanKognitif ke levelTaksonomi) pada komponen ModulKokurikuler setelah proses penggabungan branch.
 
 ## [5.3.0] - 11 Juni 2026
 - Menyinkronkan logika paket Harga (Pricing) di Frontend dengan daftar paket yang tersimpan di Database Cloudflare D1 agar konsisten.
