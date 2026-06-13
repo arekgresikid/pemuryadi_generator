@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Plus, Trash2, Download, Printer, Save, RefreshCw } from 'lucide-react';
+import { QRCode } from 'react-qrcode-logo';
 
 interface InvoiceItem {
   id: string;
@@ -11,6 +12,7 @@ interface InvoiceItem {
 export default function InvoiceGenerator() {
   const [invoiceNo, setInvoiceNo] = useState('');
   const [invoiceTitle, setInvoiceTitle] = useState('INVOICE');
+  const [qrData, setQrData] = useState('https://digen.id');
   const [date, setDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   
@@ -43,6 +45,7 @@ export default function InvoiceGenerator() {
         const data = JSON.parse(saved);
         if (data.invoiceNo) setInvoiceNo(data.invoiceNo);
         if (data.invoiceTitle) setInvoiceTitle(data.invoiceTitle);
+        if (data.qrData) setQrData(data.qrData);
         if (data.date) setDate(data.date);
         if (data.dueDate) setDueDate(data.dueDate);
         if (data.fromName) setFromName(data.fromName);
@@ -76,7 +79,7 @@ export default function InvoiceGenerator() {
   useEffect(() => {
     const timer = setTimeout(() => {
       const data = {
-        invoiceNo, invoiceTitle, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo,
+        invoiceNo, invoiceTitle, qrData, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo,
         toName, toAddress, toEmail, toPhone, items, taxPercent, discountAmount, notes
       };
       localStorage.setItem('digen_id_admin_invoice', JSON.stringify(data));
@@ -84,7 +87,7 @@ export default function InvoiceGenerator() {
       setTimeout(() => setIsSaved(false), 2000);
     }, 1000);
     return () => clearTimeout(timer);
-  }, [invoiceNo, invoiceTitle, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo, toName, toAddress, toEmail, toPhone, items, taxPercent, discountAmount, notes]);
+  }, [invoiceNo, invoiceTitle, qrData, date, dueDate, fromName, fromAddress, fromEmail, fromPhone, fromLogo, toName, toAddress, toEmail, toPhone, items, taxPercent, discountAmount, notes]);
 
   const addItem = () => {
     setItems([...items, { id: Date.now().toString(), description: '', quantity: 1, price: 0 }]);
@@ -109,6 +112,9 @@ export default function InvoiceGenerator() {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
+
+    const qrCanvas = document.getElementById('invoice-qr') as HTMLCanvasElement;
+    const qrImageHtml = qrCanvas ? `<img src="${qrCanvas.toDataURL()}" alt="QR Code" width="80" height="80" />` : `<img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}" alt="QR Code" width="80" height="80" />`;
 
     const itemsHtml = items.map(item => `
       <tr class="border-b border-gray-100">
@@ -214,9 +220,14 @@ export default function InvoiceGenerator() {
             </div>
 
             <!-- Notes & Footer -->
-            <div class="mt-auto border-t border-gray-100 pt-8">
-              <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
-              <p class="text-sm text-gray-600 whitespace-pre-wrap">${notes}</p>
+            <div class="mt-auto border-t border-gray-100 pt-8 flex justify-between items-end">
+              <div class="w-3/4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
+                <p class="text-sm text-gray-600 whitespace-pre-wrap">${notes}</p>
+              </div>
+              <div class="w-1/4 flex justify-end">
+                ${qrData ? qrImageHtml : ''}
+              </div>
             </div>
           </div>
 
@@ -242,6 +253,7 @@ export default function InvoiceGenerator() {
       setDueDate(nextMonth.toISOString().split('T')[0]);
       setInvoiceNo(`INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`);
       setInvoiceTitle('INVOICE');
+      setQrData('https://digen.id');
       setToName('');
       setToAddress('');
       setToEmail('');
@@ -302,6 +314,10 @@ export default function InvoiceGenerator() {
                   <label className="block text-xs font-bold text-gray-600 mb-1">Jatuh Tempo</label>
                   <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm" />
                 </div>
+              </div>
+              <div className="col-span-1 sm:col-span-2">
+                <label className="block text-xs font-bold text-gray-600 mb-1">Data QR Code (Link/Teks)</label>
+                <input type="text" value={qrData} onChange={e => setQrData(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm" placeholder="https://digen.id" />
               </div>
             </div>
           </div>
@@ -481,9 +497,16 @@ export default function InvoiceGenerator() {
             </div>
 
             {/* Notes & Footer */}
-            <div className="mt-auto border-t border-gray-100 pt-8">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
-              <p className="text-sm text-gray-600 whitespace-pre-wrap">{notes}</p>
+            <div className="mt-auto border-t border-gray-100 pt-8 flex justify-between items-end">
+              <div className="w-3/4">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Catatan / Syarat & Ketentuan:</h4>
+                <p className="text-sm text-gray-600 whitespace-pre-wrap">{notes}</p>
+              </div>
+              <div className="w-1/4 flex justify-end">
+                {qrData && (
+                  <QRCode id="invoice-qr" value={qrData} size={80} qrStyle="squares" eyeRadius={4} />
+                )}
+              </div>
             </div>
             
           </div>
