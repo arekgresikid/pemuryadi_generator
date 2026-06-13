@@ -273,7 +273,7 @@ export default function InvoiceGenerator() {
             <FileText size={24} className="text-blue-600" />
             Invoice Generator
           </h2>
-          <p className="text-xs text-gray-500">Buat faktur profesional langsung dari dashboard admin.</p>
+          <p className="text-xs text-gray-500">Kelola dan terbitkan faktur secara profesional.</p>
         </div>
         <div className="flex gap-2">
           {isSaved && <span className="text-xs text-green-600 font-bold flex items-center gap-1"><Save size={14}/> Tersimpan otomatis</span>}
