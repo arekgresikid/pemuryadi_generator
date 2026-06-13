@@ -62,7 +62,9 @@ const TAKSONOMI_SOLO = [
   'Uni-struktural',
   'Multi-struktural',
   'Relasional',
-  'Abstrak Diperluas'
+  'Abstrak Diperluas',
+  'HOTS (Higher Order Thinking Skills)',
+  'Kombinasi'
 ];
 
 export default function ModulKokurikuler() {

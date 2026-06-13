@@ -62,7 +62,7 @@ export default function ModuleGenerator() {
   const [formData, setFormData] = useLocalStorage('ModuleGenerator_formData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
     semester: '1', tahunAjaran: '2024/2025', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
-    remixText: '', hasInklusi: false, jumlahInklusi: ''
+    remixText: '', hasInklusi: false, jumlahInklusi: '', kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'
   });
 
   const [custom, setCustom] = useLocalStorage('ModuleGenerator_custom', {

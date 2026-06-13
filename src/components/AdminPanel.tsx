@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Shield, ShieldAlert, Edit2, Users, Search, Save, X, Calendar, Crown, Trash2, Plus, Settings, Power, Download, Activity, MessageSquare, Phone, DollarSign, Star } from 'lucide-react';
+import { Shield, ShieldAlert, Edit2, Users, Search, Save, X, Calendar, Crown, Trash2, Plus, Settings, Power, Download, Activity, MessageSquare, Phone, DollarSign, Star, FileText } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import toast from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
+import InvoiceGenerator from './InvoiceGenerator';
 
 export default function AdminPanel() {
   const { profile } = useAuth();
@@ -644,6 +645,12 @@ export default function AdminPanel() {
             className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'settings' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <Settings size={16} /> Pengaturan
+          </button>
+          <button 
+            onClick={() => setActiveTab('invoice')}
+            className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'invoice' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <FileText size={16} /> Invoice
           </button>
         </div>
       </div>
@@ -2193,6 +2200,12 @@ export default function AdminPanel() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'invoice' && (
+        <div className="animate-in fade-in zoom-in-95 duration-300">
+          <InvoiceGenerator />
         </div>
       )}
 
