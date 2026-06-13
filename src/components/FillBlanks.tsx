@@ -68,6 +68,7 @@ Jenjang: ${jenjangLabel}
 Fase: ${faseLabel}
 Kelas: ${kelasLabel}
 Mata Pelajaran: ${subjectLabel}
+Topik/Judul: ${title || 'Umum'}
 
 PENTING:
 1. "word" adalah KATA KUNCI jawaban (hanya 1 kata).
@@ -247,7 +248,7 @@ PENTING:
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Soal</label>
             <p className="text-xs text-gray-600 mb-2">Format: <strong>JAWABAN - Kalimat dengan ___ untuk melengkapi.</strong> (satu per baris)</p>
-            <AIAssistedTextarea value={inputText} onChange={(e) => setInputText(e.target.value)} rows={8} placeholder="Gaya - ___ adalah tarikan atau dorongan.&#10;Planet - Bumi adalah salah satu ___ di tata surya." className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 font-mono text-sm outline-none custom-scrollbar" />
+            <AIAssistedTextarea value={inputText} onChange={(e) => setInputText(e.target.value)} contextPrompt={`Buatkan soal Fill in the Blanks (Topik: ${title || 'Pendidikan'}). Format: JAWABAN - Kalimat dengan ___ untuk tempat jawaban.`} rows={8} placeholder="Gaya - ___ adalah tarikan atau dorongan.&#10;Planet - Bumi adalah salah satu ___ di tata surya." className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 font-mono text-sm outline-none custom-scrollbar" />
           </div>
 
           {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}

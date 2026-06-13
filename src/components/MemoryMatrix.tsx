@@ -68,6 +68,7 @@ Jenjang: ${jenjangLabel}
 Fase: ${faseLabel}
 Kelas: ${kelasLabel}
 Mata Pelajaran: ${subjectLabel}
+Topik/Judul: ${title || 'Umum'}
 
 PENTING:
 1. Kata harus ringkas dan jelas (maksimal 2 kata per item).
@@ -309,6 +310,7 @@ PENTING:
             <p className="text-xs text-gray-600 mb-2">Format: <strong>KATA - Petunjuk</strong> (satu per baris)</p>
             <AIAssistedTextarea value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              contextPrompt={`Buatkan daftar kata untuk Memory Matrix (Topik: ${title || 'Pendidikan'}). Format: KATA - Petunjuk. Kata kiri harus ringkas.`}
               rows={8}
               placeholder="PLANET - Benda angkasa&#10;BINTANG - Benda bercahaya"
               className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors custom-scrollbar" />

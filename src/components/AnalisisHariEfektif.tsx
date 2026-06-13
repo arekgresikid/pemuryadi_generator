@@ -8,6 +8,7 @@ import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 const ai = new GoogleGenAI({});
 
@@ -37,6 +38,8 @@ export default function AnalisisHariEfektif() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('AnalisisHariEfektif_selectedModel', 'openai');
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('AnalisisHariEfektif_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('AnalisisHariEfektif_logoUrl', null);
 
   const saveProgress = () => {
     alert('Progress otomatis disimpan saat Anda mengetik!');
@@ -152,6 +155,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
             </style>
           </head>
           <body>
+            ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
             ${printContent}
             ${getWatermarkHtml(profile?.role)}
           </body>
@@ -265,6 +269,8 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
                 <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
               </div>
+              
+              <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
             </div>
 
             

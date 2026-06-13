@@ -12,6 +12,8 @@ import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 const TEMA_OPTIONS = [
   "Literasi dan Numerasi",
@@ -44,6 +46,25 @@ const SUBTEMA_OPTIONS: Record<string, string[]> = {
   komunikasi: ["Bicara yang baik", "Aku bisa menyampaikan pendapat", "Debat kelompok", "Kegiatan presentasi", "Cerita pengalaman"]
 };
 
+
+const TAKSONOMI_BLOOM = [
+  'C1: Mengingat (Remembering)',
+  'C2: Memahami (Understanding)',
+  'C3: Menerapkan (Applying)',
+  'C4: Menganalisis (Analyzing)',
+  'C5: Mengevaluasi (Evaluating)',
+  'C6: Menciptakan (Creating)',
+  'Campuran (Sesuai Kurikulum Merdeka)'
+];
+
+const TAKSONOMI_SOLO = [
+  'Pra-struktural',
+  'Uni-struktural',
+  'Multi-struktural',
+  'Relasional',
+  'Abstrak Diperluas'
+];
+
 export default function ModulKokurikuler() {
   const { profile } = useAuth();
   const isPremium = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes((profile?.role || '').toLowerCase());
@@ -67,7 +88,8 @@ export default function ModulKokurikuler() {
   const [mapel, setMapel] = useState('bahasa-indonesia');
   const [topikMateri, setTopikMateri] = useState('');
   const [isCustomTopik, setIsCustomTopik] = useState(false);
-  const [tingkatanKognitif, setTingkatanKognitif] = useState('Campuran (Sesuai Kurikulum Merdeka)');
+  const [kerangkaTaksonomi, setKerangkaTaksonomi] = useState('bloom');
+  const [levelTaksonomi, setLevelTaksonomi] = useState('Campuran (Sesuai Kurikulum Merdeka)');
   
   const [dimensiProfil, setDimensiProfil] = useState({
     keimanan: false,
@@ -139,6 +161,10 @@ export default function ModulKokurikuler() {
   const [generateRancanganSesi, setGenerateRancanganSesi] = useState(false);
   const [alokasiJP, setAlokasiJP] = useState('');
   const [jumlahPertemuan, setJumlahPertemuan] = useState('');
+
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('ModulKokurikuler_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('ModulKokurikuler_logoUrl', null);
+  const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('ModulKokurikuler_formatPerangkat', 'standar');
 
   useEffect(() => {
     const phases = phaseClassMap[eduLevel]?.phases || [];
@@ -260,8 +286,8 @@ ${remixText}
 ---` : ''}
 
 Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
-1. Tingkatan Kognitif (Taksonomi Bloom): Target utama adalah ${tingkatanKognitif}. 
-   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target.
+1. Taksonomi/Pendekatan Kognitif: ${kerangkaTaksonomi === 'bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'} pada level: ${levelTaksonomi}.
+   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target jika menggunakan Bloom.
    - Integrasikan Dimensi Pengetahuan: Faktual, Konseptual, Prosedural, dan Metakognitif.
    - PENTING: JANGAN tampilkan label "C1", "C2", dll. secara eksplisit pada hasil akhir, cukup terapkan dalam kata kerja operasional dan aktivitas.
 2. Tujuan Pembelajaran: Rumuskan tujuan pembelajaran secara otomatis berdasarkan pilihan pengunjung. JANGAN mencantumkan label (ABCD) pada hasil akhir.
@@ -394,6 +420,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
+              ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
               <div class="markdown-body">
                   ${marked.parse(result)}
               </div>
@@ -451,6 +478,22 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             <p className="text-sm text-gray-600">Buat modul kokurikuler dengan bantuan AI</p>
           </div>
         </div>
+        </div>
+
+          <div className="bg-gray-100 p-1.5 rounded-xl flex items-center mb-6">
+            <button
+              onClick={() => setFormatPerangkat('standar')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-blue-700 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+            >
+              Standar
+            </button>
+            <button
+              onClick={() => setFormatPerangkat('kemenag')}
+              className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-blue-50 text-blue-700 shadow-md border border-blue-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+            >
+              Kemenag
+            </button>
+          </div>
 
         <div className="space-y-6">
           {/* Identitas */}
@@ -610,6 +653,8 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                       </div>
                     )}
                   </div>
+
+                  <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
 
                   <PDFRemixUpload 
                     onTextExtracted={(text) => setRemixText(text)}
@@ -786,6 +831,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                       <option value="Inkuiri">Inkuiri</option>
                       <option value="Diskusi Kelompok">Diskusi Kelompok</option>
                       <option value="Bermain Peran (Role Play)">Bermain Peran (Role Play)</option>
+                      {formatPerangkat === 'kemenag' && <option value="Pendekatan Kurikulum Berbasis Cinta">Pendekatan Kurikulum Berbasis Cinta</option>}
                     </select>
                   </div>
 

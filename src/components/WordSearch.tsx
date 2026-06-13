@@ -156,6 +156,7 @@ export default function WordSearch() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Kata (satu kata per baris, maks 40)</label>
             <AIAssistedTextarea value={wordsText}
               onChange={(e) => setWordsText(e.target.value)}
+              contextPrompt={`Buatkan daftar kata (satu kata per baris, maksimal 40 kata) untuk game Word Search Puzzle (Mencari Kata) dengan tema/judul: "${title || 'Pendidikan'}". Jawab HANYA dengan kata-katanya saja, tanpa penomoran atau simbol lain.`}
               rows={6} 
               className="w-full bg-gray-50 border border-gray-300 rounded-xl p-4 text-black focus:border-green-500 transition-all" 
               placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..." />

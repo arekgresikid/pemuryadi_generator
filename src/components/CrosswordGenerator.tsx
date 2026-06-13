@@ -80,6 +80,7 @@ Jenjang: ${jenjangLabel}
 Fase: ${faseLabel}
 Kelas: ${kelasLabel}
 Mata Pelajaran: ${subjectLabel}
+Topik/Judul: ${title || 'Umum'}
 
 PENTING:
 1. Kata (word) harus berupa satu kata tanpa spasi, hanya huruf A-Z.
@@ -564,6 +565,7 @@ PENTING:
             <p className="text-xs text-gray-600 mb-2">Format: <strong>KATA - Petunjuk</strong> (satu per baris)</p>
             <AIAssistedTextarea value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              contextPrompt={`Buatkan daftar kata dan petunjuk untuk Teka Teki Silang (Mata Pelajaran: ${subject}, Topik: ${title || 'Pendidikan'}). Format: KATA - Petunjuk. Contoh: EKOSISTEM - Hubungan timbal balik makhluk hidup.`}
               rows={10}
               placeholder="FOTOSINTESIS - Proses tumbuhan membuat makanan sendiri&#10;KARNIVORA - Hewan pemakan daging&#10;EKOSISTEM - Hubungan timbal balik antara makhluk hidup dan lingkungannya"
               className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 font-mono text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors custom-scrollbar" />

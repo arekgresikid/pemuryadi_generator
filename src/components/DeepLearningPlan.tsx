@@ -11,12 +11,15 @@ import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 export default function DeepLearningPlan() {
   const { profile } = useAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('DeepLearningPlan_selectedModel', 'openai');
   const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('DeepLearningPlan_formatPerangkat', 'standar');
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('DeepLearningPlan_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('DeepLearningPlan_logoUrl', null);
 
   const saveProgress = () => {
     alert('Progress otomatis disimpan saat Anda mengetik!');
@@ -65,7 +68,8 @@ export default function DeepLearningPlan() {
     topikMateri: '',
     isCustomTopik: false,
     alokasiWaktu: '',
-    tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
+    kerangkaTaksonomi: 'bloom',
+    levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)',
     pesertaDidik: '',
     topikPelajaran: '',
     capaianPembelajaran: '',
@@ -110,6 +114,24 @@ export default function DeepLearningPlan() {
     kesehatan: false,
     komunikasi: false
   });
+
+const TAKSONOMI_BLOOM = [
+  'C1: Mengingat (Remembering)',
+  'C2: Memahami (Understanding)',
+  'C3: Menerapkan (Applying)',
+  'C4: Menganalisis (Analyzing)',
+  'C5: Mengevaluasi (Evaluating)',
+  'C6: Menciptakan (Creating)',
+  'Campuran (Sesuai Kurikulum Merdeka)'
+];
+
+const TAKSONOMI_SOLO = [
+  'Pra-struktural',
+  'Uni-struktural',
+  'Multi-struktural',
+  'Relasional',
+  'Abstrak Diperluas'
+];
 
   const [result, setResult] = useState<any>(null);
 
@@ -236,8 +258,8 @@ ${formatPerangkat === 'kemenag' ? `Konteks Kemenag & Berbasis Cinta (WAJIB DITAM
 3. Nilai Spiritual: Integrasikan nilai-nilai agama dan pesan moral dalam penyampaian materi.
 ` : ''}
 Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
-1. Tingkatan Kognitif (Taksonomi Bloom): Target utama adalah ${formData.tingkatanKognitif}. 
-   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target.
+1. Taksonomi/Pendekatan Kognitif: ${formData.kerangkaTaksonomi === 'bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'} pada level: ${formData.levelTaksonomi}.
+   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target jika menggunakan Bloom.
    - Integrasikan Dimensi Pengetahuan: Faktual, Konseptual, Prosedural, dan Metakognitif.
    - PENTING: JANGAN tampilkan label "C1", "C2", dll. secara eksplisit pada hasil akhir, cukup terapkan dalam kata kerja operasional dan aktivitas.
 2. Tujuan Pembelajaran (ABCD): Rumuskan tujuan pembelajaran dengan kaidah Audience (Peserta Didik), Behaviour (Perilaku/KKO), Condition (Kondisi/Metode), dan Degree (Kriteria/Tingkat Keberhasilan).
@@ -245,7 +267,7 @@ Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
    - TPACK (Technological Pedagogical Content Knowledge): Tunjukkan bagaimana guru menggunakan teknologi dan pedagogi yang tepat untuk menyampaikan konten materi.
    - STEAM (Science, Technology, Engineering, Art, Mathematics): Integrasikan elemen STEAM dalam aktivitas siswa untuk melatih berpikir kritis, kreatif, dan pemecahan masalah.
 
-Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana pembelajaran mendalam (Identifikasi, Desain Pembelajaran, Pengalaman Belajar, Asesmen, dan Tindak Lanjut) terisi secara otomatis dan komprehensif. Gunakan sumber resmi dari Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) atau website pendidikan yang kredibel sebagai acuan pengisian konten:
+Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana pembelajaran mendalam (Identifikasi, Desain Pembelajaran, Pengalaman Belajar, Asesmen, dan Tindak Lanjut) terisi secara otomatis dan komprehensif. PENTING: Untuk cetak yang rapi, susun konten paragraf dengan baris baru (newline ganda \\n\\n) agar tidak menumpuk. Gunakan tabel Markdown (dengan header | Kolom |) pada konten yang sesuai (misalnya Rubrik Penilaian) agar tersusun rapi:
 {
   "pesertaDidik": "Identifikasi kesiapan peserta didik sebelum belajar, seperti pengetahuan awal, minat, latar belakang, dan kebutuhan belajar",
   "topikPelajaran": "Analisis topik pelajaran seperti jenis pengetahuan yang akan dicapai, relevansi dengan kehidupan nyata, tingkat kesulitan",
@@ -420,24 +442,27 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
-              <div class="header">
-                  <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-                      ${result.isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+              <div class="header" style="position: relative; text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px;">
+                  ${useLogo && logoUrl ? `<img src="${logoUrl}" style="position: absolute; left: 0; top: 0; height: 80px; width: auto;" alt="Logo"/>` : ''}
+                  <div style="padding: 0 90px;">
+                      <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                          ${result.isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                      </div>
+                      <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                          ${result.sekolah || 'SATUAN PENDIDIKAN'}
+                      </div>
+                      <div style="font-size: 9pt; margin-top: 2px;">
+                          Tahun Pelajaran: ${result.tahunPelajaran || '-'}
+                      </div>
                   </div>
-                  <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
-                      ${result.sekolah || 'SATUAN PENDIDIKAN'}
-                  </div>
-                  <div style="font-size: 9pt; margin-top: 2px;">
-                      Tahun Pelajaran: ${result.tahunPelajaran || '-'}
-                  </div>
-                  <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
-                  
-                  <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase; line-height: 1.4;">
-                      ${result.isKemenag ? 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) BERBASIS CINTA' : 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) / MODUL AJAR MENDALAM'}
-                  </h3>
-                  <div style="font-size: 10pt; margin-top: 5px; font-style: italic;">
-                      Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
-                  </div>
+              </div>
+              <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
+              
+              <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase; line-height: 1.4;">
+                  ${result.isKemenag ? 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) BERBASIS CINTA' : 'RENCANA PELAKSANAAN PEMBELAJARAN (RPP) / MODUL AJAR MENDALAM'}
+              </h3>
+              <div style="font-size: 10pt; margin-top: 5px; font-style: italic; text-align: center;">
+                  Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
               </div>
 
               <table>
@@ -681,6 +706,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 </select>
                 <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
+              <div className="col-span-2">
+                <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
+              </div>
               <div className="col-span-2 md:col-span-1">
                 <AIAssistedInput type="text" placeholder="Nama Guru" value={formData.namaGuru} onChange={e => setFormData({...formData, namaGuru: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
@@ -773,16 +801,38 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <div className="col-span-2 md:col-span-1">
                 <AIAssistedInput type="text" placeholder="Alokasi Waktu (Contoh: 4 Pertemuan / 8 JP)" value={formData.alokasiWaktu} onChange={e => setFormData({...formData, alokasiWaktu: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all" />
               </div>
-              <div className="col-span-2 md:col-span-1">
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all">
-                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
-                </select>
+              <div className="col-span-2 md:col-span-1 border border-gray-200 rounded-xl p-3 bg-white">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Kerangka Taksonomi</label>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'})}
+                    className={`flex-1 py-1.5 px-2 rounded-full text-xs font-semibold transition-all ${formData.kerangkaTaksonomi === 'bloom' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi Bloom
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'solo', levelTaksonomi: 'Relasional'})}
+                    className={`flex-1 py-1.5 px-2 rounded-full text-xs font-semibold transition-all ${formData.kerangkaTaksonomi === 'solo' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi SOLO
+                  </button>
+                </div>
+
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Level Yang Digunakan</label>
+                <div className="flex flex-wrap gap-2">
+                  {(formData.kerangkaTaksonomi === 'bloom' ? TAKSONOMI_BLOOM : TAKSONOMI_SOLO).map(lvl => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setFormData({...formData, levelTaksonomi: lvl})}
+                      className={`py-1 px-3 rounded-full text-xs font-medium transition-all ${formData.levelTaksonomi === lvl ? 'bg-emerald-500 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      {lvl.split(':')[0]}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="col-span-2 md:col-span-1">
@@ -925,6 +975,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Pembelajaran Kontekstual (Contextual Teaching and Learning)">Pembelajaran Kontekstual (Contextual Teaching and Learning)</option>
                   <option value="Bermain Peran (Role Playing)">Bermain Peran (Role Playing)</option>
                   <option value="Pembelajaran Kooperatif (Cooperative Learning)">Pembelajaran Kooperatif (Cooperative Learning)</option>
+                  {formatPerangkat === 'kemenag' && <option value="Pendekatan Kurikulum Berbasis Cinta">Pendekatan Kurikulum Berbasis Cinta</option>}
                 </select>
               </div>
               <div>

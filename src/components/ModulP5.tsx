@@ -8,6 +8,7 @@ import { getWatermarkHtml } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 export default function ModulP5() {
   const { profile } = useAuth();
@@ -41,6 +42,9 @@ export default function ModulP5() {
     topik: '',
     alokasiWaktu: '120 JP'
   });
+
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('ModulP5_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('ModulP5_logoUrl', null);
 
   const [result, setResult] = useState<any>(null);
 
@@ -221,6 +225,7 @@ Format output harus JSON murni:
     const { meta, judulProjek, tujuanProjek, relevansiTema, dimensi, alurKegiatan, rubrikPenilaian } = result;
 
     const content = `
+      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
       <h2>MODUL PROJEK PENGUATAN PROFIL PELAJAR PANCASILA (P5)</h2>
       <h3 style="margin-top: 5px;">${judulProjek}</h3>
       <div style="margin-bottom: 20px;">
@@ -459,6 +464,7 @@ Format output harus JSON murni:
                 />
               </div>
 
+              <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
             </div>
 
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">

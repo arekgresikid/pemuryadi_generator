@@ -46,7 +46,26 @@ const MAPEL_UMUM = [
   'Muatan Lokal'
 ];
 
+const TAKSONOMI_BLOOM = [
+  'C1: Mengingat (Remembering)',
+  'C2: Memahami (Understanding)',
+  'C3: Menerapkan (Applying)',
+  'C4: Menganalisis (Analyzing)',
+  'C5: Mengevaluasi (Evaluating)',
+  'C6: Menciptakan (Creating)',
+  'Campuran (Sesuai Kurikulum Merdeka)'
+];
+
+const TAKSONOMI_SOLO = [
+  'Pra-struktural',
+  'Uni-struktural',
+  'Multi-struktural',
+  'Relasional',
+  'Abstrak Diperluas'
+];
+
 export default function MengajarHarian() {
+  const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('MengajarHarian_formatPerangkat', 'standar');
   const [formData, setFormData] = useLocalStorage('MengajarHarianData', {
     jenisGuru: 'Guru Kelas',
     semester: 'Ganjil (1)',
@@ -58,7 +77,10 @@ export default function MengajarHarian() {
     topikMateri: '',
     remixText: '',
     hasInklusi: false,
-    jumlahInklusi: ''
+    jumlahInklusi: '',
+    praktikPedagogis: '',
+    kerangkaTaksonomi: 'bloom',
+    levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'
   });
 
   const [selectedFeatures, setSelectedFeatures] = useLocalStorage('MengajarHarian_selectedFeatures', {
@@ -132,9 +154,13 @@ export default function MengajarHarian() {
         throw new Error('Pilih minimal satu fitur untuk di-generate.');
       }
 
+      const formatInstruction = formatPerangkat === 'kemenag' 
+        ? "Kemenag Perangkat Mengajar Harian Berbasis Cinta"
+        : "Perangkat Mengajar Harian Standar";
+
       const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
 
-Buatkan perangkat mengajar harian dengan detail berikut:
+Buatkan ${formatInstruction} dengan detail berikut:
 Informasi Umum:
 - Jenis Guru: ${formData.jenisGuru}
 - Semester: ${formData.semester}
@@ -143,7 +169,14 @@ Informasi Umum:
 - Kelas: ${formData.kelas}
 ${formData.jenisGuru === 'Guru Mapel' ? `- Mata Pelajaran: ${mapel}` : ''}
 - Topik/Materi: ${formData.topikMateri}
+${formData.praktikPedagogis ? `- Praktik Pedagogis: ${formData.praktikPedagogis}` : ''}
+- Taksonomi/Pendekatan Kognitif: ${formData.kerangkaTaksonomi === 'bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'} pada level: ${formData.levelTaksonomi}.
 ${formData.hasInklusi ? `- Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
+
+${formatPerangkat === 'kemenag' ? `Konteks Kemenag & Berbasis Cinta (WAJIB ADA):
+- Tambahkan nilai Profil Pelajar Rahmatan Lil 'Alamin (PPRA).
+- Integrasikan "Pendekatan Cinta/Heartful Learning" (sapaan kasih sayang, empati, doa, kelembutan, bonding emosional) dalam kegiatan dan instruksi.
+- Selipkan nilai-nilai spiritual, akhlak, dan moderasi beragama dalam konten.` : ''}
 
 ${formData.remixText ? `INSTRUKSI REMIX:
 Gunakan teks referensi berikut sebagai dasar utama pembuatan konten. Remix dan kembangkan konten ini agar sesuai dengan kurikulum merdeka dan target audiens di atas:
@@ -165,8 +198,9 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 1. JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
 2. Tuliskan teks dalam bahasa Indonesia yang baku, formal, dan BEBAS dari kesalahan tik (typo). Misalnya, gunakan "Setelah" (bukan "Seteleh"), "Pilihan" (bukan "Piliham"), dll.
 3. Hindari adanya spasi ganda yang aneh, tab kosong, atau pemisahan kata yang tidak semestinya di dalam teks atau daftar list.
-4. Untuk penulisan rumus/ekspresi matematika, gunakan teks biasa yang jelas dan mudah dibaca (misalnya "x + y = 7" atau "ax + by = c") dan JANGAN menggunakan format latex aneh seperti ",$x+y=7,$" atau ",$".
-5. Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JSON VALID.`;
+4. Untuk penulisan rumus/ekspresi matematika, gunakan teks biasa yang jelas dan mudah dibaca.
+5. PENTING: Untuk cetak yang rapi, susun konten paragraf dengan baris baru (newline ganda \\n\\n) agar tidak menumpuk. Gunakan tabel Markdown (dengan header | Kolom |) pada konten yang sesuai agar tersusun rapi.
+6. Pastikan hanya mengembalikan properti JSON untuk fitur yang diminta. PASTIKAN JSON VALID.`;
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -406,10 +440,25 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
         <div>
           <h2 className="text-2xl font-black text-black tracking-tight flex items-center gap-3">
             <BookOpen className="text-red-500" size={28} />
-            Mengajar Harian
+            {formatPerangkat === 'kemenag' ? 'Kemenag Mengajar Harian' : 'Mengajar Harian'}
           </h2>
           <p className="text-gray-600 text-sm mt-1">Generate perangkat mengajar harian lengkap dengan AI.</p>
         </div>
+      </div>
+
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-xl max-w-md w-full">
+        <button 
+          onClick={() => setFormatPerangkat('standar')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'standar' ? 'bg-white text-gray-900 shadow-md transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+        >
+          Standar
+        </button>
+        <button 
+          onClick={() => setFormatPerangkat('kemenag')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all duration-300 ${formatPerangkat === 'kemenag' ? 'bg-red-50 text-red-700 shadow-md border border-red-200 transform scale-[1.02]' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-200'}`}
+        >
+          Kemenag (Berbasis Cinta)
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -543,6 +592,55 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 )}
               </div>
 
+              <div className="pt-4 border-t border-gray-100">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Praktik Pedagogis</label>
+                <select 
+                  className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none mb-4"
+                  value={formData.praktikPedagogis || ''}
+                  onChange={(e) => setFormData({...formData, praktikPedagogis: e.target.value})}
+                >
+                  <option value="">Pilih Praktik Pedagogis</option>
+                  <option value="Pembelajaran Berbasis Masalah (PBL)">Pembelajaran Berbasis Masalah (PBL)</option>
+                  <option value="Pembelajaran Berbasis Proyek (PjBL)">Pembelajaran Berbasis Proyek (PjBL)</option>
+                  <option value="Pembelajaran Penemuan (Discovery)">Pembelajaran Penemuan (Discovery)</option>
+                  {formatPerangkat === 'kemenag' && (
+                    <option value="Pendekatan Kurikulum Berbasis Cinta">Pendekatan Kurikulum Berbasis Cinta</option>
+                  )}
+                </select>
+
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Kerangka Taksonomi</label>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'})}
+                    className={`flex-1 py-2 px-2 rounded-full text-sm font-semibold transition-all ${formData.kerangkaTaksonomi === 'bloom' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi Bloom
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'solo', levelTaksonomi: 'Relasional'})}
+                    className={`flex-1 py-2 px-2 rounded-full text-sm font-semibold transition-all ${formData.kerangkaTaksonomi === 'solo' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi SOLO
+                  </button>
+                </div>
+
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Level Yang Digunakan</label>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {(formData.kerangkaTaksonomi === 'bloom' ? TAKSONOMI_BLOOM : TAKSONOMI_SOLO).map(lvl => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setFormData({...formData, levelTaksonomi: lvl})}
+                      className={`py-1.5 px-3 rounded-full text-xs font-medium transition-all ${formData.levelTaksonomi === lvl ? 'bg-blue-500 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      {lvl.split(':')[0]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <PDFRemixUpload 
                 onTextExtracted={(text) => setFormData(prev => ({ ...prev, remixText: text }))}
                 label="Remix dari PDF (Opsional)"
@@ -647,7 +745,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
               <div id="print-content" className="space-y-8">
                 <div className="print-section text-center border-b border-white/10 pb-6">
-                  <h1 className="text-2xl md:text-3xl font-black text-black mb-2">Perangkat Mengajar Harian: {formData.topikMateri}</h1>
+                  <h1 className="text-2xl md:text-3xl font-black text-black mb-2">{formatPerangkat === 'kemenag' ? 'Kemenag Mengajar Harian' : 'Perangkat Mengajar Harian'}: {formData.topikMateri}</h1>
                   <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-600">
                     <span><strong>Jenis:</strong> {formData.jenisGuru}</span>
                     {formData.jenisGuru === 'Guru Mapel' && <span><strong>Mapel:</strong> {formData.mataPelajaran === 'Lainnya' ? formData.customMapel : formData.mataPelajaran}</span>}

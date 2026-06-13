@@ -11,6 +11,26 @@ import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
+
+
+const TAKSONOMI_BLOOM = [
+  'C1: Mengingat (Remembering)',
+  'C2: Memahami (Understanding)',
+  'C3: Menerapkan (Applying)',
+  'C4: Menganalisis (Analyzing)',
+  'C5: Mengevaluasi (Evaluating)',
+  'C6: Menciptakan (Creating)',
+  'Campuran (Sesuai Kurikulum Merdeka)'
+];
+
+const TAKSONOMI_SOLO = [
+  'Pra-struktural',
+  'Uni-struktural',
+  'Multi-struktural',
+  'Relasional',
+  'Abstrak Diperluas'
+];
 
 export default function ModuleGenerator() {
   const { profile } = useAuth();
@@ -18,6 +38,8 @@ export default function ModuleGenerator() {
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('ModuleGenerator_selectedModel', 'openai');
   const [formatPerangkat, setFormatPerangkat] = useLocalStorage<'standar'|'kemenag'>('ModuleGenerator_formatPerangkat', 'standar');
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('ModuleGenerator_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('ModuleGenerator_logoUrl', null);
 
   const saveProgress = () => {
     alert('Progress otomatis disimpan saat Anda mengetik!');
@@ -132,7 +154,7 @@ export default function ModuleGenerator() {
       const faseLabel = phaseClassMap[jenjang]?.phases.find(p => p.id === fase)?.label || fase;
       const kelasLabel = phaseClassMap[jenjang]?.classes[fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
       const mapelLabel = subjectsByLevel[jenjang]?.find(s => s.id === mapel)?.label || mapelNames[mapel] || mapel;
-      const modelName = modelNames[formData.model] || formData.model;
+      const modelName = formData.model === 'cinta' ? 'Pendekatan Kurikulum Berbasis Cinta' : (modelNames[formData.model] || formData.model);
 
       const formatInstruction = formatPerangkat === 'kemenag' 
         ? "Kemenag RPM (Rencana Pelaksanaan Pembelajaran/Modul Ajar) Berbasis Cinta"
@@ -167,8 +189,8 @@ ${custom.kp && (customData.kpPembuka || customData.kpInti || customData.kpPenutu
 ${prinsipInti.length > 0 ? `- Prinsip Kegiatan Inti: Pastikan kegiatan inti mencerminkan prinsip ${prinsipInti.join(', ')}.` : ''}
 
 Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
-1. Tingkatan Kognitif (Taksonomi Bloom): Target utama adalah ${formData.tingkatanKognitif}. 
-   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target.
+1. Taksonomi/Pendekatan Kognitif: ${formData.kerangkaTaksonomi === 'bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'} pada level: ${formData.levelTaksonomi}.
+   - Seimbangkan LOTS (C1-C2) dan HOTS (C4-C6) sesuai target jika menggunakan Bloom.
    - Integrasikan Dimensi Pengetahuan: Faktual, Konseptual, Prosedural, dan Metakognitif.
    - PENTING: JANGAN tampilkan label "C1", "C2", dll. secara eksplisit pada hasil akhir, cukup terapkan dalam kata kerja operasional dan aktivitas.
 2. Tujuan Pembelajaran (ABCD): Rumuskan tujuan pembelajaran dengan kaidah Audience (Peserta Didik), Behaviour (Perilaku/KKO), Condition (Kondisi/Metode), dan Degree (Kriteria/Tingkat Keberhasilan).
@@ -358,24 +380,26 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
-              <div class="header">
-                  <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-                      ${(result.namaSekolah?.toLowerCase().includes('madrasah') || result.namaSekolah?.toLowerCase().includes(' mi ') || result.namaSekolah?.toLowerCase().includes('mts') || result.namaSekolah?.toLowerCase().includes(' ma ') || result.namaSekolah?.toLowerCase().startsWith('mi ') || result.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+              <div class="header" style="position: relative; text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px;">
+                  ${useLogo && logoUrl ? `<img src="${logoUrl}" style="position: absolute; left: 0; top: 0; height: 80px; width: auto;" alt="Logo"/>` : ''}
+                  <div style="padding: 0 90px;">
+                      <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                          ${(result.namaSekolah?.toLowerCase().includes('madrasah') || result.namaSekolah?.toLowerCase().includes(' mi ') || result.namaSekolah?.toLowerCase().includes('mts') || result.namaSekolah?.toLowerCase().includes(' ma ') || result.namaSekolah?.toLowerCase().startsWith('mi ') || result.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                      </div>
+                      <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                          ${result.namaSekolah || 'SATUAN PENDIDIKAN'}
+                      </div>
+                      <div style="font-size: 9pt; margin-top: 2px;">
+                          Tahun Ajaran: ${result.tahunAjaran || '-'}
+                      </div>
                   </div>
-                  <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
-                      ${result.namaSekolah || 'SATUAN PENDIDIKAN'}
-                  </div>
-                  <div style="font-size: 9pt; margin-top: 2px;">
-                      Tahun Ajaran: ${result.tahunAjaran || '-'}
-                  </div>
-                  <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
-                  
-                  <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase;">
-                      MODUL AJAR / RENCANA PELAKSANAAN PEMBELAJARAN (RPP)
-                  </h3>
-                  <div style="font-size: 10pt; margin-top: 5px; font-style: italic;">
-                      Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
-                  </div>
+              </div>
+              
+              <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
+                  MODUL AJAR / RENCANA PELAKSANAAN PEMBELAJARAN (RPP)
+              </h3>
+              <div style="font-size: 10pt; margin-top: 5px; font-style: italic; text-align: center; margin-bottom: 20px;">
+                  Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
               </div>
 
               <div class="section">
@@ -574,6 +598,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   </select>
                   <AIAssistedInput type="text" placeholder="Nomor Induk Kepala Sekolah" value={formData.nipKepalaSekolah} onChange={e => setFormData({...formData, nipKepalaSekolah: e.target.value})} className="w-2/3 bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all" />
                 </div>
+                <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
               </div>
             )}
           </div>
@@ -662,18 +687,54 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 )}
               </div>
               
+              
+              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tingkatan Kognitif (Taksonomi Bloom)</label>
-                <select value={formData.tingkatanKognitif} onChange={e => setFormData({...formData, tingkatanKognitif: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
-                  <option value="C1: Mengingat (Remembering)">C1: Mengingat (Remembering)</option>
-                  <option value="C2: Memahami (Understanding)">C2: Memahami (Understanding)</option>
-                  <option value="C3: Menerapkan (Applying)">C3: Menerapkan (Applying)</option>
-                  <option value="C4: Menganalisis (Analyzing)">C4: Menganalisis (Analyzing)</option>
-                  <option value="C5: Mengevaluasi (Evaluating)">C5: Mengevaluasi (Evaluating)</option>
-                  <option value="C6: Menciptakan (Creating)">C6: Menciptakan (Creating)</option>
-                  <option value="Campuran (Sesuai Kurikulum Merdeka)">Campuran (Sesuai Kurikulum Merdeka)</option>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Model / Praktik Pedagogis</label>
+                <select value={formData.model} onChange={e => setFormData({...formData, model: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
+                  <option value="pbl">Problem Based Learning (PBL)</option>
+                  <option value="pjbl">Project Based Learning (PjBL)</option>
+                  <option value="inquiry">Inquiry Learning</option>
+                  <option value="discovery">Discovery Learning</option>
+                  <option value="cooperative">Cooperative Learning</option>
+                  {formatPerangkat === 'kemenag' && <option value="cinta">Pendekatan Kurikulum Berbasis Cinta</option>}
                 </select>
               </div>
+
+              <div className="col-span-2 md:col-span-1 border border-gray-200 rounded-xl p-3 bg-white">
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Kerangka Taksonomi</label>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'})}
+                    className={`flex-1 py-1.5 px-2 rounded-full text-xs font-semibold transition-all ${formData.kerangkaTaksonomi === 'bloom' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi Bloom
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({...formData, kerangkaTaksonomi: 'solo', levelTaksonomi: 'Relasional'})}
+                    className={`flex-1 py-1.5 px-2 rounded-full text-xs font-semibold transition-all ${formData.kerangkaTaksonomi === 'solo' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Taksonomi SOLO
+                  </button>
+                </div>
+
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-3">Level Yang Digunakan</label>
+                <div className="flex flex-wrap gap-2">
+                  {(formData.kerangkaTaksonomi === 'bloom' ? TAKSONOMI_BLOOM : TAKSONOMI_SOLO).map(lvl => (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setFormData({...formData, levelTaksonomi: lvl})}
+                      className={`py-1 px-3 rounded-full text-xs font-medium transition-all ${formData.levelTaksonomi === lvl ? 'bg-cyan-500 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                    >
+                      {lvl.split(':')[0]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
 
               <div className="space-y-3">
                 <label className="flex items-center gap-2 cursor-pointer">

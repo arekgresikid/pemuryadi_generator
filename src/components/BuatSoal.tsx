@@ -10,6 +10,7 @@ import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -68,6 +69,9 @@ export default function BuatSoal() {
     terdapatSoalBergambar: false,
     jumlahSoalBergambar: 0
   });
+
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('BuatSoal_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('BuatSoal_logoUrl', null);
 
   const handleBentukSoalChange = (bentuk: string) => {
     let current = [...formData.bentukSoal];
@@ -516,6 +520,7 @@ Berikan output dalam format JSON murni:
     if (!resultKisiKisi) return '';
     const { meta, kisiKisi } = resultKisiKisi;
     return `
+      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
       <h2>KISI-KISI ${meta.tipeUjian ? meta.tipeUjian.toUpperCase() : 'SOAL'}</h2>
       <div class="header-info">
         <table>
@@ -560,6 +565,7 @@ Berikan output dalam format JSON murni:
     const { meta, soalList = [], soalABKList = [] } = resultSoal;
 
     const printHeader = `
+      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
       <div class="header-info">
         <table>
           <tr><td width="150">Mata Pelajaran</td><td>: ${meta.mapelLabel}</td></tr>
@@ -872,6 +878,10 @@ Berikan output dalam format JSON murni:
                         {subjectsByLevel[formData.jenjang]?.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                       </select>
                     </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
                   </div>
                 </div>
 

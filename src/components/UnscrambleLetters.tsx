@@ -67,6 +67,7 @@ Jenjang: ${jenjangLabel}
 Fase: ${faseLabel}
 Kelas: ${kelasLabel}
 Mata Pelajaran: ${subjectLabel}
+Topik/Judul: ${title || 'Umum'}
 
 PENTING:
 1. Kata di sisi kiri harus satu kata tanpa spasi.
@@ -251,7 +252,7 @@ PENTING:
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Kata</label>
             <p className="text-xs text-gray-600 mb-2">Format: <strong>KATA - Petunjuk</strong> (satu per baris)</p>
-            <AIAssistedTextarea value={inputText} onChange={(e) => setInputText(e.target.value)} rows={8} placeholder="GRAVITASI - Gaya tarik bumi&#10;BULAN - Satelit bumi" className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 font-mono text-sm outline-none custom-scrollbar" />
+            <AIAssistedTextarea value={inputText} onChange={(e) => setInputText(e.target.value)} contextPrompt={`Buatkan daftar kata Unscramble Letters (Topik: ${title || 'Pendidikan'}). Format: KATA - Petunjuk. Contoh: BUKU - Kumpulan kertas berisi tulisan.`} rows={8} placeholder="GRAVITASI - Gaya tarik bumi&#10;BULAN - Satelit bumi" className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 font-mono text-sm outline-none custom-scrollbar" />
           </div>
 
           {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}

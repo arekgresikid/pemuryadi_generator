@@ -10,6 +10,7 @@ import { useAuth } from '../AuthContext';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
 
 export default function KKTP() {
   const { profile } = useAuth();
@@ -50,6 +51,9 @@ export default function KKTP() {
     tempatTanggal: '',
     remixText: ''
   });
+
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('KKTP_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('KKTP_logoUrl', null);
 
   const [tujuanPembelajaran, setTujuanPembelajaran] = useLocalStorage('KKTP_tujuanPembelajaran', [{ kode: '', deskripsi: '' }]);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
@@ -253,17 +257,20 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
       </head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
-          <div class="header">
-              <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-                  ${isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+          <div class="header" style="position: relative;">
+              ${useLogo && logoUrl ? `<img src="${logoUrl}" style="position: absolute; left: 0; top: 0; height: 80px; width: auto;" alt="Logo"/>` : ''}
+              <div style="padding: 0 90px;">
+                  <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                      ${isKemenag ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                  </div>
+                  <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                      ${formData.satuanPendidikan || 'SATUAN PENDIDIKAN'}
+                  </div>
+                  <div style="font-size: 9pt; margin-top: 2px;">
+                      Tahun Pelajaran: ${formData.tahunPelajaran || '-'}
+                  </div>
               </div>
-              <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
-                  ${formData.satuanPendidikan || 'SATUAN PENDIDIKAN'}
-              </div>
-              <div style="font-size: 9pt; margin-top: 2px;">
-                  Tahun Pelajaran: ${formData.tahunPelajaran || '-'}
-              </div>
-              <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px;" />
+              <hr style="border: none; border-top: 3px double #000; margin-top: 5px; margin-bottom: 20px; clear: both;" />
               
               <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase;">
                   KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)
@@ -492,6 +499,9 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
                 </div>
                 <div className="col-span-2">
                   <AIAssistedInput type="text" placeholder="Tempat & Tanggal Penetapan (cth: Surabaya, 10 Juli 2024)" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all" />
+                </div>
+                <div className="col-span-2">
+                  <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
                 </div>
               </div>
             </div>
