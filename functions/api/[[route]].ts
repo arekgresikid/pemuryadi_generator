@@ -762,7 +762,7 @@ app.get('/generate-image', async (c) => {
   const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
   
   try {
-    const imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&seed=${seed}`, {
+    const imageResponse = await fetch(`https://image.pollinations.ai/prompt/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true`, {
       headers: apiKey ? {
         'Authorization': `Bearer ${apiKey}`
       } : {}

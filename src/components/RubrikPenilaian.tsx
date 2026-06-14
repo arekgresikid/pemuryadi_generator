@@ -9,6 +9,7 @@ import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import PDFRemixUpload from './PDFRemixUpload';
 
 export default function RubrikPenilaian() {
   const { profile } = useAuth();
@@ -438,17 +439,26 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">
-                  Tujuan Pembelajaran / Materi Asesmen <span className="text-red-500">*</span>
-                </label>
-                <AIAssistedTextarea
-                  value={formData.tujuanPembelajaran}
-                  onValueChange={(val) => setFormData({...formData, tujuanPembelajaran: val})}
-                  placeholder="Contoh: Siswa dapat mendeskripsikan ciri-ciri makhluk hidup melalui observasi lapangan..."
-                  contextPrompt={`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen ${formData.jenisAsesmen} Mapel ${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas ${formData.kelas}.`}
-                  rows={4}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+                <div className="md:col-span-3">
+                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">
+                    Capaian / Tujuan Pembelajaran / Materi Asesmen <span className="text-red-500">*</span>
+                  </label>
+                  <AIAssistedTextarea
+                    value={formData.tujuanPembelajaran}
+                    onValueChange={(val) => setFormData({...formData, tujuanPembelajaran: val})}
+                    className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                    placeholder="Contoh: Siswa dapat mendeskripsikan ciri-ciri makhluk hidup melalui observasi lapangan..."
+                    contextPrompt={`Bantu saya menyusun Tujuan Pembelajaran (TP) untuk Asesmen ${formData.jenisAsesmen} Mapel ${subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || ''} Kelas ${formData.kelas}.`}
+                    rows={4}
+                  />
+                </div>
+                <div className="md:col-span-1">
+                  <PDFRemixUpload 
+                    onTextExtracted={(text) => setFormData({...formData, tujuanPembelajaran: text})}
+                    label="Ekstrak dari PDF CP/TP"
+                  />
+                </div>
               </div>
 
             </div>

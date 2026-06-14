@@ -7,7 +7,7 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   contextPrompt?: string;
 }
 
-export default function AIAssistedInput({ onValueChange, contextPrompt, className = '', placeholder, ...props }: Props) {
+export default function AIAssistedInput({ onValueChange, contextPrompt, className = '', placeholder, onChange, ...props }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = async () => {
@@ -38,14 +38,14 @@ Jawab LANGSUNG dengan isinya saja (maksimal 5-7 kata), tanpa tanda kutip, tanpa 
       
       if (onValueChange) {
         onValueChange(result);
-      } else if (props.onChange) {
+      } else if (onChange) {
         // Fallback if no explicit onValueChange is provided, we try to trigger onChange directly
         // Note: In React, directly calling onChange with a fake event is tricky.
         // It's highly recommended to pass onValueChange for custom components.
         const e = {
           target: { value: result }
         } as React.ChangeEvent<HTMLInputElement>;
-        props.onChange(e);
+        onChange(e);
       }
     } catch (error) {
       console.error('Error generating AI suggestion:', error);
@@ -59,6 +59,10 @@ Jawab LANGSUNG dengan isinya saja (maksimal 5-7 kata), tanpa tanda kutip, tanpa 
       <input 
         className={`w-full ${className} pr-12`} 
         placeholder={placeholder}
+        onChange={(e) => {
+          if (onValueChange) onValueChange(e.target.value);
+          if (onChange) onChange(e);
+        }}
         {...props} 
       />
       <button
