@@ -2,6 +2,10 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.2] - 13 Juni 2026
+- Menambahkan fitur generator Barcode/QR Code interaktif dan menyempurnakan teks deskripsi pada modul Invoice Generator.
+- Memperbaiki isu kritis Service Worker (PWA) yang menyebabkan siklus error 'net::ERR_FAILED' dan gagal muat pada localhost mode development.
+
 ## [5.3.1] - 11 Juni 2026
 - Meningkatkan dokumentasi README.md menjadi profesional dengan penambahan badges status, statistik platform, architecture diagram (Mermaid), dan detailed tech stack.
 - Menambahkan dokumentasi API endpoints lengkap, database schema, dan troubleshooting guide untuk developer.

@@ -334,6 +334,7 @@ Format output harus JSON murni:
       </div>
     `;
 
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     printWindow.document.write(`
       <html>
         <head>
@@ -349,7 +350,16 @@ Format output harus JSON murni:
               tr { page-break-inside: avoid; }
             }
           </style>
-        </head>
+        
+          ${styles}
+          <style>
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td p, .content-wrapper p { margin-bottom: 8px !important; }
+            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
+            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
+            .html-content th { background-color: #f1f5f9; font-weight: bold; }
+          </style></head>
         <body>
           ${getWatermarkHtml()}
           ${content}

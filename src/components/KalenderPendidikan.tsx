@@ -1,3 +1,4 @@
+import { parseMarkdown } from '../utils/markdown';
 import React, { useState, useRef } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
@@ -303,7 +304,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                   </div>
                 ) : resultHtml ? (
                   <div ref={printRef} className="print-container relative w-full pb-16">
-                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
+                    <div dangerouslySetInnerHTML={{ __html: parseMarkdown(resultHtml) }} />
                     <div className="mt-12 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
                       <div className="w-[40%] text-center text-sm">
                         <p>{formData.tempatTanggal || '................., .........................'}</p>

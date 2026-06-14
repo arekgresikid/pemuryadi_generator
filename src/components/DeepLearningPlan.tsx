@@ -1,4 +1,6 @@
+import { parseMarkdown } from '../utils/markdown';
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import ModelSelector from './ModelSelector';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { GoogleGenAI, Type } from '../lib/genai';
@@ -379,6 +381,7 @@ PENTING UNTUK FORMATTING TEKS (WAJIB DIIKUTI):
 
     const profilHtml = result.selectedProfil?.map((p: string) => `<li>${p}</li>`).join('') || '';
 
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -445,7 +448,16 @@ PENTING UNTUK FORMATTING TEKS (WAJIB DIIKUTI):
               thead { display: table-header-group; }
               tfoot { display: table-footer-group; }
             </style>
-      </head>
+      
+          ${styles}
+          <style>
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td p, .content-wrapper p { margin-bottom: 8px !important; }
+            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
+            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
+            .html-content th { background-color: #f1f5f9; font-weight: bold; }
+          </style></head>
       <body>
           <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
           <div class="content-wrapper">
@@ -1234,8 +1246,8 @@ PENTING UNTUK FORMATTING TEKS (WAJIB DIIKUTI):
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">A. Identifikasi</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Peserta Didik:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.pesertaDidik || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Topik Pelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.topikPelajaran || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Peserta Didik:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.pesertaDidik || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Topik Pelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.topikPelajaran || '-') }} /></div>
                   <div>
                     <span className="text-gray-500 text-xs">Dimensi Profil Lulusan:</span>
                     <ul className="list-disc list-inside mt-1">
@@ -1248,34 +1260,34 @@ PENTING UNTUK FORMATTING TEKS (WAJIB DIIKUTI):
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">B. Desain Pembelajaran</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Capaian Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.capaianPembelajaran || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Capaian Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.capaianPembelajaran || '-') }} /></div>
                   <div><span className="text-gray-500 text-xs">Lintas Disiplin Ilmu:</span><p className="mt-1">{result.lintasDisiplin || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Tujuan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.tujuanPembelajaran || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Praktik Pedagogis:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.praktikPedagogis || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Kemitraan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.kemitraanPembelajaran || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Lingkungan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.lingkunganBelajar || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Pemanfaatan Digital:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.pemanfaatanDigital || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Tujuan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.tujuanPembelajaran || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Praktik Pedagogis:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.praktikPedagogis || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Kemitraan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.kemitraanPembelajaran || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Lingkungan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.lingkunganBelajar || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Pemanfaatan Digital:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.pemanfaatanDigital || '-') }} /></div>
                 </div>
               </div>
 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">C. Pengalaman Belajar</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.awal || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.awal || '-') }} /></div>
                   <div className="pt-2 border-t border-black"><span className="text-gray-600 font-semibold text-xs">INTI</span></div>
-                  <div><span className="text-gray-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.memahami || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.mengaplikasi || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.merefleksi || '-' }} /></div>
-                  <div className="pt-2 border-t border-black"><span className="text-gray-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.penutup || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.memahami || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.mengaplikasi || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.merefleksi || '-') }} /></div>
+                  <div className="pt-2 border-t border-black"><span className="text-gray-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.penutup || '-') }} /></div>
                 </div>
               </div>
 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">D. Asesmen Pembelajaran</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenAwal || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenFormatif || '-' }} /></div>
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenSumatif || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.asesmenAwal || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.asesmenFormatif || '-') }} /></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.asesmenSumatif || '-') }} /></div>
                 </div>
               </div>
 

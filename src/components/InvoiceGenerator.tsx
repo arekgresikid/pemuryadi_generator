@@ -176,6 +176,7 @@ export default function InvoiceGenerator() {
       watermarkHtml = `<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 6rem; font-weight: 900; color: rgba(239, 68, 68, 0.1); border: 8px solid rgba(239, 68, 68, 0.1); padding: 20px 40px; border-radius: 16px; z-index: 0; pointer-events: none; user-select: none; text-align: center; line-height: 1.1;">JATUH<br/>TEMPO</div>`;
     }
 
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -189,7 +190,16 @@ export default function InvoiceGenerator() {
               body { font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: white; margin: 0; padding: 40px; position: relative; }
               * { box-sizing: border-box; }
           </style>
-      </head>
+      
+          ${styles}
+          <style>
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td p, .content-wrapper p { margin-bottom: 8px !important; }
+            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
+            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
+            .html-content th { background-color: #f1f5f9; font-weight: bold; }
+          </style></head>
       <body>
           <div style="max-width: 800px; margin: 0 auto; position: relative; z-index: 1;">
             <!-- Header Invoice -->
@@ -257,7 +267,7 @@ export default function InvoiceGenerator() {
                     <span>Diskon ${discountType === 'PERCENT' ? `(${discountValue}%)` : ''}</span>
                     <span>- ${formatRupiah(discountAmountCalc)}</span>
                   </div>` : ''}
-                  ${taxPercent > 0 ? `
+                  ${Number(taxPercent) > 0 ? `
                   <div style="display: flex; justify-content: space-between; color: #4b5563; margin-bottom: 12px;">
                     <span>Pajak (${taxPercent}%)</span>
                     <span>${formatRupiah(taxAmount)}</span>
@@ -659,7 +669,7 @@ export default function InvoiceGenerator() {
                         <span>- {formatRupiah(discountAmountCalc)}</span>
                       </div>
                     )}
-                    {taxPercent > 0 && (
+                    {Number(taxPercent) > 0 && (
                       <div className="flex justify-between text-gray-600">
                         <span>Pajak ({taxPercent}%)</span>
                         <span>{formatRupiah(taxAmount)}</span>

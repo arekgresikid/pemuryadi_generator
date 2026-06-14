@@ -204,25 +204,47 @@ input[type="range"] {
   transition: none !important;
 }
 
-/* Markdown Body Styles */
-.markdown-body table {
+/* Markdown & HTML Content Body Styles */
+.markdown-body table, .html-content table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
   margin-bottom: 1rem;
   color: var(--color-dark);
 }
-.markdown-body th, .markdown-body td {
+.markdown-body th, .html-content th, .markdown-body td, .html-content td {
   border: 1px solid #e5e5e5;
   padding: 0.75rem;
   text-align: left;
 }
-.markdown-body th {
+.markdown-body th, .html-content th {
   background-color: #fafafa;
   font-weight: bold;
 }
-.markdown-body tr:nth-child(even) {
+.markdown-body tr:nth-child(even), .html-content tr:nth-child(even) {
   background-color: #fafafa;
+}
+.markdown-body ul, .html-content ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 1rem;
+}
+.markdown-body ol, .html-content ol {
+  list-style-type: decimal;
+  padding-left: 20px;
+  margin-bottom: 1rem;
+}
+.html-content p, .markdown-body p {
+  margin-bottom: 0.75rem;
+}
+
+/* Ensure dark text color without breaking selection highlights */
+.html-content, .markdown-body {
+  color: var(--color-dark);
+}
+.html-content p, .html-content li, .html-content span, .html-content div, .html-content strong, .html-content b, .html-content em, .html-content i,
+.markdown-body p, .markdown-body li, .markdown-body span, .markdown-body div, .markdown-body strong, .markdown-body b, .markdown-body em, .markdown-body i {
+  color: var(--color-dark);
 }
 
 /* Tab Active State */

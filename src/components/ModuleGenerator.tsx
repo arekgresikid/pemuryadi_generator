@@ -5,14 +5,14 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
-import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2, Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2, Settings, ChevronDown, ChevronUp, Printer, FileText } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
-import { marked } from 'marked';
+import { parseMarkdown } from '../utils/markdown';
 
 
 const TAKSONOMI_BLOOM = [
@@ -147,6 +147,7 @@ export default function ModuleGenerator() {
   const generateModul = async () => {
     setIsGenerating(true);
     setError('');
+    setResult(null);
     
     try {
       const ai = new GoogleGenAI({});
@@ -474,19 +475,19 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                           <tr>
                             <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Pendahuluan</td>
                             <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
-                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.pembuka || '-')}</div>
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.pembuka || '-')}</div>
                             </td>
                           </tr>
                           <tr>
                             <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Inti</td>
                             <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
-                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.inti || '-')}</div>
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.inti || '-')}</div>
                             </td>
                           </tr>
                           <tr>
                             <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Penutup</td>
                             <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
-                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.penutup || '-')}</div>
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.penutup || '-')}</div>
                             </td>
                           </tr>
                         </tbody>
@@ -911,7 +912,19 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
               <p className="text-teal-400 font-medium animate-pulse">AI sedang menyusun Modul Ajar...</p>
             </div>
           ) : result ? (
-            <>
+            <div className="flex flex-col h-full relative">
+              <div className="sticky top-0 z-20 bg-white border-b border-gray-200 p-4 mb-4 flex justify-between items-center shadow-sm rounded-t-2xl">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-teal-600" /> Hasil Modul Ajar
+                </h3>
+                <button 
+                  onClick={() => setIsPrintModalOpen(true)} 
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-lg transition-all shadow flex items-center gap-2"
+                >
+                  <Printer size={16} /> Print / Download PDF
+                </button>
+              </div>
+              <div className="px-6 pb-6 space-y-6 text-sm">
               <AIVisualGenerator 
                 context={{
                   subject: subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel,
@@ -921,7 +934,6 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   class: phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas,
                 }}
               />
-              <div className="space-y-6 text-sm">
               <div className="bg-gradient-to-r from-teal-500/20 to-cyan-500/20 rounded-xl p-6 border border-teal-500/30 text-center shadow-inner">
                 <h3 className="text-xl font-bold text-black mb-2 tracking-wide">MODUL AJAR</h3>
                 <h4 className="text-teal-400 font-medium">{result.mapelName}</h4>
@@ -1018,11 +1030,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 <div className="space-y-4">
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">A. Ringkasan Materi</h5>
-                    <div className="text-gray-700 text-sm leading-relaxed html-content" dangerouslySetInnerHTML={{ __html: result.ringkasanMateri || '-' }} />
+                    <div className="text-gray-700 text-sm leading-relaxed html-content markdown-body prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.ringkasanMateri) }} />
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">B. Contoh Penerapan di Kehidupan Nyata</h5>
-                    <div className="text-gray-700 text-sm leading-relaxed html-content" dangerouslySetInnerHTML={{ __html: result.contohNyata || '-' }} />
+                    <div className="text-gray-700 text-sm leading-relaxed html-content markdown-body prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.contohNyata) }} />
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">C. Lembar Kerja Peserta Didik (LKPD)</h5>
@@ -1056,8 +1068,8 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 </p>
               </div>
             </div>
-          </>
-        ) : (
+            </div>
+          ) : (
             <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
               <div className="text-6xl mb-4 opacity-50">📖</div>
               <p>Modul Ajar akan muncul di sini</p>

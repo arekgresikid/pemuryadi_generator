@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { BookOpen, FileText, Download, Printer, Info, AlertCircle, Presentation, Map, Image as ImageIcon, CheckSquare, Star, Activity, Plus, Save , Trash2, ChevronDown } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { marked } from 'marked';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
+import { repairMarkdown } from '../utils/markdown';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -438,7 +439,9 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
   const renderMarkdown = (text: string) => {
     if (!text) return null;
     return (
-      <div className="markdown-body prose prose-invert max-w-none text-gray-700 html-content" dangerouslySetInnerHTML={{ __html: text }} />
+      <div className="markdown-body prose prose-slate max-w-none text-gray-700 html-content">
+        <div dangerouslySetInnerHTML={{ __html: marked.parse(repairMarkdown(text)) as string }} />
+      </div>
     );
   };
 

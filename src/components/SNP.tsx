@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Leaf, Shield, Users, BarChart, BookOpen, FileText, Loader2, Save, Crown, ExternalLink, Printer } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { marked } from 'marked';
+import { repairMarkdown } from '../utils/markdown';
 import DocumentUpload, { UploadedFile } from './DocumentUpload';
 import { useAuth } from '../AuthContext';
 import AIAssistedTextarea from './AIAssistedTextarea';
@@ -337,7 +338,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
             </button>
           </div>
           <div ref={printRef} className="prose prose-invert max-w-none prose-headings:text-rose-400 prose-a:text-rose-300">
-            <ReactMarkdown>{result}</ReactMarkdown>
+            <div dangerouslySetInnerHTML={{ __html: marked.parse(repairMarkdown(result)) as string }} />
           </div>
         </div>
       )}
