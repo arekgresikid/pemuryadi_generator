@@ -267,7 +267,14 @@ Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
    - TPACK (Technological Pedagogical Content Knowledge): Tunjukkan bagaimana guru menggunakan teknologi dan pedagogi yang tepat untuk menyampaikan konten materi.
    - STEAM (Science, Technology, Engineering, Art, Mathematics): Integrasikan elemen STEAM dalam aktivitas siswa untuk melatih berpikir kritis, kreatif, dan pemecahan masalah.
 
-Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana pembelajaran mendalam (Identifikasi, Desain Pembelajaran, Pengalaman Belajar, Asesmen, dan Tindak Lanjut) terisi secara otomatis dan komprehensif. PENTING: Untuk cetak yang rapi, susun konten paragraf dengan baris baru (newline ganda \\n\\n) agar tidak menumpuk. Gunakan tabel Markdown (dengan header | Kolom |) pada konten yang sesuai (misalnya Rubrik Penilaian) agar tersusun rapi:
+Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana pembelajaran mendalam (Identifikasi, Desain Pembelajaran, Pengalaman Belajar, Asesmen, dan Tindak Lanjut) terisi secara otomatis dan komprehensif. 
+PENTING UNTUK FORMATTING TEKS (WAJIB DIIKUTI):
+1. Untuk field teks panjang (seperti lingkunganBelajar, pemanfaatanDigital, awal, memahami, mengaplikasi, merefleksi, penutup, asesmen, dll), WAJIB gunakan format HTML murni agar rapi saat dicetak dan di-preview. JANGAN gunakan Markdown biasa (seperti **bold**).
+2. Pengaturan Paragraf: Gunakan <p style="text-align: justify; margin-bottom: 0.5rem; line-height: 1.5;">Teks Anda</p>
+3. Numbered & Multilevel List: Gunakan <ol style="text-align: justify; padding-left: 20px; margin-bottom: 0.5rem; line-height: 1.5;"><li><b>Sub-judul:</b> Deskripsi</li></ol>
+4. Bullet List: Gunakan <ul style="text-align: justify; padding-left: 20px; margin-bottom: 0.5rem; line-height: 1.5;"><li><b>Sub-judul:</b> Deskripsi</li></ul>
+5. Alignment & Table: Jika ada tabel sisipan, gunakan <table style="width: 100%; border-collapse: collapse; text-align: center; page-break-inside: auto;" border="1"> (tabel harus split dengan baik dan rata tengah).
+6. Gunakan tag <b> atau <strong> untuk memberi penekanan pada istilah penting.
 {
   "pesertaDidik": "Identifikasi kesiapan peserta didik sebelum belajar, seperti pengetahuan awal, minat, latar belakang, dan kebutuhan belajar",
   "topikPelajaran": "Analisis topik pelajaran seperti jenis pengetahuan yang akan dicapai, relevansi dengan kehidupan nyata, tingkat kesulitan",
@@ -491,11 +498,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <table>
                   <tr>
                       <th>Peserta Didik</th>
-                      <td>${result.pesertaDidik.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.pesertaDidik || '-'}</td>
                   </tr>
                   <tr>
                       <th>Topik Pelajaran</th>
-                      <td>${result.topikPelajaran.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.topikPelajaran || '-'}</td>
                   </tr>
                   <tr>
                       <th>Dimensi Profil Lulusan</th>
@@ -507,7 +514,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <table>
                   <tr>
                       <th>Capaian Pembelajaran</th>
-                      <td>${result.capaianPembelajaran.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.capaianPembelajaran || '-'}</td>
                   </tr>
                   <tr>
                       <th>Lintas Disiplin Ilmu</th>
@@ -515,23 +522,23 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   </tr>
                   <tr>
                       <th>Tujuan Pembelajaran</th>
-                      <td>${result.tujuanPembelajaran.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.tujuanPembelajaran || '-'}</td>
                   </tr>
                   <tr>
                       <th>Praktik Pedagogis</th>
-                      <td>${result.praktikPedagogis.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.praktikPedagogis || '-'}</td>
                   </tr>
                   <tr>
                       <th>Kemitraan Pembelajaran</th>
-                      <td>${result.kemitraanPembelajaran.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.kemitraanPembelajaran || '-'}</td>
                   </tr>
                   <tr>
                       <th>Lingkungan Pembelajaran</th>
-                      <td>${result.lingkunganBelajar.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.lingkunganBelajar || '-'}</td>
                   </tr>
                   <tr>
                       <th>Pemanfaatan Digital</th>
-                      <td>${result.pemanfaatanDigital.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.pemanfaatanDigital || '-'}</td>
                   </tr>
               </table>
 
@@ -539,26 +546,26 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <table>
                   <tr>
                       <th>AWAL<br><small>(${result.prinsipAwal.join(', ')})</small></th>
-                      <td>${result.awal.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.awal || '-'}</td>
                   </tr>
                   <tr>
                       <th colspan="2" style="background-color: #f1f5f9;">INTI</th>
                   </tr>
                   <tr>
                       <th>Memahami<br><small>(${result.prinsipMemahami.join(', ')})</small></th>
-                      <td>${result.memahami.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.memahami || '-'}</td>
                   </tr>
                   <tr>
                       <th>Mengaplikasi<br><small>(${result.prinsipMengaplikasi.join(', ')})</small></th>
-                      <td>${result.mengaplikasi.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.mengaplikasi || '-'}</td>
                   </tr>
                   <tr>
                       <th>Merefleksi<br><small>(${result.prinsipMerefleksi.join(', ')})</small></th>
-                      <td>${result.merefleksi.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.merefleksi || '-'}</td>
                   </tr>
                   <tr>
                       <th>PENUTUP<br><small>(${result.prinsipPenutup.join(', ')})</small></th>
-                      <td>${result.penutup.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.penutup || '-'}</td>
                   </tr>
               </table>
 
@@ -566,15 +573,15 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <table>
                   <tr>
                       <th>Asesmen pada Awal Pembelajaran<br><small>(${result.jenisAsesmenAwal})</small></th>
-                      <td>${result.asesmenAwal.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.asesmenAwal || '-'}</td>
                   </tr>
                   <tr>
                       <th>Asesmen pada Proses Pembelajaran<br><small>(${result.jenisAsesmenFormatif})</small></th>
-                      <td>${result.asesmenFormatif.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.asesmenFormatif || '-'}</td>
                   </tr>
                   <tr>
                       <th>Asesmen pada Akhir Pembelajaran<br><small>(${result.jenisAsesmenSumatif})</small></th>
-                      <td>${result.asesmenSumatif.replace(/\\n/g, '<br>') || '-'}</td>
+                      <td>${result.asesmenSumatif || '-'}</td>
                   </tr>
               </table>
 
@@ -1227,8 +1234,8 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">A. Identifikasi</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Peserta Didik:</span><p className="mt-1 whitespace-pre-line">{result.pesertaDidik || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Topik Pelajaran:</span><p className="mt-1 whitespace-pre-line">{result.topikPelajaran || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Peserta Didik:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.pesertaDidik || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Topik Pelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.topikPelajaran || '-' }} /></div>
                   <div>
                     <span className="text-gray-500 text-xs">Dimensi Profil Lulusan:</span>
                     <ul className="list-disc list-inside mt-1">
@@ -1241,34 +1248,34 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">B. Desain Pembelajaran</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Capaian Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.capaianPembelajaran || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Capaian Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.capaianPembelajaran || '-' }} /></div>
                   <div><span className="text-gray-500 text-xs">Lintas Disiplin Ilmu:</span><p className="mt-1">{result.lintasDisiplin || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Tujuan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.tujuanPembelajaran || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Praktik Pedagogis:</span><p className="mt-1 whitespace-pre-line">{result.praktikPedagogis || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Kemitraan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.kemitraanPembelajaran || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Lingkungan Pembelajaran:</span><p className="mt-1 whitespace-pre-line">{result.lingkunganBelajar || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Pemanfaatan Digital:</span><p className="mt-1 whitespace-pre-line">{result.pemanfaatanDigital || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Tujuan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.tujuanPembelajaran || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Praktik Pedagogis:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.praktikPedagogis || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Kemitraan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.kemitraanPembelajaran || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Lingkungan Pembelajaran:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.lingkunganBelajar || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Pemanfaatan Digital:</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.pemanfaatanDigital || '-' }} /></div>
                 </div>
               </div>
 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">C. Pengalaman Belajar</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.awal || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">AWAL ({result.prinsipAwal?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.awal || '-' }} /></div>
                   <div className="pt-2 border-t border-black"><span className="text-gray-600 font-semibold text-xs">INTI</span></div>
-                  <div><span className="text-gray-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.memahami || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.mengaplikasi || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.merefleksi || '-'}</p></div>
-                  <div className="pt-2 border-t border-black"><span className="text-gray-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><p className="mt-1 whitespace-pre-line">{result.penutup || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Memahami ({result.prinsipMemahami?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.memahami || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Mengaplikasi ({result.prinsipMengaplikasi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.mengaplikasi || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Merefleksi ({result.prinsipMerefleksi?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.merefleksi || '-' }} /></div>
+                  <div className="pt-2 border-t border-black"><span className="text-gray-500 text-xs">PENUTUP ({result.prinsipPenutup?.join(', ')}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.penutup || '-' }} /></div>
                 </div>
               </div>
 
               <div className="gen-card bg-red-50 rounded-xl p-5 shadow-sm">
                 <h4 className="font-semibold text-emerald-600 mb-3">D. Asesmen Pembelajaran</h4>
                 <div className="space-y-3 text-gray-700">
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenAwal || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenFormatif || '-'}</p></div>
-                  <div><span className="text-gray-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><p className="mt-1 whitespace-pre-line">{result.asesmenSumatif || '-'}</p></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Awal Pembelajaran ({result.jenisAsesmenAwal}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenAwal || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Proses Pembelajaran ({result.jenisAsesmenFormatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenFormatif || '-' }} /></div>
+                  <div><span className="text-gray-500 text-xs">Asesmen pada Akhir Pembelajaran ({result.jenisAsesmenSumatif}):</span><div className="mt-1 text-sm html-content" dangerouslySetInnerHTML={{ __html: result.asesmenSumatif || '-' }} /></div>
                 </div>
               </div>
 

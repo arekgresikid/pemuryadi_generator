@@ -438,9 +438,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
   const renderMarkdown = (text: string) => {
     if (!text) return null;
     return (
-      <div className="markdown-body prose prose-invert max-w-none text-gray-700">
-        <ReactMarkdown>{text}</ReactMarkdown>
-      </div>
+      <div className="markdown-body prose prose-invert max-w-none text-gray-700 html-content" dangerouslySetInnerHTML={{ __html: text }} />
     );
   };
 

@@ -1018,11 +1018,11 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 <div className="space-y-4">
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">A. Ringkasan Materi</h5>
-                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{result.ringkasanMateri || '-'}</p>
+                    <div className="text-gray-700 text-sm leading-relaxed html-content" dangerouslySetInnerHTML={{ __html: result.ringkasanMateri || '-' }} />
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">B. Contoh Penerapan di Kehidupan Nyata</h5>
-                    <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{result.contohNyata || '-'}</p>
+                    <div className="text-gray-700 text-sm leading-relaxed html-content" dangerouslySetInnerHTML={{ __html: result.contohNyata || '-' }} />
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-gray-700 mb-2">C. Lembar Kerja Peserta Didik (LKPD)</h5>
