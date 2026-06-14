@@ -371,8 +371,8 @@ Format output harus JSON murni:
             <Star size={24} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-wide">Modul P5</h1>
-            <p className="text-sm text-amber-600">Generator Projek Penguatan Profil Pelajar Pancasila</p>
+            <h1 className="text-xl font-bold text-gray-900 tracking-wide">Modul P5 (Kokurikuler)</h1>
+            <p className="text-sm text-amber-600">Generate Modul Projek Penguatan Profil Pelajar Pancasila</p>
           </div>
         </div>
       </div>
@@ -457,8 +457,10 @@ Format output harus JSON murni:
                   Topik Spesifik Projek <span className="text-red-500">*</span>
                 </label>
                 <AIAssistedInput
+                  type="text"
                   value={formData.topik}
-                  onValueChange={(val) => setFormData({...formData, topik: val})}
+                  onChange={(e) => setFormData({...formData, topik: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-colors"
                   placeholder="Contoh: Mengolah sampah plastik menjadi kerajinan ecobrick"
                   contextPrompt={`Berikan ide Topik Spesifik Projek P5 yang menarik untuk anak ${educationLevels.find(l => l.id === formData.jenjang)?.label} dengan Tema '${formData.tema}'.`}
                 />

@@ -77,17 +77,6 @@ Struktur Dokumen HTML:
 4. Tabel Kalender per Bulan (Juli 2026 s.d. Juni 2027):
    - Buat tabel ringkas yang menampilkan bulan, jumlah hari efektif, dan keterangan kegiatan penting (Hari Libur Nasional, Perkiraan Ujian, Pembagian Rapor, Libur Semester).
 5. Keterangan/Legenda di bawah tabel.
-6. Bagian Tanda Tangan di kanan bawah, WAJIB gunakan struktur HTML berikut persis seperti ini:
-   <div style="margin-top: 40px; display: flex; justify-content: flex-end; text-align: center; font-size: 12px; page-break-inside: avoid;">
-     <div style="width: 45%;">
-       <p>${formData.tempatTanggal || '................., .........................'}</p>
-       <p>Kepala Sekolah</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.kepalaSekolah || '................................'}</p>
-       <p>${formData.jenisNipKepalaSekolah || 'NIP'}. ${formData.nipKepalaSekolah || '................................'}</p>
-     </div>
-   </div>
-
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 
       const contents: any[] = [
@@ -313,7 +302,18 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <p>Menyusun Kalender Pendidikan 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
-                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} className="print-container" />
+                  <div ref={printRef} className="print-container relative w-full pb-16">
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
+                    <div className="mt-12 flex justify-end" style={{ pageBreakInside: 'avoid' }}>
+                      <div className="w-[40%] text-center text-sm">
+                        <p>{formData.tempatTanggal || '................., .........................'}</p>
+                        <p>Kepala Sekolah</p>
+                        <br/><br/><br/><br/>
+                        <p className="font-bold underline mb-0">{formData.kepalaSekolah || '................................'}</p>
+                        <p className="mt-0">{formData.jenisNipKepalaSekolah || 'NIP'}. {formData.nipKepalaSekolah || '................................'}</p>
+                      </div>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <Calendar size={64} className="mb-4 opacity-20" />

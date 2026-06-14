@@ -33,7 +33,8 @@ export default function AnalisisHariEfektif() {
     kepalaSekolah: '',
     jenisNipKepalaSekolah: 'NIP',
     nipKepalaSekolah: '',
-    tempatTanggal: 'Jakarta, 15 Juli 2026'
+    kota: 'Jakarta',
+    tanggal: '15 Juli 2026'
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -81,24 +82,6 @@ Struktur Dokumen HTML:
 3. Tabel 1: Perhitungan Alokasi Waktu (Bulan, Jumlah Minggu, Jumlah Minggu Efektif, Jumlah Minggu Tidak Efektif)
 4. Tabel 2: Distribusi Alokasi Waktu (Rincian kegiatan tidak efektif seperti Libur Semester, Libur Nasional, Ujian, dll)
 5. Perhitungan Total Jam Pelajaran Efektif.
-${(formData.kepalaSekolah || formData.namaGuru) ? `6. Bagian Tanda Tangan di bawah tabel, WAJIB gunakan struktur HTML berikut persis seperti ini:
-   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
-     <div style="width: 45%;">
-       <p>Mengetahui,</p>
-       <p>Kepala Sekolah</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">\${formData.kepalaSekolah || '................................'}</p>
-       <p>\${formData.jenisNipKepalaSekolah || 'NIP'}. \${formData.nipKepalaSekolah || '................................'}</p>
-     </div>
-     <div style="width: 45%;">
-       <p>\${formData.tempatTanggal || '................., .........................'}</p>
-       <p>Guru Mata Pelajaran</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">\${formData.namaGuru || '................................'}</p>
-       <p>\${formData.jenisNipGuru || 'NIP'}. \${formData.nipGuru || '................................'}</p>
-     </div>
-   </div>` : ''}
-
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 
       const response = await ai.models.generateContent({
@@ -265,9 +248,15 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 </div>
               </div>
               
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Tempat, Tanggal Penetapan</label>
-                <AIAssistedInput type="text" value={formData.tempatTanggal} onChange={e => setFormData({...formData, tempatTanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Kota Penetapan</label>
+                  <AIAssistedInput type="text" value={formData.kota} onChange={e => setFormData({...formData, kota: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Tanggal Penetapan</label>
+                  <AIAssistedInput type="text" value={formData.tanggal} onChange={e => setFormData({...formData, tanggal: e.target.value})} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black transition-all" />
+                </div>
               </div>
               
               <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
@@ -327,7 +316,27 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <p>Menyusun Analisis Hari Efektif 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
-                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} className="print-container" />
+                  <div ref={printRef} className="print-container relative w-full pb-16">
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
+                    {(formData.kepalaSekolah || formData.namaGuru) && (
+                      <div className="mt-12 flex justify-between" style={{ pageBreakInside: 'avoid' }}>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>Mengetahui,</p>
+                          <p>Kepala Sekolah</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.kepalaSekolah || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipKepalaSekolah || 'NIP'}. {formData.nipKepalaSekolah || '................................'}</p>
+                        </div>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>{formData.kota || '.................'}, {formData.tanggal || '.........................'}</p>
+                          <p>Guru Mata Pelajaran</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.namaGuru || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipGuru || 'NIP'}. {formData.nipGuru || '................................'}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <Calculator size={64} className="mb-4 opacity-20" />

@@ -121,12 +121,12 @@ PENTING - KONTEKS KURIKULUM MERDEKA & PEDAGOGI:
 2. Tujuan Pembelajaran (ABCD): Jika memungkinkan, formulasikan tujuan/ATP dengan prinsip Audience (Peserta didik), Behavior (Perilaku/KKO), Condition (Kondisi pembelajaran), dan Degree (Kriteria keberhasilan).
 3. TPACK & STEAM: Integrasikan pendekatan Technological Pedagogical Content Knowledge (TPACK) dan Science, Technology, Engineering, Art, Mathematics (STEAM) dalam rancangan kegiatan atau ATP jika relevan.
 
-Buat dalam format HTML lengkap yang siap dicetak (A4 Landscape).
+Buat dalam format HTML lengkap yang siap dicetak (A4 Portrait).
 Gunakan styling CSS inline yang rapi, profesional, dan mudah dibaca.
 
 Struktur Dokumen HTML:
-1. Kop Surat/Judul: "PROGRAM SEMESTER (PROMES) KURIKULUM MERDEKA"
-2. Identitas:
+1. Kop Surat/Judul: "PROGRAM SEMESTER (PROMES) KURIKULUM MERDEKA" (Tengah/Center, Huruf Tebal)
+2. Identitas (Buat tanpa border luar, rapi, rata kiri):
    - Satuan Pendidikan: ${formData.namaSekolah || '...........................'}
    - Mata Pelajaran: ${subjectLabel}
    - Kelas / Fase: ${kelasLabel} / ${faseLabel}
@@ -136,25 +136,7 @@ Struktur Dokumen HTML:
    - Kolom: No, Alur Tujuan Pembelajaran (ATP) / Materi, Alokasi Waktu (JP), Bulan (Juli s.d. Desember untuk Ganjil, Januari s.d. Juni untuk Genap), dan Keterangan.
    - Di bawah kolom Bulan, bagi menjadi kolom-kolom Minggu (1, 2, 3, 4, 5).
    - Isi tabel dengan contoh ATP yang relevan untuk mata pelajaran dan fase tersebut.
-${(formData.kepalaSekolah || formData.namaGuru) ? `   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
-     <div style="width: 45%;">
-       <p>Mengetahui,</p>
-       <p>Kepala Sekolah</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.kepalaSekolah || '................................'}</p>
-       <p>${formData.jenisNipKepalaSekolah || 'NIP'}. ${formData.nipKepalaSekolah || '................................'}</p>
-     </div>
-     <div style="width: 45%;">
-       <p>${formData.tempatTanggal || '................., .........................'}</p>
-       <p>Guru Mata Pelajaran</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
-       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '................................'}</p>
-     </div>
-   </div>` : ''}
-
-
-OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse. Gunakan orientasi landscape untuk tabel yang lebar.`;
+OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse dan width 100%. Jangan membungkus bagian Identitas dengan kotak bergaris/border tebal.`;
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -199,8 +181,8 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               .justify-between { justify-content: space-between; }
               .justify-end { justify-content: flex-end; }
               @media print {
-                @page { size: A4 landscape; margin: 0; }
-                body { -webkit-print-color-adjust: exact; padding: 1.5cm; }
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; padding: 0; }
               }
             
               table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
@@ -456,7 +438,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 {resultHtml && (
                   <div className="flex flex-col items-end gap-1">
                     <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-black text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
-                      <Printer size={16} /> Cetak A4 Landscape
+                      <Printer size={16} /> Cetak A4
                     </button>
                     <p className="text-[9px] text-slate-600 italic text-right">
                       * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
@@ -472,7 +454,27 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <p>Menyusun Program Semester 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
-                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} className="print-container" />
+                  <div ref={printRef} className="print-container relative w-full pb-16">
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
+                    {(formData.kepalaSekolah || formData.namaGuru) && (
+                      <div className="mt-12 flex justify-between" style={{ pageBreakInside: 'avoid' }}>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>Mengetahui,</p>
+                          <p>Kepala Sekolah</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.kepalaSekolah || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipKepalaSekolah || 'NIP'}. {formData.nipKepalaSekolah || '................................'}</p>
+                        </div>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>{formData.tempatTanggal || '................., .........................'}</p>
+                          <p>Guru Mata Pelajaran</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.namaGuru || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipGuru || 'NIP'}. {formData.nipGuru || '................................'}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <LayoutList size={64} className="mb-4 opacity-20" />

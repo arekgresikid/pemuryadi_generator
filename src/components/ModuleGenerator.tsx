@@ -12,6 +12,7 @@ import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
+import { marked } from 'marked';
 
 
 const TAKSONOMI_BLOOM = [
@@ -208,9 +209,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
   "tujuanPembelajaran": ["Tujuan 1", "Tujuan 2", "Tujuan 3"],
   "profilPelajar": ["Profil 1", "Profil 2"],
   "kegiatanPembelajaran": {
-    "pembuka": "Kegiatan pembuka",
-    "inti": "Kegiatan inti sesuai model ${modelName}",
-    "penutup": "Kegiatan penutup"
+    "pembuka": "Kegiatan pembuka (Gunakan format Tabel Markdown dengan kolom: No, Aktivitas, Waktu)",
+    "inti": "Kegiatan inti sesuai model ${modelName} (Gunakan format Tabel Markdown dengan kolom: Sintaks/Fase, Aktivitas Guru & Siswa, Waktu)",
+    "penutup": "Kegiatan penutup (Gunakan format Tabel Markdown dengan kolom: No, Aktivitas, Waktu)"
   },
   "ringkasanMateri": "Ringkasan materi yang komprehensif sesuai topik",
   "contohNyata": "Contoh penerapan materi pada kehidupan nyata di dunia",
@@ -322,8 +323,21 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                 min-height: 100vh;
                 margin: 0;
                 padding: 0;
-                line-height: 1.5;
+                line-height: 1.15;
                 color: #333;
+              }
+              ol, ul { padding-left: 20px; margin-top: 4px; margin-bottom: 8px; }
+              li { margin-bottom: 6px; line-height: 1.25; }
+              p { margin-bottom: 8px; }
+              .markdown-table p { margin-bottom: 8px; text-align: justify; }
+              .markdown-table ul { list-style-type: disc; }
+              .markdown-table ol { list-style-type: decimal; }
+              @page landscape-page {
+                size: A4 landscape;
+              }
+              .landscape-section {
+                page: landscape-page;
+                page-break-before: always;
               }
               .watermark {
                 position: fixed;
@@ -449,19 +463,48 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                       <p>Apa yang kalian ketahui tentang ${result.topik || 'materi ini'}?</p>
 
                       <div class="sub-section-title">D. Kegiatan Pembelajaran</div>
-                      <div style="margin-top: 10px;">
-                        <p><strong>Kegiatan Pendahuluan:</strong></p>
-                        <p style="text-align: justify; margin-bottom: 10px;">${result.kegiatanPembelajaran?.pembuka || '-'}</p>
-                        <p><strong>Kegiatan Inti:</strong></p>
-                        <p style="text-align: justify; margin-bottom: 10px;">${result.kegiatanPembelajaran?.inti || '-'}</p>
-                        <p><strong>Kegiatan Penutup:</strong></p>
-                        <p style="text-align: justify;">${result.kegiatanPembelajaran?.penutup || '-'}</p>
-                      </div>
+                      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                          <tr>
+                            <th style="width: 20%; text-align: left; background: #f1f5f9; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">Tahap</th>
+                            <th style="width: 80%; text-align: left; background: #f1f5f9; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">Kegiatan Pembelajaran</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Pendahuluan</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.pembuka || '-')}</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Inti</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.inti || '-')}</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Penutup</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${marked.parse(result.kegiatanPembelajaran?.penutup || '-')}</div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+              </div>
 
-                      <div class="sub-section-title">E. Asesmen</div>
+              <div class="section landscape-section">
+                  <div class="section-title">2E. ASESMEN / RUBRIK PENILAIAN</div>
+                  <div class="content">
                       <table><tr><th>Aspek Penilaian</th><th width="15%">Skor</th><th>Deskripsi</th></tr>${rubrikHtml}</table>
+                  </div>
+              </div>
 
-                      <div class="sub-section-title">F. Pengayaan dan Remedial</div>
+              <div class="section">
+                  <div class="section-title">3. PENGAYAAN & LAMPIRAN</div>
+                  <div class="content">
+                      <div class="sub-section-title">A. Pengayaan dan Remedial</div>
                       <p><strong>Pengayaan:</strong> Diberikan kepada peserta didik dengan capaian tinggi untuk mengembangkan potensinya secara optimal.<br>
                       <strong>Remedial:</strong> Diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang.</p>
                   </div>

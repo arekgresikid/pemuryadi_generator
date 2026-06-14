@@ -112,8 +112,8 @@ Buat dalam format HTML lengkap yang siap dicetak (A4).
 Gunakan styling CSS inline yang rapi, profesional, dan mudah dibaca.
 
 Struktur Dokumen HTML:
-1. Kop Surat/Judul: "PROGRAM TAHUNAN (PROTA) KURIKULUM MERDEKA"
-2. Identitas:
+1. Kop Surat/Judul: "PROGRAM TAHUNAN (PROTA) KURIKULUM MERDEKA" (Tengah/Center, Huruf Tebal)
+2. Identitas (Buat tanpa border luar, rapi, rata kiri):
    - Satuan Pendidikan: ${formData.namaSekolah || '...........................'}
    - Mata Pelajaran: ${subjectLabel}
    - Kelas / Fase: ${kelasLabel} / ${faseLabel}
@@ -122,25 +122,7 @@ Struktur Dokumen HTML:
 4. Tabel Prota:
    - Kolom: No, Semester, Alur Tujuan Pembelajaran (ATP) / Materi Pokok, Alokasi Waktu (JP), dan Keterangan.
    - Isi tabel dengan contoh ATP yang relevan dibagi menjadi Semester Ganjil dan Semester Genap.
-${(formData.kepalaSekolah || formData.namaGuru) ? `   <div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
-     <div style="width: 45%;">
-       <p>Mengetahui,</p>
-       <p>Kepala Sekolah</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.kepalaSekolah || '................................'}</p>
-       <p>${formData.jenisNipKepalaSekolah || 'NIP'}. ${formData.nipKepalaSekolah || '................................'}</p>
-     </div>
-     <div style="width: 45%;">
-       <p>${formData.tempatTanggal || '................., .........................'}</p>
-       <p>Guru Mata Pelajaran</p>
-       <br><br><br><br>
-       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
-       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nipGuru || '................................'}</p>
-     </div>
-   </div>` : ''}
-
-
-OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
+OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse dan width 100%. Jangan membungkus bagian Identitas dengan kotak bergaris/border tebal.`;
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -185,8 +167,8 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
               .justify-between { justify-content: space-between; }
               .justify-end { justify-content: flex-end; }
               @media print {
-                @page { size: A4; margin: 0; }
-                body { -webkit-print-color-adjust: exact; padding: 2cm; }
+                @page { size: A4 portrait; margin: 20mm; }
+                body { -webkit-print-color-adjust: exact; padding: 0; }
               }
             
               table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
@@ -421,7 +403,27 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                     <p>Menyusun Program Tahunan 2026/2027...</p>
                   </div>
                 ) : resultHtml ? (
-                  <div ref={printRef} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} className="print-container" />
+                  <div ref={printRef} className="print-container relative w-full pb-16">
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
+                    {(formData.kepalaSekolah || formData.namaGuru) && (
+                      <div className="mt-12 flex justify-between" style={{ pageBreakInside: 'avoid' }}>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>Mengetahui,</p>
+                          <p>Kepala Sekolah</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.kepalaSekolah || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipKepalaSekolah || 'NIP'}. {formData.nipKepalaSekolah || '................................'}</p>
+                        </div>
+                        <div className="w-[45%] text-center text-sm">
+                          <p>{formData.tempatTanggal || '................., .........................'}</p>
+                          <p>Guru Mata Pelajaran</p>
+                          <br/><br/><br/><br/>
+                          <p className="font-bold underline mb-0">{formData.namaGuru || '................................'}</p>
+                          <p className="mt-0">{formData.jenisNipGuru || 'NIP'}. {formData.nipGuru || '................................'}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-gray-600">
                     <LayoutDashboard size={64} className="mb-4 opacity-20" />

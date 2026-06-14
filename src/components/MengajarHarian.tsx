@@ -123,6 +123,17 @@ export default function MengajarHarian() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    const validFase = KELAS_OPTIONS[formData.fase as keyof typeof KELAS_OPTIONS] ? formData.fase : 
+      (formData.jenjang === 'SD/MI' ? 'Fase A' : 
+       formData.jenjang === 'SMP/MTs' ? 'Fase D' : 'Fase E');
+    
+    if (formData.fase !== validFase || !KELAS_OPTIONS[formData.fase as keyof typeof KELAS_OPTIONS]?.includes(formData.kelas)) {
+      const validKelas = KELAS_OPTIONS[validFase as keyof typeof KELAS_OPTIONS][0];
+      setFormData(prev => ({...prev, fase: validFase, kelas: validKelas}));
+    }
+  }, [formData.jenjang]);
+
   const handleFeatureToggle = (feature: keyof typeof selectedFeatures) => {
     setSelectedFeatures(prev => ({ ...prev, [feature]: !prev[feature] }));
   };
@@ -363,12 +374,11 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
               
               .print-section {
                 border: 1.5px solid #000;
-                padding: 15mm;
+                padding: 10px;
                 margin-bottom: 20mm;
                 page-break-inside: avoid;
                 page-break-after: always;
                 box-sizing: border-box;
-                min-height: 250mm;
                 position: relative;
               }
               
@@ -503,7 +513,11 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   <select 
                     className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
                     value={formData.jenjang}
-                    onChange={(e) => setFormData({...formData, jenjang: e.target.value, fase: 'Fase A', kelas: 'Kelas I'})}
+                    onChange={(e) => {
+                      const newJenjang = e.target.value;
+                      const validFase = newJenjang === 'SD/MI' ? 'Fase A' : newJenjang === 'SMP/MTs' ? 'Fase D' : 'Fase E';
+                      setFormData({...formData, jenjang: newJenjang, fase: validFase, kelas: KELAS_OPTIONS[validFase as keyof typeof KELAS_OPTIONS][0]});
+                    }}
                   >
                     {JENJANG_OPTIONS.map(j => <option className="bg-white text-black" key={j} value={j}>{j}</option>)}
                   </select>
@@ -515,7 +529,9 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                     value={formData.fase}
                     onChange={(e) => setFormData({...formData, fase: e.target.value, kelas: KELAS_OPTIONS[e.target.value as keyof typeof KELAS_OPTIONS][0]})}
                   >
-                    {FASE_OPTIONS.map(f => <option className="bg-white text-black" key={f} value={f}>{f}</option>)}
+                    {(formData.jenjang === 'SD/MI' ? ['Fase A', 'Fase B', 'Fase C'] : 
+                      formData.jenjang === 'SMP/MTs' ? ['Fase D'] : 
+                      ['Fase E', 'Fase F']).map(f => <option className="bg-white text-black" key={f} value={f}>{f}</option>)}
                   </select>
                 </div>
               </div>

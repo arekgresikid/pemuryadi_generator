@@ -54,6 +54,10 @@ Jawab LANGSUNG dengan isinya saja, tanpa tanda kutip di awal/akhir, tanpa basa-b
       <textarea 
         className={`w-full ${className} pr-12`} 
         placeholder={placeholder}
+        onChange={(e) => {
+          if (onValueChange) onValueChange(e.target.value);
+          if (props.onChange) props.onChange(e);
+        }}
         {...props} 
       />
       <button
