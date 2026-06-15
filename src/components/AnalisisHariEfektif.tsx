@@ -83,6 +83,9 @@ Struktur Dokumen HTML:
 3. Tabel 1: Perhitungan Alokasi Waktu (Bulan, Jumlah Minggu, Jumlah Minggu Efektif, Jumlah Minggu Tidak Efektif)
 4. Tabel 2: Distribusi Alokasi Waktu (Rincian kegiatan tidak efektif seperti Libur Semester, Libur Nasional, Ujian, dll)
 5. Perhitungan Total Jam Pelajaran Efektif.
+
+PENTING: JANGAN buat atau tambahkan bagian kolom tanda tangan (Mengetahui Kepala Sekolah / Guru dsb), karena sistem sudah menambahkannya secara otomatis di bagian bawah.
+
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 
       const response = await ai.models.generateContent({

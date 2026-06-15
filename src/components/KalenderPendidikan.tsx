@@ -78,6 +78,9 @@ Struktur Dokumen HTML:
 4. Tabel Kalender per Bulan (Juli 2026 s.d. Juni 2027):
    - Buat tabel ringkas yang menampilkan bulan, jumlah hari efektif, dan keterangan kegiatan penting (Hari Libur Nasional, Perkiraan Ujian, Pembagian Rapor, Libur Semester).
 5. Keterangan/Legenda di bawah tabel.
+
+PENTING: JANGAN buat atau tambahkan bagian kolom tanda tangan (Mengetahui Kepala Sekolah dsb), karena sistem sudah menambahkannya secara otomatis di bagian bawah.
+
 OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
 
       const contents: any[] = [
