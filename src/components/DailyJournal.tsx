@@ -3,7 +3,7 @@ import { BookOpen, Sparkles, Printer, Loader2, Save, Trash2, List, FileText, Cli
 import { mapelNames, cpData, atpData, educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { GoogleGenAI, Type } from '../lib/genai';
@@ -165,9 +165,186 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
   const printJurnal = () => {
     if (!result) return;
     
-    universalPrint(`
-        ${printContent}
-      `, 'Jurnal Harian Pembelajaran');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Jurnal Harian Pembelajaran</title>
+          <style>
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              @media print {
+                  body { 
+                    -webkit-print-color-adjust: exact; 
+                    print-color-adjust: exact; 
+                    margin: 0;
+                    padding: 10mm;
+                  }
+                  .no-print { display: none; }
+                  .content-wrapper {
+                    max-width: 100% !important;
+                    padding: 5mm !important;
+                    margin: 0 !important;
+                  }
+              }
+              body {
+                font-family: 'Times New Roman', Times, serif;
+                background: white;
+                position: relative;
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                line-height: 1.6;
+              }
+              .watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 5vw;
+                color: rgba(0, 0, 0, 0.05);
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: -1;
+                font-weight: bold;
+                text-transform: uppercase;
+              }
+              .content-wrapper {
+                width: 100%;
+                max-width: 210mm;
+                margin: 0 auto;
+                padding: 15mm;
+                box-sizing: border-box;
+              }
+              h1, h2, h3 { text-align: center; margin: 5px 0; }
+              h1 { font-size: 16px; text-decoration: underline; }
+              table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+              th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+              th { background: #f5f5f5; font-weight: bold; }
+              .section { margin: 15px 0; }
+              .section-title { font-weight: bold; margin-top: 10px; margin-bottom: 5px; }
+              .content { margin-left: 20px; }
+              .sign-area { margin-top: 40px; display: flex; justify-content: space-between; }
+              .sign-box { width: 40%; text-align: center; }
+              .sign-line { border-top: 1px solid #000; margin-top: 60px; }
+              .support-footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px solid #eee;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+              }
+              .support-links {
+                margin-top: 8px;
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                font-weight: bold;
+                color: #2563eb;
+              }
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
+      
+          ${styles}
+          <style>
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td p, .content-wrapper p { margin-bottom: 8px !important; }
+            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
+            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
+            .html-content th { background-color: #f1f5f9; font-weight: bold; }
+          </style></head>
+      <body>
+          <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
+          <div class="content-wrapper">
+              <h1>JURNAL HARIAN PEMBELAJARAN</h1>
+              <p style="text-align: center; margin-bottom: 20px;">Kurikulum Merdeka</p>
+
+              <div class="section">
+                  <div class="section-title">A. IDENTITAS GURU & SEKOLAH</div>
+                  <table>
+                      <tr><td width="25%"><b>Nama Guru</b></td><td>${result.namaGuru || '-'}</td></tr>
+                      <tr><td><b>${result.jenisNipGuru || 'NIP'} Guru</b></td><td>${result.nip || '-'}</td></tr>
+                      <tr><td><b>Kepala Sekolah</b></td><td>${result.kepalaSekolah || '-'}</td></tr>
+                      <tr><td><b>${result.jenisNipKepalaSekolah || 'NIP'} Kepsek</b></td><td>${result.nipKepalaSekolah || '-'}</td></tr>
+                      <tr><td><b>Nama Sekolah</b></td><td>${result.namaSekolah || '-'} (${result.jenisSekolah || 'Negeri'})</td></tr>
+                  </table>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">B. DATA PEMBELAJARAN</div>
+                  <table>
+                      <tr><td width="25%"><b>Mata Pelajaran</b></td><td>${result.mapelName || '-'}</td></tr>
+                      <tr><td><b>Topik/Materi</b></td><td>${result.topik || '-'}</td></tr>
+                      <tr><td><b>Jenjang / Kelas / Fase</b></td><td>${result.jenjangLabel || '-'} / ${result.kelasLabel || '-'} / ${result.faseLabel || '-'}</td></tr>
+                      <tr><td><b>Semester</b></td><td>${result.semester || '-'}</td></tr>
+                      <tr><td><b>Tanggal / Jam</b></td><td>${result.tanggalFormat} / ${result.jam || '-'}</td></tr>
+                  </table>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">C. CAPAIAN PEMBELAJARAN (CP)</div>
+                  <div class="content"><p>${(result.cp || '-').replace(/\n/g, '<br>')}</p></div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">D. ALUR TUJUAN PEMBELAJARAN (ATP)</div>
+                  <div class="content"><p>${(result.atp || '-').replace(/\n/g, '<br>')}</p></div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">E. CATATAN PEMBELAJARAN</div>
+                  <div class="content"><p>${(result.catatan || '-').replace(/\n/g, '<br>')}</p></div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">F. REFLEKSI & EVALUASI</div>
+                  <div class="content"><p>${(result.refleksi || '-').replace(/\n/g, '<br>')}</p></div>
+              </div>
+
+              ${(result.kepalaSekolah || result.ttdKS || result.namaGuru || result.ttdGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+                  <div style="width: 45%;">
+                      <p>Mengetahui,</p>
+                      <p>Kepala Sekolah</p>
+                      <br><br><br><br>
+                      <p style="font-weight: bold; text-decoration: underline;">${result.kepalaSekolah || result.ttdKS || '................................'}</p>
+                      <p>${result.jenisNipKepalaSekolah || 'NIP'}. ${result.nipKepalaSekolah || '................................'}</p>
+                  </div>
+                  <div style="width: 45%;">
+                      <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <p>Guru Mata Pelajaran</p>
+                      <br><br><br><br>
+                      <p style="font-weight: bold; text-decoration: underline;">${result.namaGuru || result.ttdGuru || '................................'}</p>
+                      <p>${result.jenisNipGuru || 'NIP'}. ${result.nip || '................................'}</p>
+                  </div>
+              </div>` : ''}
+              <div class="support-footer">
+                  <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Daily Journal - Pemuryadi</strong></p>
+                  <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
+                  <p style="margin-top: 10px; font-style: italic;">"Dukungan Anda sangat berarti bagi kami untuk terus mengembangkan platform ini secara gratis."</p>
+                  <div class="support-links">
+                      <span>Saweria: saweria.co/pemuryadi</span>
+                      <span>FB/IG/TikTok: @p.e.muryadi</span>
+                  </div>
+              </div>
+          </div>
+          ${getWatermarkHtml(profile?.role)}
+          <script>
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+              }, 500);
             };
           </script>
       </body>

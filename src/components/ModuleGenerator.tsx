@@ -7,7 +7,7 @@ import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2, Settings, ChevronDown, ChevronUp, Printer, FileText } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -287,9 +287,280 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
   const printModul = () => {
     if (!result) return;
     
-    universalPrint(`
-        ${printContent}
-      `, 'Modul Ajar - ${result.topik}');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    let rubrikHtml = result.rubrikItems?.map((r: any) => `
+      <tr><td>${r.aspek}</td><td>${r.score}</td><td>${r.deskripsi}</td></tr>
+    `).join('') || '';
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Modul Ajar - ${result.topik}</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+              @page {
+                size: A4;
+                margin: 30mm 30mm 30mm 40mm;
+              }
+              @media print {
+                  body { 
+                    -webkit-print-color-adjust: exact; 
+                    print-color-adjust: exact; 
+                  }
+                  .no-print { display: none; }
+                  .content-wrapper {
+                    max-width: 100% !important;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                  }
+              }
+              body {
+                font-family: 'Arial', 'Helvetica', 'Inter', sans-serif;
+                background: white;
+                position: relative;
+                min-height: 100vh;
+                margin: 0;
+                padding: 0;
+                line-height: 1.15;
+                color: #333;
+              }
+              ol, ul { padding-left: 20px; margin-top: 4px; margin-bottom: 8px; }
+              li { margin-bottom: 6px; line-height: 1.25; }
+              p { margin-bottom: 8px; }
+              .markdown-table p { margin-bottom: 8px; text-align: justify; }
+              .markdown-table ul { list-style-type: disc; }
+              .markdown-table ol { list-style-type: decimal; }
+              @page landscape-page {
+                size: A4 landscape;
+              }
+              .landscape-section {
+                page: landscape-page;
+                page-break-before: always;
+              }
+              .watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 5vw;
+                color: rgba(0, 0, 0, 0.05);
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: -1;
+                font-weight: bold;
+                text-transform: uppercase;
+              }
+              .content-wrapper {
+                width: 100%;
+                max-width: 210mm;
+                margin: 0 auto;
+                padding: 15mm;
+                box-sizing: border-box;
+              }
+              h1, h2, h3 { text-align: center; color: #0f172a; }
+              table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+              th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; font-size: 12px; }
+              th { background: #f1f5f9; color: #0f172a; font-weight: bold; }
+              .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px; }
+              .section { margin: 15px 0; }
+              .section-title { background: #e2e8f0; font-weight: bold; padding: 5px 10px; margin: 15px 0 10px 0; font-size: 13px; color: #0f172a; }
+              .sub-section-title { font-weight: bold; margin-top: 8px; font-size: 12px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; }
+              .content { margin-left: 10px; font-size: 12px; }
+              .support-footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px solid #eee;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+              }
+              .support-links {
+                margin-top: 8px;
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                font-weight: bold;
+                color: #2563eb;
+              }
+          
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+            </style>
+      </head>
+      <body>
+          <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
+          <div class="content-wrapper">
+              <div class="header" style="position: relative; text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px;">
+                  ${useLogo && logoUrl ? `<img src="${logoUrl}" style="position: absolute; left: 0; top: 0; height: 80px; width: auto;" alt="Logo"/>` : ''}
+                  <div style="padding: 0 90px;">
+                      <div style="font-size: 11pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                          ${(result.namaSekolah?.toLowerCase().includes('madrasah') || result.namaSekolah?.toLowerCase().includes(' mi ') || result.namaSekolah?.toLowerCase().includes('mts') || result.namaSekolah?.toLowerCase().includes(' ma ') || result.namaSekolah?.toLowerCase().startsWith('mi ') || result.namaSekolah?.toLowerCase().startsWith('ma ')) ? 'KEMENTERIAN AGAMA REPUBLIK INDONESIA' : 'KEMENTERIAN PENDIDIKAN DASAR DAN MENENGAH'}
+                      </div>
+                      <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase; margin-top: 3px;">
+                          ${result.namaSekolah || 'SATUAN PENDIDIKAN'}
+                      </div>
+                      <div style="font-size: 9pt; margin-top: 2px;">
+                          Tahun Ajaran: ${result.tahunAjaran || '-'}
+                      </div>
+                  </div>
+              </div>
+              
+              <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-transform: uppercase; text-align: center;">
+                  MODUL AJAR / RENCANA PELAKSANAAN PEMBELAJARAN (RPP)
+              </h3>
+              <div style="font-size: 10pt; margin-top: 5px; font-style: italic; text-align: center; margin-bottom: 20px;">
+                  Kurikulum Merdeka (Sesuai Panduan Pembelajaran dan Asesmen)
+              </div>
+
+              <div class="section">
+                  <div class="section-title">1. INFORMASI UMUM</div>
+                  <div class="content">
+                      <div class="sub-section-title">A. Identitas Modul</div>
+                      <table>
+                          <tr><td width="35%">Nama Penyusun</td><td>${result.namaGuru || '-'}</td></tr>
+                          <tr><td>${result.jenisNipGuru || 'NIP'} Guru</td><td>${result.nip || '-'}</td></tr>
+                          <tr><td>Kepala Sekolah</td><td>${result.kepalaSekolah || '-'}</td></tr>
+                          <tr><td>${result.jenisNipKepalaSekolah || 'NIP'} Kepsek</td><td>${result.nipKepalaSekolah || '-'}</td></tr>
+                          <tr><td>Nama Sekolah</td><td>${result.namaSekolah || '-'} (${result.jenisSekolah || 'Negeri'})</td></tr>
+                          <tr><td>Jenjang / Kelas / Fase</td><td>${result.jenjangLabel} / ${result.kelasLabel} / ${result.faseLabel}</td></tr>
+                          <tr><td>Semester / Tahun Ajaran</td><td>${result.semester} / ${result.tahunAjaran}</td></tr>
+                          <tr><td>Mata Pelajaran</td><td>${result.mapelName}</td></tr>
+                          <tr><td>Topik/Materi</td><td>${result.topik || '-'}</td></tr>
+                          <tr><td>Alokasi Waktu</td><td>${result.waktu || '-'}</td></tr>
+                      </table>
+
+                      <div class="sub-section-title">B. Kompetensi Awal</div>
+                      <p style="text-align: justify;">${result.capaianPembelajaran}</p>
+
+                      <div class="sub-section-title">C. Profil Pelajar Pancasila</div>
+                      <ul style="margin: 5px 0; padding-left: 20px;">${result.profilPelajar?.map((pp: string) => `<li>${pp}</li>`).join('') || ''}</ul>
+
+                      <div class="sub-section-title">D. Sarana dan Prasarana</div>
+                      <ul style="margin: 5px 0; padding-left: 20px;">${result.sumberBelajar?.map((sb: string) => `<li>${sb}</li>`).join('') || ''}</ul>
+
+                      <div class="sub-section-title">E. Target Peserta Didik</div>
+                      <p>Peserta didik reguler/tipikal: umum, tidak ada kesulitan dalam mencerna dan memahami materi ajar.</p>
+
+                      <div class="sub-section-title">F. Model Pembelajaran</div>
+                      <p>${result.modelName}</p>
+                  </div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">2. KOMPONEN INTI</div>
+                  <div class="content">
+                      <div class="sub-section-title">A. Tujuan Pembelajaran</div>
+                      <ol style="margin: 5px 0; padding-left: 20px;">${result.tujuanPembelajaran?.map((tp: string) => `<li>${tp}</li>`).join('') || ''}</ol>
+
+                      <div class="sub-section-title">B. Pemahaman Bermakna</div>
+                      <p>Peserta didik dapat memahami manfaat materi ${result.topik || 'ini'} dan menerapkannya dalam kehidupan sehari-hari.</p>
+
+                      <div class="sub-section-title">C. Pertanyaan Pemantik</div>
+                      <p>Apa yang kalian ketahui tentang ${result.topik || 'materi ini'}?</p>
+
+                      <div class="sub-section-title">D. Kegiatan Pembelajaran</div>
+                      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                          <tr>
+                            <th style="width: 20%; text-align: left; background: #f1f5f9; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">Tahap</th>
+                            <th style="width: 80%; text-align: left; background: #f1f5f9; padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">Kegiatan Pembelajaran</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Pendahuluan</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.pembuka || '-')}</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Inti</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.inti || '-')}</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-weight: bold; border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 12px;">Kegiatan Penutup</td>
+                            <td style="border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; font-size: 11px;">
+                              <div class="markdown-table">${parseMarkdown(result.kegiatanPembelajaran?.penutup || '-')}</div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                  </div>
+              </div>
+
+              <div class="section landscape-section">
+                  <div class="section-title">2E. ASESMEN / RUBRIK PENILAIAN</div>
+                  <div class="content">
+                      <table><tr><th>Aspek Penilaian</th><th width="15%">Skor</th><th>Deskripsi</th></tr>${rubrikHtml}</table>
+                  </div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">3. PENGAYAAN & LAMPIRAN</div>
+                  <div class="content">
+                      <div class="sub-section-title">A. Pengayaan dan Remedial</div>
+                      <p><strong>Pengayaan:</strong> Diberikan kepada peserta didik dengan capaian tinggi untuk mengembangkan potensinya secara optimal.<br>
+                      <strong>Remedial:</strong> Diberikan kepada peserta didik yang membutuhkan bimbingan untuk memahami materi atau pembelajaran mengulang.</p>
+                  </div>
+              </div>
+
+              <div class="section">
+                  <div class="section-title">3. LAMPIRAN</div>
+                  <div class="content">
+                      <div class="sub-section-title">A. Ringkasan Materi</div>
+                      <p style="text-align: justify;">${result.ringkasanMateri?.replace(/\n/g, '<br>') || '-'}</p>
+
+                      <div class="sub-section-title">B. Contoh Penerapan di Kehidupan Nyata</div>
+                      <p style="text-align: justify; font-style: italic; color: #1e40af;">${result.contohNyata?.replace(/\n/g, '<br>') || '-'}</p>
+
+                      <div class="sub-section-title">C. Lembar Kerja Peserta Didik (LKPD)</div>
+                      <p><em>(Terlampir secara terpisah)</em></p>
+
+                      <div class="sub-section-title">D. Daftar Pustaka</div>
+                      <p>Buku Panduan Guru dan Siswa Kurikulum Merdeka, PMM, dan sumber relevan lainnya.</p>
+                  </div>
+              </div>
+
+              ${(formData.kepalaSekolah || formData.namaGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+                  <div style="width: 45%;">
+                      <p>Mengetahui,</p>
+                      <p>Kepala Sekolah</p>
+                      <br><br><br><br>
+                      <p style="font-weight: bold; text-decoration: underline;">${formData.kepalaSekolah || '................................'}</p>
+                      <p>${formData.jenisNipKepalaSekolah || 'NIP'}. ${formData.nipKepalaSekolah || '................................'}</p>
+                  </div>
+                  <div style="width: 45%;">
+                      <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <p>Guru Pengampu</p>
+                      <br><br><br><br>
+                      <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
+                      <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nip || '................................'}</p>
+                  </div>
+              </div>` : ''}
+
+              <div class="support-footer">
+                  <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Modul Ajar Generator - Pemuryadi</strong></p>
+                  <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
+                  <p style="margin-top: 10px; font-style: italic;">"Dukungan Anda sangat berarti bagi kami untuk terus mengembangkan platform ini secara gratis."</p>
+                  <div class="support-links">
+                      <span>Saweria: saweria.co/pemuryadi</span>
+                      <span>FB/IG/TikTok: @p.e.muryadi</span>
+                  </div>
+              </div>
+          </div>
+          ${getWatermarkHtml(profile?.role)}
+          <script>
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+              }, 500);
             };
           </script>
       </body>

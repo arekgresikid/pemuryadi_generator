@@ -369,7 +369,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
               window.onload = () => {
                   window.print();
               };
-          </script>
+          \x3C/script>
       </body>
       </html>
     `);

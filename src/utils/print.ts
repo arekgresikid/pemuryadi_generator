@@ -72,7 +72,7 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
   container.id = 'universal-print-container';
   
   const style = document.createElement('style');
-  style.textContent = \`
+  style.textContent = `
     @media print {
       body * {
         visibility: hidden !important;
@@ -110,26 +110,26 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
       .flex { display: flex; }
       .justify-between { justify-content: space-between; }
       .justify-end { justify-content: flex-end; }
-      \${additionalStyles}
+      ${additionalStyles}
     }
     @media screen {
       #universal-print-container {
         display: none !important;
       }
     }
-  \`;
+  `;
   
   // Extract global styles to keep Tailwind and Font working
   const globalStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
     .map(el => el.outerHTML)
     .join('\\n');
 
-  container.innerHTML = \`
-    \${globalStyles}
+  container.innerHTML = `
+    ${globalStyles}
     <div style="font-family: 'Times New Roman', Times, serif; padding: 0; color: black; line-height: 1.5;">
-      \${contentHtml}
+      ${contentHtml}
     </div>
-  \`;
+  `;
   container.appendChild(style);
   document.body.appendChild(container);
   
@@ -173,13 +173,13 @@ export const printElement = (elementId: string, title: string, profile: any) => 
   const watermark = getWatermarkHtml(profile?.role || profile);
   const signature = getSignatureHtml(profile);
   
-  universalPrint(\`
-    \${watermark}
+  universalPrint(`
+    ${watermark}
     <div style="position: relative; z-index: 1;">
-      \${printContent.innerHTML}
-      \${signature}
+      ${printContent.innerHTML}
+      ${signature}
     </div>
-  \`, \`Print - \${title}\`, \`
+  `, `Print - ${title}`, `
     .print-section {
       border: 1.5px solid #000 !important;
       padding: 15px !important;
@@ -200,5 +200,5 @@ export const printElement = (elementId: string, title: string, profile: any) => 
       page-break-before: always;
     }
     .no-print { display: none !important; }
-  \`);
+  `);
 };

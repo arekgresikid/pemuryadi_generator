@@ -35,12 +35,13 @@ export class GoogleGenAI {
   };
 
   constructor(options: { apiKey?: string }) {
-    // The API key is now securely managed by the backend proxy.
-    this.apiKey = "secure-proxy-mode";
+    // Secure Backend Proxy Approach
+    // We do NOT expose the API key here. The backend /api/chat/completions proxy handles it.
+    this.apiKey = "backend-proxy";
     const openai = new OpenAI({
-      apiKey: "dummy-key", // The backend handles the real key
-      baseURL: typeof window !== 'undefined' ? `${window.location.origin}/api` : "/api", // Pointing to our Cloudflare backend proxy
-      dangerouslyAllowBrowser: true 
+      apiKey: this.apiKey,
+      baseURL: "/api",
+      dangerouslyAllowBrowser: true // Allowed because the API key is fake and we hit our own proxy
     });
 
     this.images = {
@@ -54,14 +55,19 @@ export class GoogleGenAI {
             }
           }
 
-          const response = await openai.images.generate({
-            prompt: params.prompt,
-            model: params.model || 'nanobana',
-            n: params.n || 1,
-            size: (params.size || '1024x1024') as any,
-          });
+          const encodedPrompt = encodeURIComponent(params.prompt);
+          const modelParam = params.model ? `&model=${params.model}` : '';
+          const seedParam = `&seed=${Math.floor(Math.random() * 100000000)}`;
+          
+          // Pollinations returns the image directly from the URL. We can fetch it to get a base64 or just return the URL.
+          // Since the existing code expects a structure like { data: [{ url: string }] }, we'll just return the URL.
+          const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?nologo=true${modelParam}${seedParam}`;
 
-          return response;
+          return {
+            data: [
+              { url: imageUrl }
+            ]
+          };
         } catch (error) {
           console.error("AI Image Generation Error:", error);
           throw error;
@@ -109,16 +115,40 @@ export class GoogleGenAI {
           messages.push({ role: "system", content: config.systemInstruction });
         }
         
-        // Handle array of parts or string
+                // Handle array of parts or string
         if (Array.isArray(contents)) {
-          // Flatten Google GenAI parts format to OpenAI format
-          const openAiContent = contents.map(part => {
-             if (typeof part === 'string') return { type: "text", text: part };
-             if (part.text) return { type: "text", text: part.text };
-             // Minimal support for other types if needed, but mostly it's text
-             return { type: "text", text: JSON.stringify(part) };
-          });
-          messages.push({ role: "user", content: openAiContent });
+          if (contents.length > 0 && typeof contents[0] === 'object' && 'role' in contents[0]) {
+            // It's a list of conversation messages: { role: string, parts: any[] }
+            for (const msg of contents) {
+               const openAiContent = (msg.parts || []).map((part: any) => {
+                 if (typeof part === 'string') return { type: "text", text: part };
+                 if (part.text) return { type: "text", text: part.text };
+                 if (part.inlineData) {
+                   return {
+                     type: "image_url",
+                     image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
+                   };
+                 }
+                 return { type: "text", text: JSON.stringify(part) };
+               });
+               messages.push({ role: msg.role === 'model' ? 'assistant' : 'user', content: openAiContent });
+            }
+          } else {
+            // Flatten Google GenAI parts format to OpenAI format
+            const openAiContent = contents.map(part => {
+               if (typeof part === 'string') return { type: "text", text: part };
+               if (part.text) return { type: "text", text: part.text };
+               if (part.inlineData) {
+                 return {
+                   type: "image_url",
+                   image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
+                 };
+               }
+               // Minimal support for other types if needed, but mostly it's text
+               return { type: "text", text: JSON.stringify(part) };
+            });
+            messages.push({ role: "user", content: openAiContent });
+          }
         } else {
           messages.push({ role: "user", content: contents });
         }

@@ -427,7 +427,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             </div>
             <script>
               window.onload = () => { window.print(); window.close(); }
-            </script>
+            \x3C/script>
           </body>
         </html>
       `);

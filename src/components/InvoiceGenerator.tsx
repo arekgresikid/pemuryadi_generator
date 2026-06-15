@@ -155,15 +155,10 @@ export default function InvoiceGenerator() {
   const currentTheme = themes[themeColor] || themes.blue;
 
   const handlePrint = () => {
+    const printContent = document.getElementById('printArea')?.innerHTML || '';
     universalPrint(`
         ${printContent}
-      `, '${invoiceTitle || 'INVOICE'} ${invoiceNo}');
-            };
-          </script>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
+      `, `${invoiceTitle || 'INVOICE'} ${invoiceNo}`);
   };
 
   const resetForm = () => {

@@ -330,16 +330,10 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
   const printModul = () => {
     if (!result) return;
-    
+    const printContent = document.getElementById('modul-kokurikuler-print')?.innerHTML || '';
     universalPrint(`
         ${printContent}
-      `, 'Modul Kokurikuler - ${tema}');
-            };
-          </script>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
+      `, `Modul Kokurikuler - ${tema}`);
   };
 
   return (

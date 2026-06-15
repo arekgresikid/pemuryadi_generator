@@ -366,7 +366,7 @@ Format output harus JSON murni:
           ${docFooter}
           <script>
             window.onload = () => { window.print(); window.close(); }
-          </script>
+          \x3C/script>
         </body>
       </html>
     `);

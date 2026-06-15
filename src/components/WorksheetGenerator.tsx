@@ -6,7 +6,7 @@ import Markdown from 'react-markdown';
 import PrintSupportModal from './PrintSupportModal';
 import PDFRemixUpload from './PDFRemixUpload';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
+import { getWatermarkHtml, getSignatureHtml, universalPrint } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import DOMPurify from 'dompurify';
@@ -45,7 +45,7 @@ export default function WorksheetGenerator() {
   const { profile } = useAuth();
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState<string>('openai');
-  const [selectedImageModel, setSelectedImageModel] = useState<string>('nanobana');
+  const [selectedImageModel, setSelectedImageModel] = useState<string>('nanobanana');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<{
@@ -187,10 +187,10 @@ export default function WorksheetGenerator() {
           const blob = await imageResponse.blob();
           imageUrl = URL.createObjectURL(blob);
         } else {
-          console.warn("Gagal mendapatkan gambar nanobana, status:", imageResponse.status);
+          console.warn("Gagal mendapatkan gambar nanobanana, status:", imageResponse.status);
         }
       } catch (err) {
-        console.warn("Error saat mengambil gambar nanobana, menggunakan fallback", err);
+        console.warn("Error saat mengambil gambar nanobanana, menggunakan fallback", err);
       }
 
       const finalInfographicPrompt = INFOGRAPHIC_BASE_PROMPT.replace(
@@ -266,14 +266,8 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
     if (!result) return;
     
     universalPrint(`
-        ${printContent}
-      `, 'Worksheet - ${formData.topik}');
-            };
-          </script>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
+        ${result}
+      `, `Worksheet - ${formData.topik}`);
   };
 
   return (

@@ -3,7 +3,7 @@ import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { FileText, Bot, Loader2, Sparkles, Printer } from 'lucide-react';
@@ -291,9 +291,185 @@ PENTING:
   const printPuzzle = () => {
     if (!puzzleData) return;
 
-    universalPrint(`
-        ${printContent}
-      `, '${title}');
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const { title, grid, placedWords, minRow, maxRow, minCol, maxCol } = puzzleData;
+
+    let gridHtml = '<table style="border-collapse:collapse;margin:20px 0;">';
+    for (let r = minRow; r <= maxRow; r++) {
+      gridHtml += '<tr>';
+      for (let c = minCol; c <= maxCol; c++) {
+        const cell = grid[r][c];
+        if (cell) {
+          gridHtml += `<td style="width:30px;height:30px;border:2px solid black;position:relative;text-align:center;font-family:sans-serif;font-weight:bold;font-size:14px;">
+            ${cell.number ? `<span style="position:absolute;top:2px;left:2px;font-size:10px;font-weight:normal;line-height:1;">${cell.number}</span>` : ''}
+            <span style="color:transparent;">${cell.char}</span>
+          </td>`;
+        } else {
+          gridHtml += '<td style="width:30px;height:30px;border:none;"></td>';
+        }
+      }
+      gridHtml += '</tr>';
+    }
+    gridHtml += '</table>';
+
+    // Answer Key Grid
+    let answerGridHtml = '<table style="border-collapse:collapse;margin:20px 0;">';
+    for (let r = minRow; r <= maxRow; r++) {
+      answerGridHtml += '<tr>';
+      for (let c = minCol; c <= maxCol; c++) {
+        const cell = grid[r][c];
+        if (cell) {
+          answerGridHtml += `<td style="width:30px;height:30px;border:2px solid black;position:relative;text-align:center;font-family:sans-serif;font-weight:bold;font-size:14px;background-color:#f0f0f0;">
+            ${cell.number ? `<span style="position:absolute;top:2px;left:2px;font-size:10px;font-weight:normal;line-height:1;">${cell.number}</span>` : ''}
+            ${cell.char}
+          </td>`;
+        } else {
+          answerGridHtml += '<td style="width:30px;height:30px;border:none;"></td>';
+        }
+      }
+      answerGridHtml += '</tr>';
+    }
+    answerGridHtml += '</table>';
+
+    const mendatar = placedWords.filter(w => w.direction === 'H').sort((a, b) => a.number - b.number);
+    const menurun = placedWords.filter(w => w.direction === 'V').sort((a, b) => a.number - b.number);
+
+    let cluesHtml = '<div style="display:flex;gap:40px;margin-top:20px;">';
+    
+    cluesHtml += '<div style="flex:1;">';
+    cluesHtml += '<h3 style="border-bottom:2px solid black;padding-bottom:5px;">Mendatar</h3>';
+    cluesHtml += '<ol style="list-style-type:none;padding:0;margin:0;">';
+    mendatar.forEach(w => {
+      cluesHtml += `<li style="margin-bottom:8px;display:flex;gap:10px;"><span style="font-weight:bold;min-width:20px;">${w.number}.</span> <span>${w.clue}</span></li>`;
+    });
+    cluesHtml += '</ol></div>';
+
+    cluesHtml += '<div style="flex:1;">';
+    cluesHtml += '<h3 style="border-bottom:2px solid black;padding-bottom:5px;">Menurun</h3>';
+    cluesHtml += '<ol style="list-style-type:none;padding:0;margin:0;">';
+    menurun.forEach(w => {
+      cluesHtml += `<li style="margin-bottom:8px;display:flex;gap:10px;"><span style="font-weight:bold;min-width:20px;">${w.number}.</span> <span>${w.clue}</span></li>`;
+    });
+    cluesHtml += '</ol></div>';
+    
+    cluesHtml += '</div>';
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>${title}</title>
+          <style>
+              @page { size: A4; margin: 0; }
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #000; margin: 0; padding: 15mm; }
+              .header { text-align: left; margin-bottom: 20px; background-color: #d4e157; padding: 15px; border-radius: 5px; }
+              .header h1 { margin: 0 0 5px 0; font-size: 24px; }
+              .header p { margin: 0; font-size: 16px; font-style: italic; }
+              .page-break { page-break-before: always; }
+              @media print {
+                  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 15mm; }
+                  .no-print { display: none; }
+              }
+              .watermark {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 5vw;
+                color: rgba(0, 0, 0, 0.05);
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: -1;
+                font-weight: bold;
+                text-transform: uppercase;
+              }
+              .support-footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px solid #eee;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+              }
+              .support-links {
+                margin-top: 8px;
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+                font-weight: bold;
+                color: #2563eb;
+              }
+          </style>
+      
+          ${styles}
+          <style>
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
+            td p, .content-wrapper p { margin-bottom: 8px !important; }
+            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
+            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
+            .html-content th { background-color: #f1f5f9; font-weight: bold; }
+          </style></head>
+      <body>
+          <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
+          <div class="header">
+              <h1>Teka Teki Silang</h1>
+              <p>${title}</p>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            ${gridHtml}
+          </div>
+          
+          ${cluesHtml}
+
+          <div class="page-break"></div>
+
+          <div class="header">
+              <h1>Kunci Jawaban</h1>
+              <p>${title}</p>
+          </div>
+          
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            ${answerGridHtml}
+          </div>
+          
+          ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+              <div style="width: 45%;">
+                  <p>Mengetahui,</p>
+                  <p>Kepala Sekolah</p>
+                  <br><br><br><br>
+                  <p style="font-weight: bold; text-decoration: underline;">${profile?.kepalaSekolah || '................................'}</p>
+                  <p>${profile?.jenisNipKepalaSekolah || 'NIP'}. ${profile?.nipKepalaSekolah || '................................'}</p>
+              </div>
+              <div style="width: 45%;">
+                  <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                  <p>Guru Pengampu</p>
+                  <br><br><br><br>
+                  <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
+                  <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
+              </div>
+          </div>` : ''}
+          
+          <div class="support-footer">
+              <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Crossword Generator - Pemuryadi</strong></p>
+              <p>Maju Pendidikan Indonesia @2026</p>
+              <p style="margin-top: 10px; font-style: italic;">"Dukungan Anda sangat berarti bagi kami untuk terus mengembangkan platform ini secara gratis."</p>
+              <div class="support-links">
+                  <span>Saweria: saweria.co/pemuryadi</span>
+                  <span>FB/IG/TikTok: @p.e.muryadi</span>
+              </div>
+          </div>
+          
+          ${getWatermarkHtml(profile?.role)}
+          <script>
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+              }, 500);
             };
           </script>
       </body>

@@ -629,7 +629,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                 window.print();
               }, 500);
             };
-          </script>
+          \x3C/script>
       </body>
       </html>
     `);
