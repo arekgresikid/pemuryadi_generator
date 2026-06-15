@@ -67,6 +67,101 @@ export const getSignatureHtml = (profile: any) => {
   `;
 };
 
+export const universalPrint = (contentHtml: string, title: string = 'Print Document', additionalStyles: string = '') => {
+  const container = document.createElement('div');
+  container.id = 'universal-print-container';
+  
+  const style = document.createElement('style');
+  style.textContent = \`
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #universal-print-container, #universal-print-container * {
+        visibility: visible !important;
+      }
+      #universal-print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        color: black;
+      }
+      @page {
+        size: A4;
+        margin: 20mm;
+      }
+      body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      table { width: 100%; border-collapse: collapse; page-break-inside: auto; margin-bottom: 20px; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      th, td { border: 1px solid black; padding: 8px; text-align: left; }
+      th { background-color: #f2f2f2 !important; }
+      .text-center { text-align: center; }
+      .font-bold { font-weight: bold; }
+      .mb-4 { margin-bottom: 1rem; }
+      .mt-8 { margin-top: 2rem; }
+      .flex { display: flex; }
+      .justify-between { justify-content: space-between; }
+      .justify-end { justify-content: flex-end; }
+      \${additionalStyles}
+    }
+    @media screen {
+      #universal-print-container {
+        display: none !important;
+      }
+    }
+  \`;
+  
+  // Extract global styles to keep Tailwind and Font working
+  const globalStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+    .map(el => el.outerHTML)
+    .join('\\n');
+
+  container.innerHTML = \`
+    \${globalStyles}
+    <div style="font-family: 'Times New Roman', Times, serif; padding: 0; color: black; line-height: 1.5;">
+      \${contentHtml}
+    </div>
+  \`;
+  container.appendChild(style);
+  document.body.appendChild(container);
+  
+  const originalTitle = document.title;
+  document.title = title;
+  
+  const cleanup = () => {
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
+    document.title = originalTitle;
+    window.removeEventListener('afterprint', cleanup);
+  };
+  
+  window.addEventListener('afterprint', cleanup);
+  
+  // Also clean up if afterprint doesn't fire (some mobile browsers)
+  setTimeout(() => {
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+      document.title = originalTitle;
+    }
+  }, 300000); // 5 minutes fallback
+  
+  setTimeout(() => {
+    window.print();
+    // In case execution doesn't block, try cleaning up slightly later.
+    // However, on standard browsers this timeout is blocked by the print dialog.
+    setTimeout(() => cleanup(), 500);
+  }, 500);
+};
+
 export const printElement = (elementId: string, title: string, profile: any) => {
   const printContent = document.getElementById(elementId);
   if (!printContent) return;
@@ -74,92 +169,36 @@ export const printElement = (elementId: string, title: string, profile: any) => 
   // Open all details before getting HTML so they print expanded
   const detailsElements = printContent.querySelectorAll('details');
   detailsElements.forEach(d => d.setAttribute('open', 'true'));
-
-  const printWindow = window.open('', '_blank');
-  if (!printWindow) return;
   
   const watermark = getWatermarkHtml(profile?.role || profile);
   const signature = getSignatureHtml(profile);
   
-  // Extract all stylesheets from the current document so Tailwind works
-  const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-    .map(el => el.outerHTML)
-    .join('\n');
-
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Print - ${title}</title>
-        ${styles}
-        <style>
-          @page {
-            size: A4;
-            margin: 20mm 20mm 20mm 25mm;
-          }
-          body {
-            font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-            line-height: 1.6;
-            color: #000 !important;
-            background: #fff !important;
-            padding: 0;
-            margin: 0;
-          }
-          /* Print section styling overrides */
-          .print-section {
-            border: 1.5px solid #000 !important;
-            padding: 15px !important;
-            margin-bottom: 20mm !important;
-            page-break-inside: auto;
-            page-break-after: auto;
-            -webkit-box-decoration-break: clone !important;
-            box-decoration-break: clone !important;
-            box-sizing: border-box;
-            position: relative;
-            background: #fff !important;
-            box-shadow: none !important;
-          }
-          .print-section p, .print-section li {
-            page-break-inside: avoid;
-          }
-          
-          .page-break {
-            page-break-before: always;
-          }
-          
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
-            }
-            .no-print { display: none !important; }
-            .print-section {
-              margin-bottom: 5mm !important;
-              page-break-after: auto;
-              page-break-inside: auto;
-              border: 1.5px solid #000 !important;
-              -webkit-box-decoration-break: clone !important;
-              box-decoration-break: clone !important;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        ${watermark}
-        <div style="position: relative; z-index: 1;">
-          ${printContent.innerHTML}
-          ${signature}
-        </div>
-        <script>
-          setTimeout(() => {
-             window.print();
-             window.close();
-          }, 800);
-        </script>
-      </body>
-    </html>
-  `);
-  printWindow.document.close();
+  universalPrint(\`
+    \${watermark}
+    <div style="position: relative; z-index: 1;">
+      \${printContent.innerHTML}
+      \${signature}
+    </div>
+  \`, \`Print - \${title}\`, \`
+    .print-section {
+      border: 1.5px solid #000 !important;
+      padding: 15px !important;
+      margin-bottom: 5mm !important;
+      page-break-after: auto;
+      page-break-inside: auto;
+      -webkit-box-decoration-break: clone !important;
+      box-decoration-break: clone !important;
+      box-sizing: border-box;
+      position: relative;
+      background: #fff !important;
+      box-shadow: none !important;
+    }
+    .print-section p, .print-section li {
+      page-break-inside: avoid;
+    }
+    .page-break {
+      page-break-before: always;
+    }
+    .no-print { display: none !important; }
+  \`);
 };

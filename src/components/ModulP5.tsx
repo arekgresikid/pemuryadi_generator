@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap } from '../constants';
 import { Loader2, Star, List, Printer, Trash2, Info, Lightbulb, CheckCircle } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';

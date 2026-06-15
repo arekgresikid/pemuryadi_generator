@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { Type, Puzzle, Printer } from 'lucide-react';

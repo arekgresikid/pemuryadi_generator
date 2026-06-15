@@ -6,7 +6,7 @@ import { Loader2, Printer, LayoutDashboard, Settings, FileText, Save , Trash2 } 
 import PrintSupportModal from './PrintSupportModal';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -150,47 +150,11 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
   const printDocument = () => {
     const printContent = printRef.current?.innerHTML;
     if (printContent) {
-      const printWindow = window.open('', '_blank');
-      printWindow?.document.write(`
-        <html>
-          <head>
-            <title>Print Program Tahunan</title>
-            <style>
-              body { font-family: 'Times New Roman', Times, serif; padding: 20px; color: black; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; }
-              th, td { border: 1px solid black; padding: 6px; text-align: left; }
-              th { background-color: #f2f2f2; text-align: center; }
-              .text-center { text-align: center; }
-              .font-bold { font-weight: bold; }
-              .mb-4 { margin-bottom: 1rem; }
-              .mt-8 { margin-top: 2rem; }
-              .flex { display: flex; }
-              .justify-between { justify-content: space-between; }
-              .justify-end { justify-content: flex-end; }
-              @media print {
-                @page { size: A4 portrait; margin: 20mm; }
-                body { -webkit-print-color-adjust: exact; padding: 0; }
-              }
-            
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
-              tr { page-break-inside: avoid; page-break-after: auto; }
-              thead { display: table-header-group; }
-              tfoot { display: table-footer-group; }
-            </style>
-          </head>
-          <body>
-            ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
+      universalPrint(`
+        ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
             ${printContent}
             ${getWatermarkHtml(profile?.role)}
-          </body>
-        </html>
-      `);
-      printWindow?.document.close();
-      printWindow?.focus();
-      setTimeout(() => {
-        printWindow?.print();
-        printWindow?.close();
-      }, 500);
+      `, 'Print Program Tahunan');
     }
   };
 

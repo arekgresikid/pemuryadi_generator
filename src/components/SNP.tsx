@@ -8,7 +8,7 @@ import DocumentUpload, { UploadedFile } from './DocumentUpload';
 import { useAuth } from '../AuthContext';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import PrintSupportModal from './PrintSupportModal';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 
 interface SNPProps {
   subTab: string;
@@ -194,38 +194,11 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
   const printDocument = () => {
     const printContent = printRef.current?.innerHTML;
     if (printContent) {
-      const printWindow = window.open('', '_blank');
-      printWindow?.document.write(`
-        <html>
-          <head>
-            <title>Print Dokumen ${config.title}</title>
-            <style>
-              body { font-family: 'Times New Roman', Times, serif; padding: 20px; color: black; line-height: 1.5; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-              th, td { border: 1px solid black; padding: 8px; text-align: left; }
-              th { background-color: #f2f2f2; }
-              h1, h2, h3, h4, h5, h6 { color: black; margin-bottom: 10px; text-transform: uppercase; }
-              p { margin-bottom: 10px; }
-              ul, ol { margin-bottom: 10px; padding-left: 20px; }
-              @media print {
-                @page { size: A4; margin: 2cm; }
-                body { -webkit-print-color-adjust: exact; padding: 0; }
-              }
-            </style>
-          </head>
-          <body>
-            <h2 style="text-align: center;">Draft Dokumen ${config.agentName}</h2>
+      universalPrint(`
+        <h2 style="text-align: center;">Draft Dokumen ${config.agentName}</h2>
             ${printContent}
             ${getWatermarkHtml(profile?.role)}
-          </body>
-        </html>
-      `);
-      printWindow?.document.close();
-      printWindow?.focus();
-      setTimeout(() => {
-        printWindow?.print();
-        printWindow?.close();
-      }, 500);
+      `, 'Print Dokumen ${config.title}');
     }
   };
 

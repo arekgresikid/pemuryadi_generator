@@ -1,3 +1,4 @@
+import { universalPrint } from '../utils/print';
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { Printer, Plus, Trash2, Sparkles, AlertCircle, Save, Target, School, UserCheck } from 'lucide-react';

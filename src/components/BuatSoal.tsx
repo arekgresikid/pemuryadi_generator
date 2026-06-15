@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
 import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';

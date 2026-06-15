@@ -10,7 +10,7 @@ import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, universalPrint } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
@@ -331,145 +331,9 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
   const printModul = () => {
     if (!result) return;
     
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <title>Modul Kokurikuler - ${tema}</title>
-          
-          <style>
-              @page {
-                size: A4;
-                margin: 0;
-              }
-              @media print {
-                  body { 
-                    -webkit-print-color-adjust: exact; 
-                    print-color-adjust: exact; 
-                    margin: 0;
-                    padding: 10mm;
-                  }
-                  .no-print { display: none; }
-                  .content-wrapper {
-                    max-width: 100% !important;
-                    padding: 5mm !important;
-                    margin: 0 !important;
-                  }
-              }
-              body {
-                font-family: 'Inter', sans-serif;
-                background: white;
-                position: relative;
-                min-height: 100vh;
-                margin: 0;
-                padding: 0;
-              }
-              .watermark {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(-45deg);
-                font-size: 5vw;
-                color: rgba(0, 0, 0, 0.05);
-                white-space: nowrap;
-                pointer-events: none;
-                z-index: -1;
-                font-weight: bold;
-                text-transform: uppercase;
-              }
-              .content-wrapper {
-                width: 100%;
-                max-width: 210mm;
-                margin: 0 auto;
-                padding: 15mm;
-                box-sizing: border-box;
-              }
-              .markdown-body h1 { font-size: 24px; font-weight: bold; margin-bottom: 16px; color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 8px; text-align: center; }
-              .markdown-body h2 { font-size: 20px; font-weight: bold; margin-top: 24px; margin-bottom: 12px; color: #1e40af; background: #eff6ff; padding: 8px; border-radius: 4px; }
-              .markdown-body h3 { font-size: 18px; font-weight: bold; margin-top: 16px; margin-bottom: 8px; color: #1e3a8a; }
-              .markdown-body p { margin-bottom: 12px; line-height: 1.6; }
-              .markdown-body ul, .markdown-body ol { margin-bottom: 16px; padding-left: 24px; }
-              .markdown-body li { margin-bottom: 4px; }
-              .markdown-body table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
-              .markdown-body th, .markdown-body td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
-              .markdown-body th { background: #f1f5f9; }
-              .support-footer {
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 2px solid #eee;
-                text-align: center;
-                font-size: 11px;
-                color: #666;
-              }
-              .support-links {
-                margin-top: 8px;
-                display: center;
-                justify-content: center;
-                gap: 15px;
-                font-weight: bold;
-                color: #2563eb;
-              }
-          
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
-              tr { page-break-inside: avoid; page-break-after: auto; }
-              thead { display: table-header-group; }
-              tfoot { display: table-footer-group; }
-            </style>
-      
-          ${styles}
-          <style>
-            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td p, .content-wrapper p { margin-bottom: 8px !important; }
-            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
-            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
-            .html-content th { background-color: #f1f5f9; font-weight: bold; }
-          </style></head>
-      <body>
-          <div class="watermark">PEMURYADI - MAJU PENDIDIKAN INDONESIA</div>
-          <div class="content-wrapper">
-              ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
-              <div class="markdown-body">
-                  ${marked.parse(result)}
-              </div>
-
-              ${(kepalaSekolah || namaGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
-                  <div style="width: 45%;">
-                      <p>Mengetahui,</p>
-                      <p>Kepala Sekolah</p>
-                      <br><br><br><br>
-                      <p style="font-weight: bold; text-decoration: underline;">${kepalaSekolah || '................................'}</p>
-                      <p>${jenisNipKepalaSekolah || 'NIP'}. ${nipKepalaSekolah || '................................'}</p>
-                  </div>
-                  <div style="width: 45%;">
-                      <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      <p>Guru Pengampu</p>
-                      <br><br><br><br>
-                      <p style="font-weight: bold; text-decoration: underline;">${namaGuru || '................................'}</p>
-                      <p>${jenisNipGuru || 'NIP'}. ${nipGuru || '................................'}</p>
-                  </div>
-              </div>` : ''}
-              
-              <div class="support-footer">
-                  <p>Dokumen ini dihasilkan secara otomatis oleh <strong>Modul Kokurikuler - Pemuryadi</strong></p>
-                  <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
-                  <p style="margin-top: 10px; font-style: italic;">"Dukungan Anda sangat berarti bagi kami untuk terus mengembangkan platform ini secara gratis."</p>
-                  <div class="support-links">
-                      <span>Saweria: saweria.co/pemuryadi</span>
-                      <span>FB/IG/TikTok: @p.e.muryadi</span>
-                  </div>
-              </div>
-          </div>
-          ${getWatermarkHtml(profile?.role)}
-          <script>
-            window.onload = () => {
-              setTimeout(() => {
-                window.print();
-              }, 500);
+    universalPrint(`
+        ${printContent}
+      `, 'Modul Kokurikuler - ${tema}');
             };
           </script>
       </body>
