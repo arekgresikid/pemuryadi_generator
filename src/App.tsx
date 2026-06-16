@@ -147,8 +147,6 @@ const LoadingScreen = () => {
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
-      const hash = window.location.hash.replace('#', '');
-      if (hash) return hash;
       const saved = localStorage.getItem('pemuryadi_activeTab');
       if (saved) return saved;
     }
@@ -250,18 +248,6 @@ export default function App() {
   useEffect(() => { localStorage.setItem('pemuryadi_isSidebarOpen', String(isSidebarOpen)); }, [isSidebarOpen]);
   useEffect(() => { localStorage.setItem('pemuryadi_animationsEnabled', String(animationsEnabled)); }, [animationsEnabled]);
   useEffect(() => { localStorage.setItem('pemuryadi_gradientsEnabled', String(gradientsEnabled)); }, [gradientsEnabled]);
-  
-  // Hash sync for URL slugs
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (hash && hash !== activeTab) {
-        setActiveTab(hash);
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [activeTab]);
   useEffect(() => { localStorage.setItem('pemuryadi_brightness', String(brightness)); }, [brightness]);
   useEffect(() => { localStorage.setItem('pemuryadi_isDevUnlocked', String(isDevUnlocked)); }, [isDevUnlocked]);
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
@@ -490,9 +476,6 @@ export default function App() {
     }
 
     setActiveTab(tabId);
-    if (typeof window !== 'undefined') {
-      window.history.pushState(null, '', `#${tabId}`);
-    }
     trackClick(tabId);
     addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-blue-500');
     incrementFavorites();
