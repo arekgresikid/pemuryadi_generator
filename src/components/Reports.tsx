@@ -84,7 +84,7 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
         </button>
       </div>
       {result && (
-        <div className="mt-10 pt-10 border-t border-gray-100 print-area prose max-w-none text-sm break-words markdown-body">
+        <div id="printArea" className="mt-10 pt-10 border-t border-gray-100 print-area prose max-w-none text-sm break-words markdown-body">
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen
@@ -171,7 +171,7 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
         </button>
       </div>
       {result && (
-        <div className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
+        <div id="printArea" className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen
@@ -258,7 +258,7 @@ Tampilkan dalam format Markdown formal terstruktur. Soroti kepemimpinan murid (s
         </button>
       </div>
       {result && (
-        <div className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
+        <div id="printArea" className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen

@@ -3181,7 +3181,7 @@ export default function EvaluasiMutu() {
         </div>
       </header>
       
-      <div className="flex-1 overflow-y-auto pr-3 pb-12 print-area w-full space-y-6">
+      <div id="printArea" className="flex-1 overflow-y-auto pr-3 pb-12 print-area w-full space-y-6">
         {tabs.map(tab => (
           <div key={tab.id} className="bg-white border border-gray-100 shadow-sm">
             <button

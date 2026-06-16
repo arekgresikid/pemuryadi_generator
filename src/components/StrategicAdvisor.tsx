@@ -129,7 +129,7 @@ export default function StrategicAdvisor() {
                         <Printer size={14} /> Cetak Dokumen
                      </button>
                   </div>
-                  <div className="markdown-body print-area">
+                  <div id="printArea" className="markdown-body print-area">
                     <ReactMarkdown>{responseHtml}</ReactMarkdown>
                   </div>
                 </div>

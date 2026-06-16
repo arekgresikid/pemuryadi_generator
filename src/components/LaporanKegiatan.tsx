@@ -154,7 +154,7 @@ export default function LaporanKegiatan() {
                 </div>
               )}
               {report ? (
-                <div className="prose prose-sm prose-slate max-w-none prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-sm markdown-body print-area">
+                <div id="printArea" className="prose prose-sm prose-slate max-w-none prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-sm markdown-body print-area">
                   <ReactMarkdown>{report}</ReactMarkdown>
                 </div>
                ) : (
