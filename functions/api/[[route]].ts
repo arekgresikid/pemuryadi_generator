@@ -85,8 +85,9 @@ app.use('/*', async (c, next) => {
   }
 
   const token = getCookie(c, 'auth_token');
+  const mockLoggedOut = getCookie(c, 'mock_logged_out');
   if (!token) {
-    if (isLocal) {
+    if (isLocal && !mockLoggedOut) {
       c.set('user', { uid: 'local-dev-user', email: 'local@dev.com', role: 'owner', tier: 'Titan' });
       return next();
     }
@@ -99,7 +100,7 @@ app.use('/*', async (c, next) => {
     c.set('user', payload);
     return next();
   } catch (e) {
-    if (isLocal) {
+    if (isLocal && !mockLoggedOut) {
       c.set('user', { uid: 'local-dev-user', email: 'local@dev.com', role: 'owner', tier: 'Titan' });
       return next();
     }
@@ -313,6 +314,10 @@ app.get('/auth/me', async (c) => {
 
 app.post('/auth/logout', (c) => {
   deleteCookie(c, 'auth_token', { path: '/' });
+  const url = new URL(c.req.url);
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    setCookie(c, 'mock_logged_out', '1', { path: '/' });
+  }
   return c.json({ success: true });
 });
 
