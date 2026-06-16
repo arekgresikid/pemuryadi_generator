@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { parseMarkdown } from '../utils/markdown';
 import { BookOpen, Sparkles, Printer, Loader2, Save, Trash2, List, FileText, ClipboardList, Target, BarChart, MessageCircle, Calculator, Layout, AlertCircle, Download, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { mapelNames, cpData, atpData, educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import PrintSupportModal from './PrintSupportModal';
@@ -295,22 +296,22 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
 
               <div class="section">
                   <div class="section-title">C. CAPAIAN PEMBELAJARAN (CP)</div>
-                  <div class="content"><p>${(result.cp || '-').replace(/\n/g, '<br>')}</p></div>
+                  <div class="content html-content">${parseMarkdown(result.cp)}</div>
               </div>
 
               <div class="section">
                   <div class="section-title">D. ALUR TUJUAN PEMBELAJARAN (ATP)</div>
-                  <div class="content"><p>${(result.atp || '-').replace(/\n/g, '<br>')}</p></div>
+                  <div class="content html-content">${parseMarkdown(result.atp)}</div>
               </div>
 
               <div class="section">
                   <div class="section-title">E. CATATAN PEMBELAJARAN</div>
-                  <div class="content"><p>${(result.catatan || '-').replace(/\n/g, '<br>')}</p></div>
+                  <div class="content html-content">${parseMarkdown(result.catatan)}</div>
               </div>
 
               <div class="section">
                   <div class="section-title">F. REFLEKSI & EVALUASI</div>
-                  <div class="content"><p>${(result.refleksi || '-').replace(/\n/g, '<br>')}</p></div>
+                  <div class="content html-content">${parseMarkdown(result.refleksi)}</div>
               </div>
 
               ${(result.kepalaSekolah || result.ttdKS || result.namaGuru || result.ttdGuru) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
@@ -341,11 +342,9 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
           </div>
           ${getWatermarkHtml(profile?.role)}
           <script>
-            window.onload = () => {
-              setTimeout(() => {
-                window.print();
-              }, 500);
-            };
+            setTimeout(() => {
+              window.print();
+            }, 1000);
           </script>
       </body>
       </html>
@@ -600,11 +599,11 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                 <div className="space-y-4">
                   <div>
                     <h5 className="text-xs text-gray-500 mb-1">Catatan Pembelajaran</h5>
-                    <p className="text-gray-700 bg-white p-3 rounded-lg border border-black">{result.catatan || '-'}</p>
+                    <div className="text-gray-700 bg-white p-3 rounded-lg border border-black" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.catatan) }} />
                   </div>
                   <div>
                     <h5 className="text-xs text-gray-500 mb-1">Refleksi & Evaluasi</h5>
-                    <p className="text-gray-700 bg-white p-3 rounded-lg border border-black">{result.refleksi || '-'}</p>
+                    <div className="text-gray-700 bg-white p-3 rounded-lg border border-black" dangerouslySetInnerHTML={{ __html: parseMarkdown(result.refleksi) }} />
                   </div>
                 </div>
               </details>

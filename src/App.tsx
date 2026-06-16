@@ -427,6 +427,7 @@ export default function App() {
       id: 'kurikulum-evaluasi',
       icon: <Library size={20} />,
       label: 'Kurikulum & Evaluasi',
+      titanOnly: true,
       dropdown: [
         { id: 'snp-ksp', icon: <Library size={16} />, label: 'KSP', titanOnly: true },
         { id: 'evaluasi-mutu', icon: <BarChart size={16} />, label: 'Evaluasi Mutu' },
@@ -437,6 +438,7 @@ export default function App() {
       id: 'manajemen-sekolah',
       icon: <FileText size={20} />,
       label: 'Manajemen Sekolah',
+      titanOnly: true,
       dropdown: [
         { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI', titanOnly: true },
         { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Program Adiwiyata', titanOnly: true },

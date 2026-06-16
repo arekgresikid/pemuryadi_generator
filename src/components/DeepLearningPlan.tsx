@@ -624,12 +624,10 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
           </div>
           ${getWatermarkHtml(profile?.role)}
           <script>
-            window.onload = () => {
-              setTimeout(() => {
-                window.print();
-              }, 500);
-            };
-          \x3C/script>
+            setTimeout(() => {
+              window.print();
+            }, 1000);
+          </script>
       </body>
       </html>
     `);

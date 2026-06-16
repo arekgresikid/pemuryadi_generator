@@ -365,8 +365,10 @@ Format output harus JSON murni:
           ${content}
           ${docFooter}
           <script>
-            window.onload = () => { window.print(); window.close(); }
-          \x3C/script>
+            setTimeout(() => {
+              window.print();
+            }, 1000);
+          </script>
         </body>
       </html>
     `);

@@ -420,7 +420,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                   </div>
                 ) : resultHtml ? (
                   <div ref={printRef} className="print-container relative w-full pb-16">
-                    <div dangerouslySetInnerHTML={{ __html: parseMarkdown(resultHtml) }} />
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(resultHtml) }} />
                     {(formData.kepalaSekolah || formData.namaGuru) && (
                       <div className="mt-12 flex justify-between" style={{ pageBreakInside: 'avoid' }}>
                         <div className="w-[45%] text-center text-sm">

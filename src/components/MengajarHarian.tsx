@@ -11,6 +11,7 @@ import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
 import { repairMarkdown } from '../utils/markdown';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { topicsBySubject } from '../constants';
 
 const JENJANG_OPTIONS = ['SD/MI', 'SMP/MTs', 'SMA/MA', 'SMK/MAK'];
 const FASE_OPTIONS = ['Fase A', 'Fase B', 'Fase C', 'Fase D', 'Fase E', 'Fase F'];
@@ -76,6 +77,7 @@ export default function MengajarHarian() {
     mataPelajaran: '',
     customMapel: '',
     topikMateri: '',
+    isCustomTopik: false,
     remixText: '',
     hasInklusi: false,
     jumlahInklusi: '',
@@ -425,9 +427,11 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   </div>
               </div>` : ''}
             </div>
-            <script>
-              window.onload = () => { window.print(); window.close(); }
-            \x3C/script>
+              <script>
+                setTimeout(() => {
+                  window.print();
+                }, 1000);
+              </script>
           </body>
         </html>
       `);
@@ -575,12 +579,32 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
               <div>
                 <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Topik/Materi</label>
-                <AIAssistedInput type="text"
+                <select 
+                  value={formData.isCustomTopik ? 'lainnya' : formData.topikMateri} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val === 'lainnya') {
+                      setFormData({...formData, isCustomTopik: true, topikMateri: ''});
+                    } else {
+                      setFormData({...formData, isCustomTopik: false, topikMateri: val});
+                    }
+                  }} 
                   className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
-                  placeholder="Contoh: Teks Deskripsi, Fotosintesis..."
-                  value={formData.topikMateri}
-                  onChange={(e) => setFormData({...formData, topikMateri: e.target.value})}
-                />
+                >
+                  <option value="">-- Pilih Topik --</option>
+                  {(topicsBySubject[formData.mataPelajaran === 'Lainnya' ? formData.customMapel : formData.mataPelajaran] || topicsBySubject['default'] || []).map((topic: string, idx: number) => (
+                    <option key={idx} value={topic}>{topic}</option>
+                  ))}
+                  <option value="lainnya">Lainnya (+ Input Manual)</option>
+                </select>
+                {formData.isCustomTopik && (
+                  <AIAssistedInput type="text"
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none mt-2"
+                    placeholder="Masukkan Topik/Materi secara manual..."
+                    value={formData.topikMateri}
+                    onChange={(e) => setFormData({...formData, topikMateri: e.target.value})}
+                  />
+                )}
               </div>
 
               <div className="space-y-3">

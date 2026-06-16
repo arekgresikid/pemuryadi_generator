@@ -156,9 +156,6 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
   
   setTimeout(() => {
     window.print();
-    // In case execution doesn't block, try cleaning up slightly later.
-    // However, on standard browsers this timeout is blocked by the print dialog.
-    setTimeout(() => cleanup(), 500);
   }, 500);
 };
 

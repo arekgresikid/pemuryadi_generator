@@ -366,10 +366,10 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
           </div>
 
           <script>
-              window.onload = () => {
-                  window.print();
-              };
-          \x3C/script>
+            setTimeout(() => {
+              window.print();
+            }, 1000);
+          </script>
       </body>
       </html>
     `);

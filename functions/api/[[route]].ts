@@ -34,6 +34,8 @@ async function ensureDbSchema(db: D1Database) {
       if (!hasIsBanned) await db.prepare("ALTER TABLE users ADD COLUMN isBanned INTEGER DEFAULT 0").run();
       if (!hasLastActive) await db.prepare("ALTER TABLE users ADD COLUMN lastActive TEXT").run();
       if (!hasSuspendedUntil) await db.prepare("ALTER TABLE users ADD COLUMN suspendedUntil TEXT").run();
+      const hasLogoUrl = cols.some((c: any) => c.name === 'logoUrl');
+      if (!hasLogoUrl) await db.prepare("ALTER TABLE users ADD COLUMN logoUrl TEXT").run();
       await db.prepare(`CREATE TABLE IF NOT EXISTS token_usage_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         uid TEXT NOT NULL,
@@ -328,7 +330,7 @@ app.post('/profile', async (c) => {
   const db = c.env.DB;
 
   // Dynamically build update query
-  const keys = Object.keys(body).filter(k => ['displayName', 'nip', 'jenjang', 'tahunPelajaran', 'namaSekolah', 'kepalaSekolah', 'jenisNipKepalaSekolah', 'nipKepalaSekolah', 'jenisNipGuru'].includes(k));
+  const keys = Object.keys(body).filter(k => ['displayName', 'nip', 'jenjang', 'tahunPelajaran', 'namaSekolah', 'kepalaSekolah', 'jenisNipKepalaSekolah', 'nipKepalaSekolah', 'jenisNipGuru', 'logoUrl'].includes(k));
   
   if (keys.length === 0) return c.json({ success: true });
 

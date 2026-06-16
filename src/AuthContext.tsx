@@ -20,6 +20,7 @@ interface UserProfile {
   nipKepalaSekolah?: string;
   nama?: string;
   jenisNipGuru?: string;
+  logoUrl?: string;
 }
 
 interface AuthContextType {

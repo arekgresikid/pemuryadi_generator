@@ -513,7 +513,9 @@ Berikan output dalam format JSON murni:
           ${content}
           ${docFooter}
           <script>
-            window.onload = () => { window.print(); window.close(); }
+            setTimeout(() => {
+              window.print();
+            }, 1000);
           </script>
         </body>
       </html>

@@ -337,8 +337,10 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
           ${content}
           ${docFooter}
           <script>
-            window.onload = () => { window.print(); window.close(); }
-          \x3C/script>
+            setTimeout(() => {
+              window.print();
+            }, 1000);
+          </script>
         </body>
       </html>
     `);

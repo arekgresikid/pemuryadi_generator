@@ -1082,7 +1082,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                 </p>
               </div>
             </div>
-            <div className="bg-white rounded-2xl p-8 shadow-inner overflow-auto max-h-[800px] prose prose-slate max-w-none">
+            <div id="modul-kokurikuler-print" className="bg-white rounded-2xl p-8 shadow-inner overflow-auto max-h-[800px] prose prose-slate max-w-none">
               <Markdown remarkPlugins={[remarkGfm]}>{result}</Markdown>
             </div>
           </div>

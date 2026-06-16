@@ -557,11 +557,9 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           </div>
           ${getWatermarkHtml(profile?.role)}
           <script>
-            window.onload = () => {
-              setTimeout(() => {
-                window.print();
-              }, 500);
-            };
+            setTimeout(() => {
+              window.print();
+            }, 1000);
           </script>
       </body>
       </html>
