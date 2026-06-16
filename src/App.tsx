@@ -424,26 +424,26 @@ export default function App() {
       ]
     },
     {
-      id: 'ksp',
+      id: 'kurikulum-evaluasi',
       icon: <Library size={20} />,
-      label: 'KSP & Evaluasi',
+      label: 'Kurikulum & Evaluasi',
       dropdown: [
+        { id: 'snp-ksp', icon: <Library size={16} />, label: 'KSP', titanOnly: true },
         { id: 'evaluasi-mutu', icon: <BarChart size={16} />, label: 'Evaluasi Mutu' },
-        { id: 'reports', icon: <ClipboardList size={16} />, label: 'Laporan Mutu', premiumOnly: true },
-        { id: 'strategic-advisor', icon: <Target size={16} />, label: 'Penasihat Strategis', premiumOnly: true }
+        { id: 'snp-rapor', icon: <BarChart size={16} />, label: 'Rapor Pendidikan', titanOnly: true }
       ]
     },
     {
-      id: 'snp',
+      id: 'manajemen-sekolah',
       icon: <FileText size={20} />,
-      label: 'SNP',
+      label: 'Manajemen Sekolah',
       dropdown: [
-        { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Adiwiyata' },
-        { id: 'snp-sra', icon: <Smile size={16} />, label: 'Sekolah Ramah Anak' },
-        { id: 'snp-ssk', icon: <Users size={16} />, label: 'Sekolah Siaga Kependudukan' },
-        { id: 'snp-rapor', icon: <BarChart size={16} />, label: 'Rapor Pendidikan' },
-        { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI' },
-        { id: 'snp-ksp', icon: <Library size={16} />, label: 'KSP' }
+        { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI', titanOnly: true },
+        { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Program Adiwiyata', titanOnly: true },
+        { id: 'snp-sra', icon: <Smile size={16} />, label: 'Sekolah Ramah Anak', titanOnly: true },
+        { id: 'snp-ssk', icon: <Users size={16} />, label: 'Sekolah Siaga Kependudukan', titanOnly: true },
+        { id: 'reports', icon: <ClipboardList size={16} />, label: 'Laporan Mutu', premiumOnly: true },
+        { id: 'strategic-advisor', icon: <Target size={16} />, label: 'Penasihat Strategis', premiumOnly: true }
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
@@ -464,7 +464,17 @@ export default function App() {
   }
 
   const isTitanOrAdmin = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes(userRole);
-  const visibleMenuItems = menuItems.filter(item => item.id !== 'snp' || isTitanOrAdmin);
+  const visibleMenuItems = menuItems
+    .filter(item => !item.titanOnly || isTitanOrAdmin)
+    .map(item => {
+      if (item.dropdown) {
+        return {
+          ...item,
+          dropdown: item.dropdown.filter(sub => !sub.titanOnly || isTitanOrAdmin)
+        };
+      }
+      return item;
+    });
 
   const handleTabChange = (tabId: string) => {
     // Check if the tab is premium only

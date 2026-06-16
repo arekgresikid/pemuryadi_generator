@@ -8,10 +8,11 @@ export interface MenuItem {
   label: string;
   link?: string;
   premiumOnly?: boolean;
+  titanOnly?: boolean;
   disabled?: boolean;
   disabledMessage?: string;
   isBeta?: boolean;
-  dropdown?: { id: string; icon: React.ReactNode; label: string; link?: string; premiumOnly?: boolean; disabled?: boolean; disabledMessage?: string; isBeta?: boolean }[];
+  dropdown?: { id: string; icon: React.ReactNode; label: string; link?: string; premiumOnly?: boolean; titanOnly?: boolean; disabled?: boolean; disabledMessage?: string; isBeta?: boolean }[];
 }
 
 export interface SidebarProps {
