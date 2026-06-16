@@ -588,3 +588,11 @@ Aplikasi ini sudah menyertakan dokumen [Privacy Policy](public/privacy-policy.ht
 
 ---
 *Dibuat dengan ❤️ untuk pendidikan Indonesia.*
+
+## ?? AI Agent Instructions (Antigravity & Others)
+
+This project includes a comprehensive development skill guide located at public/pemuryadi-generator-dev-skill.md. 
+**ALL AI AGENTS MUST READ AND FOLLOW THIS FILE** before making any architectural changes or implementing new features.
+
+For Antigravity users: The skill file contains essential instructions regarding Hono routing, React contexts, Pollinations AI integrations, and the createPrintWindow utility.
+
