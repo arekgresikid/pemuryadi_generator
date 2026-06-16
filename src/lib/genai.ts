@@ -38,9 +38,10 @@ export class GoogleGenAI {
     // Secure Backend Proxy Approach
     // We do NOT expose the API key here. The backend /api/chat/completions proxy handles it.
     this.apiKey = "backend-proxy";
+    const baseUrlStr = typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:8788/api';
     const openai = new OpenAI({
       apiKey: this.apiKey,
-      baseURL: "/api",
+      baseURL: baseUrlStr,
       dangerouslyAllowBrowser: true // Allowed because the API key is fake and we hit our own proxy
     });
 
