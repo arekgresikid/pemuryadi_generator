@@ -5,9 +5,11 @@ interface PremiumLockModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpgrade: () => void;
+  title?: string;
+  description?: string;
 }
 
-export default function PremiumLockModal({ isOpen, onClose, onUpgrade }: PremiumLockModalProps) {
+export default function PremiumLockModal({ isOpen, onClose, onUpgrade, title = "Fitur Terkunci", description = "Tingkatkan akun Anda ke paket Essential, Premium, Ultimate, Supreme, atau Titan untuk membuka akses penuh ke semua alat dan generator tanpa batasan." }: PremiumLockModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -23,7 +25,7 @@ export default function PremiumLockModal({ isOpen, onClose, onUpgrade }: Premium
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
             <Lock size={32} className="text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-center">Fitur Terkunci</h2>
+          <h2 className="text-2xl font-bold text-center">{title}</h2>
           <p className="text-blue-100 text-center mt-2 text-sm">
             Alat ini eksklusif untuk pengguna Berbayar
           </p>
@@ -31,7 +33,7 @@ export default function PremiumLockModal({ isOpen, onClose, onUpgrade }: Premium
         
         <div className="p-6">
           <p className="text-gray-600 text-center mb-6 text-sm leading-relaxed">
-            Tingkatkan akun Anda ke paket Essential, Premium, Ultimate, Supreme, atau Ttan untuk membuka akses penuh ke semua alat dan generator tanpa batasan.
+            {description}
           </p>
           
           <div className="flex flex-col gap-3">

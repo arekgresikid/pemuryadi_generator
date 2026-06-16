@@ -269,6 +269,7 @@ export default function App() {
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
   const [showTokenWarning, setShowTokenWarning] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [isTitanModalOpen, setIsTitanModalOpen] = useState(false);
 
   const { user, profile, loading } = useAuth();
 
@@ -498,17 +499,7 @@ export default function App() {
       const isPrivileged = allowedTiers.includes(tier) || ['owner', 'admin'].includes(role);
       
       if (!isPrivileged) {
-        toast.error("Hanya bisa diakses paket Ultimate, Supreme dan titan", {
-          style: {
-            background: '#ef4444',
-            color: '#fff',
-            fontWeight: 'bold',
-            borderRadius: '12px',
-            padding: '16px'
-          },
-          icon: '🛡️',
-          duration: 4000,
-        });
+        setIsTitanModalOpen(true);
         return;
       }
     }
@@ -943,6 +934,17 @@ export default function App() {
           setIsPremiumModalOpen(false);
           setActiveTab('pricing');
         }} 
+      />
+
+      <PremiumLockModal 
+        isOpen={isTitanModalOpen} 
+        onClose={() => setIsTitanModalOpen(false)} 
+        onUpgrade={() => {
+          setIsTitanModalOpen(false);
+          setActiveTab('pricing');
+        }} 
+        title="Fitur Terkunci"
+        description="Tingkatkan akun Anda ke paket Ultimate, Supreme, atau Titan untuk membuka akses penuh ke semua alat dan generator tanpa batasan."
       />
       
       <LoginRequiredModal 
