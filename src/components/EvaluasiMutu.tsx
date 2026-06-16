@@ -123,7 +123,7 @@ DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output aud
                </div>
                <pre className="font-mono text-sm whitespace-pre-wrap leading-relaxed text-gray-700">{h.userSummary}</pre>
             </div>
-            <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-8 md:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
+            <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-4 md:p-8 lg:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
                <div className="flex items-center justify-between mb-8">
                  <div className="text-[11px] tracking-[3px] uppercase font-bold text-blue-600 flex items-center gap-3">
                    <BrainCircuit size={18} /> Analisis Mutu Supervisor
@@ -146,7 +146,7 @@ DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output aud
       )}
 
       {!thinking && step <= 5 && (
-        <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
+        <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
            <h3 className="text-[22px] font-bold font-sans mb-10 border-b-2 border-gray-100 pb-4 flex items-center justify-between">
               <span className="text-gray-900">
                 {step === 1 ? 'Tahap 1: Identitas Sekolah & Pemetaan Mutu' :
@@ -477,7 +477,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (T
                </div>
                <pre className="font-mono text-sm whitespace-pre-wrap leading-relaxed text-gray-700">{h.userSummary}</pre>
             </div>
-            <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-8 md:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
+            <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-4 md:p-8 lg:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
                <div className="flex items-center justify-between mb-8 transition-colors">
                  <div className="text-[11px] tracking-[3px] uppercase font-bold text-[#2A9D8F] flex items-center gap-3">
                    <BrainCircuit size={18} /> Audit Panel SRA
@@ -499,7 +499,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (T
       )}
 
       {!thinking && step <= 5 && (
-         <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
+         <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
            <h3 className="text-[22px] font-bold font-sans mb-10 border-b-2 border-gray-100 pb-4 flex items-center justify-between">
               <span className="text-gray-900">
                 {step === 1 ? 'Tahap 1: Pemetaan Mutu SRA' :
@@ -841,7 +841,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.`;
              </div>
              <pre className="font-mono text-sm whitespace-pre-wrap leading-relaxed text-gray-700">{h.userSummary}</pre>
           </div>
-          <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-8 md:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-[#E76F51] prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
+          <div className="bg-blue-50 border-t-2 border-b-2 border-gray-100 p-4 md:p-8 lg:p-14 self-end prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-[#E76F51] prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full">
              <div className="flex items-center justify-between mb-8">
                <div className="text-[11px] tracking-[3px] uppercase font-bold text-[#E76F51] flex items-center gap-3">
                  <BrainCircuit size={18} /> Analisis Mutu Supervisor
@@ -863,7 +863,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.`;
       )}
 
       {!thinking && step <= 5 && (
-        <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
+        <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
            <h3 className="text-[22px] font-bold font-sans mb-10 border-b-2 border-gray-100 pb-4 flex items-center justify-between">
               <span className="text-gray-900">
                 {step === 1 && 'Tahap 1: Data Sekolah & Pemetaan Mutu'}
@@ -1302,7 +1302,7 @@ Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pen
       </div>
 
       {step === 1 && (
-        <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
+        <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 relative">
            
            <h3 className="text-[22px] font-bold font-sans mb-6 border-b-2 border-gray-100 pb-4">
              1. Ringkasan Eksekutif (Otomatis)
@@ -1432,7 +1432,7 @@ Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pen
 
       {/* STEP 2 - RESULTS */}
       {step === 2 && history.map((h, i) => (
-        <div key={i} className="bg-blue-50 border-t-2 border-[#457B9D] p-8 md:p-14 prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-[#457B9D] prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full border border-gray-100 shadow-lg">
+        <div key={i} className="bg-blue-50 border-t-2 border-[#457B9D] p-4 md:p-8 lg:p-14 prose prose-slate max-w-none prose-tables:border prose-tables:border-gray-200 prose-th:bg-white prose-th:text-gray-900 prose-td:border-gray-100 prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-[#457B9D] prose-p:font-sans prose-p:leading-[1.8] prose-p:text-base prose-li:font-sans prose-li:text-base relative print-area w-full border border-gray-100 shadow-lg">
            <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-6">
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-[#457B9D] flex items-center gap-3">
                <BrainCircuit size={20} /> Laporan Audit Rapor Pendidikan
@@ -1599,7 +1599,7 @@ DILARANG memberikan sapaan atau penutup.`;
       </div>
 
       {step === 1 && (
-        <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 space-y-10 relative">
+        <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 space-y-10 relative">
           
           {/* SECTION 1 */}
           <div>
@@ -2061,7 +2061,7 @@ DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pa
       </div>
 
       {step === 1 && (
-        <div className="bg-white border-t-2 border-gray-200 p-8 md:p-14 shadow-lg border-l border-r border-b border-gray-100 space-y-10 relative">
+        <div className="bg-white border-t-2 border-gray-200 p-4 md:p-8 lg:p-14 shadow-lg border-l border-r border-b border-gray-100 space-y-10 relative">
           
           <div className="grid lg:grid-cols-2 gap-10">
              {/* MODULE 1 */}
@@ -2354,7 +2354,7 @@ DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pa
              </button>
            </div>
            
-           <div className="markdown-body mb-12 min-w-full"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
+           <div className="markdown-body mb-12 w-full overflow-x-auto"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
 
            <div className="no-print pt-8 border-t border-gray-100 flex justify-between items-center">
               <button 
@@ -2512,7 +2512,7 @@ function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
   return (
     <div className="flex flex-col h-full bg-white w-full max-w-full">
       {step === 1 && (
-        <div className="flex-1 overflow-x-hidden p-6 md:p-12 space-y-12 shrink-0 h-max print-area">
+        <div className="flex-1 overflow-x-hidden p-4 md:p-6 lg:p-12 space-y-12 shrink-0 h-max print-area">
           <div className="bg-white p-8 border-l-4 border-blue-600 shadow-sm">
              <h2 className="text-2xl font-sans font-bold  mb-4">Evaluasi Kurikulum Satuan Pendidikan (KSP)</h2>
              <p className="text-sm leading-relaxed mb-6 font-sans">
@@ -2863,7 +2863,7 @@ function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
              </button>
            </div>
            
-           <div className="markdown-body mb-12 min-w-full"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
+           <div className="markdown-body mb-12 w-full overflow-x-auto"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
 
            <div className="no-print pt-8 border-t border-gray-100 flex justify-between items-center">
               <button 
@@ -3047,7 +3047,7 @@ function AkreditasiWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSe
   return (
     <div className="flex flex-col h-full bg-white w-full max-w-full">
       {step === 1 && (
-        <div className="flex-1 overflow-x-hidden p-6 md:p-12 space-y-12 shrink-0 h-max print-area">
+        <div className="flex-1 overflow-x-hidden p-4 md:p-6 lg:p-12 space-y-12 shrink-0 h-max print-area">
           <div className="bg-white p-8 border-l-4 border-blue-600 shadow-sm">
              <h2 className="text-2xl font-sans font-bold  mb-4">Evaluasi Akreditasi (Standar Nasional)</h2>
              <p className="text-sm leading-relaxed mb-6 font-sans">
@@ -3111,7 +3111,7 @@ function AkreditasiWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSe
              </button>
            </div>
            
-           <div className="markdown-body mb-12 min-w-full"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
+           <div className="markdown-body mb-12 w-full overflow-x-auto"><ReactMarkdown>{h.aiResponse}</ReactMarkdown></div>
 
            <div className="no-print pt-8 border-t border-gray-100 flex justify-between items-center">
               <button 
@@ -3154,7 +3154,7 @@ export default function EvaluasiMutu() {
   ];
 
   return (
-    <div className="p-10 lg:px-14 lg:py-10 max-w-[1400px] mx-auto font-sans text-gray-900 h-full flex flex-col">
+    <div className="p-4 md:p-10 lg:px-14 lg:py-10 max-w-[1400px] mx-auto font-sans text-gray-900 h-full flex flex-col">
       <header className="shrink-0 mb-8 border-b border-gray-100 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
            <h1 className="text-[44px] font-sans font-black  leading-none mb-3">Standar Nasional Pendidikan (SNP)</h1>
@@ -3213,3 +3213,5 @@ export default function EvaluasiMutu() {
     </div>
   );
 }
+
+
