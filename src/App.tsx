@@ -41,6 +41,11 @@ import FillBlanks from './components/FillBlanks';
 import UnscrambleLetters from './components/UnscrambleLetters';
 import GamesHub from './components/GamesHub';
 
+import EvaluasiMutu from './components/EvaluasiMutu';
+import Reports from './components/Reports';
+import StrategicAdvisor from './components/StrategicAdvisor';
+import LaporanKegiatan from './components/LaporanKegiatan';
+
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
 import Topbar from './components/layout/Topbar';
@@ -396,7 +401,18 @@ export default function App() {
         { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
-        { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
+        { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
+        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
+      ]
+    },
+    {
+      id: 'ksp',
+      icon: <Library size={20} />,
+      label: 'KSP & Evaluasi',
+      dropdown: [
+        { id: 'evaluasi-mutu', icon: <BarChart size={16} />, label: 'Evaluasi Mutu' },
+        { id: 'reports', icon: <ClipboardList size={16} />, label: 'Laporan Mutu', premiumOnly: true },
+        { id: 'strategic-advisor', icon: <Target size={16} />, label: 'Penasihat Strategis', premiumOnly: true }
       ]
     },
     {
@@ -695,6 +711,10 @@ export default function App() {
             {activeTab === 'modul-p5' && <ModulP5 />}
             {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
+            {activeTab === 'laporan-kegiatan' && <LaporanKegiatan />}
+            {activeTab === 'evaluasi-mutu' && <EvaluasiMutu />}
+            {activeTab === 'reports' && <Reports />}
+            {activeTab === 'strategic-advisor' && <StrategicAdvisor />}
             {activeTab === 'kalender-pendidikan' && <KalenderPendidikan />}
             {activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif />}
             {activeTab === 'program-semester' && <ProgramSemester />}
