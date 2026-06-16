@@ -445,7 +445,6 @@ export default function App() {
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
-    { id: 'ai-visual', icon: <Smile size={20} />, label: 'AI Visual', premiumOnly: true },
     { id: 'barcode-generator', icon: <QrCode size={20} />, label: 'Generator Barcode' },
     { 
       id: 'game-ifp', 
@@ -736,7 +735,6 @@ export default function App() {
             { activeTab === 'evaluasi-mutu' && <EvaluasiMutu /> }
             { activeTab === 'reports' && <Reports /> }
             { activeTab === 'strategic-advisor' && <StrategicAdvisor /> }
-            { activeTab === 'ai-visual' && <AIVisualGenerator /> }
             { activeTab === 'kalender-pendidikan' && <KalenderPendidikan /> }
             { activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif /> }
             { activeTab === 'program-semester' && <ProgramSemester /> }
