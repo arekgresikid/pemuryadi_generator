@@ -18,14 +18,16 @@ Style: modern, eye-catching, vibrant, professional educational worksheet.
 Typography: compact and readable (use text-sm or text-xs for questions) to ensure everything fits on one page.
 
 🧱 STRUKTUR GRID & LAYOUT (STRICT — FOLLOW EXACTLY)
-MAIN GRID: Asymmetrical 2-column composition or top-bottom layout:
-- If using a side illustration, make it SMALL (max 15-20% width). YOU MUST INCLUDE an actual HTML <img> tag with src="https://picsum.photos/seed/education/200/400" alt="Illustration" class="w-full h-auto object-cover rounded-xl shadow-sm". DO NOT make the illustration take up too much space like a giant sidebar.
-- Content area (Header, Intro, Questions) should take up the majority of the space (80-85%).
+MAIN GRID: Top-bottom layout ONLY (1 column):
+- Put the illustration at the TOP of the worksheet (below the header). YOU MUST INCLUDE an actual HTML <img> tag with src="https://picsum.photos/seed/education/200/400" alt="Illustration" class="w-full max-w-sm mx-auto h-auto object-cover rounded-xl shadow-sm mb-4 block". DO NOT put the image on the side.
+- Content area (Questions) should take up the rest of the space below the image.
 
 Rules:
+- Use responsive Tailwind classes (e.g. w-full, flex-col sm:flex-row) to ensure the design works well on mobile. NEVER use fixed widths (like width="800" or w-[800px]).
 - Use compact margins and padding (e.g., p-2, p-3, gap-2) to save space.
-- Ensure the layout is tight enough to fit all questions on a single A4 page.
+- Ensure the layout is tight enough to fit all questions on a single A4 page when printed.
 - Each question panel should be compact.
+- DO NOT use literal "\\n" characters. Use proper HTML tags like <p> and <br> for spacing and paragraphs.
 
 🔝 PANEL 1 — HEADER UTAMA
 - Main Headline: [TOPIC_TITLE] (Eye-catching, bold)
@@ -252,6 +254,9 @@ Jangan gunakan markdown \`\`\`html, langsung kembalikan string HTML-nya saja tan
       } else {
         htmlContent = htmlContent.replace(/^```html\n?/, '').replace(/\n?```$/, '');
       }
+      
+      // Bersihkan teks \n literal jika AI mengembalikannya
+      htmlContent = htmlContent.replace(/\\n/g, '<br/>');
 
       setResult(htmlContent);
     } catch (err: any) {

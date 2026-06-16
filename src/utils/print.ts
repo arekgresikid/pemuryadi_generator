@@ -122,7 +122,7 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
   // Extract global styles to keep Tailwind and Font working
   const globalStyles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
     .map(el => el.outerHTML)
-    .join('\\n');
+    .join('\n');
 
   container.innerHTML = `
     ${globalStyles}
