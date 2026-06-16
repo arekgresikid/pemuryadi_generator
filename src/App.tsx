@@ -624,7 +624,10 @@ export default function App() {
     return <LoadingScreen />;
   }
 
-  if (maintenanceActive && profile?.role !== 'admin' && profile?.role !== 'owner') {
+  // Check if the URL contains a secret bypass parameter to prevent admin lockouts if cookies are cleared
+  const isMaintenanceBypass = typeof window !== 'undefined' && window.location.search.includes('bypass=admin');
+
+  if (maintenanceActive && !isMaintenanceBypass && profile?.role !== 'admin' && profile?.role !== 'owner') {
     return <MaintenancePage endTime={maintenanceEndTime} waNumber={waNumber} reason={maintenanceReason} />;
   }
 
