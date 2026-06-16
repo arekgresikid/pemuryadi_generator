@@ -1,11 +1,11 @@
 ---
 name: pemuryadi-generator-dev
-description: Panduan komprehensif dan instruksi pengembangan tingkat lanjut untuk proyek Pemuryadi Generator (digen.id), mencakup arsitektur Hono, struktur komponen, logika keamanan (AuthContext & AdminPanel), dan integrasi AI (Chatbot & Proxy API).
+description: Panduan komprehensif untuk proyek Pemuryadi Generator (digen.id), mencakup arsitektur lengkap, daftar komponen (Kurikulum, AI, Evaluasi, Game), database D1, API Hono, dan standar operasional developer.
 ---
 
 # 🎓 Pemuryadi Generator Development Skill
 
-Panduan komprehensif ini dirancang untuk memandu agen dan developer saat mengerjakan proyek **Pemuryadi Generator** (di direktori kerja saat ini), sebuah platform AI pendidikan terbaik untuk Guru Indonesia (https://digen.id).
+Panduan komprehensif ini dirancang untuk memandu agen dan developer saat mengerjakan proyek **Pemuryadi Generator** (di direktori kerja saat ini), sebuah platform AI pendidikan inovatif (https://digen.id) yang dirancang untuk pendidik di Indonesia.
 
 ---
 
@@ -14,164 +14,172 @@ Panduan komprehensif ini dirancang untuk memandu agen dan developer saat mengerj
 Platform ini menggunakan arsitektur modern berbasis serverless dan edge computing:
 
 ### Frontend
-- **Framework:** React 18.3
-- **Language:** TypeScript 5.6
+- **Framework:** React 18.3, TypeScript 5.6
 - **Build Tool:** Vite 6
 - **Styling:** Tailwind CSS 3.4
-- **Animation:** Framer Motion
-- **Icons:** Lucide React
+- **Animation & Icons:** Framer Motion, Lucide React
 - **Notifications:** React Hot Toast
-- **Other Libs:** `react-markdown`, `pdfjs-dist` (untuk PDF parsing), `react-simple-maps`, `qrcode.react`.
+- **Lainnya:** `react-markdown` (render output AI), `pdfjs-dist` (PDF parsing), `react-simple-maps`, `qrcode.react`, html2canvas, jspdf.
 
 ### Backend & Infrastructure
-- **Hosting (Frontend):** Cloudflare Pages
-- **Serverless API:** Cloudflare Workers menggunakan framework **Hono**.
+- **Hosting:** Cloudflare Pages
+- **Serverless API:** Cloudflare Workers menggunakan framework **Hono** (`functions/api/[[route]].ts`).
 - **Database:** Cloudflare D1 (Serverless SQLite).
 - **AI Engines:** 
-  - **Google Gemini API** / **OpenAI SDK Wrapper** (`@google/genai`) yang dipanggil dari sisi klien melalui `src/lib/genai.ts`.
-  - **Pollinations AI Proxy** (sebagai API text & image fallback/bypass di backend Hono).
-- **Authentication:** Google OAuth 2.0 (diimplementasikan manual di backend dengan Hono JWT Cookies).
+  - **Google Gemini API** / **OpenAI SDK Wrapper** (`@google/genai`) dari `src/lib/genai.ts`.
+  - **Pollinations AI Proxy** (sebagai fallback Text & Image generator bypass).
+- **Authentication:** Google OAuth 2.0 via Hono JWT Cookies.
 
 ---
 
-## 🔒 Logika Keamanan & Autentikasi (AuthContext)
+## 📂 Peta Komponen (Component Map)
+
+Semua komponen utama berada di `src/components/`. Terdapat puluhan alat cerdas, dikelompokkan menjadi:
+
+### 1. Kurikulum & Perangkat Ajar
+- `ModuleGenerator.tsx` - Modul Ajar Kurikulum Merdeka (dilengkapi integrasi format "Kemenag RPM Berbasis Cinta").
+- `ModulP5.tsx`, `ModulKokurikuler.tsx` - Proyek P5 dan Kokurikuler.
+- `ProgramTahunan.tsx`, `ProgramSemester.tsx`, `KalenderPendidikan.tsx`, `AnalisisHariEfektif.tsx` - Perangkat perencanaan waktu.
+- `KKTP.tsx`, `RubrikPenilaian.tsx` - Alat penilaian.
+- `Supervision.tsx`, `EvaluasiMutu.tsx`, `SNP.tsx` - Standar Nasional dan Instrumen Supervisi.
+- `DailyJournal.tsx`, `MengajarHarian.tsx` - Jurnal/Buku Kerja.
+
+### 2. Generator Evaluasi & Soal
+- `BuatSoal.tsx` - Generator soal cerdas.
+- `WorksheetGenerator.tsx` - LKPD interaktif.
+- `AIAssistedInput.tsx`, `AIAssistedTextarea.tsx` - Komponen cerdas injeksi AI pada form.
+
+### 3. EduGames (Gamifikasi Pembelajaran)
+- `GamesHub.tsx` - Portal utama permainan.
+- `CrosswordGenerator.tsx` (Teka Teki Silang)
+- `WordSearch.tsx` (Cari Kata)
+- `SnakeLadder.tsx` (Ular Tangga Edukasi)
+- `MatchingPairs.tsx` (Mencocokkan Kartu)
+- `RankingSatu.tsx` (Kuis Interaktif)
+- `MemoryMatrix.tsx`, `FillBlanks.tsx`, `UnscrambleLetters.tsx`, `GameIFP.tsx`, `AdventureJourney.tsx`.
+
+### 4. Asisten AI & Tools Ekstra
+- `Chatbot.tsx` - Chatbot edukasi dengan context awareness "RuangRiung".
+- `AIVisualGenerator.tsx` - Pembuat gambar/sketsa untuk presentasi (terintegrasi dengan Pollinations).
+- `StrategicAdvisor.tsx` - AI Konsultan Strategi Sekolah.
+- `DeepLearningPlan.tsx` - Perencanaan pembelajaran mendalam.
+- `GroupGenerator.tsx`, `BarcodeGenerator.tsx`, `InvoiceGenerator.tsx`.
+- `PDFRemixUpload.tsx`, `DocumentUpload.tsx` - Pengolah dokumen cerdas.
+
+### 5. Layout & Core
+- `MainLandingPage.tsx`, `SEOLandingPage.tsx` - Halaman depan (Landing Pages).
+- `App.tsx` - React Router Setup (terdapat route untuk Admin, Pricing, Changelog, dsb).
+- `layout/Dashboard.tsx`, `layout/Sidebar.tsx`, `layout/Topbar.tsx` - Shell navigasi utama aplikasi.
+- `AdminPanel.tsx` - Super admin dashboard (CRM, Analytics via Recharts, User Editor).
+- `QuickProfile.tsx` - Komponen profil sekolah / identitas personal pengguna yang datanya dikirim sebagai prefix prompt ke AI.
+
+---
+
+## 🔒 Keamanan, Autentikasi & Context
 
 Aplikasi memiliki manajemen kredensial dan hak akses yang solid:
 
 1. **`src/AuthContext.tsx`**
-   - Komponen ini membungkus aplikasi dan menggunakan `fetchSession()` untuk memanggil `/api/auth/me`.
-   - Mengelola state `user` dan `profile` (termasuk status tier langganan dan `tokens`).
-   - Terdapat fungsi `consumeToken()`: Jika user berada pada tier privileged (`Titan`, `owner`, atau `admin`), token *tidak akan dikurangi* melalui API (langsung direturn `true`). Jika bukan, ia memanggil `useToken()` dari `src/api.ts`.
-2. **`src/api.ts`**
-   - Fungsi `useToken()` memanggil POST `/api/tokens/use`. Jika token habis (status 403) atau tidak login (status 401), ia akan men-*dispatch* event kustom secara global ke `window` (contoh: `showLoginModal`, `tokenConsumed`, `showFreeTokenWarning`). Ini mempermudah UI update tanpa perlu *prop drilling*.
-3. **Backend Middleware (`functions/api/[[route]].ts`)**
-   - Semua route Hono dilindungi oleh middleware yang memvalidasi *JWT Cookie*. Route spesifik `/api/admin/*` memiliki pengecekan ganda di mana `user.role` wajib sama dengan `owner` atau `admin`.
+   - Mengelola state global user. Memanggil `/api/auth/me`.
+   - Mengurus logika tier (`Free`, `Premium`, `Ultimate`, `Titan`, `admin`, `owner`).
+   - Fungsi `consumeToken()` di frontend akan menahan request API `/api/tokens/use` jika user memiliki peran *privileged* (Titan/Admin), mencegah penghabisan token API tak perlu.
+
+2. **Backend API (`functions/api/[[route]].ts`)**
+   - Routing Hono mengatur endpoint: `/auth/google`, `/auth/me`, `/users`, `/tokens`, `/admin/...`
+   - Semua route dilindungi middleware JWT. Endpoint admin divalidasi dengan `role === 'admin' || role === 'owner'`.
 
 ---
 
-## 🤖 Logika AI & Chatbot
+## 💾 Skema Database (D1 SQLite)
 
-1. **AI Wrapper (`src/lib/genai.ts`)**
-   - Meski nama modulnya `GoogleGenAI`, di bawah *hood* kelas ini sebenarnya membuat instansiasi dari library `openai` yang di-proxy ke `baseURL: /api`. Ini meneruskan *request* ke backend Hono, lalu backend Hono memanggil URL `https://gen.pollinations.ai`.
-   - Modul ini menyematkan **watermark** ("*Dibuat menggunakan versi Gratis...*") secara otomatis ke jawaban AI khusus bagi pengguna pada **tier Free** jika bukan respon array atau JSON schema khusus.
-2. **Chatbot Component (`src/components/Chatbot.tsx`)**
-   - Asisten AI disetup dengan *System Instruction* yang sangat ketat: *“Anda adalah asisten AI resmi dari Pemuryadi Generator & RuangRiung (Cyber Education Workspace)...”*
-   - Memiliki *context awareness* terhadap istilah pendidikan (e.g. RPM wajib diartikan sebagai "Rencana Pembelajaran Mendalam", bukan "Rencana Pekerjaan Mingguan").
-   - History percakapan (`user` vs `model`) disimpan di dalam *local state* `messages`.
-
----
-
-## 📁 Struktur Direktori & Pola Komponen
-
-Sebagian besar logika aplikasi tertanam langsung dalam komponen di `src/components`:
-
-- **Modul & RPP:** `ModuleGenerator.tsx`, `ModulP5.tsx`, `ModulKokurikuler.tsx`, `ProgramTahunan.tsx`, `ProgramSemester.tsx`, `KKTP.tsx`, `RubrikPenilaian.tsx`
-- **Soal & Evaluasi:** `BuatSoal.tsx`, `CrosswordGenerator.tsx`, `WordSearch.tsx`, `FillBlanks.tsx`
-- **Game & Media:** `AdventureJourney.tsx`, `RankingSatu.tsx`, `SnakeLadder.tsx`, `MemoryMatrix.tsx`, `MatchingPairs.tsx`
-- **Admin & Dashboard:** `AdminPanel.tsx` -> Merupakan panel super-admin yang sangat masif, memuat ratusan baris kode untuk mengelola:
-  - **Analitik (Overview):** Visualisasi data pengguna berdasarkan Tier dan Role menggunakan grafik *Recharts*.
-  - **Manajemen Pengguna:** *CRUD User*, *Bulk Actions* (Suspend/Ubah Tier), impor/ekspor pengguna ke file Excel (CSV).
-  - **Pengaturan:** Modifikasi tabel D1 dinamis, *Global Announcements*, dan manajemen harga langganan.
-
----
-
-## 💾 Skema Database D1 (`schema.sql`)
-
-D1 menggunakan SQLite dialect. Tabel-tabel utama yang sering digunakan:
+Berada di `schema.sql`.
 
 1. **`users`**
-   - Field Penting: `uid` (PK), `email`, `role` (owner/admin/guest/siswa), `tier` (Free, Premium, Ultimate, Supreme, Titan, dll), `tokens`, `activeUntil`, `isBanned`, `suspendedUntil`.
-   - Menampung informasi profile pengguna dan detail sekolah (`nip`, `jenjang`, `namaSekolah`, dll).
-2. **`token_usage_logs`**
-   - Mencatat log pemakaian token per `uid` (nama action, tokens spent, timestamp) untuk melacak aktivitas generator.
-3. **`admin_logs` & `activity_logs`**
-   - Untuk memantau pergerakan admin (seperti saat admin merubah setting) dan log aktivitas (seperti notifikasi pembelian yang bisa jadi ditrigger dari luar / Webhook).
-4. **Tabel `settings`**
-   - Meski tidak selalu dijabarkan di skema SQL awal, *backend* sering membaca `settings` (misal: `promo_trial_active`, `maintenance_active`) untuk mengatur keadaan global sistem.
+   - `uid` (PK), `email`, `role`, `tier`, `tokens`, `activeUntil`, `isBanned`, `suspendedUntil`.
+   - **Profil:** `nip`, `jenjang`, `tahunPelajaran`, `namaSekolah`, `kepalaSekolah`, `jenisNipKepalaSekolah`, `nipKepalaSekolah`, `nama`, `jenisNipGuru`.
+2. **`activity_logs`** & **`admin_logs`**
+   - Pencatatan notifikasi sistem dan jejak langkah admin.
+3. **`stats`**
+   - Pengumpulan data analitik (seperti jumlah visitor/favorit).
 
-*(Catatan: Beberapa kolom seperti `activeUntil` dan `isBanned` di-patch secara dinamis saat runtime oleh fungsi `ensureDbSchema()` di `[[route]].ts`.)*
+*(Beberapa kolom database di-patch runtime menggunakan fungsi `ensureDbSchema()` di `[[route]].ts` untuk menghindari migrasi manual).*
 
 ---
 
-## 🛠️ Setup & Development Local
+## 🎨 Logika Kecerdasan Buatan (AI Prompt Engineering)
 
-**Prasyarat**: Node.js v18+ dan akun Cloudflare dengan Wrangler.
+Pendekatan aplikasi ini: **Semua logika AI dikendalikan dari komponen Frontend**.
 
-**1. Environment Variables:**
-Frontend (`.env`):
-```env
-VITE_GEMINI_API_KEY=api_key_gemini_anda
-```
-Backend (`.dev.vars`):
-```env
-GOOGLE_CLIENT_ID=client_id_anda
-GOOGLE_CLIENT_SECRET=client_secret_anda
-JWT_SECRET=secret_string
-ADMIN_EMAILS=admin@domain.com
-```
-
-**2. Setup Database Lokal:**
-```bash
-npx wrangler d1 create pemuryadi-db
-npx wrangler d1 execute pemuryadi-db --local --file=./schema.sql
-```
-
-**3. Run App (2 Terminal):**
-```bash
-npm run dev                 # Frontend di localhost:5173
-npx wrangler pages dev .    # Backend API di localhost:8788
-```
+1. **`src/lib/genai.ts`**
+   - Wrapper cerdas. Meneruskan request ke backend Hono `/api/ai/generate` atau ke Pollinations.
+   - Menyematkan *Watermark Gratis* bagi user tier bawah untuk response teks non-JSON.
+2. **JSON Schema Enforcement**
+   - Di `ModuleGenerator.tsx`, `BuatSoal.tsx`, dll, prompt dikirim bersamaan dengan *interface/schema* untuk memaksa model memberikan jawaban berstruktur terprediksi.
+3. **`src/constants.ts` (The Brain Dictionary)**
+   - Ribuan baris pemetaan Capaian Pembelajaran (CP) Merdeka, ATP, Fase, TPACK, level kognitif taksonomi Bloom. Form generator tidak ada yang *hardcode* pilihan, semua bersumber dari file ini.
 
 ---
 
-## 🏗️ Struktur Komponen Generator & Frontend Prompt Engineering
+## 🤖 Referensi Integrasi Pollinations AI
 
-Aplikasi ini menggunakan pendekatan unik di mana **semua logika kecerdasan buatan (Prompt Engineering) dikendalikan dari komponen Frontend**.
+Aplikasi ini sangat bergantung pada **Pollinations AI** (`gen.pollinations.ai`) sebagai penyedia API multifungsi untuk *Text, Image, Audio*, dan *Video*. Pollinations 100% kompatibel dengan standar OpenAI SDK (`@google/genai` atau `openai`).
 
-1. **`src/components/ModuleGenerator.tsx` (dan generator lainnya seperti `BuatSoal.tsx`)**
-   - Komponen ini tidak hanya merender UI, namun merakit *prompt* yang sangat kompleks berdasarkan input *form* pengguna.
-   - **JSON Schema Enforcement:** Prompt diatur untuk memaksa model (via `responseSchema`) mengembalikan format JSON yang ketat (misal: struktur `capaianPembelajaran`, `tujuanPembelajaran`, objek `kegiatanPembelajaran` terpisah menjadi `pembuka`, `inti`, dan `penutup`).
-   - Terdapat logika *fallback* dan kondisional seperti integrasi mode "Kemenag RPM Berbasis Cinta" yang secara dinamis menyuntikkan instruksi khusus (misal: penambahan nilai "Heartful Learning" dan "Profil Pelajar Rahmatan Lil 'Alamin") jika format Kemenag dipilih.
-2. **Kamus Data Sentral (`src/constants.ts`)**
-   - Merupakan "otak" data statis dari aplikasi ini. Berisi ribuan baris pemetaan untuk standar pendidikan Kurikulum Merdeka Indonesia.
-   - Mendefinisikan Capaian Pembelajaran (CP) per fase, topik materi per mata pelajaran, tingkatan kelas (PAUD hingga SMA), dan prinsip-prinsip pedagogi (TPACK, STEAM).
-   - *Penting:* Jangan hapus variabel di file ini karena seluruh *dropdown* form generator sangat bergantung padanya.
-3. **Cetak & Ekspor (`src/utils/print.ts` & Logika Print HTML)**
-   - Semua hasil AI di-*render* menjadi dokumen PDF/Cetak melalui pembukaan jendela baru (`window.open`) yang diinjeksi dengan elemen HTML dan blok CSS khusus (`@media print`).
-   - Fungsi `getWatermarkHtml(profile?.role)` menyematkan *watermark* transparan (seperti "PEMURYADI - MAJU PENDIDIKAN INDONESIA") yang sulit dihapus oleh pengguna karena menempel langsung di latar dokumen yang dicetak.
+### Authentication & Base URL
+- **Base URL:** `https://gen.pollinations.ai`
+- **Dashboard API Key:** `enter.pollinations.ai` (Gratis untuk prototyping)
+- **Tipe Key:** Gunakan prefix `sk_` (Secret) untuk backend (tanpa rate-limit), dan `pk_` (Publishable) untuk klien frontend. Autentikasi bisa via Header `Authorization: Bearer <KEY>` atau Query Param `?key=<KEY>`.
 
----
-
-## 🤝 Git Workflow & Kolaborasi Tim
-
-Untuk menjaga kebersihan riwayat *commit* dan menghindari konflik antar kontributor, agen dan developer **wajib** mengikuti standar *workflow* berikut:
-
-1. **Gunakan `main` sebagai dasar utama:** Pastikan seluruh pengembangan fitur baru selalu berawal dari *branch* `main` yang paling mutakhir.
-2. **Pembersihan Branch Lokal:** Jika sebuah *feature branch* atau *fix branch* (seperti `fix/ui-layout-and-dropdown`) telah di-*merge* ke `main` dan dihapus dari repositori remote (GitHub), kontributor **wajib** segera menyingkirkan *branch* tersebut di lokal mereka untuk mencegah *push* yang tidak disengaja.
-3. **Pencatatan Changelog:** Sebelum melakukan *commit* dan *push* (baik untuk fitur baru, revisi, maupun perbaikan bug), agen AI **WAJIB** mencatat perubahan tersebut di dalam file `CHANGELOG.md`. Hal ini penting agar seluruh rekam jejak pengembangan terekam dengan baik.
-4. **Standar Perintah Pembersihan:**
-   ```bash
-   git checkout main
-   git pull origin main
-   git fetch --prune
-   # Hapus branch lama secara lokal (opsional namun sangat disarankan)
-   git branch -D nama-branch-yang-sudah-selesai
+### Contoh Penggunaan Cepat
+1. **Text Generation (OpenAI SDK / Python/JS):**
+   Gunakan SDK OpenAI dan ubah Base URL. Endpoint: `POST /v1/chat/completions`.
+   ```js
+   const client = new OpenAI({ baseURL: "https://gen.pollinations.ai", apiKey: "YOUR_API_KEY" });
+   const response = await client.chat.completions.create({ model: "openai", messages: [...] });
    ```
-5. **Agen AI:** Jika agen AI menemukan *branch* lama setelah *merge*, agen harus proaktif berpindah ke `main` dan membersihkan sisa *checkout* sebelum melanjutkan instruksi.
+   **Model Teks Unggulan:** `openai`, `gemini-3.5-flash`, `claude-opus-4.8`, `deepseek-pro`, `qwen-coder-large`, `llama-scout`. (Gunakan `GET /text/{prompt}` untuk plain text response).
+
+2. **Image Generation (URL Langsung):**
+   Sangat cocok untuk merender placeholder atau komponen visual seperti di `AIVisualGenerator.tsx`.
+   ```
+   https://gen.pollinations.ai/image/a%20cat%20in%20space?model=flux
+   ```
+   **Model Gambar Unggulan:** `flux`, `ideogram-v4-turbo`, `nanobanana-pro`, `nova-canvas`.
+
+3. **Video & Audio Generation:**
+   - **Video:** `https://gen.pollinations.ai/video/sunset?model=veo&duration=4` (Model: `veo`, `wan-pro`, `nova-reel`).
+   - **Audio (TTS):** Gunakan `POST /v1/audio/speech` (OpenAI format) atau `GET /audio/{text}?voice=nova`.
+   - **Realtime Voice:** Tersedia proxy WebSocket di `wss://gen.pollinations.ai/v1/realtime?model=gpt-realtime-2`.
+
+4. **Safety Filter:**
+   Anda dapat menambahkan parameter `?safe=privacy` atau `?safe=true` pada URL atau request body untuk mensensor otomatis PII (Personal Identifiable Information) atau NSFW konten.
 
 ---
 
-## 🚀 Deployment ke Production
+## 🖨️ Sistem Cetak (Printing System)
 
-Deployment sepenuhnya dikelola oleh **Cloudflare Pages**.
+Sistem cetak harus berjalan di luar modal / frame utama karena layout HTML ke PDF:
 
+- **Wajib Gunakan Utility `createPrintWindow`:** Dari `src/utils/print.ts`. Hindari penggunaan `window.print()` standar langsung yang seringkali error/blank.
+- **Implementasi:** Di dalam fungsi tombol cetak Anda, panggil `createPrintWindow(contentHtml, title, styles)`.
+- **CSS Helper:** Tambahkan *class* `.print-hidden` pada elemen (seperti tombol aksi, footer navigasi) atau gunakan `display: none` khusus `@media print` agar elemen tidak ikut tercetak.
+- **Watermark:** Terintegrasi di `getWatermarkHtml(profile?.role)` menyematkan "PEMURYADI - MAJU PENDIDIKAN INDONESIA".
+
+---
+
+## 🤝 Standar Git & Kolaborasi Tim
+
+1. **Pencatatan Changelog:** Sebelum melakukan *commit* dan *push*, agen AI **WAJIB** mencatat perubahan di dalam file `src/data/changelog.json`. File `CHANGELOG.md` digenerate secara otomatis dari file JSON saat proses `npm run build`. **JANGAN mengedit `CHANGELOG.md` secara manual!**
+2. **Gunakan Branch `main`:** Aplikasi menggunakan `main` sebagai dasar utama.
+3. **Pembersihan Terminal & Lokal:** Setelah merge atau task selesai, agen harus membuang test file, *feature branch* lama, dan sisa *checkout* yang tak lagi digunakan agar bersih saat pindah ke task selanjutnya.
+
+---
+
+## 🚀 Deployment
+
+Deployment via **Cloudflare Pages**:
 ```bash
 npm run build
 npx wrangler pages deploy dist
 ```
 
-**Penting untuk Agen Selanjutnya:** 
-- Saat menambahkan/memperbarui fitur *generator* baru, perhatikan struktur *Prompt Engineering* yang ada (gunakan instruksi sistematis, batasi output dengan JSON Schema).
-- Untuk mengubah atau menambah opsi mata pelajaran, selalu lakukan melalui pembaruan di `constants.ts`.
-- Jika ada masalah integrasi AI, periksa alur `Chatbot.tsx` -> `genai.ts` -> `[[route]].ts` (Hono proxy). Keamanan limit akses dipegang oleh *React Context* (`AuthContext.tsx`).
-
+*(Saat menjalankan testing lokal backend, gunakan `npx wrangler pages dev .` yang akan melayani folder `dist` build terakhir)*
