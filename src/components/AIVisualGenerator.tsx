@@ -4,7 +4,7 @@ import { useToken } from '../api';
 import ModelSelector from './ModelSelector';
 
 interface AIVisualGeneratorProps {
-  context: {
+  context?: {
     subject: string;
     topic: string;
     level: string;
@@ -34,6 +34,17 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>('flux');
 
+  const [manualTopic, setManualTopic] = useState('');
+  const [manualSubject, setManualSubject] = useState('');
+
+  const effectiveContext = context || {
+    subject: manualSubject || 'Umum',
+    topic: manualTopic || 'Pendidikan',
+    level: 'Umum',
+    phase: '-',
+    class: '-'
+  };
+
   const generateVisual = async (type: VisualType) => {
     setIsGenerating(true);
     setError(null);
@@ -42,7 +53,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
     try {
       await useToken(); // Potong token
 
-      const prompt = `Educational ${type} about ${context.subject}: ${context.topic} for ${context.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
+      const prompt = `Educational ${type} about ${effectiveContext.subject}: ${effectiveContext.topic} for ${effectiveContext.level} students. High quality, clear, modern style. Vibrant colors, no text overlay.`;
       const encodedPrompt = encodeURIComponent(prompt);
       const randomSeed = Math.floor(Math.random() * 1000000);
 
@@ -68,7 +79,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
     if (!generatedImage) return;
     const link = document.createElement('a');
     link.href = generatedImage;
-    link.download = `${selectedType}-${context.topic.replace(/\s+/g, '-').toLowerCase()}.png`;
+    link.download = `${selectedType}-${effectiveContext.topic.replace(/\s+/g, '-').toLowerCase()}.png`;
     link.click();
   };
 
@@ -81,7 +92,7 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
         </div>
         <div>
           <h2 className="text-xl font-bold text-black">Media Pembelajaran AI</h2>
-          <p className="text-sm text-gray-600">Hasilkan media visual otomatis untuk materi {context.topic}</p>
+          <p className="text-sm text-gray-600">Hasilkan media visual otomatis untuk materi {effectiveContext.topic}</p>
         </div>
       </div>
 
@@ -89,6 +100,31 @@ export default function AIVisualGenerator({ context }: AIVisualGeneratorProps) {
       <div className="mb-6">
         <ModelSelector label="Model Gambar AI" modality="image" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
       </div>
+
+      {!context && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran / Bidang</label>
+            <input
+              type="text"
+              value={manualSubject}
+              onChange={(e) => setManualSubject(e.target.value)}
+              placeholder="Contoh: IPA, Sejarah, Coding..."
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Topik Spesifik</label>
+            <input
+              type="text"
+              value={manualTopic}
+              onChange={(e) => setManualTopic(e.target.value)}
+              placeholder="Contoh: Tata Surya, Kerajaan Majapahit..."
+              className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-red-500"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {VISUAL_TYPES.map((type) => (
