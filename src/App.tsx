@@ -41,13 +41,6 @@ import FillBlanks from './components/FillBlanks';
 import UnscrambleLetters from './components/UnscrambleLetters';
 import GamesHub from './components/GamesHub';
 
-import EvaluasiMutu from './components/EvaluasiMutu';
-import Reports from './components/Reports';
-import StrategicAdvisor from './components/StrategicAdvisor';
-import LaporanKegiatan from './components/LaporanKegiatan';
-import AIVisualGenerator from './components/AIVisualGenerator';
-import InvoiceGenerator from './components/InvoiceGenerator';
-
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
 import Topbar from './components/layout/Topbar';
@@ -403,18 +396,7 @@ export default function App() {
         { id: 'kktp', icon: <Target size={16} />, label: 'KKTP' },
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
-        { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
-        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
-      ]
-    },
-    {
-      id: 'ksp',
-      icon: <Library size={20} />,
-      label: 'KSP & Evaluasi',
-      dropdown: [
-        { id: 'evaluasi-mutu', icon: <BarChart size={16} />, label: 'Evaluasi Mutu' },
-        { id: 'reports', icon: <ClipboardList size={16} />, label: 'Laporan Mutu', premiumOnly: true },
-        { id: 'strategic-advisor', icon: <Target size={16} />, label: 'Penasihat Strategis', premiumOnly: true }
+        { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true }
       ]
     },
     {
@@ -431,7 +413,6 @@ export default function App() {
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
-    { id: 'ai-visual', icon: <Smile size={20} />, label: 'AI Visual', premiumOnly: true },
     { id: 'barcode-generator', icon: <QrCode size={20} />, label: 'Generator Barcode' },
     { 
       id: 'game-ifp', 
@@ -446,7 +427,6 @@ export default function App() {
   const userRole = (profile?.role || 'siswa').toLowerCase();
   if (userRole === 'owner' || userRole === 'admin') {
     menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
-    menuItems.push({ id: 'invoice-generator', icon: <Calculator size={20} className="text-blue-600" />, label: 'Invoice Generator' });
   }
 
   const isTitanOrAdmin = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes(userRole);
@@ -710,28 +690,22 @@ export default function App() {
             {activeTab === 'mengajar-harian' && <MengajarHarian />}
             {activeTab === 'jurnal' && <DailyJournal />}
             {activeTab === 'deeplearning' && <DeepLearningPlan />}
-            { activeTab === 'worksheet' && <WorksheetGenerator /> }
-            { activeTab === 'modul-kokurikuler' && <ModulKokurikuler /> }
-            { activeTab === 'modul-p5' && <ModulP5 /> }
-            { activeTab === 'rubrik-penilaian' && <RubrikPenilaian /> }
-            { activeTab === 'buat-soal' && <BuatSoal /> }
-            { activeTab === 'laporan-kegiatan' && <LaporanKegiatan /> }
-            { activeTab === 'evaluasi-mutu' && <EvaluasiMutu /> }
-            { activeTab === 'reports' && <Reports /> }
-            { activeTab === 'strategic-advisor' && <StrategicAdvisor /> }
-            { activeTab === 'ai-visual' && <AIVisualGenerator /> }
-            { activeTab === 'kalender-pendidikan' && <KalenderPendidikan /> }
-            { activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif /> }
-            { activeTab === 'program-semester' && <ProgramSemester /> }
-            { activeTab === 'program-tahunan' && <ProgramTahunan /> }
-            { activeTab === 'kktp' && <KKTP /> }
-            { activeTab === 'barcode-generator' && <BarcodeGenerator /> }
-            { activeTab === 'game-ifp' && <GameIFP /> }
-            { activeTab.startsWith('snp-') && isTitanOrAdmin && <SNP subTab={activeTab} /> }
-            { activeTab === 'pricing' && <Pricing /> }
-            { activeTab === 'admin-panel' && <AdminPanel /> }
-            { activeTab === 'invoice-generator' && <InvoiceGenerator /> }
-            { activeTab === 'changelog' && <Changelog /> }
+            {activeTab === 'worksheet' && <WorksheetGenerator />}
+            {activeTab === 'modul-kokurikuler' && <ModulKokurikuler />}
+            {activeTab === 'modul-p5' && <ModulP5 />}
+            {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
+            {activeTab === 'buat-soal' && <BuatSoal />}
+            {activeTab === 'kalender-pendidikan' && <KalenderPendidikan />}
+            {activeTab === 'analisis-hari-efektif' && <AnalisisHariEfektif />}
+            {activeTab === 'program-semester' && <ProgramSemester />}
+            {activeTab === 'program-tahunan' && <ProgramTahunan />}
+            {activeTab === 'kktp' && <KKTP />}
+            {activeTab === 'barcode-generator' && <BarcodeGenerator />}
+            {activeTab === 'game-ifp' && <GameIFP />}
+            {activeTab.startsWith('snp-') && isTitanOrAdmin && <SNP subTab={activeTab} />}
+            {activeTab === 'pricing' && <Pricing />}
+            {activeTab === 'admin-panel' && <AdminPanel />}
+            {activeTab === 'changelog' && <Changelog />}
           </div>
         </div>
       </main>
