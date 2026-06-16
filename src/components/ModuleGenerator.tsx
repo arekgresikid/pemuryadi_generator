@@ -7,7 +7,7 @@ import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { BookOpen, CheckCircle, Plus, Minus, Download, Save, User , Trash2, Settings, ChevronDown, ChevronUp, Printer, FileText } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -287,7 +287,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
   const printModul = () => {
     if (!result) return;
     
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     let rubrikHtml = result.rubrikItems?.map((r: any) => `

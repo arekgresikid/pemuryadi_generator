@@ -261,11 +261,11 @@ input[type="range"] {
 
   @supports selector(:has(a)) {
     /* Modern browsers: perfect pagination without absolute positioning */
-    body *:not(:has(#printArea)):not(#printArea):not(#printArea *) {
+    body *:not(:has(#printArea)):not(#printArea):not(#printArea *):not(:has(#universal-print-container)):not(#universal-print-container):not(#universal-print-container *) {
       display: none !important;
     }
     
-    *:has(#printArea), html, body, #printArea {
+    *:has(#printArea), html, body, #printArea, *:has(#universal-print-container), #universal-print-container {
       height: auto !important;
       min-height: auto !important;
       max-height: none !important;
@@ -285,8 +285,8 @@ input[type="range"] {
   @supports not selector(:has(a)) {
     /* Fallback for older browsers */
     body * { visibility: hidden; }
-    #printArea, #printArea * { visibility: visible; }
-    #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+    #printArea, #printArea *, #universal-print-container, #universal-print-container * { visibility: visible; }
+    #printArea, #universal-print-container { position: absolute; left: 0; top: 0; width: 100%; }
     
     html, body, #root, .app-wrapper, .app-wrapper > div, main, main > div {
       height: auto !important;

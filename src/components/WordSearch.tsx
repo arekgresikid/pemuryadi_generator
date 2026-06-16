@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { Type, Puzzle, Printer } from 'lucide-react';
@@ -95,7 +95,7 @@ export default function WordSearch() {
     }
 
     const { title, grid, words, gridSize } = puzzleData;
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
     
     let gridHtml = '<table style="border-collapse:collapse;margin:20px auto;">';

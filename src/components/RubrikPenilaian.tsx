@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { Loader2, FileCheck, List, Printer, Trash2, Info, Lightbulb, CheckCircle } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
@@ -208,7 +208,7 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
   };
 
   const executePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     if (!result) return;

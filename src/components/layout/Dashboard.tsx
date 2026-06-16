@@ -160,10 +160,10 @@ export default function Dashboard({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
         
         {/* Hero Dashboard Section */}
-        <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex flex-col justify-center col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3 h-full">
+        <div className="bg-white border border-gray-200 shadow-sm p-8 rounded-2xl flex flex-col justify-center col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-200 mb-6 w-max">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -192,7 +192,7 @@ export default function Dashboard({
         </div>
 
         {/* Quick Profile */}
-        <div className="col-span-1 md:col-span-2 lg:col-span-1 flex items-stretch h-full">
+        <div className="col-span-1 md:col-span-2 lg:col-span-1 flex items-stretch">
           <div className="w-full flex-1">
             <QuickProfile />
           </div>

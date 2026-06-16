@@ -5,7 +5,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
 import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
@@ -434,7 +434,7 @@ Berikan output dalam format JSON murni:
   };
 
   const executePrint = (type: 'kisi-kisi' | 'naskah' | 'kunci' | 'kartu') => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     let content = '';

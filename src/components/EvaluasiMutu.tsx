@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { printElement } from '../utils/print';
 import { Loader2, Leaf, Users, Building, FileBarChart, CheckSquare, BookOpen, ChevronRight, Check, CheckCircle2, Circle, BrainCircuit, Printer, Save, RefreshCw, Download, FileText, ShieldCheck } from 'lucide-react';
 import { GoogleGenAI } from '../lib/genai';
 import ReactMarkdown from 'react-markdown';
@@ -128,7 +129,7 @@ DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output aud
                  <div className="text-[11px] tracking-[3px] uppercase font-bold text-blue-600 flex items-center gap-3">
                    <BrainCircuit size={18} /> Analisis Mutu Supervisor
                  </div>
-                 <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
+                 <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
                     <Printer size={14} /> Cetak Laporan
                  </button>
                </div>
@@ -312,7 +313,7 @@ DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output aud
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -482,7 +483,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (T
                  <div className="text-[11px] tracking-[3px] uppercase font-bold text-[#2A9D8F] flex items-center gap-3">
                    <BrainCircuit size={18} /> Audit Panel SRA
                  </div>
-                 <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#2A9D8F] transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
+                 <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#2A9D8F] transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
                     <Printer size={14} /> Cetak Laporan
                  </button>
                </div>
@@ -686,7 +687,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (T
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -846,7 +847,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.`;
                <div className="text-[11px] tracking-[3px] uppercase font-bold text-[#E76F51] flex items-center gap-3">
                  <BrainCircuit size={18} /> Analisis Mutu Supervisor
                </div>
-               <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#E76F51] transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
+               <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#E76F51] transition-colors text-sm font-medium border border-gray-200 px-3 py-1.5 bg-white shadow-sm">
                   <Printer size={14} /> Cetak Laporan
                </button>
              </div>
@@ -1101,7 +1102,7 @@ DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.`;
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -1437,7 +1438,7 @@ Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pen
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-[#457B9D] flex items-center gap-3">
                <BrainCircuit size={20} /> Laporan Audit Rapor Pendidikan
              </div>
-             <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#457B9D] transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
+             <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-[#457B9D] transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
                 <Printer size={16} /> Cetak Laporan
              </button>
            </div>
@@ -1465,7 +1466,7 @@ Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pen
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -1883,7 +1884,7 @@ DILARANG memberikan sapaan atau penutup.`;
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -1902,7 +1903,7 @@ DILARANG memberikan sapaan atau penutup.`;
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-gray-900 flex items-center gap-3">
                <CheckCircle2 size={20} /> Laporan Audit ISO 9001:2015
              </div>
-             <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
+             <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
                 <Printer size={16} /> Cetak Laporan
              </button>
            </div>
@@ -2329,7 +2330,7 @@ DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pa
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -2349,7 +2350,7 @@ DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pa
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-gray-900 flex items-center gap-3">
                <CheckSquare size={20} /> Gap Analysis SPMI Eksekutif
              </div>
-             <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
+             <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
                 <Printer size={16} /> Cetak Laporan
              </button>
            </div>
@@ -2371,7 +2372,7 @@ DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pa
 }
 
 // --- KSP WIZARD ---
-function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?: string }) {
+export function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?: string }) {
   const [step, setStep] = useState(1);
   const [thinking, setThinking] = useState(false);
   const [history, setHistory] = useState<{ step: number; userSummary: string; aiResponse: string }[]>([]);
@@ -2838,7 +2839,7 @@ function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
             <button onClick={() => alert("Data profil pengguna berhasil disimpan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Save size={16} /> Simpan Data
             </button>
-            <button onClick={() => window.print()} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+            <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 border-2 border-gray-200 text-gray-900 font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                <Printer size={16} /> Print
             </button>
             <button onClick={() => alert("Fungsi Save Word sedang dikembangkan.")} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-[#2b579a] text-white font-bold text-[11px] uppercase tracking-widest hover:bg-gray-900 transition-colors shadow-lg shadow-[#2b579a]/20">
@@ -2858,7 +2859,7 @@ function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-gray-900 flex items-center gap-3">
                <BookOpen size={20} /> Laporan Gap Analysis KSP
              </div>
-             <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
+             <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
                 <Printer size={16} /> Cetak Laporan
              </button>
            </div>
@@ -3106,7 +3107,7 @@ function AkreditasiWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSe
              <div className="text-[12px] tracking-[3px] uppercase font-bold text-gray-900 flex items-center gap-3">
                <ShieldCheck size={20} /> Laporan Audit Akreditasi 5 Why & Fishbone
              </div>
-             <button onClick={() => window.print()} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
+             <button onClick={() => printElement('printArea', 'Laporan', undefined)} className="no-print flex items-center gap-2 text-gray-900 hover:text-blue-600 transition-colors text-sm font-medium border border-gray-200 px-4 py-2 bg-white shadow-sm">
                 <Printer size={16} /> Cetak Laporan
              </button>
            </div>
@@ -3213,5 +3214,6 @@ export default function EvaluasiMutu() {
     </div>
   );
 }
+
 
 

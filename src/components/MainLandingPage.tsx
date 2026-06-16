@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Sparkles, BrainCircuit, ShieldCheck, Clock, BookOpen, Layers, Users, Zap, CheckCircle2, PlayCircle, FileText, Star, Grid, FileEdit, DownloadCloud, ChevronDown, HelpCircle, CalendarCheck, ClipboardCheck, Target, ListChecks, Award, CalendarRange, Calculator, Trophy } from 'lucide-react';
+import PhoneMockup from './PhoneMockup';
 
 
 
@@ -125,6 +126,12 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
         <section className="relative z-20 pb-24 px-6 mt-10">
           <div className="max-w-6xl mx-auto">
 
+            {/* Visual Phone Mockup */}
+            <div className="flex justify-center items-center py-10 relative">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-blue-600/20 blur-[100px] rounded-full pointer-events-none"></div>
+              <PhoneMockup className="transform rotate-[-2deg] hover:rotate-0 transition-transform duration-700 ease-out shadow-2xl z-10" />
+            </div>
+
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/5">
               {[
@@ -207,6 +214,90 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
                   <p className="text-slate-400 text-sm">{module.desc}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* AI Models Section */}
+        <section className="py-24 bg-slate-900/30 border-y border-white/5 relative z-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-semibold text-sm mb-6">
+                <BrainCircuit size={16} />
+                <span>Multi-Model AI Engine</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Didukung Beragam Model AI Terkemuka</h2>
+              <p className="text-slate-400 max-w-2xl mx-auto">Kami mengintegrasikan model bahasa dan pembuat gambar paling canggih di dunia. Fleksibilitas ini memastikan perangkat ajar dan media visual yang dihasilkan selalu presisi, relevan, dan mutakhir.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              {/* Text Models */}
+              <div className="bg-slate-950 p-8 rounded-3xl border border-white/10 shadow-lg relative overflow-hidden group mb-8">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110"></div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Generasi Teks Cerdas</h3>
+                    <p className="text-slate-400 text-sm">Untuk RPP, Modul Ajar, dan Soal</p>
+                  </div>
+                </div>
+                <p className="text-slate-300 mb-6 leading-relaxed">
+                  Menyusun dokumen pendidikan yang terstruktur sempurna dengan model bahasa (LLM) tercanggih. Mulai dari penalaran tingkat tinggi hingga kecepatan respons ekstra cepat.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {['openai', 'mistral', 'mistral-large', 'llama', 'qwen', 'qwen-coder', 'searchgpt'].map((model, i) => (
+                    <span key={i} className="px-3 py-1 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-full shadow-sm">{model}</span>
+                  ))}
+                </div>
+                
+                <div className="bg-[#0d1117] rounded-xl p-4 border border-slate-800 relative group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400 font-mono">Python (OpenAI SDK)</span>
+                  </div>
+                  <pre className="text-sm font-mono text-slate-300 overflow-x-auto">
+<code className="text-pink-400">from</code> openai <code className="text-pink-400">import</code> OpenAI{'\n'}
+client = OpenAI(base_url=<code className="text-green-400">"https://gen.pollinations.ai"</code>, api_key=<code className="text-green-400">"YOUR_API_KEY"</code>){'\n'}
+response = client.chat.completions.create({'\n'}  model=<code className="text-green-400">"openai"</code>, {'\n'}  messages=[{'{'}<code className="text-green-400">"role"</code>: <code className="text-green-400">"user"</code>, <code className="text-green-400">"content"</code>: <code className="text-green-400">"Buatkan RPP Matematika"</code>{'}'}]{'\n'}){'\n'}
+<code className="text-blue-400">print</code>(response.choices[0].message.content)
+                  </pre>
+                </div>
+              </div>
+
+              {/* Image Models */}
+              <div className="bg-slate-950 p-8 rounded-3xl border border-white/10 shadow-lg relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110"></div>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400">
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Visualisasi Gambar</h3>
+                    <p className="text-slate-400 text-sm">Media Pembelajaran & Ilustrasi</p>
+                  </div>
+                </div>
+                <p className="text-slate-300 mb-6 leading-relaxed">
+                  Menghasilkan gambar beresolusi tinggi, diagram, dan ilustrasi buku teks untuk memperjelas materi yang abstrak menjadi lebih nyata bagi siswa.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {['flux', 'flux-realism', 'flux-anime', 'flux-3d', 'any-dark', 'flux-pro', 'turbo'].map((model, i) => (
+                    <span key={i} className="px-3 py-1 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-full shadow-sm">{model}</span>
+                  ))}
+                </div>
+                
+                <div className="bg-[#0d1117] rounded-xl p-4 border border-slate-800 relative group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-purple-500"></div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400 font-mono">URL (No Code Needed)</span>
+                  </div>
+                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-800 font-mono text-sm text-green-400 break-all">
+                    https://gen.pollinations.ai/image/a%20teacher%20in%20classroom?model=flux
+                  </div>
+                  <p className="text-xs text-slate-500 mt-3">Cukup masukkan URL ini ke tag &lt;img src="..." /&gt; atau akses langsung di browser Anda.</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>

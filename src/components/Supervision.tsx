@@ -4,7 +4,7 @@ import { supervisionIndicators, educationLevels, phaseClassMap, subjectsByLevel 
 import { GoogleGenAI, Type } from '../lib/genai';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
+import { getWatermarkHtml, getSignatureHtml, createPrintWindow } from '../utils/print';
 import { Sparkles, FileText, BookOpen, Layout, AlertCircle, Loader2, Save, ClipboardList, Download, Upload, Target, BarChart, MessageCircle, Calculator, Printer, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
@@ -308,7 +308,7 @@ export default function Supervision() {
     const faseLabel = phaseClassMap[eduLevel]?.phases.find(p => p.id === fase)?.label || fase;
     const kelasLabel = phaseClassMap[eduLevel]?.classes[fase]?.find(c => c.id === kelas)?.label || kelas;
     
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');

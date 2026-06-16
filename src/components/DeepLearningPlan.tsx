@@ -7,7 +7,7 @@ import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { BookOpen, CheckCircle, Plus, Minus, Download, Save, Brain, School, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -367,7 +367,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
   const printPlan = () => {
     if (!result) return;
     
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     const profilHtml = result.selectedProfil?.map((p: string) => `<li>${p}</li>`).join('') || '';

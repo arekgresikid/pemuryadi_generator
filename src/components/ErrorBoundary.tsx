@@ -35,6 +35,8 @@ export default class ErrorBoundary extends Component<Props, State> {
             <h1 className="text-2xl font-black text-white mb-2">Ups, Terjadi Kesalahan</h1>
             <p className="text-slate-400 mb-8 text-sm leading-relaxed">
               Sistem kami menemui kendala teknis saat memuat komponen ini. Silakan muat ulang halaman untuk mencoba lagi.
+              <br/><br/>
+              <span className="text-red-400 text-xs font-mono">{this.state.error?.message}</span>
             </p>
             <button
               onClick={() => window.location.reload()}

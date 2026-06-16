@@ -7,7 +7,7 @@ import LogoUploader from './LogoUploader';
 
 export default function QuickProfile() {
   const { user, profile, refreshProfile } = useAuth();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [formData, setFormData] = useState({
     displayName: '',
     nip: '',

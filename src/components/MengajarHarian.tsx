@@ -7,7 +7,7 @@ import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, getSignatureHtml } from '../utils/print';
+import { getWatermarkHtml, getSignatureHtml, createPrintWindow } from '../utils/print';
 import { repairMarkdown } from '../utils/markdown';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -346,7 +346,7 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
 
     const printContent = document.getElementById('print-content');
     if (printContent) {
-      const printWindow = window.open('', '_blank');
+      const printWindow = createPrintWindow();
       if (!printWindow) return;
       
       const watermark = getWatermarkHtml(profile?.role);

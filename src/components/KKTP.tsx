@@ -1,4 +1,4 @@
-import { universalPrint } from '../utils/print';
+import { universalPrint, createPrintWindow } from '../utils/print';
 import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { Printer, Plus, Trash2, Sparkles, AlertCircle, Save, Target, School, UserCheck } from 'lucide-react';
@@ -177,7 +177,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
   };
 
   const printDocument = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     const subjectLabel = subjectsByLevel[formData.eduLevel]?.find(s => s.id === formData.mapel)?.label || formData.mapel;

@@ -3,7 +3,7 @@ import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { FileText, Bot, Loader2, Sparkles, Printer } from 'lucide-react';
@@ -291,7 +291,7 @@ PENTING:
   const printPuzzle = () => {
     if (!puzzleData) return;
 
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     const { title, grid, placedWords, minRow, maxRow, minCol, maxCol } = puzzleData;

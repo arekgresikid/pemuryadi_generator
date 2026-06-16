@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap } from '../constants';
 import { Loader2, Star, List, Printer, Trash2, Info, Lightbulb, CheckCircle } from 'lucide-react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -218,7 +218,7 @@ Format output harus JSON murni:
   };
 
   const executePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     if (!result) return;

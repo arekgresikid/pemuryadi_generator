@@ -272,8 +272,7 @@ export default function App() {
   const [isTitanModalOpen, setIsTitanModalOpen] = useState(false);
 
   const { user, profile, loading } = useAuth();
-
-
+  const isTitanOrAdmin = profile?.tier?.toLowerCase() === 'titan' || profile?.role === 'owner' || profile?.role === 'admin' || profile?.role?.toLowerCase() === 'titan';
   useEffect(() => {
     const userAgent = window.navigator.userAgent;
     setUserAgentStr(userAgent);

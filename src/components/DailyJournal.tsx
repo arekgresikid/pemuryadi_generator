@@ -4,7 +4,7 @@ import { BookOpen, Sparkles, Printer, Loader2, Save, Trash2, List, FileText, Cli
 import { mapelNames, cpData, atpData, educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml } from '../utils/print';
+import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { GoogleGenAI, Type } from '../lib/genai';
@@ -166,7 +166,7 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
   const printJurnal = () => {
     if (!result) return;
     
-    const printWindow = window.open('', '_blank');
+    const printWindow = createPrintWindow();
     if (!printWindow) return;
 
     const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');

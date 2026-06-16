@@ -74,16 +74,12 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
   const style = document.createElement('style');
   style.textContent = `
     @media print {
-      body * {
-        visibility: hidden !important;
-      }
-      #universal-print-container, #universal-print-container * {
-        visibility: visible !important;
+      body > *:not(#universal-print-container) {
+        display: none !important;
       }
       #universal-print-container {
-        position: absolute;
-        left: 0;
-        top: 0;
+        display: block !important;
+        position: relative;
         width: 100%;
         background: white;
         color: black;
@@ -154,9 +150,7 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
     }
   }, 300000); // 5 minutes fallback
   
-  setTimeout(() => {
-    window.print();
-  }, 500);
+  window.print();
 };
 
 export const printElement = (elementId: string, title: string, profile: any) => {
@@ -198,4 +192,39 @@ export const printElement = (elementId: string, title: string, profile: any) => 
     }
     .no-print { display: none !important; }
   `);
+};
+
+
+export const createPrintWindow = () => {
+  let htmlContent = '';
+  return {
+    document: {
+      write: (html: string) => { htmlContent += html; },
+      close: () => {
+        try {
+          // Extract body content
+          const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+          let bodyHtml = bodyMatch ? bodyMatch[1] : htmlContent;
+          
+          // Remove script tags to prevent them from executing
+          bodyHtml = bodyHtml.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+          // Extract styles
+          const styleMatch = htmlContent.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+          const styles = styleMatch ? styleMatch.map(s => s.replace(/<\/?style[^>]*>/gi, '')).join('\n') : '';
+          
+          // Extract title
+          const titleMatch = htmlContent.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+          const title = titleMatch ? titleMatch[1] : 'Print Document';
+
+          universalPrint(bodyHtml, title, styles);
+        } catch (err: any) {
+          console.error("Print extraction error:", err);
+          alert("Terjadi kesalahan saat memproses dokumen untuk dicetak: " + err.message);
+        }
+      }
+    },
+    print: () => {},
+    focus: () => {}
+  } as any;
 };
