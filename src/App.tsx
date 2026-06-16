@@ -145,6 +145,10 @@ const LoadingScreen = () => {
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
+      const path = window.location.pathname.substring(1);
+      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/')) {
+        return path;
+      }
       const saved = localStorage.getItem('pemuryadi_activeTab');
       if (saved) return saved;
     }
@@ -246,6 +250,20 @@ export default function App() {
   useEffect(() => { localStorage.setItem('pemuryadi_isSidebarOpen', String(isSidebarOpen)); }, [isSidebarOpen]);
   useEffect(() => { localStorage.setItem('pemuryadi_animationsEnabled', String(animationsEnabled)); }, [animationsEnabled]);
   useEffect(() => { localStorage.setItem('pemuryadi_gradientsEnabled', String(gradientsEnabled)); }, [gradientsEnabled]);
+  
+  // Path sync for SEO-friendly URL slugs
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.substring(1);
+      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/')) {
+        setActiveTab(path);
+      } else if (!path) {
+        setActiveTab('beranda');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   useEffect(() => { localStorage.setItem('pemuryadi_brightness', String(brightness)); }, [brightness]);
   useEffect(() => { localStorage.setItem('pemuryadi_isDevUnlocked', String(isDevUnlocked)); }, [isDevUnlocked]);
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
@@ -472,6 +490,9 @@ export default function App() {
     }
 
     setActiveTab(tabId);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', `/${tabId}`);
+    }
     trackClick(tabId);
     addActivityLog(`Navigated to ${tabId}`, 'OK', 'text-blue-500');
     incrementFavorites();
