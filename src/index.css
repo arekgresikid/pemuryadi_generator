@@ -257,10 +257,45 @@ input[type="range"] {
 
 /* Print Styles */
 @media print {
-  body * { visibility: hidden; }
-  #printArea, #printArea * { visibility: visible; }
-  #printArea { position: absolute; left: 0; top: 0; width: 100%; }
   .no-print { display: none !important; }
+
+  @supports selector(:has(a)) {
+    /* Modern browsers: perfect pagination without absolute positioning */
+    body *:not(:has(#printArea)):not(#printArea):not(#printArea *) {
+      display: none !important;
+    }
+    
+    *:has(#printArea), html, body, #printArea {
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      position: static !important;
+      visibility: visible !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Ensure markdown content remains properly styled */
+    #printArea {
+      padding: 20px !important;
+    }
+  }
+
+  @supports not selector(:has(a)) {
+    /* Fallback for older browsers */
+    body * { visibility: hidden; }
+    #printArea, #printArea * { visibility: visible; }
+    #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+    
+    html, body, #root, .app-wrapper, .app-wrapper > div, main, main > div {
+      height: auto !important;
+      min-height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      position: static !important;
+    }
+  }
 }
 
 /* Google Translate Overrides */

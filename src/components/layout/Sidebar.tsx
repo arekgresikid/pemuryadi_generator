@@ -57,7 +57,7 @@ export default function Sidebar({
         />
       )}
 
-      <aside className={`fixed top-0 left-0 h-full z-50 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col ${
+      <aside className={`no-print fixed top-0 left-0 h-full z-50 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col ${
         isSidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-20'
       }`}>
         <div className="p-6 flex items-center justify-between border-b border-gray-200">
