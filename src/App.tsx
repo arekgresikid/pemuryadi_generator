@@ -465,28 +465,51 @@ export default function App() {
     menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
   }
 
-  const isTitanOrAdmin = (profile?.tier || '').toLowerCase() === 'titan' || ['owner', 'admin'].includes(userRole);
-  const visibleMenuItems = menuItems
-    .filter(item => !item.titanOnly || isTitanOrAdmin)
-    .map(item => {
-      if (item.dropdown) {
-        return {
-          ...item,
-          dropdown: item.dropdown.filter(sub => !sub.titanOnly || isTitanOrAdmin)
-        };
-      }
-      return item;
-    });
+  const visibleMenuItems = menuItems.map(item => {
+    if (item.dropdown) {
+      return item; // Do not filter dropdown either
+    }
+    return item;
+  });
 
   const handleTabChange = (tabId: string) => {
-    // Check if the tab is premium only
+    // Check if the tab is premium only or titan only
     let isPremiumTab = false;
+    let isTitanTab = false;
     for (const item of menuItems) {
-      if (item.id === tabId && item.premiumOnly) isPremiumTab = true;
+      if (item.id === tabId) {
+        if (item.premiumOnly) isPremiumTab = true;
+        if (item.titanOnly) isTitanTab = true;
+      }
       if (item.dropdown) {
         for (const sub of item.dropdown) {
-          if (sub.id === tabId && (sub.premiumOnly || item.premiumOnly)) isPremiumTab = true;
+          if (sub.id === tabId) {
+            if (sub.premiumOnly || item.premiumOnly) isPremiumTab = true;
+            if (sub.titanOnly || item.titanOnly) isTitanTab = true;
+          }
         }
+      }
+    }
+
+    if (isTitanTab) {
+      const tier = (profile?.tier || 'Free').toLowerCase();
+      const role = (profile?.role || 'siswa').toLowerCase();
+      const allowedTiers = ['ultimate', 'supreme', 'titan'];
+      const isPrivileged = allowedTiers.includes(tier) || ['owner', 'admin'].includes(role);
+      
+      if (!isPrivileged) {
+        toast.error("Hanya bisa diakses paket Ultimate, Supreme dan titan", {
+          style: {
+            background: '#ef4444',
+            color: '#fff',
+            fontWeight: 'bold',
+            borderRadius: '12px',
+            padding: '16px'
+          },
+          icon: '🛡️',
+          duration: 4000,
+        });
+        return;
       }
     }
 
