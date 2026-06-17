@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Sparkles, BrainCircuit, ShieldCheck, Clock, BookOpen, Layers, Users, Zap, CheckCircle2, PlayCircle, FileText, Star, Grid, FileEdit, DownloadCloud, ChevronDown, HelpCircle, CalendarCheck, ClipboardCheck, Target, ListChecks, Award, CalendarRange, Calculator, Trophy } from 'lucide-react';
 import PhoneMockup from './PhoneMockup';
+import ApkDownloadModal from './ApkDownloadModal';
 
 
 
 export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void }) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [isApkModalOpen, setIsApkModalOpen] = useState(false);
 
   useEffect(() => {
     // Inject SEO Metadata
@@ -410,6 +412,7 @@ response = client.chat.completions.create({'\n'}  model=<code className="text-gr
             <a href="/about.html" className="hover:text-white transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="/terms-of-service.html" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Terms of Service</a>
+            <button onClick={() => setIsApkModalOpen(true)} className="hover:text-blue-400 transition-colors flex items-center gap-1 font-bold text-blue-500"><DownloadCloud size={16} /> Download APK</button>
           </div>
           
           <div className="text-sm text-slate-600">
@@ -418,6 +421,7 @@ response = client.chat.completions.create({'\n'}  model=<code className="text-gr
         </div>
       </footer>
       </div>
+      <ApkDownloadModal isOpen={isApkModalOpen} onClose={() => setIsApkModalOpen(false)} />
     </>
   );
 }

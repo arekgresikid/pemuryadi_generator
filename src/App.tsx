@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode } from 'lucide-react';
+import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode, DownloadCloud } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
@@ -24,6 +24,7 @@ import AnalisisHariEfektif from './components/AnalisisHariEfektif';
 import ProgramSemester from './components/ProgramSemester';
 import ProgramTahunan from './components/ProgramTahunan';
 import MengajarHarian from './components/MengajarHarian';
+import ApkDownloadModal from './components/ApkDownloadModal';
 import KKTP from './components/KKTP';
 import BuatSoal from './components/BuatSoal';
 import SNP from './components/SNP';
@@ -270,6 +271,7 @@ export default function App() {
   const [showTokenWarning, setShowTokenWarning] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [isTitanModalOpen, setIsTitanModalOpen] = useState(false);
+  const [isApkModalOpen, setIsApkModalOpen] = useState(false);
 
   const { user, profile, loading } = useAuth();
   const isTitanOrAdmin = profile?.tier?.toLowerCase() === 'titan' || profile?.role === 'owner' || profile?.role === 'admin' || profile?.role?.toLowerCase() === 'titan';
@@ -887,6 +889,7 @@ export default function App() {
             <a href="/about.html" className="hover:text-black transition-colors">Tentang Kami</a>
             <a href="/privacy-policy.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Kebijakan Privasi</a>
             <a href="/terms-of-service.html" className="hover:text-black transition-colors" target="_blank" rel="noreferrer">Syarat & Ketentuan</a>
+            <button onClick={() => setIsApkModalOpen(true)} className="hover:text-blue-600 transition-colors flex items-center gap-1 font-bold text-blue-500"><DownloadCloud size={16} /> Download APK</button>
           </div>
           <p className="text-gray-500 text-[10px] uppercase tracking-widest font-bold text-center mb-6">
             © 2026 <span className="text-black">Pemuryadi Generator</span> & RuangRiung. Cyber Education Workspace.
@@ -954,6 +957,11 @@ export default function App() {
       <WelcomePopup 
         onComplete={(role) => console.log('Welcome completed', role)} 
         onNavigateToPricing={() => handleTabChange('pricing')}
+      />
+
+      <ApkDownloadModal 
+        isOpen={isApkModalOpen} 
+        onClose={() => setIsApkModalOpen(false)} 
       />
     </div>
   );
