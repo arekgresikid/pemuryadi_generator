@@ -248,28 +248,15 @@ export default function MainLandingPage({ onEnterApp }: { onEnterApp: () => void
                 <p className="text-slate-300 mb-6 leading-relaxed">
                   Menyusun dokumen pendidikan yang terstruktur sempurna dengan model bahasa (LLM) tercanggih. Mulai dari penalaran tingkat tinggi hingga kecepatan respons ekstra cepat.
                 </p>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {['openai', 'mistral', 'mistral-large', 'llama', 'qwen', 'qwen-coder', 'searchgpt'].map((model, i) => (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {['OpenAI', 'Gemini', 'DeepSeek', 'Mistral', 'Llama', 'Qwen', 'Nanobanana'].map((model, i) => (
                     <span key={i} className="px-3 py-1 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-full shadow-sm">{model}</span>
                   ))}
-                </div>
-                
-                <div className="bg-[#0d1117] rounded-xl p-4 border border-slate-800 relative group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400 font-mono">Python (OpenAI SDK)</span>
-                  </div>
-                  <pre className="text-sm font-mono text-slate-300 overflow-x-auto">
-<code className="text-pink-400">from</code> openai <code className="text-pink-400">import</code> OpenAI{'\n'}
-client = OpenAI(base_url=<code className="text-green-400">"https://gen.pollinations.ai"</code>, api_key=<code className="text-green-400">"YOUR_API_KEY"</code>){'\n'}
-response = client.chat.completions.create({'\n'}  model=<code className="text-green-400">"openai"</code>, {'\n'}  messages=[{'{'}<code className="text-green-400">"role"</code>: <code className="text-green-400">"user"</code>, <code className="text-green-400">"content"</code>: <code className="text-green-400">"Buatkan RPP Matematika"</code>{'}'}]{'\n'}){'\n'}
-<code className="text-blue-400">print</code>(response.choices[0].message.content)
-                  </pre>
                 </div>
               </div>
 
               {/* Image Models */}
-              <div className="bg-slate-950 p-8 rounded-3xl border border-white/10 shadow-lg relative overflow-hidden group">
+              <div className="bg-slate-950 p-8 rounded-3xl border border-white/10 shadow-lg relative overflow-hidden group mb-8">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-bl-full pointer-events-none transition-transform group-hover:scale-110"></div>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-xl bg-pink-500/20 flex items-center justify-center text-pink-400">
@@ -283,21 +270,10 @@ response = client.chat.completions.create({'\n'}  model=<code className="text-gr
                 <p className="text-slate-300 mb-6 leading-relaxed">
                   Menghasilkan gambar beresolusi tinggi, diagram, dan ilustrasi buku teks untuk memperjelas materi yang abstrak menjadi lebih nyata bagi siswa.
                 </p>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {['flux', 'flux-realism', 'flux-anime', 'flux-3d', 'any-dark', 'flux-pro', 'turbo'].map((model, i) => (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {['Ideogram', 'Flux Realism', 'Flux Anime', 'Flux 3D', 'DALL-E 3', 'Stable Diffusion', 'Midjourney'].map((model, i) => (
                     <span key={i} className="px-3 py-1 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-full shadow-sm">{model}</span>
                   ))}
-                </div>
-                
-                <div className="bg-[#0d1117] rounded-xl p-4 border border-slate-800 relative group">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-purple-500"></div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400 font-mono">URL (No Code Needed)</span>
-                  </div>
-                  <div className="bg-slate-900 p-3 rounded-lg border border-slate-800 font-mono text-sm text-green-400 break-all">
-                    https://gen.pollinations.ai/image/a%20teacher%20in%20classroom?model=flux
-                  </div>
-                  <p className="text-xs text-slate-500 mt-3">Cukup masukkan URL ini ke tag &lt;img src="..." /&gt; atau akses langsung di browser Anda.</p>
                 </div>
               </div>
             </div>
