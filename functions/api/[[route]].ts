@@ -82,7 +82,7 @@ app.use('/*', async (c, next) => {
     }
   }
   // Public routes
-  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings')) {
+  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/native-login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings')) {
     return next();
   }
 
@@ -112,6 +112,91 @@ app.use('/*', async (c, next) => {
 });
 
 // --- Auth Routes ---
+app.post('/auth/native-login', async (c) => {
+  try {
+    const { idToken } = await c.req.json();
+    if (!idToken) return c.json({ error: 'No idToken provided' }, 400);
+
+    const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+    if (!verifyRes.ok) {
+      return c.json({ error: 'Invalid token' }, 401);
+    }
+    const tokenData: any = await verifyRes.json();
+    
+    const db = c.env.DB;
+    const existingUser = await db.prepare('SELECT * FROM users WHERE email = ?').bind(tokenData.email).first();
+    
+    const adminEmailsStr = c.env.ADMIN_EMAILS || 'p.e.muryadi@gmail.com,arekgresikid@gmail.com,arekgresik@gmail.com';
+    const adminEmails = adminEmailsStr.split(',').map((e: string) => e.trim());
+    const isAdmin = adminEmails.includes(tokenData.email);
+    let role = isAdmin ? 'owner' : 'siswa';
+    let initialTier = isAdmin ? 'Titan' : 'Free';
+    
+    if (!existingUser) {
+      let initialTokens = isAdmin ? 999999 : 2;
+      let activeUntilStr: string | null = null;
+      
+      if (!isAdmin) {
+        try {
+          const trialActiveRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_active'").first();
+          if (trialActiveRow && trialActiveRow.value === 'true') {
+            const trialEmailsRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_emails'").first();
+            const allowedEmails = trialEmailsRow?.value ? (trialEmailsRow.value as string).toLowerCase().split(',').map(e => e.trim()).filter(e => e) : [];
+            const userEmailLower = tokenData.email.toLowerCase();
+            const isEligible = allowedEmails.length === 0 || allowedEmails.includes(userEmailLower);
+            
+            if (isEligible) {
+              const trialDaysRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_days'").first();
+              const trialTierRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_tier'").first();
+              const trialTokensRow = await db.prepare("SELECT value FROM settings WHERE id = 'promo_trial_tokens'").first();
+              
+              const trialDays = trialDaysRow?.value ? parseInt(trialDaysRow.value as string) : 3;
+              initialTier = (trialTierRow?.value as string) || 'Premium';
+              initialTokens = (trialTokensRow && trialTokensRow.value) ? parseInt(trialTokensRow.value as string) : 50;
+              
+              const trialDate = new Date();
+              trialDate.setDate(trialDate.getDate() + trialDays);
+              activeUntilStr = trialDate.toISOString();
+            }
+          }
+        } catch (e) {
+          console.error("Failed to apply trial settings:", e);
+        }
+      }
+      
+      await db.prepare(
+        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      ).bind(
+        tokenData.sub, tokenData.email, tokenData.name, tokenData.picture, role, initialTier, initialTokens, activeUntilStr, new Date().toISOString()
+      ).run();
+    } else {
+      await db.prepare(
+        `UPDATE users SET uid = ?, photoURL = ?, displayName = COALESCE(?, displayName) WHERE email = ?`
+      ).bind(tokenData.sub, tokenData.picture, tokenData.name, tokenData.email).run();
+    }
+
+    const jwtPayload = {
+      uid: tokenData.sub,
+      email: tokenData.email,
+      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7) // 7 days
+    };
+    const token = await sign(jwtPayload, c.env.JWT_SECRET);
+    
+    setCookie(c, 'auth_token', token, {
+      path: '/',
+      secure: true,
+      httpOnly: true,
+      sameSite: 'Lax',
+      maxAge: 60 * 60 * 24 * 7
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: 'Native auth failed', details: error.message }, 500);
+  }
+});
+
 app.get('/auth/login', (c) => {
   let origin = new URL(c.req.url).origin;
   if (origin.includes('127.0.0.1:8788')) {

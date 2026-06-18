@@ -1,7 +1,44 @@
 // This replaces the old firebase.ts
 
-export const loginWithGoogle = () => {
-  // Redirect to Cloudflare Pages Function which handles Google OAuth
+declare global {
+  interface Window {
+    flutter_inappwebview?: {
+      callHandler: (name: string, ...args: any[]) => Promise<any>;
+    };
+  }
+}
+
+export const loginWithGoogle = async () => {
+  // Check if we are inside the Flutter WebView app
+  if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
+    try {
+      const result = await window.flutter_inappwebview.callHandler('requestNativeGoogleLogin');
+      if (result && result.success && result.idToken) {
+        // Send idToken to backend to create session
+        const res = await fetch('/api/auth/native-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: result.idToken })
+        });
+        if (res.ok) {
+          window.location.reload();
+          return;
+        } else {
+          alert('Login server gagal');
+        }
+      } else if (result && result.error) {
+        console.error("Native login error:", result.error);
+        if (result.error !== 'Dibatalkan') {
+          alert('Google Sign-In Error: ' + result.error);
+        }
+        return;
+      }
+    } catch (e) {
+      console.error("Handler error:", e);
+    }
+  }
+
+  // Fallback to Web OAuth
   window.location.href = '/api/auth/login';
 };
 
