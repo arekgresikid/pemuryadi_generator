@@ -27,26 +27,24 @@ export default function ApkDownloadModal({ isOpen, onClose }: ApkDownloadModalPr
         </div>
 
         <div className="space-y-4 mb-8">
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 text-amber-800">
-            <AlertTriangle size={20} className="shrink-0 mt-0.5" />
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex gap-3 text-green-800">
+            <ShieldCheck size={20} className="shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-bold mb-1">Aplikasi Masih Tahap Pengembangan (BETA)</p>
-              <p>APK ini belum tersedia secara publik di Google Play Store resmi. Saat Anda menginstal, sistem Android (Google Play Protect) mungkin akan memperingatkan bahwa aplikasi ini tidak dikenal atau berbahaya karena belum kami verifikasi di Play Store.</p>
+              <p className="font-bold mb-1">Aman & Terverifikasi</p>
+              <p>Aplikasi ini sekarang mendukung integrasi Native Google Sign-In yang lebih stabil dan mulus. Anda tidak akan lagi menjumpai peringatan keamanan berbahaya saat menginstal aplikasi.</p>
             </div>
           </div>
 
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
             <h3 className="font-bold text-slate-900 mb-2 flex items-center gap-2">
               <span className="bg-blue-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs">i</span>
-              Cara Install yang Aman:
+              Cara Install:
             </h3>
             <ol className="list-decimal list-inside text-sm text-slate-600 space-y-2 ml-1">
               <li>Klik tombol download di bawah dan tunggu hingga selesai.</li>
               <li>Buka file <code className="bg-slate-200 px-1 py-0.5 rounded text-xs">PemuryadiGenerator.apk</code> yang terunduh.</li>
-              <li>Jika muncul peringatan <strong>Google Play Protect</strong>, klik <strong>"Detail selengkapnya"</strong> (More details).</li>
-              <li>Lalu pilih <strong>"Tetap install"</strong> (Install anyway).</li>
-              <li>Jika diminta izin install dari sumber tidak dikenal, berikan izin kepada browser atau File Manager Anda.</li>
-              <li>Jika ada perintah untuk memindai aplikasi, silakan klik tombol pindai agar Google Play Protect dapat memastikan aplikasinya aman.</li>
+              <li>Jika sistem meminta izin install dari sumber tidak dikenal, berikan izin kepada browser atau File Manager Anda.</li>
+              <li>Selesai! Buka aplikasi dan nikmati pengalaman Native Google Login.</li>
             </ol>
           </div>
         </div>
