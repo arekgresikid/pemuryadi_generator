@@ -58,8 +58,12 @@ export default function ApkDownloadModal({ isOpen, onClose }: ApkDownloadModalPr
           </button>
           <a 
             href="/PemuryadiGenerator.apk" 
-            download
-            onClick={onClose}
+            download="PemuryadiGenerator.apk"
+            onClick={(e) => {
+              setTimeout(() => {
+                onClose();
+              }, 500);
+            }}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-600/30 w-full sm:w-auto"
           >
             <DownloadCloud size={20} />
