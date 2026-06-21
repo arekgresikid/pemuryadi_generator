@@ -4,6 +4,8 @@ import { useAuth } from '../AuthContext';
 import toast from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
 import InvoiceGenerator from './InvoiceGenerator';
+import ReactMarkdown from 'react-markdown';
+import prdContent from '../../PRD.md?raw';
 
 export default function AdminPanel() {
   const { profile } = useAuth();
@@ -652,6 +654,12 @@ export default function AdminPanel() {
           >
             <FileText size={16} /> Invoice
           </button>
+          <button 
+            onClick={() => setActiveTab('prd')}
+            className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'prd' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <FileText size={16} /> PRD
+          </button>
         </div>
       </div>
 
@@ -763,6 +771,26 @@ export default function AdminPanel() {
                 </ResponsiveContainer>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'prd' && (
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-300 overflow-hidden">
+          <h3 className="font-bold text-gray-800 mb-2 text-xl">Product Requirements Document (PRD)</h3>
+          
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
+            <p className="font-bold flex items-center gap-2 mb-1">
+              <FileText size={16} /> Informasi untuk Tim Admin & Developer
+            </p>
+            <p className="leading-relaxed">
+              <strong>PRD (Product Requirements Document)</strong> adalah dokumen referensi utama yang memuat visi, target pengguna, daftar fitur, hingga spesifikasi teknis platform Pemuryadi Generator. 
+              Tujuan halaman ini adalah agar <strong>seluruh admin, tim pengembang, dan pemangku kepentingan</strong> memiliki panduan dan pemahaman yang sama mengenai arah pengembangan proyek (Roadmap), aturan logika bisnis (seperti Limit Token & Tiering), serta arsitektur yang digunakan.
+            </p>
+          </div>
+
+          <div className="prose prose-sm max-w-none markdown-body h-[65vh] overflow-y-auto pr-4 custom-scrollbar">
+            <ReactMarkdown>{prdContent}</ReactMarkdown>
           </div>
         </div>
       )}
