@@ -6,6 +6,7 @@ Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini
 - Menambahkan file PRD (Product Requirements Document) dan menampilkannya secara langsung pada tab baru di Admin Dashboard.
 - Mengganti ikon utama (favicon) dan logo aplikasi menggunakan desain yang baru.
 - Mengganti alamat email tujuan untuk pelaporan bug dan masukan di Dashboard menjadi admin@digen.id.
+- Memperluas sistem Programmatic SEO dengan menambahkan dukungan untuk 38 provinsi di Indonesia beserta rute khusus pada sitemap.
 
 ## [5.3.3] - 18 Juni 2026
 - Mengintegrasikan fitur Native Google Sign-In pada aplikasi Android untuk pengalaman login yang lebih aman dan mulus tanpa peringatan keamanan dari Play Protect.

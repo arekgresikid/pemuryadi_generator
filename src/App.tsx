@@ -147,7 +147,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.substring(1);
-      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/')) {
+      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/') && !path.startsWith('provinsi/')) {
         return path;
       }
       const saved = localStorage.getItem('pemuryadi_activeTab');
@@ -170,7 +170,7 @@ export default function App() {
   const [isSeoLanding, setIsSeoLanding] = useState(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
-      return path.startsWith('/kota/') || path.startsWith('/sekolah/');
+      return path.startsWith('/kota/') || path.startsWith('/sekolah/') || path.startsWith('/provinsi/');
     }
     return false;
   });
@@ -256,7 +256,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.substring(1);
-      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/')) {
+      if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/') && !path.startsWith('provinsi/')) {
         setActiveTab(path);
       } else if (!path) {
         setActiveTab('beranda');

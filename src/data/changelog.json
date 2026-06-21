@@ -7,7 +7,8 @@
     "commits": [
       "Menambahkan file PRD (Product Requirements Document) dan menampilkannya secara langsung pada tab baru di Admin Dashboard.",
       "Mengganti ikon utama (favicon) dan logo aplikasi menggunakan desain yang baru.",
-      "Mengganti alamat email tujuan untuk pelaporan bug dan masukan di Dashboard menjadi admin@digen.id."
+      "Mengganti alamat email tujuan untuk pelaporan bug dan masukan di Dashboard menjadi admin@digen.id.",
+      "Memperluas sistem Programmatic SEO dengan menambahkan dukungan untuk 38 provinsi di Indonesia beserta rute khusus pada sitemap."
     ]
   },
   {

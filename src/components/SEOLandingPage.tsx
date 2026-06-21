@@ -3,7 +3,7 @@ import { MapPin, School, ArrowRight, ShieldCheck, Zap, Sparkles, BookOpen, Clock
 
 export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: string) => void }) {
   const [title, setTitle] = useState('');
-  const [type, setType] = useState<'kota' | 'sekolah' | ''>('');
+  const [type, setType] = useState<'kota' | 'sekolah' | 'provinsi' | ''>('');
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -11,6 +11,10 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
       setType('kota');
       const rawCity = path.replace('/kota/', '').replace(/-/g, ' ');
       setTitle(rawCity.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+    } else if (path.startsWith('/provinsi/')) {
+      setType('provinsi');
+      const rawProv = path.replace('/provinsi/', '').replace(/-/g, ' ');
+      setTitle(rawProv.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
     } else if (path.startsWith('/sekolah/')) {
       setType('sekolah');
       const rawSchool = path.replace('/sekolah/', '').replace(/-/g, ' ');
@@ -57,8 +61,8 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
             {/* Left Column: Hero Content */}
             <div className="flex flex-col items-start text-left">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 font-bold text-sm mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 shadow-sm">
-                {type === 'kota' ? <MapPin size={18} /> : <School size={18} />}
-                <span>Tersedia Khusus untuk Pendidik di <span className="font-black underline decoration-blue-300 underline-offset-4">{title}</span></span>
+                {type === 'kota' || type === 'provinsi' ? <MapPin size={18} /> : <School size={18} />}
+                <span>Tersedia Khusus untuk Pendidik di <span className="font-black underline decoration-blue-300 underline-offset-4">{type === 'provinsi' ? `Provinsi ${title}` : title}</span></span>
               </div>
               
               <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 tracking-tight animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100 leading-[1.1]">
@@ -71,6 +75,8 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
               <p className="text-xl text-slate-600 mb-12 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 font-medium">
                 {type === 'kota' ? (
                   <>Bergabunglah dengan ribuan pendidik di <strong className="text-slate-900 font-black">Kota {title}</strong> yang telah menghemat waktu berjam-jam menggunakan Artificial Intelligence untuk menyusun <strong>Modul Belajar {title}</strong>, <strong>Modul Ajar {title}</strong>, dan <strong>RPP Kurikulum Merdeka {title}</strong>.</>
+                ) : type === 'provinsi' ? (
+                  <>Bergabunglah dengan ribuan pendidik se-Provinsi <strong className="text-slate-900 font-black">{title}</strong> yang telah menghemat waktu berjam-jam menggunakan Artificial Intelligence untuk menyusun <strong>Modul Belajar {title}</strong>, <strong>Modul Ajar {title}</strong>, dan <strong>RPP Kurikulum Merdeka {title}</strong>.</>
                 ) : (
                   <>Mendukung penuh aktivitas belajar mengajar di <strong className="text-slate-900 font-black">{title}</strong>. Tingkatkan produktivitas Anda dengan alat cerdas <strong>Generator Modul Ajar {title}</strong> dan <strong>RPP {title}</strong> yang dirancang khusus untuk Kurikulum Merdeka.</>
                 )}
@@ -222,6 +228,8 @@ export default function SEOLandingPage({ onEnterApp }: { onEnterApp: (tab?: stri
           <p className="text-sm">
             © {new Date().getFullYear()} Hak Cipta Dilindungi. Didedikasikan untuk guru {type === 'kota' ? (
               <>se-Kota <strong className="font-bold text-white">{title}</strong></>
+            ) : type === 'provinsi' ? (
+              <>se-Provinsi <strong className="font-bold text-white">{title}</strong></>
             ) : (
               <>di <strong className="font-bold text-white">{title}</strong></>
             )}.

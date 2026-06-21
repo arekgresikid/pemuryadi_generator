@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "364757901990",
+    "project_id": "digen-id",
+    "storage_bucket": "digen-id.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364757901990:android:c842f08bcacc3b9d4e8a67",
+        "android_client_info": {
+          "package_name": "com.example.pemuryadi_generator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "364757901990-27q5v4a5v3bsbs00jes0r3pbav5i84p1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pemuryadi_generator",
+            "certificate_hash": "f785d7e0def607d7e2288f27c51c9d3a7f2d6173"
+          }
+        },
+        {
+          "client_id": "364757901990-m8m6gs03v6j992m3gcd0scaupamrjscb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB508vkypBv2Pt7rtUO6Bgh6KEKSXOjREg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "364757901990-m8m6gs03v6j992m3gcd0scaupamrjscb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
