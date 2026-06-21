@@ -308,7 +308,7 @@ export default function Dashboard({
                <p className="leading-relaxed">
                  <strong className="text-red-900 block mb-1">Mendapati Bug atau Error?</strong> 
                  Mohon kirimkan kronologi kejadiannya secara rinci. Jika memungkinkan, sertakan <strong>screenshot atau video</strong> agar tim kami dapat segera menindaklanjutinya.<br/>
-                 Silakan kirimkan laporan Anda melalui email ke <a href="mailto:p.e.muryadi@gmail.com" className="font-bold underline hover:text-red-900 transition-colors">p.e.muryadi@gmail.com</a> atau <a href="mailto:arekgresikid@gmail.com" className="font-bold underline hover:text-red-900 transition-colors">arekgresikid@gmail.com</a>.
+                 Silakan kirimkan laporan Anda melalui email ke <a href="mailto:admin@digen.id" className="font-bold underline hover:text-red-900 transition-colors">admin@digen.id</a>.
                </p>
              </div>
            </div>

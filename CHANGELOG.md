@@ -2,9 +2,14 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
-## [5.3.3] - 21 Juni 2026
-- Memindahkan sub-menu SPMI, Program Adiwiyata, Sekolah Ramah Anak, dan Sekolah Siaga Kependudukan dari tab Manajemen Sekolah ke tab Kurikulum & Evaluasi.
-- Mengoptimalkan prompt AI pada modul Evaluasi Mutu dan Standar Nasional Pendidikan (SNP) agar AI secara proaktif merekomendasikan penyelesaian dokumen-dokumen administrasi pendukung (seperti Kalender Pendidikan, Modul Ajar, dll) di Tab Administrasi.
+## [5.3.4] - 21 Juni 2026
+- Menambahkan file PRD (Product Requirements Document) dan menampilkannya secara langsung pada tab baru di Admin Dashboard.
+- Mengganti ikon utama (favicon) dan logo aplikasi menggunakan desain yang baru.
+- Mengganti alamat email tujuan untuk pelaporan bug dan masukan di Dashboard menjadi admin@digen.id.
+
+## [5.3.3] - 18 Juni 2026
+- Mengintegrasikan fitur Native Google Sign-In pada aplikasi Android untuk pengalaman login yang lebih aman dan mulus tanpa peringatan keamanan dari Play Protect.
+- Memperbarui antarmuka Download APK (ApkDownloadModal) menjadi lebih ringkas dan menghapus peringatan aplikasi berbahaya seiring dengan peningkatan keamanan aplikasi.
 
 ## [5.3.2] - 13 Juni 2026
 - Menambahkan fitur generator Barcode/QR Code interaktif dan menyempurnakan teks deskripsi pada modul Invoice Generator.
