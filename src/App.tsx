@@ -433,7 +433,11 @@ export default function App() {
       dropdown: [
         { id: 'snp-ksp', icon: <Library size={16} />, label: 'KSP', titanOnly: true },
         { id: 'evaluasi-mutu', icon: <BarChart size={16} />, label: 'Evaluasi Mutu' },
-        { id: 'snp-rapor', icon: <BarChart size={16} />, label: 'Rapor Pendidikan', titanOnly: true }
+        { id: 'snp-rapor', icon: <BarChart size={16} />, label: 'Rapor Pendidikan', titanOnly: true },
+        { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI', titanOnly: true },
+        { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Program Adiwiyata', titanOnly: true },
+        { id: 'snp-sra', icon: <Smile size={16} />, label: 'Sekolah Ramah Anak', titanOnly: true },
+        { id: 'snp-ssk', icon: <Users size={16} />, label: 'Sekolah Siaga Kependudukan', titanOnly: true }
       ]
     },
     {
@@ -442,10 +446,6 @@ export default function App() {
       label: 'Manajemen Sekolah',
       titanOnly: true,
       dropdown: [
-        { id: 'snp-spmi', icon: <Book size={16} />, label: 'SPMI', titanOnly: true },
-        { id: 'snp-adiwiyata', icon: <Leaf size={16} />, label: 'Program Adiwiyata', titanOnly: true },
-        { id: 'snp-sra', icon: <Smile size={16} />, label: 'Sekolah Ramah Anak', titanOnly: true },
-        { id: 'snp-ssk', icon: <Users size={16} />, label: 'Sekolah Siaga Kependudukan', titanOnly: true },
         { id: 'reports', icon: <ClipboardList size={16} />, label: 'Laporan Mutu', premiumOnly: true },
         { id: 'strategic-advisor', icon: <Target size={16} />, label: 'Penasihat Strategis', premiumOnly: true }
       ]

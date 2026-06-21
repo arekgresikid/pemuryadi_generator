@@ -148,6 +148,7 @@ Berdasarkan data input (dan lampiran jika ada), buat laporan dengan WORKFLOW ber
 2. OUTPUT (Rekomendasi Laporan): Susun laporan resmi sesuai kriteria supervisor yang mencakup program prioritas, intervensi spesifik, dan target capaian.
 3. ACTION (Implementasi): Sarankan kegiatan operasional sekolah, rujukan integrasi pembelajaran, dan cara pelibatan pihak terkait yang sejalan.
 4. EVALUASI: Berikan indikator atau matriks laporan (berkala rutin) yang disukai supervisor/pengawas.
+5. REKOMENDASI ADMINISTRASI: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di 'Tab Administrasi' aplikasi ini yang sesuai untuk program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
 
 Data Input:
 ${inputData}

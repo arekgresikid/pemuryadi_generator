@@ -75,7 +75,9 @@ Tugasmu adalah mengevaluasi pemetaan mutu sekolah dengan fokus pada validitas da
 WAJIB gunakan analisis '5 Why' dan 'Fishbone Analysis' secara implisit maupun eksplisit (dalam penjelasan) untuk mengidentifikasi akar masalah sebenarnya dari indikator mutu yang rendah.
 Jika ada data yang tampak tidak konsisten, gunakan logika 'Venn Diagram' untuk menemukan irisan masalah lintas standar.
 Pastikan rekomendasi memiliki keterkaitan kuat antara gap yang teridentifikasi dan program intervensi yang disusun.
-DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output audit yang preskriptif.`;
+DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output audit yang preskriptif.
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -407,7 +409,9 @@ function SraWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
 Tugas utama Anda adalah mengevaluasi pemetaan mutu sekolah dengan fokus pada validitas data iklim keamanan dan karakter.
 WAJIB gunakan analisis '5 Why' dan 'Fishbone Analysis' untuk mengidentifikasi akar masalah dari gap yang ditemukan.
 Gunakan data objektif (asesmen nasional, observasi) sebagai basis rekomendasi terintegrasi lintas standar.
-DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (Tabel, Bold, List).`;
+DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (Tabel, Bold, List).
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -795,7 +799,9 @@ function SskWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
       const systemInstruction = `Anda adalah Analis Strategis Data Senior dari Kementerian Pendidikan Dasar, Menengah, dan Tinggi yang mengevaluasi Sekolah Siaga Kependudukan (SSK).
 Tugas Anda mendalami validitas pemetaan mutu kependudukan sekolah menggunakan analisis '5 Why' dan 'Fishbone Analysis' (serta Venn Diagram jika ada inkonsistensi).
 Identifikasi akar masalah dari ketercapaian indikator SSK dan berikan rekomendasi program yang terintegrasi standar kurikulum dan sarana.
-DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.`;
+DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -1264,7 +1270,9 @@ Tugas Anda mengevaluasi Rapor Pendidikan dengan fokus pada validitas dan kedalam
 WAJIB gunakan analisis '5 Why' dan 'Fishbone' (dan 'Venn Diagram' jika ada inkonsistensi data) untuk mengidentifikasi akar masalah.
 Berikan rekomendasi yang memastikan keterkaitan kuat antara masalah teridentifikasi dan program intervensi lintas standar.
 DILARANG KERAS menyapa, memberikan pendahuluan, dan dilarang menggunakan basa-basi penutup. 
-Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pengantar AI.`;
+Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pengantar AI.
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -1561,7 +1569,9 @@ function IsoWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSekolah?:
 Tugas Anda mengevaluasi Pemetaan Mutu Sekolah berbasis QMS dengan validitas data tinggi.
 WAJIB gunakan analisis '5 Why' dan 'Fishbone Analysis' untuk mengurai temuan audit atau gap sistemik.
 Berikan rekomendasi perbaikan yang mengintegrasikan standar ISO dengan standar nasional pendidikan secara kohesif.
-DILARANG memberikan sapaan atau penutup.`;
+DILARANG memberikan sapaan atau penutup.
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -2023,7 +2033,9 @@ Sajikan dengan sangat rapi menggunakan Markdown. Jangan gunakan basa-basi.`;
 Tugas utama Anda mengevaluasi pemetaan mutu sekolah (Rapor Pendidikan & SPMI) dengan fokus pada validitas dan kedalaman data.
 Anda wajib menggunakan analisis '5 Why', 'Fishbone Analysis', dan 'Venn Diagram' untuk mengidentifikasi akar masalah sebenarnya.
 Berikan rekomendasi preskriptif yang menjamin integrasi antar program lintas standar.
-DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pada output audit murni.`;
+DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pada output audit murni.
+
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -2484,7 +2496,7 @@ export function KspWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSe
          Lakukan Gap Analysis berdasarkan data di atas. Buatlah Kesimpulan Gap dalam bentuk tabel dan berikan rekomendasi aksi konkret.
       `;
       
-      const systemInstruction = "Anda adalah analis mutu strategis data Kementerian Pendidikan untuk Kurikulum Satuan Pendidikan. Evaluasi pemetaan mutu sekolah ini menggunakan analisis '5 Why' dan 'Fishbone' untuk memastikan validitas gap. Berikan rekomendasi program terintegrasi lintas standar tanpa sapaan atau penutup.";
+      const systemInstruction = "Anda adalah analis mutu strategis data Kementerian Pendidikan untuk Kurikulum Satuan Pendidikan. Evaluasi pemetaan mutu sekolah ini menggunakan analisis '5 Why' dan 'Fishbone' untuk memastikan validitas gap. Berikan rekomendasi program terintegrasi lintas standar tanpa sapaan atau penutup.\n\nWAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).";
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -3019,7 +3031,7 @@ function AkreditasiWizard({ jenjang, jenisSekolah }: { jenjang?: string, jenisSe
          Buatlah Laporan Audit Gap Analysis Eksekutif berdasarkan instruksi sistem.
       `;
       
-      const systemInstruction = "Anda adalah Asesor Akreditasi Strategis Kementerian Pendidikan. Evaluasi pemetaan akreditasi ini wajib menggunakan kerangka kerja '5 Why', 'Fishbone Analysis', dan 'Venn Diagram'. Berikan rekomendasi program terintegrasi lintas standar secara mendalam, bukan sekadar permukaan. Dilarang menggunakan sapaan, basa-basi, atau penutup.";
+      const systemInstruction = "Anda adalah Asesor Akreditasi Strategis Kementerian Pendidikan. Evaluasi pemetaan akreditasi ini wajib menggunakan kerangka kerja '5 Why', 'Fishbone Analysis', dan 'Venn Diagram'. Berikan rekomendasi program terintegrasi lintas standar secara mendalam, bukan sekadar permukaan. Dilarang menggunakan sapaan, basa-basi, atau penutup.\n\nWAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).";
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({

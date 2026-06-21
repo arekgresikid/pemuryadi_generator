@@ -2,6 +2,10 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.3] - 21 Juni 2026
+- Memindahkan sub-menu SPMI, Program Adiwiyata, Sekolah Ramah Anak, dan Sekolah Siaga Kependudukan dari tab Manajemen Sekolah ke tab Kurikulum & Evaluasi.
+- Mengoptimalkan prompt AI pada modul Evaluasi Mutu dan Standar Nasional Pendidikan (SNP) agar AI secara proaktif merekomendasikan penyelesaian dokumen-dokumen administrasi pendukung (seperti Kalender Pendidikan, Modul Ajar, dll) di Tab Administrasi.
+
 ## [5.3.2] - 13 Juni 2026
 - Menambahkan fitur generator Barcode/QR Code interaktif dan menyempurnakan teks deskripsi pada modul Invoice Generator.
 - Memperbaiki isu kritis Service Worker (PWA) yang menyebabkan siklus error 'net::ERR_FAILED' dan gagal muat pada localhost mode development.
