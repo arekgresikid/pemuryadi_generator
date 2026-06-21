@@ -30,7 +30,7 @@ const BarcodeGenerator: React.FC = () => {
   const [inputValue, setInputValue] = useLocalStorage('BarcodeGenerator_inputValue', '');
   const [fgColor, setFgColor] = useLocalStorage('BarcodeGenerator_fgColor', '#000000');
   const [bgColor, setBgColor] = useLocalStorage('BarcodeGenerator_bgColor', '#ffffff');
-  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('BarcodeGenerator_logoUrl', '/favicon.png');
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('BarcodeGenerator_logoUrl', '/favicon2.png');
   const [qrStyle, setQrStyle] = useLocalStorage<'squares' | 'dots'>('BarcodeGenerator_qrStyle', 'squares');
   const [eyeRadius, setEyeRadius] = useLocalStorage<number>('BarcodeGenerator_eyeRadius', 0);
   const [isAppearanceOpen, setIsAppearanceOpen] = useState(false);
