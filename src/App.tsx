@@ -896,7 +896,7 @@ export default function App() {
           </p>
           <div className="flex justify-center mt-6">
             <img 
-              src="/favicon2.png" 
+              src="/pemuryadi_QRcode.png" 
               alt="QR Code Pemuryadi Generator" 
               className="w-24 h-24 object-contain rounded-lg shadow-sm border border-gray-200 bg-white p-1 hover:scale-110 transition-transform duration-300"
             />
