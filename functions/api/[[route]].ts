@@ -1043,6 +1043,16 @@ app.post('/blog/github-upload', async (c) => {
   }
 });
 
+app.get('/blog/debug-env', (c) => {
+  const secret = c.env.POLLINATIONS_API_KEY || '';
+  return c.json({
+    has_key: !!secret,
+    length: secret.length,
+    start: secret.substring(0, 3),
+    end: secret.substring(secret.length - 3)
+  });
+});
+
 app.get('/blog/admin/posts', async (c) => {
   const user = c.get('user');
   if (!user) return c.json({ error: 'Unauthorized' }, 401);
