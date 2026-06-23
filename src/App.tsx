@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode, DownloadCloud } from 'lucide-react';
+import { Terminal, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode, DownloadCloud } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
