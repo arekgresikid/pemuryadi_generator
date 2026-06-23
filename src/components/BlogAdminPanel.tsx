@@ -175,6 +175,23 @@ export default function BlogAdminPanel() {
     }
   };
 
+  const handlePreviewClick = async (id: string) => {
+    try {
+      const toastId = toast.loading('Memuat data artikel...');
+      const res = await fetch(`/api/blog/admin/post/${id}`);
+      if (res.ok) {
+        const data = await res.json() as any;
+        setPreviewPost(data);
+        toast.dismiss(toastId);
+      } else {
+        toast.dismiss(toastId);
+        toast.error('Gagal memuat konten artikel untuk pratinjau');
+      }
+    } catch (e) {
+      toast.error('Kesalahan jaringan');
+    }
+  };
+
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadTitle || !uploadContent || !editingPostId) {
@@ -315,7 +332,7 @@ export default function BlogAdminPanel() {
                             <button onClick={() => handleEditClick(post.id)} className="p-2 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-lg transition-colors" title="Edit Konten">
                               <Edit size={16} />
                             </button>
-                            <button onClick={() => setPreviewPost(post)} className="p-2 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors" title="Lihat Pratinjau">
+                            <button onClick={() => handlePreviewClick(post.id)} className="p-2 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors" title="Lihat Pratinjau">
                               <Eye size={16} />
                             </button>
                             {post.status !== 'draft' && (
