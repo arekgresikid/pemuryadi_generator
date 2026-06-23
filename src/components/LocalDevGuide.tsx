@@ -27,26 +27,49 @@ const LocalDevGuide: React.FC = () => {
             Untuk menjalankan aplikasi ini secara lokal dengan fitur penuh, Anda memerlukan dua file environment variable rahasia:
           </p>
           <ul className="list-disc ml-6 text-gray-600 space-y-2 mb-4">
-            <li><strong>.dev.vars</strong> - Variabel Backend (Cloudflare) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_ID</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_SECRET</code>, dan <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">JWT_SECRET</code>.</li>
-            <li><strong>.env</strong> - Variabel Frontend (Vite) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">VITE_POLLINATIONS_API_KEY</code>.</li>
+          <ul className="list-disc ml-6 text-gray-600 space-y-2 mb-4">
+            <li><strong>.dev.vars</strong> - Variabel Backend (Cloudflare) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_ID</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_SECRET</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">JWT_SECRET</code>, dan API Key seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">POLLINATIONS_API_KEY</code>.</li>
+            <li><strong>.env</strong> - Variabel Frontend (Vite) untuk pengaturan khusus sisi klien (jika ada).</li>
           </ul>
           <div className="bg-white rounded-lg p-4 border border-orange-200">
             <p className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <Key size={16} className="text-orange-500" /> Cara Mendapatkan File:
+              <Key size={16} className="text-orange-500" /> Cara Mendapatkan File & Penempatan:
             </p>
             <p className="text-sm text-gray-600 mb-3">
               Karena data ini sangat rahasia (kredensial API), Anda harus mengunduhnya dari Google Drive khusus developer. <strong>Akses harus diizinkan terlebih dahulu.</strong>
             </p>
-            <div className="space-y-2">
-              <p className="text-sm text-gray-600">
-                1. Minta izin akses dengan mengirim email ke: <a href="mailto:arekgresikid@gmail.com" className="text-blue-600 font-medium hover:underline">arekgresikid@gmail.com</a>
-              </p>
-              <p className="text-sm text-gray-600">
-                2. Buka link Google Drive: <a href="https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link" target="_blank" rel="noreferrer" className="text-blue-600 font-medium hover:underline break-all">https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link</a>
-              </p>
-              <p className="text-sm text-gray-600">
-                3. Unduh file <code>.dev.vars</code> dan <code>.env</code> lalu simpan di folder utama (root) project Anda.
-              </p>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600">
+                  1. Minta izin akses dengan mengirim email ke: <a href="mailto:arekgresikid@gmail.com" className="text-blue-600 font-medium hover:underline">arekgresikid@gmail.com</a>
+                </p>
+                <p className="text-sm text-gray-600">
+                  2. Buka link Google Drive: <a href="https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link" target="_blank" rel="noreferrer" className="text-blue-600 font-medium hover:underline break-all">https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link</a>
+                </p>
+                <p className="text-sm text-gray-600">
+                  3. Unduh file <code>.dev.vars</code> (dan <code>.env</code>) tersebut. Setelah diunduh, <strong>copy (salin) file tersebut dan letakkan tepat di Root Folder</strong> project Anda (sejajar dengan package.json).
+                </p>
+              </div>
+
+              {/* Struktur Folder */}
+              <div className="bg-slate-900 rounded-md p-4 mt-2">
+                <p className="text-xs text-slate-400 mb-2 font-semibold tracking-wider">STRUKTUR FOLDER PROJECT:</p>
+                <pre className="text-sm font-mono text-emerald-400 overflow-x-auto">
+{`pemuryadi_generator/
+├── .dev.vars         <-- Letakkan di sini! (Backend Secrets)
+├── .env              <-- Letakkan di sini! (Frontend Config)
+├── package.json
+├── wrangler.toml
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── ...
+├── functions/
+│   └── api/
+│       └── [[route]].ts
+└── public/`}
+                </pre>
+              </div>
             </div>
           </div>
         </section>
