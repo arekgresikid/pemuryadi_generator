@@ -83,7 +83,7 @@ app.use('/*', async (c, next) => {
     }
   }
   // Public routes
-  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/native-login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings') || path.startsWith('/api/blog/cron') || path.startsWith('/api/blog/public')) {
+  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/native-login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings') || path.startsWith('/api/blog/cron') || path.startsWith('/api/blog/public') || path.startsWith('/api/blog/github-upload') || path.startsWith('/api/blog/debug-env')) {
     return next();
   }
 
