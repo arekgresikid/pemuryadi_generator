@@ -28,22 +28,14 @@ async function generateBlog() {
     process.exit(1);
   }
 
-  const topics = [
-    "mengelola administrasi kelas",
-    "efisiensi waktu mengajar",
-    "inovasi metode pembelajaran",
-    "mengurangi beban kerja administratif",
-    "personalisasi pembelajaran",
-    "pembuatan RPP otomatis",
-    "evaluasi dan penilaian siswa"
-  ];
-  const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-  const randomId = Math.floor(Math.random() * 10000);
+  const sessionId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
-  const prompt = `Anda adalah seorang pakar pendidikan dan teknologi pendidikan (EdTech) yang menulis untuk blog Digen.id. 
-Tulislah sebuah artikel blog yang sangat mendalam dan komprehensif (minimal 800 hingga 1000 kata) dalam bahasa Indonesia tentang bagaimana teknologi atau AI membantu guru dalam topik berikut: "${randomTopic}".
+  const prompt = `[Request ID: ${sessionId}]
+Anda adalah seorang pakar pendidikan dan teknologi pendidikan (EdTech) yang sangat kreatif yang menulis untuk blog Digen.id. 
+Tugas Anda adalah menulis sebuah artikel blog yang sangat mendalam dan komprehensif (minimal 800 hingga 1000 kata) dalam bahasa Indonesia tentang topik yang relevan dengan dunia pendidikan modern.
+Pilih secara mandiri topik yang spesifik, misalnya pemanfaatan AI untuk guru, metode pembelajaran kreatif, psikologi siswa, mengatasi kelelahan mengajar, dll.
+Penting: Berikan sudut pandang, pendekatan, dan gaya bahasa yang segar dan benar-benar unik. Pastikan judul yang Anda buat sangat menarik, clickbait yang edukatif, dan tidak pernah digunakan sebelumnya.
 
-Berikan perspektif baru dan buat seolah-olah artikel ini unik (ID: ${randomId}).
 Artikel harus menggunakan format Markdown.
 Berikan sebuah judul utama H1 (# Judul) di baris pertama.
 Sertakan subjudul (H2) dan poin-poin (bullet points) untuk memudahkan pembacaan.`;
