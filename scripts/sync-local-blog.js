@@ -26,9 +26,13 @@ for (const file of files) {
 
 fs.writeFileSync('temp_sync.sql', sql);
 console.log('SQL dump created. Executing...');
+
+const isRemote = process.argv.includes('--remote');
+const target = isRemote ? '--remote' : '--local';
+
 try {
-  execSync('npx wrangler d1 execute DB --local --file=temp_sync.sql', { stdio: 'inherit' });
-  console.log('Berhasil!');
+  execSync(`npx wrangler d1 execute pemuryadi-db ${target} --file=temp_sync.sql`, { stdio: 'inherit' });
+  console.log(`Berhasil sync ke ${target}!`);
 } catch (e) {
   console.error('Gagal', e.message);
 } finally {
