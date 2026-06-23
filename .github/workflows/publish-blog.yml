@@ -17,6 +17,6 @@ jobs:
           POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
           API_URL: ${{ vars.API_URL }}
         run: |
-          URL="${API_URL:-https://digen.id}"
+          URL="${API_URL:-https://pemuryadi-generator.pages.dev}"
           curl -X POST "$URL/api/blog/cron?secret=$POLLINATIONS_API_KEY" \
             -H "Content-Type: application/json"

@@ -17,7 +17,7 @@ jobs:
           POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
           API_URL: ${{ vars.API_URL }}
         run: |
-          URL="${API_URL:-https://digen.id}"
+          URL="${API_URL:-https://pemuryadi-generator.pages.dev}"
           for file in content/blog/*.md; do
             if [ -f "$file" ]; then
               # Mengambil baris pertama sebagai judul (mengabaikan karakter #)

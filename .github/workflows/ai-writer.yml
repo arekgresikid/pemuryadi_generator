@@ -42,7 +42,7 @@ jobs:
           POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
           API_URL: ${{ vars.API_URL }}
         run: |
-          URL="${API_URL:-https://digen.id}"
+          URL="${API_URL:-https://pemuryadi-generator.pages.dev}"
           # Gunakan file-file yang ada di dalam content/blog/ (upload-blog script juga akan memprosesnya)
           for file in content/blog/*.md; do
             if [ -f "$file" ]; then
