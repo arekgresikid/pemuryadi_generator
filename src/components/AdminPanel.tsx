@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Shield, ShieldAlert, Edit2, Users, Search, Save, X, Calendar, Crown, Trash2, Plus, Settings, Power, Download, Activity, MessageSquare, Phone, DollarSign, Star, FileText } from 'lucide-react';
+import { Shield, ShieldAlert, Edit2, Users, Search, Save, X, Calendar, Crown, Trash2, Plus, Settings, Power, Download, Activity, MessageSquare, Phone, DollarSign, Star, FileText, Terminal } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import toast from 'react-hot-toast';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
@@ -7,6 +7,7 @@ import InvoiceGenerator from './InvoiceGenerator';
 import ReactMarkdown from 'react-markdown';
 import prdContent from '../../PRD.md?raw';
 import BlogAdminPanel from './BlogAdminPanel';
+import LocalDevGuide from './LocalDevGuide';
 
 export default function AdminPanel() {
   const { profile } = useAuth();
@@ -669,6 +670,12 @@ export default function AdminPanel() {
           >
             <Edit2 size={16} /> Blog
           </button>
+          <button 
+            onClick={() => setActiveTab('local-dev')}
+            className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'local-dev' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <Terminal size={16} /> Panduan Lokal
+          </button>
         </div>
       </div>
 
@@ -810,6 +817,12 @@ export default function AdminPanel() {
             <Edit2 className="text-blue-600" size={24} /> Blog Management
           </h3>
           <BlogAdminPanel />
+        </div>
+      )}
+
+      {activeTab === 'local-dev' && (
+        <div className="animate-in fade-in zoom-in-95 duration-300">
+          <LocalDevGuide />
         </div>
       )}
 

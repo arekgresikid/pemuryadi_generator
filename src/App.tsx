@@ -411,7 +411,6 @@ export default function App() {
       icon: <BookOpen size={20} />, 
       label: 'Administrasi',
       dropdown: [
-        { id: 'local-dev-guide', icon: <Terminal size={16} />, label: 'Panduan Lokal', premiumOnly: false },
         { id: 'mengajar-harian', icon: <Clipboard size={16} />, label: 'Mengajar Harian' },
         { id: 'kalender-pendidikan', icon: <Calendar size={16} />, label: 'Kalender Pendidikan' },
         { id: 'analisis-hari-efektif', icon: <Calculator size={16} />, label: 'Analisis Hari Efektif' },
@@ -768,7 +767,6 @@ export default function App() {
             {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
             {activeTab === 'laporan-kegiatan' && <LaporanKegiatan />}
-            {activeTab === 'local-dev-guide' && <LocalDevGuide />}
             {activeTab === 'evaluasi-mutu' && <EvaluasiMutu />}
             {activeTab === 'reports' && <Reports />}
             {activeTab === 'strategic-advisor' && <StrategicAdvisor />}
