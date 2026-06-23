@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Check, X, FileText, Upload, Calendar, Save, Edit, Info } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, FileText, Upload, Calendar, Save, Edit, Info, Eye } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import toast from 'react-hot-toast';
 
 export default function BlogAdminPanel() {
@@ -12,6 +14,7 @@ export default function BlogAdminPanel() {
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+  const [previewPost, setPreviewPost] = useState<any | null>(null);
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
@@ -312,9 +315,12 @@ export default function BlogAdminPanel() {
                             <button onClick={() => handleEditClick(post.id)} className="p-2 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-lg transition-colors" title="Edit Konten">
                               <Edit size={16} />
                             </button>
+                            <button onClick={() => setPreviewPost(post)} className="p-2 bg-indigo-100 text-indigo-600 hover:bg-indigo-200 rounded-lg transition-colors" title="Lihat Pratinjau">
+                              <Eye size={16} />
+                            </button>
                             {post.status !== 'draft' && (
                               <button onClick={() => handleAction(post.id, 'draft')} className="p-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors" title="Jadikan Draf">
-                                <Edit2 size={16} />
+                                <Save size={16} />
                               </button>
                             )}
                             {post.status !== 'rejected' && (
@@ -514,6 +520,34 @@ export default function BlogAdminPanel() {
                 className="flex-1 py-3 px-4 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all hover:-translate-y-0.5"
               >
                 Ya, Hapus!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewPost && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-3xl">
+              <h3 className="font-bold text-gray-900 text-xl">Pratinjau Artikel</h3>
+              <button onClick={() => setPreviewPost(null)} className="text-gray-500 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-8 overflow-y-auto prose prose-blue max-w-none prose-img:rounded-xl">
+              <h1 className="text-3xl font-black text-gray-900 mb-6">{previewPost.title}</h1>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {previewPost.content}
+              </ReactMarkdown>
+            </div>
+            <div className="p-4 bg-gray-50 border-t flex justify-end rounded-b-3xl">
+              <button 
+                onClick={() => setPreviewPost(null)}
+                className="px-6 py-2.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+              >
+                Tutup Pratinjau
               </button>
             </div>
           </div>
