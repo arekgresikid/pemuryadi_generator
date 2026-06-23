@@ -36,7 +36,7 @@ Tugas Anda adalah menulis sebuah artikel blog yang sangat mendalam dan komprehen
 Pilih secara mandiri topik yang spesifik, misalnya pemanfaatan AI untuk guru, metode pembelajaran kreatif, psikologi siswa, mengatasi kelelahan mengajar, dll.
 Penting: Berikan sudut pandang, pendekatan, dan gaya bahasa yang segar dan benar-benar unik. Pastikan judul yang Anda buat sangat menarik, clickbait yang edukatif, dan tidak pernah digunakan sebelumnya.
 
-Artikel harus menggunakan format Markdown.
+Artikel harus seo friendly dan pastikan menggunakan format Markdown.
 Berikan sebuah judul utama H1 (# Judul) di baris pertama.
 Sertakan subjudul (H2) dan poin-poin (bullet points) untuk memudahkan pembacaan.`;
 
