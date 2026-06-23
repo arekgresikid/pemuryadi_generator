@@ -1,0 +1,41 @@
+name: Upload Blog Posts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'content/blog/**'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Upload Markdown Files to Dashboard
+        env:
+          POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          URL="${API_URL:-https://digen.id}"
+          for file in content/blog/*.md; do
+            if [ -f "$file" ]; then
+              # Mengambil baris pertama sebagai judul (mengabaikan karakter #)
+              # Jika kosong, gunakan nama file
+              title=$(head -n 1 "$file" | sed 's/^# *//' | tr -d '\r')
+              if [ -z "$title" ]; then
+                title=$(basename "$file" .md)
+              fi
+              
+              content=$(cat "$file")
+              
+              # Membuat payload JSON yang valid
+              json=$(jq -n --arg t "$title" --arg c "$content" '{title: $t, content: $c}')
+              
+              echo "Mengunggah: $title"
+              curl -X POST "$URL/api/blog/github-upload?secret=$POLLINATIONS_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "$json"
+              echo ""
+            fi
+          done

@@ -41,6 +41,8 @@ import MatchingPairs from './components/MatchingPairs';
 import FillBlanks from './components/FillBlanks';
 import UnscrambleLetters from './components/UnscrambleLetters';
 import GamesHub from './components/GamesHub';
+import Blog from './components/Blog';
+import BlogPost from './components/BlogPost';
 
 import EvaluasiMutu from './components/EvaluasiMutu';
 import Reports from './components/Reports';
@@ -451,6 +453,7 @@ export default function App() {
       ]
     },
     { id: 'worksheet', icon: <FileText size={20} />, label: 'Worksheet' },
+    { id: 'blog', icon: <BookOpen size={20} />, label: 'Blog' },
     { id: 'barcode-generator', icon: <QrCode size={20} />, label: 'Generator Barcode' },
     { 
       id: 'game-ifp', 
@@ -777,6 +780,8 @@ export default function App() {
             {activeTab === 'pricing' && <Pricing />}
             {activeTab === 'admin-panel' && <AdminPanel />}
             {activeTab === 'changelog' && <Changelog />}
+            {activeTab === 'blog' && <Blog />}
+            {activeTab.startsWith('blog/') && <BlogPost slug={activeTab.replace('blog/', '')} />}
           </div>
         </div>
       </main>

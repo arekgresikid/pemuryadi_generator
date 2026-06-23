@@ -1,0 +1,20 @@
+name: Auto Publish Blog
+
+on:
+  schedule:
+    # 03:00 UTC is 10:00 WIB. Runs every Sunday.
+    - cron: '0 3 * * 0'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Publish Blog Endpoint
+        env:
+          POLLINATIONS_API_KEY: ${{ secrets.POLLINATIONS_API_KEY }}
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          URL="${API_URL:-https://digen.id}"
+          curl -X POST "$URL/api/blog/cron?secret=$POLLINATIONS_API_KEY" \
+            -H "Content-Type: application/json"

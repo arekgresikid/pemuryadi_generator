@@ -49,3 +49,14 @@ CREATE TABLE admin_logs (
   action TEXT,
   created_at TEXT
 );
+
+DROP TABLE IF EXISTS blog_posts;
+CREATE TABLE blog_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL UNIQUE,
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'pending', -- pending, draft, approved, published, rejected
+  uploaded_at INTEGER NOT NULL,
+  published_at INTEGER
+);

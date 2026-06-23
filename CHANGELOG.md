@@ -2,6 +2,12 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.5] - 24 Juni 2026
+- Memperbaiki duplikasi deklarasi POLLINATIONS_API_KEY pada bindings API Cloudflare.
+- Menyelesaikan masalah TypeScript ('unknown' is not assignable to 'SetStateAction') pada BlogAdminPanel dan BlogPost.
+- Menambahkan fitur Client-Side Pagination pada halaman utama Blog (6 artikel per halaman).
+- Menambahkan fitur Artikel Terkait (Related Posts) secara acak pada bagian bawah halaman baca artikel.
+
 ## [5.3.4] - 21 Juni 2026
 - Menambahkan file PRD (Product Requirements Document) dan menampilkannya secara langsung pada tab baru di Admin Dashboard.
 - Mengganti ikon utama (favicon) dan logo aplikasi menggunakan desain yang baru.

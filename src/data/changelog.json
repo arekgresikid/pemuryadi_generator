@@ -1,8 +1,20 @@
 [
   {
+    "version": "5.3.5",
+    "date": "24 Juni 2026",
+    "badge": "Terbaru",
+    "icon": "Wrench",
+    "commits": [
+      "Memperbaiki duplikasi deklarasi POLLINATIONS_API_KEY pada bindings API Cloudflare.",
+      "Menyelesaikan masalah TypeScript ('unknown' is not assignable to 'SetStateAction') pada BlogAdminPanel dan BlogPost.",
+      "Menambahkan fitur Client-Side Pagination pada halaman utama Blog (6 artikel per halaman).",
+      "Menambahkan fitur Artikel Terkait (Related Posts) secara acak pada bagian bawah halaman baca artikel."
+    ]
+  },
+  {
     "version": "5.3.4",
     "date": "21 Juni 2026",
-    "badge": "Terbaru",
+    "badge": null,
     "icon": "Rocket",
     "commits": [
       "Menambahkan file PRD (Product Requirements Document) dan menampilkannya secara langsung pada tab baru di Admin Dashboard.",

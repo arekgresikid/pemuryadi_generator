@@ -6,6 +6,7 @@ import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 
 type Bindings = {
   DB: D1Database
+  POLLINATIONS_API_KEY?: string
   GOOGLE_CLIENT_ID: string
   GOOGLE_CLIENT_SECRET: string
   JWT_SECRET: string
@@ -82,7 +83,7 @@ app.use('/*', async (c, next) => {
     }
   }
   // Public routes
-  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/native-login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings')) {
+  if (path.startsWith('/api/auth/login') || path.startsWith('/api/auth/native-login') || path.startsWith('/api/auth/callback') || path.startsWith('/api/stats') || path.startsWith('/api/settings') || path.startsWith('/api/blog/cron') || path.startsWith('/api/blog/public')) {
     return next();
   }
 
@@ -970,6 +971,256 @@ app.post('/admin/settings', async (c) => {
     return c.json({ success: true, key, value });
   } catch (e) {
     return c.json({ error: 'Failed to save setting' }, 500);
+  }
+});
+
+// --- Blog Routes ---
+app.post('/blog/upload', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { title, content } = body;
+  
+  if (!title || !content) return c.json({ error: 'Title and content are required' }, 400);
+
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  const id = crypto.randomUUID();
+  const now = Date.now();
+
+  try {
+    await db.prepare(
+      `INSERT INTO blog_posts (id, title, slug, content, status, uploaded_at) VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(id, title, slug, content, 'pending', now).run();
+    return c.json({ success: true, id, slug });
+  } catch (e: any) {
+    if (e.message.includes('UNIQUE')) {
+      return c.json({ error: 'A post with a similar title already exists.' }, 400);
+    }
+    return c.json({ error: 'Failed to create post' }, 500);
+  }
+});
+
+// Endpoint untuk GitHub Action mengunggah file Markdown secara otomatis
+app.post('/blog/github-upload', async (c) => {
+  const secret = c.req.query('secret');
+  if (secret !== c.env.POLLINATIONS_API_KEY) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const body = await c.req.json();
+  const { title, content } = body;
+  
+  if (!title || !content) return c.json({ error: 'Title and content are required' }, 400);
+
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  const id = crypto.randomUUID();
+  const now = Date.now();
+
+  const db = c.env.DB;
+  try {
+    // Check if slug already exists to prevent duplicates from multiple github action runs
+    const existing = await db.prepare('SELECT id FROM blog_posts WHERE slug = ?').bind(slug).first();
+    if (existing) {
+      // Update existing post content but keep status (don't override if already approved/published)
+      // Actually, if they push a fix, we might want to update it. Let's update content.
+      await db.prepare('UPDATE blog_posts SET content = ? WHERE slug = ?').bind(content, slug).run();
+      return c.json({ success: true, message: 'Post updated', slug });
+    }
+
+    await db.prepare(
+      `INSERT INTO blog_posts (id, title, slug, content, status, uploaded_at) VALUES (?, ?, ?, ?, ?, ?)`
+    ).bind(id, title, slug, content, 'pending', now).run();
+    return c.json({ success: true, id, slug });
+  } catch (e: any) {
+    return c.json({ error: 'Failed to create post via github' }, 500);
+  }
+});
+
+app.get('/blog/admin/posts', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  try {
+    const { results } = await db.prepare('SELECT id, title, slug, status, uploaded_at, published_at FROM blog_posts ORDER BY uploaded_at DESC').all();
+    return c.json(results);
+  } catch (e) {
+    return c.json({ error: 'Failed to fetch posts' }, 500);
+  }
+});
+
+app.put('/blog/admin/action', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { id, action } = body; // action: 'approve', 'draft', 'reject'
+  
+  if (!id || !action) return c.json({ error: 'ID and action are required' }, 400);
+
+  let newStatus = 'pending';
+  if (action === 'approve') newStatus = 'published';
+  else if (action === 'draft') newStatus = 'draft';
+  else if (action === 'reject') newStatus = 'rejected';
+  else return c.json({ error: 'Invalid action' }, 400);
+
+  try {
+    await db.prepare('UPDATE blog_posts SET status = ? WHERE id = ?').bind(newStatus, id).run();
+    return c.json({ success: true, status: newStatus });
+  } catch (e) {
+    return c.json({ error: 'Failed to update post' }, 500);
+  }
+});
+
+app.get('/blog/admin/post/:id', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const id = c.req.param('id');
+  try {
+    const post = await db.prepare('SELECT id, title, content FROM blog_posts WHERE id = ?').bind(id).first();
+    if (!post) return c.json({ error: 'Post not found' }, 404);
+    return c.json(post);
+  } catch (e) {
+    return c.json({ error: 'Failed to fetch post' }, 500);
+  }
+});
+
+app.put('/blog/admin/post/:id', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const id = c.req.param('id');
+  const body = await c.req.json();
+  const { title, content } = body;
+  
+  if (!title || !content) return c.json({ error: 'Title and content are required' }, 400);
+
+  try {
+    await db.prepare('UPDATE blog_posts SET title = ?, content = ? WHERE id = ?').bind(title, content, id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: 'Failed to update post' }, 500);
+  }
+});
+
+app.delete('/blog/admin/post/:id', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const id = c.req.param('id');
+  try {
+    await db.prepare('DELETE FROM blog_posts WHERE id = ?').bind(id).run();
+    return c.json({ success: true });
+  } catch (e) {
+    return c.json({ error: 'Failed to delete post' }, 500);
+  }
+});
+
+app.delete('/blog/admin/posts', async (c) => {
+  const user = c.get('user');
+  if (!user) return c.json({ error: 'Unauthorized' }, 401);
+  
+  const db = c.env.DB;
+  const adminProfile = await db.prepare('SELECT role FROM users WHERE uid = ?').bind(user.uid).first();
+  if (!adminProfile || ((adminProfile.role as string)?.toLowerCase() !== 'owner' && (adminProfile.role as string)?.toLowerCase() !== 'admin')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  const body = await c.req.json();
+  const { ids } = body;
+  
+  if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    return c.json({ error: 'No IDs provided' }, 400);
+  }
+
+  try {
+    const placeholders = ids.map(() => '?').join(',');
+    await db.prepare(`DELETE FROM blog_posts WHERE id IN (${placeholders})`).bind(...ids).run();
+    return c.json({ success: true, count: ids.length });
+  } catch (e) {
+    return c.json({ error: 'Failed to delete posts' }, 500);
+  }
+});
+
+app.get('/blog/public', async (c) => {
+  const db = c.env.DB;
+  try {
+    // Also include posts that were 'pending' for > 6 hours as virtually published
+    const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
+    const { results } = await db.prepare(
+      `SELECT id, title, slug, content, status, uploaded_at, published_at 
+       FROM blog_posts 
+       WHERE status = 'published' OR (status = 'pending' AND uploaded_at < ?)
+       ORDER BY COALESCE(published_at, uploaded_at) DESC`
+    ).bind(sixHoursAgo).all();
+    return c.json(results);
+  } catch (e) {
+    return c.json({ error: 'Failed to fetch public posts' }, 500);
+  }
+});
+
+// Endpoint called by GitHub Actions
+app.post('/blog/cron', async (c) => {
+  const secret = c.req.query('secret');
+  if (secret !== c.env.POLLINATIONS_API_KEY) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  const db = c.env.DB;
+  const now = Date.now();
+  const sixHoursAgo = now - (6 * 60 * 60 * 1000);
+
+  try {
+    // 1. Publish posts that were 'pending' for more than 6 hours
+    await db.prepare(
+      `UPDATE blog_posts SET status = 'published', published_at = ? WHERE status = 'pending' AND uploaded_at < ?`
+    ).bind(now, sixHoursAgo).run();
+
+    // 2. Publish all 'approved' posts (this implements the weekly schedule publishing them)
+    await db.prepare(
+      `UPDATE blog_posts SET status = 'published', published_at = ? WHERE status = 'approved'`
+    ).bind(now).run();
+
+    return c.json({ success: true, message: 'Cron executed successfully' });
+  } catch (e) {
+    return c.json({ error: 'Failed to execute cron' }, 500);
   }
 });
 

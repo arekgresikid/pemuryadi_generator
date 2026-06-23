@@ -6,6 +6,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import InvoiceGenerator from './InvoiceGenerator';
 import ReactMarkdown from 'react-markdown';
 import prdContent from '../../PRD.md?raw';
+import BlogAdminPanel from './BlogAdminPanel';
 
 export default function AdminPanel() {
   const { profile } = useAuth();
@@ -597,33 +598,35 @@ export default function AdminPanel() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black italic text-blue-600 flex items-center gap-2">
-            <Shield size={24} /> ADMIN DASHBOARD
-          </h2>
-          <p className="text-xs text-gray-500 mb-2">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl font-black italic text-blue-600 flex items-center gap-2">
+              <Shield size={24} /> ADMIN DASHBOARD
+            </h2>
+            <p className="text-xs text-gray-500 mt-1">Kelola pengguna, log aktivitas, dan pengaturan sistem.</p>
+          </div>
           <div className="flex gap-2 items-center flex-wrap">
             <button 
               onClick={() => setShowSkillModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
-              <Download size={12} /> Unduh Skill Dev
-              <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[8px] font-black uppercase tracking-wider border border-red-200">
+              <Download size={14} /> Unduh Skill Dev
+              <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 text-[9px] font-black uppercase tracking-wider border border-red-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                 Update
               </span>
             </button>
             <button 
               onClick={() => setShowHelpModal(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg text-[10px] font-bold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-xl text-xs font-bold transition-colors cursor-pointer"
             >
-              <ShieldAlert size={12} /> Panduan Admin
+              <ShieldAlert size={14} /> Panduan Admin
             </button>
           </div>
         </div>
         
-        <div className="flex flex-wrap gap-2 w-full md:w-auto bg-gray-100 p-1 rounded-xl">
+        <div className="flex flex-wrap gap-2 w-full bg-gray-50/80 p-1.5 rounded-xl border border-gray-100">
           <button 
             onClick={() => setActiveTab('overview')}
             className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'overview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
@@ -659,6 +662,12 @@ export default function AdminPanel() {
             className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'prd' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
             <FileText size={16} /> PRD
+          </button>
+          <button 
+            onClick={() => setActiveTab('blog')}
+            className={`flex-1 md:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${activeTab === 'blog' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            <Edit2 size={16} /> Blog
           </button>
         </div>
       </div>
@@ -792,6 +801,15 @@ export default function AdminPanel() {
           <div className="prose prose-sm max-w-none markdown-body h-[65vh] overflow-y-auto pr-4 custom-scrollbar">
             <ReactMarkdown>{prdContent}</ReactMarkdown>
           </div>
+        </div>
+      )}
+
+      {activeTab === 'blog' && (
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-300">
+          <h3 className="font-bold text-gray-800 mb-6 text-xl flex items-center gap-2">
+            <Edit2 className="text-blue-600" size={24} /> Blog Management
+          </h3>
+          <BlogAdminPanel />
         </div>
       )}
 
