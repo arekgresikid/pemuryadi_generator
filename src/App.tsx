@@ -48,6 +48,7 @@ import EvaluasiMutu from './components/EvaluasiMutu';
 import Reports from './components/Reports';
 import StrategicAdvisor from './components/StrategicAdvisor';
 import LaporanKegiatan from './components/LaporanKegiatan';
+import LocalDevGuide from './components/LocalDevGuide';
 
 // Layout Components
 import Sidebar, { MenuItem } from './components/layout/Sidebar';
@@ -424,7 +425,8 @@ export default function App() {
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
-        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
+        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true },
+        { id: 'local-dev-guide', icon: <Terminal size={16} />, label: 'Panduan Lokal', titanOnly: true }
       ]
     },
     {
@@ -766,6 +768,7 @@ export default function App() {
             {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
             {activeTab === 'laporan-kegiatan' && <LaporanKegiatan />}
+            {activeTab === 'local-dev-guide' && <LocalDevGuide />}
             {activeTab === 'evaluasi-mutu' && <EvaluasiMutu />}
             {activeTab === 'reports' && <Reports />}
             {activeTab === 'strategic-advisor' && <StrategicAdvisor />}
