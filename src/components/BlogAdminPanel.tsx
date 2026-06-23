@@ -473,7 +473,7 @@ export default function BlogAdminPanel() {
             
             <div className="p-8 space-y-6 text-gray-700 max-h-[70vh] overflow-y-auto">
               <p className="text-lg font-medium text-gray-900 border-b pb-4">
-                Sistem blog ini menggunakan pendekatan **"AI-Assisted Editorial Workflow"**, yang menggabungkan kecepatan AI dengan kontrol penuh dari tim Redaksi (Anda).
+                Sistem blog ini menggunakan pendekatan <strong>"AI-Assisted Editorial Workflow"</strong>, yang menggabungkan kecepatan AI dengan kontrol penuh dari tim Redaksi (Anda).
               </p>
 
               <div className="space-y-4">
