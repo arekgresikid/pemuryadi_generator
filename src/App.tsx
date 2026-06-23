@@ -411,6 +411,7 @@ export default function App() {
       icon: <BookOpen size={20} />, 
       label: 'Administrasi',
       dropdown: [
+        { id: 'local-dev-guide', icon: <Terminal size={16} />, label: 'Panduan Lokal', premiumOnly: false },
         { id: 'mengajar-harian', icon: <Clipboard size={16} />, label: 'Mengajar Harian' },
         { id: 'kalender-pendidikan', icon: <Calendar size={16} />, label: 'Kalender Pendidikan' },
         { id: 'analisis-hari-efektif', icon: <Calculator size={16} />, label: 'Analisis Hari Efektif' },
@@ -425,8 +426,7 @@ export default function App() {
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
-        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true },
-        { id: 'local-dev-guide', icon: <Terminal size={16} />, label: 'Panduan Lokal', titanOnly: true }
+        { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
       ]
     },
     {
