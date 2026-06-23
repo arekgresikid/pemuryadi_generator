@@ -381,6 +381,15 @@ export default function BlogAdminPanel() {
               placeholder="Ketik isi artikel dalam format Markdown..."
               required
             ></textarea>
+            <div className="mt-2 text-xs text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-100">
+              <strong className="text-blue-700 block mb-1">Panduan Format Markdown:</strong>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Gunakan <code>**tebal**</code> untuk teks tebal dan <code>*miring*</code> untuk teks miring.</li>
+                <li>Buat judul (Heading) menggunakan tanda pagar: <code>## Subjudul</code> atau <code>### Sub-subjudul</code>. <span className="text-red-500">Jangan gunakan <code># Judul Utama</code></span> karena judul utama otomatis ditambahkan dari isian Judul Artikel.</li>
+                <li>Tambahkan gambar dengan format: <code>![Teks Alternatif](URL_GAMBAR)</code></li>
+                <li>Buat daftar dengan tanda minus <code>- item 1</code> atau angka <code>1. item pertama</code>.</li>
+              </ul>
+            </div>
           </div>
           <div className="flex justify-end">
             <button 
@@ -423,6 +432,15 @@ export default function BlogAdminPanel() {
               placeholder="Ketik isi artikel dalam format Markdown..."
               required
             ></textarea>
+            <div className="mt-2 text-xs text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-100">
+              <strong className="text-blue-700 block mb-1">Panduan Format Markdown:</strong>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Gunakan <code>**tebal**</code> untuk teks tebal dan <code>*miring*</code> untuk teks miring.</li>
+                <li>Buat judul (Heading) menggunakan tanda pagar: <code>## Subjudul</code> atau <code>### Sub-subjudul</code>. <span className="text-red-500">Jangan gunakan <code># Judul Utama</code></span> karena judul utama otomatis ditambahkan dari isian Judul Artikel.</li>
+                <li>Tambahkan gambar dengan format: <code>![Teks Alternatif](URL_GAMBAR)</code></li>
+                <li>Buat daftar dengan tanda minus <code>- item 1</code> atau angka <code>1. item pertama</code>.</li>
+              </ul>
+            </div>
           </div>
           <div className="flex justify-end">
             <button 
@@ -470,17 +488,27 @@ export default function BlogAdminPanel() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">2</div>
                   <div>
-                    <h3 className="font-bold text-gray-900">Admin Melakukan Review & Edit</h3>
+                    <h3 className="font-bold text-gray-900">Melihat Pratinjau (Preview)</h3>
                     <p className="mt-1 text-sm leading-relaxed">
-                      Sebagai Editor, Anda dapat masuk ke panel ini kapan saja untuk meninjau kiriman AI. Gunakan ikon <strong>Edit (Ungu)</strong> untuk menyempurnakan gaya bahasa, mengoreksi, atau menambahkan sentuhan spesifik <em>brand</em> Digen.id pada konten tersebut.
+                      Gunakan tombol <strong>Mata (Nila/Indigo)</strong> untuk melihat bagaimana artikel akan ditampilkan kepada audiens nantinya (pratinjau) sebelum Anda memutuskan untuk mempublikasikannya.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold">3</div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Review, Edit & Simpan Sebagai Draf</h3>
+                    <p className="mt-1 text-sm leading-relaxed">
+                      Jika konten butuh penyesuaian, klik tombol <strong>Edit (Ungu)</strong> untuk memperbaiki gaya bahasa. Jika masih belum selesai diedit namun Anda ingin menyimpannya, tekan tombol <strong>Disket (Abu-abu)</strong> untuk mengubah statusnya menjadi <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs font-bold mx-1">DRAFT</span>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">4</div>
                   <div>
                     <h3 className="font-bold text-gray-900">Publikasi Instan (Tayang Seketika)</h3>
                     <p className="mt-1 text-sm leading-relaxed">
