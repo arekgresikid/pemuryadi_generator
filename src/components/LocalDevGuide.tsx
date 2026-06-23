@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Database, Play, Server, RefreshCw } from 'lucide-react';
+import { Terminal, Database, Play, Server, RefreshCw, Key } from 'lucide-react';
 
 const LocalDevGuide: React.FC = () => {
   return (
@@ -18,9 +18,43 @@ const LocalDevGuide: React.FC = () => {
 
       <div className="space-y-8">
         {/* Step 1 */}
+        <section className="bg-orange-50 rounded-xl p-6 border border-orange-100">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 text-sm">1</span>
+            Persiapan Environment Variables (.dev.vars & .env)
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Untuk menjalankan aplikasi ini secara lokal dengan fitur penuh, Anda memerlukan dua file environment variable rahasia:
+          </p>
+          <ul className="list-disc ml-6 text-gray-600 space-y-2 mb-4">
+            <li><strong>.dev.vars</strong> - Variabel Backend (Cloudflare) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_ID</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_SECRET</code>, dan <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">JWT_SECRET</code>.</li>
+            <li><strong>.env</strong> - Variabel Frontend (Vite) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">VITE_POLLINATIONS_API_KEY</code>.</li>
+          </ul>
+          <div className="bg-white rounded-lg p-4 border border-orange-200">
+            <p className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+              <Key size={16} className="text-orange-500" /> Cara Mendapatkan File:
+            </p>
+            <p className="text-sm text-gray-600 mb-3">
+              Karena data ini sangat rahasia (kredensial API), Anda harus mengunduhnya dari Google Drive khusus developer. <strong>Akses harus diizinkan terlebih dahulu.</strong>
+            </p>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">
+                1. Minta izin akses dengan mengirim email ke: <a href="mailto:arekgresikid@gmail.com" className="text-blue-600 font-medium hover:underline">arekgresikid@gmail.com</a>
+              </p>
+              <p className="text-sm text-gray-600">
+                2. Buka link Google Drive: <a href="https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link" target="_blank" rel="noreferrer" className="text-blue-600 font-medium hover:underline break-all">https://drive.google.com/drive/folders/1lhYeUunLFNZYy3DFBM2vU9BKeZqZ6ikz?usp=drive_link</a>
+              </p>
+              <p className="text-sm text-gray-600">
+                3. Unduh file <code>.dev.vars</code> dan <code>.env</code> lalu simpan di folder utama (root) project Anda.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Step 2 */}
         <section className="bg-gray-50 rounded-xl p-6 border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">1</span>
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">2</span>
             Menjalankan Backend (Cloudflare Pages Dev)
           </h2>
           <p className="text-gray-600 mb-4">
@@ -34,10 +68,10 @@ const LocalDevGuide: React.FC = () => {
           </p>
         </section>
 
-        {/* Step 2 */}
+        {/* Step 3 */}
         <section className="bg-gray-50 rounded-xl p-6 border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">2</span>
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">3</span>
             Menjalankan Frontend (React/Vite)
           </h2>
           <p className="text-gray-600 mb-4">
@@ -51,10 +85,10 @@ const LocalDevGuide: React.FC = () => {
           </p>
         </section>
 
-        {/* Step 3 */}
+        {/* Step 4 */}
         <section className="bg-blue-50/50 rounded-xl p-6 border border-blue-100">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">3</span>
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">4</span>
             Sinkronisasi Database Lokal dengan Livesite (Remote)
           </h2>
           <p className="text-gray-600 mb-4">
@@ -75,10 +109,10 @@ const LocalDevGuide: React.FC = () => {
           </div>
         </section>
 
-        {/* Step 4 */}
+        {/* Step 5 */}
         <section className="bg-gray-50 rounded-xl p-6 border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">4</span>
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">5</span>
             Login / Logout Wrangler
           </h2>
           <p className="text-gray-600 mb-4">
