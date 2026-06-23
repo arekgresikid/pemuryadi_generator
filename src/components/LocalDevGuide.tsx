@@ -27,7 +27,6 @@ const LocalDevGuide: React.FC = () => {
             Untuk menjalankan aplikasi ini secara lokal dengan fitur penuh, Anda memerlukan dua file environment variable rahasia:
           </p>
           <ul className="list-disc ml-6 text-gray-600 space-y-2 mb-4">
-          <ul className="list-disc ml-6 text-gray-600 space-y-2 mb-4">
             <li><strong>.dev.vars</strong> - Variabel Backend (Cloudflare) seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_ID</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">GOOGLE_CLIENT_SECRET</code>, <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">JWT_SECRET</code>, dan API Key seperti <code className="bg-gray-200 px-1 rounded text-sm text-gray-800">POLLINATIONS_API_KEY</code>.</li>
             <li><strong>.env</strong> - Variabel Frontend (Vite) untuk pengaturan khusus sisi klien (jika ada).</li>
           </ul>
