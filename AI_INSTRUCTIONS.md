@@ -174,6 +174,18 @@ Sistem cetak harus berjalan di luar modal / frame utama karena layout HTML ke PD
 
 ---
 
+## 🛡️ AI Vibe Coding (Visual-Only Changes)
+
+If the user requests visual, UI/UX, or layout changes (commonly referred to as "Vibe Coding"), apply the following strict rules to prevent breaking the application's functionality:
+
+1. **Do Not Modify Logic & State:** DO NOT touch, alter, or add `useState`, `useEffect`, `Context`, API connections (`api.ts`), or any currently functioning logic.
+2. **Focus on Tailwind:** Restrict your changes **ONLY** to modifying Tailwind CSS class names, inline styles, HTML tags, or simple DOM structures for layout design purposes.
+3. **Do Not Refactor Components:** DO NOT break down components into new files, merge components, or modify component properties (props) unless explicitly instructed by the user.
+4. **DO NOT Delete Old Code:** Leave comments or old code that is unrelated to the UI exactly as it is. Do not attempt to silently refactor or "clean up" the code.
+5. **Ask Permission Before Changing Logic:** If a requested visual modification (e.g., adding an animation to a dropdown menu or tabs) requires adding logic (such as a new state), you **MUST** explain the reason and ask for permission before writing the code.
+
+---
+
 ## 🚀 Deployment
 
 Deployment via **Cloudflare Pages**:
