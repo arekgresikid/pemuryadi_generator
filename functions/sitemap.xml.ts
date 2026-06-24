@@ -87,6 +87,27 @@ export async function onRequest(context: any) {
   </url>`;
   }
 
+  try {
+    const db = context.env.DB;
+    if (db) {
+      const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
+      const { results } = await db.prepare(
+        `SELECT slug FROM blog_posts WHERE status = 'published' OR (status = 'pending' AND uploaded_at < ?)`
+      ).bind(sixHoursAgo).all();
+
+      for (const post of results) {
+        xml += `
+  <url>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`;
+      }
+    }
+  } catch (e) {
+    console.error('Sitemap blog error:', e);
+  }
+
   xml += `\n</urlset>`;
 
   return new Response(xml, {

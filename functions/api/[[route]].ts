@@ -1191,18 +1191,55 @@ app.delete('/blog/admin/posts', async (c) => {
 
 app.get('/blog/public', async (c) => {
   const db = c.env.DB;
+  const page = parseInt(c.req.query('page') || '1', 10);
+  const limit = parseInt(c.req.query('limit') || '1000', 10);
+  const offset = (page - 1) * limit;
+
   try {
-    // Also include posts that were 'pending' for > 6 hours as virtually published
     const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
+    const countRes = await db.prepare(
+      `SELECT COUNT(*) as total FROM blog_posts WHERE status = 'published' OR (status = 'pending' AND uploaded_at < ?)`
+    ).bind(sixHoursAgo).first();
+    const total = countRes ? countRes.total : 0;
+
     const { results } = await db.prepare(
       `SELECT id, title, slug, content, status, uploaded_at, published_at 
        FROM blog_posts 
        WHERE status = 'published' OR (status = 'pending' AND uploaded_at < ?)
-       ORDER BY COALESCE(published_at, uploaded_at) DESC`
-    ).bind(sixHoursAgo).all();
-    return c.json(results);
+       ORDER BY COALESCE(published_at, uploaded_at) DESC
+       LIMIT ? OFFSET ?`
+    ).bind(sixHoursAgo, limit, offset).all();
+    return c.json({ posts: results, total });
   } catch (e) {
     return c.json({ error: 'Failed to fetch public posts' }, 500);
+  }
+});
+
+app.get('/blog/public/:slug', async (c) => {
+  const db = c.env.DB;
+  const slug = c.req.param('slug');
+  try {
+    const sixHoursAgo = Date.now() - (6 * 60 * 60 * 1000);
+    const post = await db.prepare(
+      `SELECT id, title, slug, content, status, uploaded_at, published_at 
+       FROM blog_posts 
+       WHERE slug = ? AND (status = 'published' OR (status = 'pending' AND uploaded_at < ?))`
+    ).bind(slug, sixHoursAgo).first();
+
+    if (!post) {
+      return c.json({ error: 'Post not found' }, 404);
+    }
+
+    const { results: relatedPosts } = await db.prepare(
+      `SELECT id, title, slug, published_at, uploaded_at
+       FROM blog_posts
+       WHERE slug != ? AND (status = 'published' OR (status = 'pending' AND uploaded_at < ?))
+       ORDER BY RANDOM() LIMIT 3`
+    ).bind(slug, sixHoursAgo).all();
+
+    return c.json({ post, relatedPosts });
+  } catch (e) {
+    return c.json({ error: 'Failed to fetch post' }, 500);
   }
 });
 

@@ -11,17 +11,14 @@ export default function BlogPost({ slug }: { slug: string }) {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch('/api/blog/public');
+        const res = await fetch(`/api/blog/public/${slug}`);
         if (res.ok) {
-          const posts = await res.json() as any[];
-          const found = posts.find((p: any) => p.slug === slug);
-          setPost(found);
-          if (found) {
-            const others = posts.filter((p: any) => p.slug !== slug);
-            // Acak urutan agar artikel terkait bervariasi, ambil 3
-            const shuffled = others.sort(() => 0.5 - Math.random());
-            setRelatedPosts(shuffled.slice(0, 3));
-          }
+          const data = await res.json() as { post: any, relatedPosts: any[] };
+          setPost(data.post);
+          setRelatedPosts(data.relatedPosts || []);
+        } else {
+          setPost(null);
+          setRelatedPosts([]);
         }
       } catch (e) {
         console.error(e);

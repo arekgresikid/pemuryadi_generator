@@ -5,18 +5,21 @@ export default function Blog() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPosts, setTotalPosts] = useState(0);
   const postsPerPage = 6;
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    fetchPosts(currentPage);
+  }, [currentPage]);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page: number) => {
     try {
-      const res = await fetch('/api/blog/public');
+      setLoading(true);
+      const res = await fetch(`/api/blog/public?page=${page}&limit=${postsPerPage}`);
       if (res.ok) {
-        const data = await res.json() as any[];
-        setPosts(data);
+        const data = await res.json() as { posts: any[], total: number };
+        setPosts(data.posts);
+        setTotalPosts(data.total);
       }
     } catch (e) {
       console.error(e);
@@ -56,7 +59,7 @@ export default function Blog() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-              {posts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage).map((post) => (
+              {posts.map((post) => (
                 <a 
                   href={`/blog/${post.slug}`} 
                   key={post.id}
@@ -87,7 +90,7 @@ export default function Blog() {
             </div>
 
             {/* Pagination Controls */}
-            {posts.length > postsPerPage && (
+            {totalPosts > postsPerPage && (
               <div className="flex justify-center items-center gap-2 mt-12">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -98,7 +101,7 @@ export default function Blog() {
                   <ChevronLeft size={20} />
                 </button>
                 
-                {Array.from({ length: Math.ceil(posts.length / postsPerPage) }, (_, i) => (
+                {Array.from({ length: Math.ceil(totalPosts / postsPerPage) }, (_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
@@ -113,8 +116,8 @@ export default function Blog() {
                 ))}
 
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(posts.length / postsPerPage)))}
-                  disabled={currentPage === Math.ceil(posts.length / postsPerPage)}
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(totalPosts / postsPerPage)))}
+                  disabled={currentPage === Math.ceil(totalPosts / postsPerPage)}
                   className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Halaman Selanjutnya"
                 >
