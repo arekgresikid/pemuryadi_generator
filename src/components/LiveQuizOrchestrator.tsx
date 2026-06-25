@@ -216,6 +216,7 @@ export default function LiveQuizOrchestrator({ soalList }: LiveQuizOrchestratorP
                     )
                   })}
                 </div>
+             )}
              {(!soal.opsiTambahan || soal.opsiTambahan.length === 0) && (
                 <div className="mt-8">
                   <textarea
