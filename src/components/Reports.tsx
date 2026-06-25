@@ -2,14 +2,29 @@ import React, { useState } from 'react';
 import { BarChart, Printer, CheckCircle, FileText, Loader2, ArrowRight, UserCheck, BookOpen, Users, Presentation, CheckCircle2, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { GoogleGenAI } from '../lib/genai';
+import LogoUploader from './LogoUploader';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+
+// Helper to render letter header in print
+const renderLetterHeader = (useLogo: boolean, logoUrl: string | null, jenisSurat: string, nomorSurat: string) => {
+  return `
+    ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+      <h2 style="margin:0; text-transform: uppercase;">${jenisSurat || 'LAPORAN'}</h2>
+      ${nomorSurat ? `<p style="margin:0;">Nomor: ${nomorSurat}</p>` : ''}
+    </div>
+  `;
+};
 
 // Component for Kurikulum
-function KurikulumForm() {
+function KurikulumForm({ useLogo, setUseLogo, logoUrl, setLogoUrl }: any) {
   const [formData, setFormData] = useState({
     jenisLaporan: '',
     semester: '',
     ketercapaian: '',
-    kendala: ''
+    kendala: '',
+    nomorSurat: '',
+    jenisSurat: ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
@@ -24,6 +39,8 @@ function KurikulumForm() {
       const prompt = `Buatkan draf akhir Laporan Wakil Kepala Sekolah Bidang Kurikulum secara profesional.
 Data:
 Jenis Laporan: ${formData.jenisLaporan}
+Jenis Surat: ${formData.jenisSurat}
+Nomor Surat: ${formData.nomorSurat}
 Semester/Tahun Ajaran: ${formData.semester}
 Tingkat Ketercapaian Target: ${formData.ketercapaian}
 Kendala Utama: ${formData.kendala}
@@ -39,8 +56,7 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
           temperature: 0.2
         }
       });
-      const data = { text: response.text };
-      setResult(data.text);
+      setResult(response.text || '');
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -50,7 +66,24 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
 
   return (
     <div className="space-y-6">
+      <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
       <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Pilih Jenis Surat Pendidikan</label>
+          <select className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.jenisSurat} onChange={e => setFormData({...formData, jenisSurat: e.target.value})}>
+            <option value="">-- Pilih --</option>
+            <option value="Laporan Pelaksanaan Kegiatan">Laporan Pelaksanaan Kegiatan</option>
+            <option value="Surat Keputusan">Surat Keputusan</option>
+            <option value="Surat Tugas">Surat Tugas</option>
+            <option value="Surat Edaran">Surat Edaran</option>
+            <option value="Surat Undangan">Surat Undangan</option>
+            <option value="Memorandum">Memorandum</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Nomor Surat</label>
+          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.nomorSurat} onChange={e => setFormData({...formData, nomorSurat: e.target.value})} placeholder="Contoh: 421.2/001/SMA.1/2026" />
+        </div>
         <div>
           <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Pilih Jenis Laporan</label>
           <select className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.jenisLaporan} onChange={e => setFormData({...formData, jenisLaporan: e.target.value})}>
@@ -58,6 +91,8 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
             <option value="Evaluasi Pelaksanaan Kurikulum (KSP)">Evaluasi Pelaksanaan Kurikulum (KSP)</option>
             <option value="Laporan Kinerja Guru & Supervisi Akademik">Laporan Kinerja Guru & Supervisi Akademik</option>
             <option value="Analisis Hasil Asesmen Pemetaan Mutu">Analisis Hasil Asesmen Pemetaan Mutu</option>
+            <option value="Laporan Kelulusan dan Kenaikan Kelas">Laporan Kelulusan dan Kenaikan Kelas</option>
+            <option value="Laporan Penyelenggaraan Ujian Sekolah">Laporan Penyelenggaraan Ujian Sekolah</option>
           </select>
         </div>
         <div>
@@ -85,6 +120,7 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
       </div>
       {result && (
         <div id="printArea" className="mt-10 pt-10 border-t border-gray-100 print-area prose max-w-none text-sm break-words markdown-body">
+           <div dangerouslySetInnerHTML={{ __html: renderLetterHeader(useLogo, logoUrl, formData.jenisSurat, formData.nomorSurat) }} />
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen
@@ -96,12 +132,14 @@ Tampilkan dalam format Markdown formal tanpa basa-basi. Gunakan gaya penulisan l
 }
 
 // Component for Humas
-function HumasForm() {
+function HumasForm({ useLogo, setUseLogo, logoUrl, setLogoUrl }: any) {
   const [formData, setFormData] = useState({
     jenisLaporan: '',
     targetAudiens: '',
     programSukses: '',
-    feedback: ''
+    feedback: '',
+    nomorSurat: '',
+    jenisSurat: ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
@@ -116,6 +154,8 @@ function HumasForm() {
       const prompt = `Buatkan draf akhir Laporan Wakil Kepala Sekolah Bidang Humas secara profesional.
 Data:
 Fokus Laporan: ${formData.jenisLaporan}
+Jenis Surat: ${formData.jenisSurat}
+Nomor Surat: ${formData.nomorSurat}
 Target Mitra/Audiens: ${formData.targetAudiens}
 Aktivitas / Realisasi Kemitraan: ${formData.programSukses}
 Tanggapan Publik/Mitra (Feedback): ${formData.feedback}
@@ -131,7 +171,7 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
           temperature: 0.2
         }
       });
-      setResult(response.text);
+      setResult(response.text || '');
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -141,7 +181,24 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
 
   return (
     <div className="space-y-6">
+      <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
       <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Pilih Jenis Surat Pendidikan</label>
+          <select className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.jenisSurat} onChange={e => setFormData({...formData, jenisSurat: e.target.value})}>
+            <option value="">-- Pilih --</option>
+            <option value="Laporan Pelaksanaan Kegiatan">Laporan Pelaksanaan Kegiatan</option>
+            <option value="Surat Keputusan">Surat Keputusan</option>
+            <option value="Surat Tugas">Surat Tugas</option>
+            <option value="Surat Edaran">Surat Edaran</option>
+            <option value="Surat Undangan">Surat Undangan</option>
+            <option value="Memorandum">Memorandum</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Nomor Surat</label>
+          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.nomorSurat} onChange={e => setFormData({...formData, nomorSurat: e.target.value})} placeholder="Contoh: 421.2/001/SMA.1/2026" />
+        </div>
         <div>
           <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Fokus Laporan Humas</label>
           <select className="w-full p-3 font-sans text-sm border border-gray-200 bg-white focus:border-blue-600" value={formData.jenisLaporan} onChange={e => setFormData({...formData, jenisLaporan: e.target.value})}>
@@ -149,12 +206,14 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
             <option value="Evaluasi Kemitraan DUDI / Industri">Evaluasi Kemitraan DUDI / Industri</option>
             <option value="Laporan Hubungan Komite & Orang Tua">Laporan Hubungan Komite & Orang Tua</option>
             <option value="Branding & Publikasi Eksternal">Branding & Publikasi Eksternal</option>
-            <option value="Kerja Sama Puskesmas & Pihak Lainnya">Kerja Sama Lintas Lembaga (Pemerintah/Kesehatan)</option>
+            <option value="Kerja Sama Lintas Lembaga (Pemerintah/Kesehatan)">Kerja Sama Lintas Lembaga (Pemerintah/Kesehatan)</option>
+            <option value="Laporan Pelaksanaan PPDB">Laporan Pelaksanaan PPDB</option>
+            <option value="Laporan Kunjungan Industri / Studi Banding">Laporan Kunjungan Industri / Studi Banding</option>
           </select>
         </div>
         <div>
           <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Target Mitra Eksternal Utama</label>
-          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600" value={formData.targetAudiens} onChange={e => setFormData({...formData, targetAudiens: e.target.value})} placeholder="Contoh: Industri otomotif lokal, Dinkes..." />
+          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.targetAudiens} onChange={e => setFormData({...formData, targetAudiens: e.target.value})} placeholder="Contoh: Industri otomotif lokal, Dinkes..." />
         </div>
       </div>
       <div>
@@ -172,6 +231,7 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
       </div>
       {result && (
         <div id="printArea" className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
+           <div dangerouslySetInnerHTML={{ __html: renderLetterHeader(useLogo, logoUrl, formData.jenisSurat, formData.nomorSurat) }} />
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen
@@ -183,12 +243,14 @@ Tampilkan dalam format Markdown formal. Fokus pada strategi hubungan masyarakat,
 }
 
 // Component for Kesiswaan
-function KesiswaanForm() {
+function KesiswaanForm({ useLogo, setUseLogo, logoUrl, setLogoUrl }: any) {
   const [formData, setFormData] = useState({
     jenisLaporan: '',
     programFokus: '',
     statusKedisiplinan: '',
-    prestasi: ''
+    prestasi: '',
+    nomorSurat: '',
+    jenisSurat: ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
@@ -203,6 +265,8 @@ function KesiswaanForm() {
       const prompt = `Buatkan draf akhir Laporan Wakil Kepala Sekolah Bidang Kesiswaan (Executive Summary).
 Data:
 Jenis Program/Laporan: ${formData.jenisLaporan}
+Jenis Surat: ${formData.jenisSurat}
+Nomor Surat: ${formData.nomorSurat}
 Fokus Pembinaan yang dijalankan: ${formData.programFokus}
 Status Tata Tertib / Kedisiplinan: ${formData.statusKedisiplinan}
 Catatan Prestasi Murid (Akademik/Non): ${formData.prestasi}
@@ -218,7 +282,7 @@ Tampilkan dalam format Markdown formal terstruktur. Soroti kepemimpinan murid (s
           temperature: 0.2
         }
       });
-      setResult(response.text);
+      setResult(response.text || '');
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {
@@ -228,20 +292,39 @@ Tampilkan dalam format Markdown formal terstruktur. Soroti kepemimpinan murid (s
 
   return (
     <div className="space-y-6">
+      <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
       <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Pilih Jenis Surat Pendidikan</label>
+          <select className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.jenisSurat} onChange={e => setFormData({...formData, jenisSurat: e.target.value})}>
+            <option value="">-- Pilih --</option>
+            <option value="Laporan Pelaksanaan Kegiatan">Laporan Pelaksanaan Kegiatan</option>
+            <option value="Surat Keputusan">Surat Keputusan</option>
+            <option value="Surat Tugas">Surat Tugas</option>
+            <option value="Surat Edaran">Surat Edaran</option>
+            <option value="Surat Undangan">Surat Undangan</option>
+            <option value="Memorandum">Memorandum</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Nomor Surat</label>
+          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.nomorSurat} onChange={e => setFormData({...formData, nomorSurat: e.target.value})} placeholder="Contoh: 421.2/001/SMA.1/2026" />
+        </div>
         <div>
           <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Klasifikasi Kegiatan Kesiswaan</label>
           <select className="w-full p-3 font-sans text-sm border border-gray-200 bg-white focus:border-blue-600" value={formData.jenisLaporan} onChange={e => setFormData({...formData, jenisLaporan: e.target.value})}>
             <option value="">-- Pilih --</option>
             <option value="Laporan Kedisiplinan & Tata Tertib Harian">Laporan Kedisiplinan & Tata Tertib Harian</option>
             <option value="Evaluasi Ekstrakurikuler & OSIS">Evaluasi Ekstrakurikuler & OSIS</option>
-            <option value="Bimbingan Karakter & Anti Perundungan">Bimbingan Karakter & Pencegahan Perundungan</option>
-            <option value="Pelaksanaan MPLS / Kegiatan Siswa">Pelaksanaan MPLS / Event Kesiswaan Besar</option>
+            <option value="Bimbingan Karakter & Pencegahan Perundungan">Bimbingan Karakter & Pencegahan Perundungan</option>
+            <option value="Pelaksanaan MPLS / Event Kesiswaan Besar">Pelaksanaan MPLS / Event Kesiswaan Besar</option>
+            <option value="Laporan Kegiatan Peringatan Hari Besar">Laporan Kegiatan Peringatan Hari Besar</option>
+            <option value="Laporan Pemilihan Ketua OSIS">Laporan Pemilihan Ketua OSIS</option>
           </select>
         </div>
         <div>
           <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Capaian Prestasi Murid</label>
-          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600" value={formData.prestasi} onChange={e => setFormData({...formData, prestasi: e.target.value})} placeholder="Sebutkan jika ada lomba yang dimenangkan..." />
+          <input type="text" className="w-full p-3 font-sans text-sm border border-gray-200 focus:border-blue-600 bg-white" value={formData.prestasi} onChange={e => setFormData({...formData, prestasi: e.target.value})} placeholder="Sebutkan jika ada lomba yang dimenangkan..." />
         </div>
       </div>
       <div>
@@ -259,6 +342,7 @@ Tampilkan dalam format Markdown formal terstruktur. Soroti kepemimpinan murid (s
       </div>
       {result && (
         <div id="printArea" className="mt-10 pt-10 border-t-2 border-gray-200 print-area prose max-w-none text-sm break-words markdown-body">
+           <div dangerouslySetInnerHTML={{ __html: renderLetterHeader(useLogo, logoUrl, formData.jenisSurat, formData.nomorSurat) }} />
            <ReactMarkdown>{result}</ReactMarkdown>
            <button onClick={() => window.print()} className="mt-8 border border-gray-200 px-6 py-3 hover:bg-gray-900 hover:text-white transition-colors uppercase tracking-[2px] font-bold text-[10px] no-print flex items-center gap-2">
               <Printer size={16}/> Cetak Dokumen
@@ -276,6 +360,9 @@ export default function Reports() {
     kesiswaan: false
   });
 
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('Reports_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('Reports_logoUrl', null);
+
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -286,9 +373,9 @@ export default function Reports() {
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto font-sans text-gray-900 h-full flex flex-col">
       <header className="shrink-0 mb-8 border-b border-gray-100 pb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-3">Laporan Manajerial</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-3">Laporan Mutu & Persuratan</h1>
         <p className="text-sm font-mono tracking-widest text-blue-600 uppercase font-bold">
-          Generator Laporan Kinerja Wakil Kepala Sekolah
+          Generator Laporan Kinerja Wakil Kepala Sekolah & Dokumen Resmi
         </p>
       </header>
 
@@ -307,7 +394,7 @@ export default function Reports() {
           
           {expandedSections.kurikulum && (
             <div className="p-6 md:p-8 space-y-6 border-t border-gray-100">
-              <KurikulumForm />
+              <KurikulumForm useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
             </div>
           )}
         </div>
@@ -326,7 +413,7 @@ export default function Reports() {
           
           {expandedSections.humas && (
             <div className="p-6 md:p-8 space-y-6 border-t border-gray-100">
-              <HumasForm />
+              <HumasForm useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
             </div>
           )}
         </div>
@@ -345,7 +432,7 @@ export default function Reports() {
           
           {expandedSections.kesiswaan && (
             <div className="p-6 md:p-8 space-y-6 border-t border-gray-100">
-              <KesiswaanForm />
+              <KesiswaanForm useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
             </div>
           )}
         </div>

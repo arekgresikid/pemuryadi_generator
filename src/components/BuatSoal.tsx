@@ -11,13 +11,11 @@ import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
+import LiveQuizOrchestrator from './LiveQuizOrchestrator';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
   const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | 'live-quiz'>('kisi-kisi');
-  const [liveQuizIndex, setLiveQuizIndex] = useState(0);
-  const [liveQuizAnswers, setLiveQuizAnswers] = useState<Record<number, string>>({});
-  const [liveQuizFinished, setLiveQuizFinished] = useState(false);
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1175,7 +1173,7 @@ Berikan output dalam format JSON murni:
                 Kartu Soal
               </button>
               <button
-                onClick={() => { setActiveSubTab('live-quiz'); setLiveQuizIndex(0); setLiveQuizAnswers({}); setLiveQuizFinished(false); }}
+                onClick={() => setActiveSubTab('live-quiz')}
                 className={`flex-1 min-w-[120px] py-3 px-2 rounded-xl text-[11px] lg:text-sm font-bold transition-all relative z-10 ${activeSubTab === 'live-quiz' ? 'bg-purple-100 text-purple-600 border border-purple-200 shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
               >
                 Live Quiz
@@ -1766,88 +1764,7 @@ Berikan output dalam format JSON murni:
 
               {activeSubTab === 'live-quiz' && (
                 resultSoal?.soalList ? (
-                  <div className="h-full flex flex-col p-4 animate-in fade-in zoom-in-95 duration-300">
-                    {!liveQuizFinished ? (
-                      <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-y-auto relative">
-                        <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                          <h3 className="font-bold text-xl text-purple-700 flex items-center gap-2"><Sparkles className="w-5 h-5"/> Live Quiz</h3>
-                          <span className="bg-purple-100 text-purple-800 text-sm font-bold px-3 py-1 rounded-full">Soal {liveQuizIndex + 1} dari {resultSoal.soalList.length}</span>
-                        </div>
-                        <div className="mb-6 flex-1">
-                          <div className="flex items-start gap-4">
-                            <div className="bg-purple-100 text-purple-800 font-bold w-10 h-10 flex items-center justify-center rounded-lg flex-shrink-0 text-xl">{liveQuizIndex + 1}</div>
-                            <div className="flex-1">
-                              {resultSoal.soalList[liveQuizIndex].gambarUrl && (
-                                <img src={resultSoal.soalList[liveQuizIndex].gambarUrl} alt="Ilustrasi" className="mb-4 max-w-sm w-full object-contain rounded border border-gray-200" />
-                              )}
-                              <p className="text-lg text-gray-800 mb-6 whitespace-pre-wrap">{resultSoal.soalList[liveQuizIndex].pertanyaan}</p>
-                              
-                              {resultSoal.soalList[liveQuizIndex].opsiTambahan && resultSoal.soalList[liveQuizIndex].opsiTambahan.length > 0 && (
-                                <div className="space-y-3">
-                                  {resultSoal.soalList[liveQuizIndex].opsiTambahan.map((opt: string, i: number) => {
-                                    const optionLetter = opt.substring(0, 2).trim(); // e.g. "A."
-                                    const isSelected = liveQuizAnswers[liveQuizIndex] === optionLetter;
-                                    return (
-                                      <button
-                                        key={i}
-                                        onClick={() => setLiveQuizAnswers({...liveQuizAnswers, [liveQuizIndex]: optionLetter})}
-                                        className={`w-full text-left p-4 rounded-xl border-2 transition-all group ${isSelected ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50/50'}`}
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-purple-500 bg-purple-500' : 'border-gray-300 group-hover:border-purple-400'}`}>
-                                            {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
-                                          </div>
-                                          <span className={`${isSelected ? 'text-purple-900 font-medium' : 'text-gray-700'}`}>{opt}</span>
-                                        </div>
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex justify-between mt-auto pt-4 border-t border-gray-200 bg-white sticky bottom-0">
-                          <button
-                            onClick={() => setLiveQuizIndex(Math.max(0, liveQuizIndex - 1))}
-                            disabled={liveQuizIndex === 0}
-                            className="px-6 py-2.5 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 transition-colors"
-                          >
-                            Sebelumnya
-                          </button>
-                          {liveQuizIndex < resultSoal.soalList.length - 1 ? (
-                            <button
-                              onClick={() => setLiveQuizIndex(liveQuizIndex + 1)}
-                              className="px-6 py-2.5 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                            >
-                              Selanjutnya
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => setLiveQuizFinished(true)}
-                              className="px-6 py-2.5 rounded-xl font-bold bg-green-600 text-white hover:bg-green-700 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                            >
-                              Selesai
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center animate-in zoom-in-95 duration-500">
-                        <div className="w-28 h-28 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                          <CheckCircle size={56} className="text-green-600" />
-                        </div>
-                        <h2 className="text-4xl font-black text-gray-800 mb-3 tracking-tight">Quiz Selesai!</h2>
-                        <p className="text-gray-600 mb-8 max-w-md text-lg">Anda telah menyelesaikan kuis ini. (Penilaian otomatis memerlukan integrasi validasi kunci lebih lanjut).</p>
-                        <button
-                          onClick={() => { setLiveQuizIndex(0); setLiveQuizAnswers({}); setLiveQuizFinished(false); }}
-                          className="px-8 py-3.5 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
-                        >
-                          Coba Lagi
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <LiveQuizOrchestrator soalList={resultSoal.soalList} />
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500 animate-in fade-in">
                     <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mb-4 border border-purple-100">

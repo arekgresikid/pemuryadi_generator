@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.6] - 25 Juni 2026
+- Mengimplementasikan antarmuka simulasi Live Quiz interaktif bergaya *Wayground* pada halaman Buat Soal, dilengkapi dengan fitur pindai (scan) QR Code, input Token, Leaderboard, dan Grafik Analisis Ketuntasan KKM (75).
+- Memperbarui fitur Penasihat Strategis (Strategic Advisor) dengan panduan fungsionalitas dan fitur pemilihan instan (quick-select) untuk Tujuan Organisasi.
+- Menyempurnakan cetak dokumen Laporan Mutu (Reports) dengan integrasi Logo Sekolah, Nomor Surat otomatis, dan pilihan Jenis Surat Pendidikan (SK, Tugas, Edaran, dll).
+
 ## [5.3.5] - 24 Juni 2026
 - Memperbaiki duplikasi deklarasi POLLINATIONS_API_KEY pada bindings API Cloudflare.
 - Menyelesaikan masalah TypeScript ('unknown' is not assignable to 'SetStateAction') pada BlogAdminPanel dan BlogPost.
