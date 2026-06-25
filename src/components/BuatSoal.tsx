@@ -440,7 +440,7 @@ Berikan output dalam format JSON murni:
     else content = renderSoalPrint(type);
 
     const docFooter = `
-      ${(profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
+      ${'' /* (profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
           <div style="width: 45%;">
               <p>Mengetahui,</p>
               <p>Kepala Sekolah</p>
@@ -455,7 +455,7 @@ Berikan output dalam format JSON murni:
               <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
               <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
           </div>
-      </div>` : ''}
+      </div>` : '' */}
       
       <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; text-align: center; font-size: 11px; color: #666; page-break-inside: avoid;">
         <p>Dokumen ini dihasilkan secara otomatis oleh <b>Generator Soal - Pemuryadi</b></p>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GoogleGenAI } from '../lib/genai';
 import { BrainCircuit, Loader2, Play, Printer, ChevronUp, ChevronDown, CheckCircle2, FileText, Target, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function StrategicAdvisor() {
   const [prompt, setPrompt] = useState('');
@@ -47,7 +48,7 @@ export default function StrategicAdvisor() {
         model: 'openai',
         contents: finalPrompt,
         config: {
-          systemInstruction: "Anda adalah Penasihat Strategis Senior (Strategic Advisor) untuk institusi pendidikan. Tugas utama Anda adalah memberikan arahan visioner, merumuskan kebijakan taktis, evaluasi mutu, dan pemecahan masalah institusional. WAJIB gunakan analisis '5 Why', 'Fishbone Analysis', dan 'Venn Diagram' (dalam format teks/tabel jika perlu) untuk mengidentifikasi akar masalah dari setiap kendala. Berikan rekomendasi yang berorientasi pada pencapaian tujuan organisasi. DILARANG KERAS menggunakan kata pengantar AI (seperti 'Halo', 'Tentu'), dan dilarang menggunakan kata penutup basa-basi. HANYA KELUARKAN KONTEN MARKDOWN MURNI."
+          systemInstruction: "Anda adalah Penasihat Strategis Senior (Strategic Advisor) untuk institusi pendidikan. Tugas utama Anda adalah memberikan arahan visioner, merumuskan kebijakan taktis, evaluasi mutu, dan pemecahan masalah institusional. Lakukan analisis mendalam (seperti 5 Why, Fishbone Analysis, dsb) secara konseptual, namun JANGAN PERNAH MENYEBUTKAN/MENULISKAN nama metode analisis tersebut (jangan tulis kata 'Fishbone', '5 Why', 'Diagram', dll) pada jawaban Anda. Format jawaban langsung pada inti bahasan, gunakan tabel markdown standar (menggunakan format `|` ) yang rapi untuk menjabarkan akar permasalahan. Berikan rekomendasi yang berorientasi pada pencapaian tujuan organisasi. DILARANG KERAS menggunakan kata pengantar AI (seperti 'Halo', 'Tentu'), dan dilarang menggunakan kata penutup basa-basi. HANYA KELUARKAN KONTEN MARKDOWN MURNI TERSTRUKTUR (Tabel, Bullet Points, Heading)."
         }
       });
 
@@ -175,7 +176,7 @@ export default function StrategicAdvisor() {
                      </button>
                   </div>
                   <div id="printArea" className="markdown-body print-area">
-                    <ReactMarkdown>{responseHtml}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{responseHtml}</ReactMarkdown>
                   </div>
                 </div>
               ) : (

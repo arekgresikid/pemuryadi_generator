@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { GoogleGenAI } from '../lib/genai';
 import { Upload, Loader2, FileText, Printer, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '../AuthContext';
 
 export default function LaporanKegiatan() {
+  const { profile } = useAuth();
   const [file, setFile] = useState<File | null>(null);
   const [base64Image, setBase64Image] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function LaporanKegiatan() {
     setReport('');
 
     try {
-      const backendPrompt = "Buat laporan kegiatan sekolah (Intrakurikuler, Kokurikuler, atau Ekstrakurikuler) berdasarkan foto kegiatan ini. Laporan harus profesional, terstruktur, dan menggunakan gaya bahasa formal. Lakukan pencarian relevan jika diperlukan. Tambahan dari user: " + prompt;
+      const backendPrompt = "Buat laporan kegiatan sekolah (Intrakurikuler, Kokurikuler, atau Ekstrakurikuler) berdasarkan foto kegiatan ini. Laporan harus profesional, terstruktur, dan menggunakan gaya bahasa formal. Lakukan pencarian relevan jika diperlukan. JANGAN membuat/menambahkan bagian TANDA TANGAN di akhir laporan, cukup sampai pada penutup/kesimpulan saja. Tambahan dari user: " + prompt;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -156,6 +158,34 @@ export default function LaporanKegiatan() {
               {report ? (
                 <div id="printArea" className="prose prose-sm prose-slate max-w-none prose-headings:font-sans prose-headings:text-gray-900 prose-a:text-blue-600 prose-p:font-sans prose-p:leading-[1.8] prose-p:text-sm markdown-body print-area">
                   <ReactMarkdown>{report}</ReactMarkdown>
+                  
+                  {/* Tanda Tangan */}
+                  <div className="mt-12 flex justify-between px-8 text-sm" style={{ pageBreakInside: 'avoid' }}>
+                    <div className="text-center w-1/2">
+                      <p>Mengetahui,</p>
+                      <p className="font-bold">Kepala Sekolah</p>
+                      <br /><br /><br /><br />
+                      <p className="font-bold underline">{profile?.kepalaSekolah || '........................................'}</p>
+                      <p>{profile?.jenisNipKepalaSekolah || 'NIP'}. {profile?.nipKepalaSekolah || '........................................'}</p>
+                    </div>
+                    <div className="text-center w-1/2">
+                      <p>Samarinda, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      <p className="font-bold">Guru/Penanggung Jawab</p>
+                      <br /><br /><br /><br />
+                      <p className="font-bold underline">{profile?.nama || profile?.displayName || '........................................'}</p>
+                      <p>{profile?.jenisNipGuru || 'NIP'}. {profile?.nip || '........................................'}</p>
+                    </div>
+                  </div>
+
+                  {/* Lampiran */}
+                  {file && base64Image && (
+                    <div className="mt-12" style={{ pageBreakBefore: 'always' }}>
+                      <h3 className="text-lg font-bold mb-4 uppercase text-center">Lampiran: Dokumentasi Kegiatan</h3>
+                      <div className="flex justify-center border border-gray-200 p-2">
+                         <img src={`data:${file.type};base64,${base64Image}`} alt="Lampiran Kegiatan" className="max-w-full h-auto max-h-[800px] object-contain" />
+                      </div>
+                    </div>
+                  )}
                 </div>
                ) : (
                 <div className="m-auto text-center text-gray-500 flex flex-col items-center p-12 bg-blue-50 border border-gray-100">

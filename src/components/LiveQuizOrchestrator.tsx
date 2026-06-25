@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Users, Play, CheckCircle, BarChart3, ChevronRight, Loader2, Award, XCircle } from 'lucide-react';
+import { Users, Play, CheckCircle, BarChart3, ChevronRight, ChevronLeft, Loader2, Award, XCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 
 interface Soal {
@@ -105,7 +105,7 @@ export default function LiveQuizOrchestrator({ soalList }: LiveQuizOrchestratorP
             <div className="text-6xl font-black text-purple-900 tracking-widest mb-6 font-mono">{token}</div>
             
             <div className="flex justify-center mb-4 bg-white p-4 inline-block rounded-xl border border-purple-100">
-               <QRCodeSVG value={`https://pemuryadi.id/join?token=${token}`} size={150} />
+               <QRCodeSVG value={`${window.location.origin}/join?token=${token}`} size={150} />
             </div>
             <p className="text-xs text-purple-600">Scan QR Code untuk bergabung (Simulasi)</p>
           </div>
@@ -159,7 +159,7 @@ export default function LiveQuizOrchestrator({ soalList }: LiveQuizOrchestratorP
              </form>
 
              <div className="mt-8 text-xs text-slate-500">
-               *Ini adalah tampilan simulasi perangkat siswa
+               *Ini adalah tampilan simulasi perangkat siswa. Live multi-device memerlukan backend.
              </div>
           </div>
         </div>
@@ -216,17 +216,44 @@ export default function LiveQuizOrchestrator({ soalList }: LiveQuizOrchestratorP
                     )
                   })}
                 </div>
+             {(!soal.opsiTambahan || soal.opsiTambahan.length === 0) && (
+                <div className="mt-8">
+                  <textarea
+                     value={studentAnswers[currentQuestionIndex] || ''}
+                     onChange={(e) => handleAnswer(e.target.value)}
+                     placeholder="Ketik jawaban Anda di sini..."
+                     className="w-full min-h-[150px] p-6 rounded-2xl border-2 border-purple-200 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 outline-none resize-none text-lg"
+                  />
+                </div>
              )}
           </div>
 
-          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
              <button
-                onClick={handleNextQuestion}
-                disabled={!studentAnswers[currentQuestionIndex]}
-                className="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+                onClick={() => {
+                  if (currentQuestionIndex > 0) setCurrentQuestionIndex(prev => prev - 1);
+                }}
+                disabled={currentQuestionIndex === 0}
+                className="px-6 py-3 bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2"
              >
-               {currentQuestionIndex < soalList.length - 1 ? 'Berikutnya' : 'Kumpulkan'} <ChevronRight size={20} />
+               <ChevronLeft size={20} /> Kembali
              </button>
+
+             <div className="flex gap-2">
+               <button
+                  onClick={handleNextQuestion}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl font-bold transition-all flex items-center gap-2"
+               >
+                 Lewati
+               </button>
+               <button
+                  onClick={handleNextQuestion}
+                  disabled={!studentAnswers[currentQuestionIndex]}
+                  className="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2"
+               >
+                 {currentQuestionIndex < soalList.length - 1 ? 'Berikutnya' : 'Kumpulkan'} <ChevronRight size={20} />
+               </button>
+             </div>
           </div>
         </div>
       </div>
