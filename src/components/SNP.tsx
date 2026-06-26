@@ -8,7 +8,7 @@ import DocumentUpload, { UploadedFile } from './DocumentUpload';
 import { useAuth } from '../AuthContext';
 import AIAssistedTextarea from './AIAssistedTextarea';
 import PrintSupportModal from './PrintSupportModal';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, universalPrint, getSignatureHtml } from '../utils/print';
 
 interface SNPProps {
   subTab: string;
@@ -198,6 +198,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
       universalPrint(`
         <h2 style="text-align: center;">Draft Dokumen ${config.agentName}</h2>
             ${printContent}
+            ${getSignatureHtml(profile)}
             ${getWatermarkHtml(profile?.role)}
       `, 'Print Dokumen ${config.title}');
     }

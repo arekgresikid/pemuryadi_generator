@@ -62,7 +62,7 @@ export default function ModuleGenerator() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useLocalStorage('ModuleGenerator_formData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
-    semester: '1', tahunAjaran: '2024/2025', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
+    semester: '1', tahunAjaran: '2024/2025', mapel: 'bahasa-indonesia', topik: '', lintasDisiplin: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
     remixText: '', hasInklusi: false, jumlahInklusi: '', kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'
   });
 
@@ -170,6 +170,7 @@ Topik/Materi: ${topik || 'Topik umum sesuai mata pelajaran'}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
 Model Pembelajaran: ${modelName}
 Alokasi Waktu: ${formData.waktu || '2 JP (2 x 35 menit)'}
+Lintas Disiplin Ilmu: ${formData.lintasDisiplin || 'Tidak ada spesifik'}
 Nama Guru: ${formData.namaGuru}
 ${formData.jenisNipGuru} Guru: ${formData.nip}
 Sekolah: ${formData.namaSekolah} (${formData.jenisSekolah})
@@ -430,6 +431,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                           <tr><td>Jenjang / Kelas / Fase</td><td>${result.jenjangLabel} / ${result.kelasLabel} / ${result.faseLabel}</td></tr>
                           <tr><td>Semester / Tahun Ajaran</td><td>${result.semester} / ${result.tahunAjaran}</td></tr>
                           <tr><td>Mata Pelajaran</td><td>${result.mapelName}</td></tr>
+                          <tr><td>Lintas Disiplin Ilmu</td><td>${result.lintasDisiplin || '-'}</td></tr>
                           <tr><td>Topik/Materi</td><td>${result.topik || '-'}</td></tr>
                           <tr><td>Alokasi Waktu</td><td>${result.waktu || '-'}</td></tr>
                       </table>
@@ -538,7 +540,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   </div>
                   <div style="width: 45%;">
                       <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      <p>Guru Pengampu</p>
+                      <p>Wali Kelas / Guru Pengampu</p>
                       <br><br><br><br>
                       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
                       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nip || '................................'}</p>
@@ -779,6 +781,17 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
 
 
               <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Lintas Disiplin Ilmu</label>
+                  <AIAssistedTextarea
+                    rows={2}
+                    value={formData.lintasDisiplin}
+                    onChange={e => setFormData({...formData, lintasDisiplin: e.target.value})}
+                    placeholder="Contoh: Matematika terintegrasi dengan Sains (Opsional)"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-cyan-500 transition-all mb-3"
+                  />
+                </div>
+
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input 
                     type="checkbox" 

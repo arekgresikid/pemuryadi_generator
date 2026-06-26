@@ -609,7 +609,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   </div>
                   <div style="width: 45%;">
                       <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                      <p>${formData.jenisGuru || 'Guru'}</p>
+                      <p>Wali Kelas / Guru Pengampu</p>
                       <br><br><br><br>
                       <p style="font-weight: bold; text-decoration: underline;">${formData.namaGuru || '................................'}</p>
                       <p>${formData.jenisNipGuru || 'NIP'}. ${formData.nip || '................................'}</p>
@@ -622,7 +622,6 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   *Jangan lupa support saya agar makin berusaha dalam memperbaiki website ini*
               </div>
           </div>
-          ${getWatermarkHtml(profile?.role)}
           <script>
             setTimeout(() => {
               window.print();

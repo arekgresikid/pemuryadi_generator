@@ -6,7 +6,169 @@ import { Loader2, Printer, LayoutList, Settings, FileText, Save , Trash2, Chevro
 import PrintSupportModal from './PrintSupportModal';
 import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint } from '../utils/print';
+import { getWatermarkHtml, universalPrint, getSignatureHtml } from '../utils/print';
+import AIAssistedInput from './AIAssistedInput';
+import DOMPurify from 'dompurify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import LogoUploader from './LogoUploader';
+
+const ai = new GoogleGenAI({});
+
+export default function ProgramSemester() {
+  const { profile } = useAuth();
+  const [formData, setFormData] = useLocalStorage('ProgramSemesterData', {
+    jenjang: 'sd',
+    kelas: '1',
+    fase: 'A',
+    semester: 'Ganjil',
+    tahunAjaran: '2026/2027',
+    mapel: 'bahasa-indonesia',
+    topik: '',
+    isCustomTopik: false,
+    namaSekolah: '',
+    namaGuru: '',
+    jenisNipGuru: 'NIP',
+    nipGuru: '',
+    kepalaSekolah: '',
+    jenisNipKepalaSekolah: 'NIP',
+    nipKepalaSekolah: '',
+    tempatTanggal: 'Jakarta, 15 Juli 2026',
+    tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)'
+  });
+
+  useEffect(() => {
+    const phases = phaseClassMap[formData.jenjang]?.phases || [];
+    const firstPhase = phases[0]?.id || '';
+    
+    const classes = phaseClassMap[formData.jenjang]?.classes[firstPhase] || [];
+    const firstClass = classes[0]?.id || '';
+
+    const subjects = subjectsByLevel[formData.jenjang] || [];
+    const firstSubject = subjects[0]?.id || '';
+
+    const topics = topicsBySubject[firstSubject] || topicsBySubject['default'];
+    const firstTopic = topics[0] || '';
+
+    setFormData(prev => ({ ...prev, fase: firstPhase, kelas: firstClass, mapel: firstSubject, topik: firstTopic, isCustomTopik: false }));
+  }, [formData.jenjang]);
+
+  useEffect(() => {
+    const classes = phaseClassMap[formData.jenjang]?.classes[formData.fase] || [];
+    setFormData(prev => ({ ...prev, kelas: classes[0]?.id || '' }));
+  }, [formData.fase, formData.jenjang]);
+
+  useEffect(() => {
+    const topics = topicsBySubject[formData.mapel] || topicsBySubject['default'];
+    setFormData(prev => ({ ...prev, topik: topics[0] || '', isCustomTopik: false }));
+  }, [formData.mapel]);
+
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedModel, setSelectedModel] = useLocalStorage<string>('ProgramSemester_selectedModel', 'openai');
+  const [useLogo, setUseLogo] = useLocalStorage<boolean>('ProgramSemester_useLogo', false);
+  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('ProgramSemester_logoUrl', null);
+
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    pengaturan: true,
+    identitas: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const saveProgress = () => {
+    alert('Progress otomatis disimpan saat Anda mengetik!');
+  };
+
+  const resetProgress = () => {
+    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
+      localStorage.removeItem('ProgramSemesterData');
+      localStorage.removeItem('ProgramSemester_selectedModel');
+      window.location.reload();
+    }
+  };
+
+  const [resultHtml, setResultHtml] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const generatePromes = async () => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const subjectLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
+      const faseLabel = phaseClassMap[formData.jenjang]?.phases.find(p => p.id === formData.fase)?.label || formData.fase;
+      const kelasLabel = phaseClassMap[formData.jenjang]?.classes[formData.fase]?.find(c => c.id === formData.kelas)?.label || formData.kelas;
+      const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
+
+      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+
+Buatlah Program Semester (Promes) Kurikulum Merdeka untuk mata pelajaran ${subjectLabel} Kelas ${kelasLabel} (Fase ${faseLabel}) Semester ${formData.semester} Tahun Ajaran ${formData.tahunAjaran}.
+Gunakan sumber yang kredibel dari BSKAP Kemendikbudristek terbaru untuk tahun 2026.
+${formData.topik ? `Fokuskan atau sertakan topik/materi berikut: ${formData.topik}` : ''}
+Tingkatan Kognitif (Taksonomi Bloom): ${formData.tingkatanKognitif}
+
+PENTING - KONTEKS KURIKULUM MERDEKA & PEDAGOGI:
+1. Taksonomi Bloom: 
+   - Jika memilih C1-C6 spesifik, sesuaikan Kata Kerja Operasional (KKO) pada ATP dengan tingkat tersebut.
+   - Jika "Campuran", pastikan ada keseimbangan antara LOTS (Lower Order Thinking Skills: C1-C3) dan HOTS (Higher Order Thinking Skills: C4-C6).
+   - Perhatikan Dimensi Pengetahuan: Faktual, Konseptual, Prosedural, dan Metakognitif.
+   - JANGAN tampilkan label (C1, C2, dll) pada hasil akhir, cukup gunakan KKO yang tepat.
+2. Tujuan Pembelajaran (ABCD): Jika memungkinkan, formulasikan tujuan/ATP dengan prinsip Audience (Peserta didik), Behavior (Perilaku/KKO), Condition (Kondisi pembelajaran), dan Degree (Kriteria keberhasilan).
+3. TPACK & STEAM: Integrasikan pendekatan Technological Pedagogical Content Knowledge (TPACK) dan Science, Technology, Engineering, Art, Mathematics (STEAM) dalam rancangan kegiatan atau ATP jika relevan.
+
+Buat dalam format HTML lengkap yang siap dicetak (A4 Portrait).
+Gunakan styling CSS inline yang rapi, profesional, dan mudah dibaca.
+
+Struktur Dokumen HTML:
+1. Kop Surat/Judul: "PROGRAM SEMESTER (PROMES) KURIKULUM MERDEKA" (Tengah/Center, Huruf Tebal)
+2. Identitas (Buat tanpa border luar, rapi, rata kiri):
+   - Satuan Pendidikan: ${formData.namaSekolah || '...........................'}
+   - Mata Pelajaran: ${subjectLabel}
+   - Kelas / Fase: ${kelasLabel} / ${faseLabel}
+   - Semester: ${formData.semester}
+   - Tahun Pelajaran: ${formData.tahunAjaran}
+3. Tabel Promes:
+   - Kolom: No, Alur Tujuan Pembelajaran (ATP) / Materi, Alokasi Waktu (JP), Bulan (Juli s.d. Desember untuk Ganjil, Januari s.d. Juni untuk Genap), dan Keterangan.
+   - Di bawah kolom Bulan, bagi menjadi kolom-kolom Minggu (1, 2, 3, 4, 5).
+   - Isi tabel dengan contoh ATP yang relevan untuk mata pelajaran dan fase tersebut.
+OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse dan width 100%. Jangan membungkus bagian Identitas dengan kotak bergaris/border tebal.`;
+
+      const response = await ai.models.generateContent({
+        model: selectedModel,
+        contents: prompt,
+        config: { temperature: 0.7 }
+      });
+
+      let htmlContent = response.text || '';
+      if (htmlContent.includes('\`\`\`html')) {
+        htmlContent = htmlContent.replace(/\`\`\`html/g, '').replace(/\`\`\`/g, '');
+      } else if (htmlContent.includes('\`\`\`')) {
+        htmlContent = htmlContent.replace(/\`\`\`/g, '');
+      }
+
+      setResultHtml(htmlContent.trim());
+    } catch (err: any) {
+      console.error(err);
+      setError('Terjadi kesalahan saat membuat promes: ' + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+import { parseMarkdown } from '../utils/markdown';
+import React, { useState, useRef, useEffect } from 'react';
+import ModelSelector from './ModelSelector';
+import { GoogleGenAI } from '../lib/genai';
+import { Loader2, Printer, LayoutList, Settings, FileText, Save , Trash2, ChevronDown, ChevronUp, User } from 'lucide-react';
+import PrintSupportModal from './PrintSupportModal';
+import { educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
+import { useAuth } from '../AuthContext';
+import { getWatermarkHtml, universalPrint, getSignatureHtml } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import DOMPurify from 'dompurify';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -167,11 +329,8 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
       universalPrint(`
         ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
             ${printContent}
+            ${getSignatureHtml(profile)}
             ${getWatermarkHtml(profile?.role)}
-      `, 'Print Program Semester');
-    }
-  };
-
   return (
     <div className="flex flex-col h-full bg-gray-50 text-gray-900 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0">
