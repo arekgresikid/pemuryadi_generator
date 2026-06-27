@@ -109,117 +109,6 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
       setIsGenerating(false);
     }
   };
-import { parseMarkdown } from '../utils/markdown';
-import React, { useState, useRef } from 'react';
-import ModelSelector from './ModelSelector';
-import { GoogleGenAI } from '../lib/genai';
-import { Loader2, Printer, Calculator, Settings, FileText, Save , Trash2 } from 'lucide-react';
-import PrintSupportModal from './PrintSupportModal';
-import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, universalPrint, getSignatureHtml } from '../utils/print';
-import AIAssistedInput from './AIAssistedInput';
-import DOMPurify from 'dompurify';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import LogoUploader from './LogoUploader';
-
-const ai = new GoogleGenAI({});
-
-const PROVINSI_LIST = [
-  'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah', 'DI Yogyakarta', 'Jawa Timur', 'Banten',
-  'Bali', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Sumatera Selatan',
-  'Kalimantan Barat', 'Kalimantan Tengah', 'Kalimantan Selatan', 'Kalimantan Timur',
-  'Sulawesi Selatan', 'Sulawesi Utara', 'Papua', 'Lainnya'
-];
-
-export default function AnalisisHariEfektif() {
-  const { profile } = useAuth();
-  const [formData, setFormData] = useLocalStorage('AnalisisHariEfektifData', {
-    provinsi: 'DKI Jakarta',
-    jenjang: 'SD',
-    tahunAjaran: '2026/2027',
-    semester: 'Ganjil',
-    namaSekolah: '',
-    namaGuru: '',
-    jenisNipGuru: 'NIP',
-    nipGuru: '',
-    kepalaSekolah: '',
-    jenisNipKepalaSekolah: 'NIP',
-    nipKepalaSekolah: '',
-    kota: 'Jakarta',
-    tanggal: '15 Juli 2026'
-  });
-
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedModel, setSelectedModel] = useLocalStorage<string>('AnalisisHariEfektif_selectedModel', 'openai');
-  const [useLogo, setUseLogo] = useLocalStorage<boolean>('AnalisisHariEfektif_useLogo', false);
-  const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('AnalisisHariEfektif_logoUrl', null);
-
-  const saveProgress = () => {
-    alert('Progress otomatis disimpan saat Anda mengetik!');
-  };
-
-  const resetProgress = () => {
-    if (confirm('Apakah Anda yakin ingin mereset semua data di halaman ini? Data yang belum di-export akan hilang.')) {
-      localStorage.removeItem('AnalisisHariEfektifData');
-      localStorage.removeItem('AnalisisHariEfektif_selectedModel');
-      window.location.reload();
-    }
-  };
-
-  const [resultHtml, setResultHtml] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const generateAnalisis = async () => {
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
-
-Buatlah Analisis Hari Efektif (Rincian Minggu Efektif) untuk tahun ajaran ${formData.tahunAjaran} Semester ${formData.semester} jenjang ${formData.jenjang} di Provinsi ${formData.provinsi}.
-Gunakan sumber yang kredibel dari Dinas Pendidikan Provinsi terkait atau pedoman Kemendikbudristek terbaru untuk tahun 2026.
-
-Buat dalam format HTML lengkap yang siap dicetak (A4).
-Gunakan styling CSS inline yang rapi, profesional, dan mudah dibaca.
-
-Struktur Dokumen HTML:
-1. Kop Surat/Judul: "RINCIAN MINGGU EFEKTIF"
-2. Identitas:
-   - Sekolah: ${formData.namaSekolah || '...........................'}
-   - Mata Pelajaran: (Kosongkan/Titik-titik)
-   - Kelas/Semester: (Kosongkan/Titik-titik) / ${formData.semester}
-   - Tahun Pelajaran: ${formData.tahunAjaran}
-3. Tabel 1: Perhitungan Alokasi Waktu (Bulan, Jumlah Minggu, Jumlah Minggu Efektif, Jumlah Minggu Tidak Efektif)
-4. Tabel 2: Distribusi Alokasi Waktu (Rincian kegiatan tidak efektif seperti Libur Semester, Libur Nasional, Ujian, dll)
-5. Perhitungan Total Jam Pelajaran Efektif.
-
-PENTING: JANGAN buat atau tambahkan bagian kolom tanda tangan (Mengetahui Kepala Sekolah / Guru dsb), karena sistem sudah menambahkannya secara otomatis di bagian bawah.
-
-OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag <table> yang di-style dengan border-collapse.`;
-
-      const response = await ai.models.generateContent({
-        model: selectedModel,
-        contents: prompt,
-        config: { temperature: 0.7 }
-      });
-
-      let htmlContent = response.text || '';
-      if (htmlContent.includes('\`\`\`html')) {
-        htmlContent = htmlContent.replace(/\`\`\`html/g, '').replace(/\`\`\`/g, '');
-      } else if (htmlContent.includes('\`\`\`')) {
-        htmlContent = htmlContent.replace(/\`\`\`/g, '');
-      }
-
-      setResultHtml(htmlContent.trim());
-    } catch (err: any) {
-      console.error(err);
-      setError('Terjadi kesalahan saat membuat analisis: ' + err.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const printDocument = () => {
     const printContent = printRef.current?.innerHTML;
@@ -229,6 +118,10 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
             ${printContent}
             ${getSignatureHtml(profile)}
             ${getWatermarkHtml(profile?.role)}
+      `, 'Print Analisis Hari Efektif');
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="gen-card bg-white  rounded-3xl p-6 md:p-8 shadow-2xl">
