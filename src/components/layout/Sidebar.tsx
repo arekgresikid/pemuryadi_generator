@@ -177,7 +177,6 @@ export default function Sidebar({
                 {isSidebarOpen && (
                   <span className="text-sm tracking-tight flex items-center flex-wrap gap-2 text-left">
                     {item.label} 
-                    {item.premiumOnly && <span className="text-[8px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded uppercase">PRO</span>}
                     {item.isBeta && <span className="text-[8px] bg-red-100 text-red-800 font-bold px-1.5 py-0.5 rounded uppercase border border-red-200">BETA</span>}
                     {item.disabled && <span className="text-[9px] bg-orange-100 text-orange-800 font-bold px-1.5 py-0.5 rounded">DEV</span>}
                   </span>
@@ -203,7 +202,6 @@ export default function Sidebar({
                       <span>{sub.label}</span>
                       <div className="flex gap-1 ml-2">
                         {sub.isBeta && <span className="text-[8px] bg-red-100 text-red-800 font-bold px-1.5 py-0.5 rounded uppercase border border-red-200">BETA</span>}
-                        {sub.premiumOnly && <span className="text-[8px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded uppercase border border-blue-200">PRO</span>}
                       </div>
                     </button>
                   ))}
