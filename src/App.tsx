@@ -149,8 +149,12 @@ const LoadingScreen = () => {
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window !== 'undefined') {
-      const path = window.location.pathname.substring(1);
+      let path = window.location.pathname.substring(1);
       if (path && !path.startsWith('kota/') && !path.startsWith('sekolah/') && !path.startsWith('provinsi/')) {
+        // Map alias paths to actual tab IDs
+        if (path === 'gamifikasi') path = 'games-hub';
+        if (path === 'kurikulum-berbasis-cinta') path = 'deeplearning';
+        if (path === 'laporan') path = 'laporan-kegiatan';
         return path;
       }
       const saved = localStorage.getItem('pemuryadi_activeTab');

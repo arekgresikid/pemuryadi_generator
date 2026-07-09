@@ -52,6 +52,31 @@ export async function onRequest(context: any) {
   ];
 
 
+  const staticFeatures = [
+    { path: "gamifikasi", priority: "0.9", changefreq: "weekly" },
+    { path: "kurikulum-berbasis-cinta", priority: "0.9", changefreq: "weekly" },
+    { path: "laporan", priority: "0.9", changefreq: "weekly" },
+    { path: "modul", priority: "0.9", changefreq: "weekly" },
+    { path: "deeplearning", priority: "0.9", changefreq: "weekly" },
+    { path: "mengajar-harian", priority: "0.9", changefreq: "weekly" },
+    { path: "kalender-pendidikan", priority: "0.8", changefreq: "weekly" },
+    { path: "analisis-hari-efektif", priority: "0.8", changefreq: "weekly" },
+    { path: "program-tahunan", priority: "0.8", changefreq: "weekly" },
+    { path: "program-semester", priority: "0.8", changefreq: "weekly" },
+    { path: "jurnal", priority: "0.8", changefreq: "weekly" },
+    { path: "modul-p5", priority: "0.8", changefreq: "weekly" },
+    { path: "supervisi", priority: "0.8", changefreq: "weekly" },
+    { path: "kktp", priority: "0.8", changefreq: "weekly" },
+    { path: "rubrik-penilaian", priority: "0.8", changefreq: "weekly" },
+    { path: "modul-kokurikuler", priority: "0.8", changefreq: "weekly" },
+    { path: "buat-soal", priority: "0.8", changefreq: "weekly" },
+    { path: "laporan-kegiatan", priority: "0.8", changefreq: "weekly" },
+    { path: "worksheet", priority: "0.8", changefreq: "weekly" },
+    { path: "games-hub", priority: "0.8", changefreq: "weekly" },
+    { path: "pricing", priority: "0.7", changefreq: "monthly" },
+    { path: "blog", priority: "0.8", changefreq: "daily" }
+  ];
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -59,6 +84,15 @@ export async function onRequest(context: any) {
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>`;
+
+  for (const feature of staticFeatures) {
+    xml += `
+  <url>
+    <loc>${baseUrl}/${feature.path}</loc>
+    <changefreq>${feature.changefreq}</changefreq>
+    <priority>${feature.priority}</priority>
+  </url>`;
+  }
 
   for (const city of cities) {
     xml += `
