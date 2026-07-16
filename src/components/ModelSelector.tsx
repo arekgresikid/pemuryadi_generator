@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, ChevronDown } from 'lucide-react';
+import { Sparkles, ChevronDown, Crown } from 'lucide-react';
+import { useAuth } from '../AuthContext';
 
 interface ModelInfo {
   name: string;
@@ -17,6 +18,7 @@ interface ModelSelectorProps {
 export default function ModelSelector({ modality = 'text', value, onChange, disabled, label = 'Model AI' }: ModelSelectorProps) {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const { profile } = useAuth();
 
   // Default fallback models
   const defaultTextModels: ModelInfo[] = [
@@ -59,8 +61,10 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
       .then((data: any[]) => {
         if (!isMounted || !Array.isArray(data)) return;
         
+        const isFree = !profile || profile.tier === 'Free';
+
         // Filter out by category ('text' or 'image')
-        const filteredData = data.filter(m => m.category === modality || (modality === 'text' && !m.category));
+        let filteredData = data.filter(m => m.category === modality || (modality === 'text' && !m.category));
         
         const mapped = filteredData.map(m => {
           if (typeof m === 'string') {
@@ -71,9 +75,18 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
 
         if (mapped.length > 0) {
           setModels(mapped);
-          // Set default to first if current not in list using fresh value
+          
           if (!mapped.some(m => m.name === valueRef.current)) {
-            onChange(mapped[0].name);
+            if (!isFree) {
+               const proDefault = modality === 'text' ? 'openai-large' : 'wan-image';
+               if (mapped.some(m => m.name === proDefault)) {
+                 onChange(proDefault);
+               } else {
+                 onChange(mapped[0].name);
+               }
+            } else {
+               onChange(mapped[0].name);
+            }
           }
         }
       })
@@ -90,28 +103,73 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
     return () => {
       isMounted = false;
     };
-  }, [modality]);
+  }, [modality, profile]);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const selectedInfo = models.find(m => m.name === value);
+  const isSelectedPremium = selectedInfo ? (modality === 'text' ? selectedInfo.name !== 'openai' : selectedInfo.name !== 'flux') : false;
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" ref={dropdownRef}>
       <label className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-red-500" />
         {label}
       </label>
       <div className="relative">
-        <select
-          value={value}
-          onChange={e => onChange(e.target.value)}
+        <button
+          type="button"
           disabled={disabled || loading}
-          className="w-full appearance-none bg-white text-black text-sm rounded-lg px-3 py-2 pr-8 border border-black outline-none focus:border-black transition-colors disabled:opacity-50 cursor-pointer"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full bg-white text-black text-sm rounded-lg px-3 py-2 pr-8 border border-black outline-none transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-between"
         >
-          {models.map(m => (
-            <option key={m.name} value={m.name}>{m.name}</option>
-          ))}
-        </select>
-        <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+          <span className="flex items-center gap-2 truncate">
+            {value}
+            {isSelectedPremium && <Crown className="w-3.5 h-3.5 text-yellow-500" />}
+          </span>
+          <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
+        </button>
+        
+        {isOpen && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+            {models.map(m => {
+              const isPremiumModel = modality === 'text' ? m.name !== 'openai' : m.name !== 'flux';
+              return (
+                <button
+                  key={m.name}
+                  type="button"
+                  onClick={() => {
+                    const isFree = !profile || profile.tier === 'Free';
+                    if (isFree && isPremiumModel) {
+                      window.dispatchEvent(new Event('showPremiumModal'));
+                      setIsOpen(false);
+                      return;
+                    }
+                    onChange(m.name);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-gray-50 transition-colors ${value === m.name ? 'bg-blue-50 font-medium' : ''}`}
+                >
+                  <span className="truncate">{m.name}</span>
+                  {isPremiumModel && <Crown className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
       {selectedInfo && (
         <p className="text-[11px] text-gray-500 italic truncate">{selectedInfo.description}</p>

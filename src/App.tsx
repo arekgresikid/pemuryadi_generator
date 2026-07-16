@@ -339,12 +339,16 @@ export default function App() {
     const handleShowLoginModal = () => setIsLoginRequiredOpen(true);
     window.addEventListener('showLoginModal', handleShowLoginModal);
 
+    const handleShowPremiumModal = () => setIsPremiumModalOpen(true);
+    window.addEventListener('showPremiumModal', handleShowPremiumModal);
+
     return () => {
       clearInterval(interval);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('showFreeTokenWarning', handleShowWarning);
       window.removeEventListener('showLoginModal', handleShowLoginModal);
+      window.removeEventListener('showPremiumModal', handleShowPremiumModal);
       clearTimeout(warningTimeout);
     };
   }, []);

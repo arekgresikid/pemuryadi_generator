@@ -50,6 +50,7 @@ export class GoogleGenAI {
         try {
           if (typeof window !== 'undefined') {
             try {
+              // Pre-flight check (doesn't deduct anymore, just checks balance)
               await useToken();
             } catch (err) {
               throw err;
@@ -60,9 +61,25 @@ export class GoogleGenAI {
           const modelParam = params.model ? `&model=${params.model}` : '';
           const seedParam = `&seed=${Math.floor(Math.random() * 100000000)}`;
           
-          // Pollinations returns the image directly from the URL. We can fetch it to get a base64 or just return the URL.
-          // Since the existing code expects a structure like { data: [{ url: string }] }, we'll just return the URL.
-          const imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?nologo=true${modelParam}${seedParam}`;
+          const proxyUrl = `/api/generate-image?prompt=${encodedPrompt}${modelParam}${seedParam}`;
+          const response = await fetch(proxyUrl);
+          
+          if (!response.ok) {
+            let errorMsg = 'Image generation failed';
+            try {
+              const errData: any = await response.json();
+              errorMsg = errData.error || errorMsg;
+            } catch (e) {}
+            throw new Error(errorMsg);
+          }
+
+          const remainingTokens = response.headers.get('x-remaining-tokens');
+          if (remainingTokens && typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tokenConsumed', { detail: parseInt(remainingTokens) }));
+          }
+
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
 
           return {
             data: [
@@ -168,14 +185,20 @@ export class GoogleGenAI {
             }
           }
 
-          const completion = await openai.chat.completions.create({
-            model: 'openai', // Using pollinations default model which is openAI compatible
+          const response = await openai.chat.completions.create({
+            model: model || 'openai', // Route handler will enforce tier model securely
             messages: messages,
             temperature: config?.temperature,
             top_p: config?.topP,
             response_format: response_format
-          });
+          }).withResponse();
+          
+          const remainingTokens = response.response.headers.get('x-remaining-tokens');
+          if (remainingTokens && typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('tokenConsumed', { detail: parseInt(remainingTokens) }));
+          }
 
+          const completion = response.data;
           let responseText = completion.choices[0].message.content || "";
           
           // Append watermark only for free tier and only for plain text (not JSON)

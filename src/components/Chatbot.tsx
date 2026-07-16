@@ -3,6 +3,7 @@ import { GoogleGenAI } from '../lib/genai';
 import Markdown from 'react-markdown';
 import Logo from './Logo';
 import { useAuth } from '../AuthContext';
+import { Crown } from 'lucide-react';
 import { loginWithGoogle } from '../api';
 
 interface Message {
@@ -11,7 +12,7 @@ interface Message {
 }
 
 export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'model', text: 'Halo! 👋 Saya **Pemuryadi Bot**, asisten AI Anda di **Pemuryadi Generator & RuangRiung**. \n\nSaya siap membantu Anda merancang administrasi (Modul Ajar, RPM, dll), merencanakan game edukasi, atau berdiskusi seputar Kurikulum Merdeka.\n\nApa yang ingin kita buat hari ini?' }
   ]);
@@ -41,8 +42,11 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
       const historyText = messages.map(m => `${m.role === 'user' ? 'User' : 'Bot'}: ${m.text}`).join('\n\n');
       const prompt = `${historyText}\n\nUser: ${userMessage}\n\nBot:`;
 
+      const isFree = !profile || profile.tier === 'Free';
+      const modelToUse = isFree ? 'openai' : 'openai-large';
+
       const response = await ai.models.generateContent({
-        model: 'openai',
+        model: modelToUse,
         contents: prompt,
         config: {
           systemInstruction: 'Anda adalah asisten AI resmi dari Pemuryadi Generator & RuangRiung (Cyber Education Workspace). Anda ahli membantu guru di Indonesia dalam menyusun administrasi (Modul Ajar, RPM, Kalender Pendidikan, Prota, Promes, KKTP), membuat game edukatif (Word Search, Crossword, Ranking 1), dan memahami Kurikulum Merdeka. PENTING: Perhatikan konteks singkatan di website ini. RPM adalah "Rencana Pembelajaran Mendalam", BUKAN "Rencana Pekerjaan Mingguan" atau singkatan lain. Prota = Program Tahunan, Promes = Program Semester, KKTP = Kriteria Ketercapaian Tujuan Pembelajaran. Jawab dengan ramah, suportif, informatif, dan selalu arahkan mereka untuk menggunakan fitur-fitur yang tersedia di aplikasi Pemuryadi Generator jika relevan. Gunakan Markdown.',
@@ -60,6 +64,8 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
 
   if (!isOpen) return null;
 
+  const isFree = !profile || profile.tier === 'Free';
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6">
       <div className="absolute inset-0 bg-black/60 " onClick={onClose}></div>
@@ -69,7 +75,14 @@ export default function Chatbot({ isOpen, onClose }: { isOpen: boolean, onClose:
           <div className="flex items-center gap-3">
             <Logo className="w-10 h-10 rounded-full" />
             <div>
-              <h3 className="font-bold text-white">Pemuryadi Bot</h3>
+              <h3 className="font-bold text-white flex items-center gap-2">
+                Pemuryadi Bot
+                {!isFree && (
+                  <span className="text-[10px] px-2 py-0.5 bg-yellow-400 text-yellow-900 rounded-full flex items-center gap-1 font-bold">
+                    <Crown className="w-3 h-3" /> PRO
+                  </span>
+                )}
+              </h3>
               <p className="text-xs text-blue-100">Cyber Education Assistant</p>
             </div>
           </div>

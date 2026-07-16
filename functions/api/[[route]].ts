@@ -54,6 +54,22 @@ async function ensureDbSchema(db: D1Database) {
   _schemaEnsured = true;
 }
 
+// --- Rate Limiting (In-Memory per Isolate) ---
+const userRateLimits = new Map<string, { count: number, resetAt: number }>();
+function checkUserRateLimit(uid: string): boolean {
+  const now = Date.now();
+  const limit = userRateLimits.get(uid);
+  if (!limit || now > limit.resetAt) {
+    userRateLimits.set(uid, { count: 1, resetAt: now + 60000 }); // 1 min window
+    return true;
+  }
+  if (limit.count >= 20) { // Max 20 requests per minute
+    return false; 
+  }
+  limit.count += 1;
+  return true;
+}
+
 // --- Middleware for Auth ---
 app.use('/*', async (c, next) => {
   const path = c.req.path;
@@ -782,20 +798,9 @@ app.post('/tokens/use', async (c) => {
     if ((profile.tokens as number) <= 0) {
       return c.json({ error: 'Out of tokens' }, 403);
     }
-
-    await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ?')
-      .bind(user.uid)
-      .run();
       
-    try {
-      const body = await c.req.json().catch(() => ({}));
-      const actionName = body.action || 'AI Generation';
-      await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)')
-        .bind(user.uid, actionName, 1, new Date().toISOString())
-        .run();
-    } catch (e) { }
-      
-    return c.json({ success: true, tokens: (profile.tokens as number) - 1, isFree: isFree });
+    // Note: Token deduction has been moved to the proxy endpoints for security.
+    return c.json({ success: true, tokens: profile.tokens, isFree: isFree });
   } catch (error) {
     console.error("D1 Error:", error);
     // Fallback if table doesn't exist
@@ -844,11 +849,51 @@ app.post('/logs', async (c) => {
 // --- Image Generation Proxy ---
 app.get('/generate-image', async (c) => {
   const prompt = c.req.query('prompt');
-  const model = c.req.query('model') || 'nanobana';
+  let model = c.req.query('model');
   const seed = c.req.query('seed') || Math.floor(Math.random() * 1000000);
   
   if (!prompt) {
     return c.json({ error: 'Prompt is required' }, 400);
+  }
+
+  // Enforce tier models and token deduction
+  let profile;
+  let isFree = false;
+  try {
+    const user = c.get('user');
+    
+    if (user && user.uid) {
+      if (!checkUserRateLimit(user.uid)) {
+        return c.json({ error: 'Too many requests. Please try again later.' }, 429);
+      }
+    }
+
+    const db = c.env.DB as D1Database;
+    profile = await db.prepare('SELECT tier, tokens, role FROM users WHERE uid = ?').bind(user?.uid).first();
+    isFree = !profile || profile.tier === 'Free';
+    
+    if (isFree) {
+      model = 'flux'; // Default for Free
+    } else {
+      model = model || 'wan-image'; // Default for Pro
+    }
+    
+    // Deduct token
+    if (profile) {
+      const role = String(profile.role || 'siswa').toLowerCase();
+      if (role !== 'owner' && role !== 'admin') {
+        if ((profile.tokens as number) <= 0) {
+          return c.json({ error: 'Out of tokens' }, 403);
+        }
+        await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ?').bind(user?.uid).run();
+        profile.tokens = (profile.tokens as number) - 1;
+        try {
+          await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)').bind(user?.uid, 'Image Generation', 1, new Date().toISOString()).run();
+        } catch (e) {}
+      }
+    }
+  } catch (e) {
+    model = 'flux'; // Fallback on error
   }
 
   const encodedPrompt = encodeURIComponent(prompt);
@@ -866,10 +911,13 @@ app.get('/generate-image', async (c) => {
     }
 
     const arrayBuffer = await imageResponse.arrayBuffer();
-    return c.body(arrayBuffer, 200, {
-      'Content-Type': imageResponse.headers.get('Content-Type') || 'image/jpeg',
-      'Cache-Control': 'public, max-age=31536000'
-    });
+    const headersRecord: Record<string, string> = {};
+    headersRecord['Content-Type'] = imageResponse.headers.get('Content-Type') || 'image/jpeg';
+    headersRecord['Cache-Control'] = 'public, max-age=31536000';
+    if (profile) {
+      headersRecord['x-remaining-tokens'] = String(profile.tokens);
+    }
+    return c.body(arrayBuffer, 200, headersRecord);
   } catch (err: any) {
     return c.json({ error: 'Internal server error', details: err.message }, 500);
   }
@@ -879,6 +927,45 @@ app.get('/generate-image', async (c) => {
 app.post('/chat/completions', async (c) => {
   const body = await c.req.json();
   const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
+  
+  // Enforce tier models and token deduction
+  let profile;
+  try {
+    const user = c.get('user');
+    
+    if (user && user.uid) {
+      if (!checkUserRateLimit(user.uid)) {
+        return c.json({ error: 'Too many requests. Please try again later.' }, 429);
+      }
+    }
+
+    const db = c.env.DB as D1Database;
+    profile = await db.prepare('SELECT tier, tokens, role FROM users WHERE uid = ?').bind(user?.uid).first();
+    const isFree = !profile || profile.tier === 'Free';
+    
+    if (isFree) {
+      body.model = 'openai'; // Default for Free
+    } else {
+      body.model = body.model || 'openai-large'; // Default for Pro
+    }
+
+    // Deduct token
+    if (profile) {
+      const role = String(profile.role || 'siswa').toLowerCase();
+      if (role !== 'owner' && role !== 'admin') {
+        if ((profile.tokens as number) <= 0) {
+          return c.json({ error: 'Out of tokens' }, 403);
+        }
+        await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ?').bind(user?.uid).run();
+        profile.tokens = (profile.tokens as number) - 1;
+        try {
+          await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)').bind(user?.uid, 'Text Generation', 1, new Date().toISOString()).run();
+        } catch (e) {}
+      }
+    }
+  } catch(e) {
+    body.model = 'openai';
+  }
   
   try {
     const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
@@ -891,11 +978,16 @@ app.post('/chat/completions', async (c) => {
     });
     
     if (!response.ok) {
-       return c.json({ error: 'AI generation failed', status: response.status }, response.status as any);
+      return c.json({ error: 'Generation failed', status: response.status }, response.status as any);
     }
-    
-    const data = await response.json();
-    return c.json(data);
+    const headersRecord: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headersRecord[key] = value;
+    });
+    if (profile) {
+      headersRecord['x-remaining-tokens'] = String(profile.tokens);
+    }
+    return c.body(response.body, response.status as any, headersRecord);
   } catch (err: any) {
     return c.json({ error: 'Internal server error', details: err.message }, 500);
   }
