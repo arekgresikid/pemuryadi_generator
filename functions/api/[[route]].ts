@@ -900,11 +900,20 @@ app.get('/generate-image', async (c) => {
   const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
   
   try {
-    const imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true`, {
+    let imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true`, {
       headers: apiKey ? {
         'Authorization': `Bearer ${apiKey}`
       } : {}
     });
+
+    if (!imageResponse.ok) {
+      // Fallback: try default image prompt without model parameter
+      imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?seed=${seed}&nologo=true`, {
+        headers: apiKey ? {
+          'Authorization': `Bearer ${apiKey}`
+        } : {}
+      });
+    }
 
     if (!imageResponse.ok) {
       return c.json({ error: 'Image generation failed', status: imageResponse.status }, imageResponse.status as any);
@@ -968,7 +977,7 @@ app.post('/chat/completions', async (c) => {
   }
   
   try {
-    const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+    let response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -976,6 +985,19 @@ app.post('/chat/completions', async (c) => {
       },
       body: JSON.stringify(body)
     });
+    
+    if (!response.ok && body.model && body.model !== 'openai') {
+       // Retry backend call with 'openai' fallback model if selected model returns error
+       const fallbackBody = { ...body, model: 'openai' };
+       response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+           ...(apiKey ? { 'Authorization': `Bearer ${apiKey}` } : {})
+         },
+         body: JSON.stringify(fallbackBody)
+       });
+    }
     
     if (!response.ok) {
       return c.json({ error: 'Generation failed', status: response.status }, response.status as any);

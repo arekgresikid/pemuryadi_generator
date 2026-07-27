@@ -24,8 +24,7 @@ async function generateBlog() {
   }
 
   if (!apiKey) {
-    console.error("❌ Error: POLLINATIONS_API_KEY environment variable is not set.");
-    process.exit(1);
+    console.warn("⚠️ Warning: POLLINATIONS_API_KEY environment variable is not set. Attempting public endpoint...");
   }
 
   const sessionId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -42,12 +41,18 @@ Sertakan subjudul (H2) dan poin-poin (bullet points) untuk memudahkan pembacaan.
 
   console.log("Memulai penulisan artikel oleh AI...");
   try {
+    const headers = {
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Referer": "https://digen.id"
+    };
+    if (apiKey) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
     const response = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
+      headers: headers,
       body: JSON.stringify({
         messages: [
           { role: "system", content: "Anda adalah asisten AI penulis konten spesialis bidang pendidikan." },

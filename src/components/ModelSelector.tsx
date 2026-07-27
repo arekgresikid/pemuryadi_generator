@@ -63,14 +63,18 @@ export default function ModelSelector({ modality = 'text', value, onChange, disa
         
         const isFree = !profile || profile.tier === 'Free';
 
-        // Filter out by category ('text' or 'image')
-        let filteredData = data.filter(m => m.category === modality || (modality === 'text' && !m.category));
+        // Filter out by category ('text' or 'image') and exclude paid_only models for free users
+        const filteredData = data.filter(m => {
+          if (isFree && typeof m === 'object' && m?.paid_only === true) return false;
+          if (modality === 'image') return m.category === 'image' || m.output_modalities?.includes('image');
+          return m.category === 'text' || (!m.category && m.output_modalities?.includes('text'));
+        });
         
         const mapped = filteredData.map(m => {
           if (typeof m === 'string') {
             return { name: m, description: m };
           }
-          return { name: m?.name || '', description: m?.description || m?.name || '' };
+          return { name: m?.name || '', description: m?.description || m?.title || m?.name || '' };
         }).filter(m => m.name);
 
         if (mapped.length > 0) {

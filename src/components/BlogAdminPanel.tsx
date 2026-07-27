@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Check, X, FileText, Upload, Calendar, Save, Edit, Info, Eye } from 'lucide-react';
+import { Plus, Edit2, Trash2, Check, X, FileText, Upload, Calendar, Save, Edit, Info, Eye, Sparkles, RefreshCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import toast from 'react-hot-toast';
+import { GoogleGenAI } from '../lib/genai';
+
+const ai = new GoogleGenAI({});
 
 export default function BlogAdminPanel() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -19,6 +22,60 @@ export default function BlogAdminPanel() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState<string | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  const [aiTopic, setAiTopic] = useState('');
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+
+  const sampleTopics = [
+    'Cara Menggunakan AI untuk Personalisasi Pembelajaran Kurikulum Merdeka',
+    'Mengatasi Kelelahan Mengajar (Teacher Burnout) di Era Digital',
+    'Panduan Praktis Membuat LKPD Interaktif dan Menyenangkan bagi Siswa',
+    'Integrasi Assessment Formatif Berbasis AI dalam Kegiatan Mengajar Harian',
+    'Tips Efektif Manajemen Kelas dan Disiplin Positif untuk Pendidik',
+    'Strategi Mengembangkan Modul Ajar Deep Learning Tanpa Stress'
+  ];
+
+  const handleGenerateAiArticle = async () => {
+    const topicToUse = aiTopic.trim() || sampleTopics[Math.floor(Math.random() * sampleTopics.length)];
+    setIsGeneratingAi(true);
+    const toastId = toast.loading('Sedang menulis artikel blog berkualitas dengan AI...');
+    try {
+      const prompt = `Anda adalah seorang pakar pendidikan dan teknologi pendidikan (EdTech) yang sangat kreatif yang menulis untuk blog Digen.id (Pemuryadi Generator).
+Tugas Anda adalah menulis sebuah artikel blog yang sangat mendalam dan komprehensif (minimal 800 hingga 1000 kata) dalam bahasa Indonesia tentang topik berikut:
+"${topicToUse}"
+
+Ketentuan Penulisan:
+1. Artikel harus SEO friendly dan menggunakan format Markdown murni.
+2. Baris pertama HARUS berupa H1 (# Judul Artikel Utama) yang menarik dan profesional.
+3. Gunakan subjudul H2 (##) dan H3 (###), serta poin-poin (bullet points) agar nyaman dibaca.
+4. Gaya bahasa hangat, inspiratif, edukatif, dan praktis bagi guru/pendidik di Indonesia.
+5. Akhiri dengan kesimpulan yang memberdayakan pendidik.`;
+
+      const res = await ai.models.generateContent({
+        model: 'openai',
+        contents: prompt
+      });
+
+      const generatedText = res.text || '';
+      if (!generatedText) {
+        throw new Error('Hasil respon AI kosong');
+      }
+
+      // Extract title from first # line
+      const lines = generatedText.split('\n');
+      const titleLine = lines.find(line => line.trim().startsWith('# '));
+      const extractedTitle = titleLine ? titleLine.replace(/^#\s*/, '').trim() : topicToUse;
+
+      setUploadTitle(extractedTitle);
+      setUploadContent(generatedText);
+      toast.success('Artikel AI berhasil dibuat! Silakan tinjau dan unggah.', { id: toastId });
+    } catch (e: any) {
+      console.error('Failed to generate AI blog:', e);
+      toast.error(`Gagal membuat artikel AI: ${e?.message || 'Error'}`, { id: toastId });
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -360,17 +417,67 @@ export default function BlogAdminPanel() {
       )}
 
       {activeTab === 'upload' && (
-        <form onSubmit={handleUploadSubmit} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Judul Artikel</label>
-            <input 
-              type="text" 
-              value={uploadTitle}
-              onChange={(e) => setUploadTitle(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-none focus:border-blue-500 transition-all font-medium text-sm"
-              placeholder="Masukkan judul artikel"
-              required
-            />
+        <div className="space-y-6">
+          {/* AI Generator Banner & Controls */}
+          <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 text-white p-6 rounded-2xl shadow-md border border-blue-800">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-blue-500/20 backdrop-blur-md rounded-xl text-blue-300 border border-blue-400/30">
+                <Sparkles size={22} className="text-yellow-300 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-white">Generate Artikel Blog Otomatis dengan AI</h3>
+                <p className="text-xs text-blue-200">Tulis artikel pendidikan 800-1000 kata lengkap dengan judul & format Markdown secara instan.</p>
+              </div>
+            </div>
+
+            <div className="mt-4 flex flex-col md:flex-row gap-2">
+              <input
+                type="text"
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                placeholder="Topik spesifik (contoh: Pemanfaatan AI untuk Kurikulum Merdeka)..."
+                disabled={isGeneratingAi}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200/60 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setAiTopic(sampleTopics[Math.floor(Math.random() * sampleTopics.length)])}
+                disabled={isGeneratingAi}
+                className="px-3 py-2.5 bg-white/10 hover:bg-white/20 text-blue-100 text-xs font-bold rounded-xl border border-white/20 transition-all flex items-center justify-center gap-1.5"
+                title="Pilih Topik Pendidikan Acak"
+              >
+                <RefreshCw size={14} /> Topik Acak
+              </button>
+              <button
+                type="button"
+                onClick={handleGenerateAiArticle}
+                disabled={isGeneratingAi}
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isGeneratingAi ? (
+                  <>
+                    <RefreshCw size={16} className="animate-spin" /> Sedang Menulis...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} /> Buat Artikel AI
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <form onSubmit={handleUploadSubmit} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Judul Artikel</label>
+              <input 
+                type="text" 
+                value={uploadTitle}
+                onChange={(e) => setUploadTitle(e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 bg-gray-50 focus:bg-white focus:outline-none focus:border-blue-500 transition-all font-medium text-sm"
+                placeholder="Masukkan judul artikel"
+                required
+              />
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Konten Markdown</label>
@@ -402,6 +509,7 @@ export default function BlogAdminPanel() {
             </button>
           </div>
         </form>
+      </div>
       )}
 
       {activeTab === 'edit' && (

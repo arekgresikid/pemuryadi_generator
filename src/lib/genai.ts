@@ -57,10 +57,13 @@ export class GoogleGenAI {
             }
           }
 
-          const encodedPrompt = encodeURIComponent(params.prompt);
-          const modelParam = params.model ? `&model=${params.model}` : '';
-          const seedParam = `&seed=${Math.floor(Math.random() * 100000000)}`;
+          const prompt = params.prompt || '';
+          const model = params.model || 'flux';
+          const seed = Math.floor(Math.random() * 100000000);
           
+          const encodedPrompt = encodeURIComponent(prompt);
+          const modelParam = model ? `&model=${encodeURIComponent(model)}` : '';
+          const seedParam = `&seed=${seed}`;
           const proxyUrl = `/api/generate-image?prompt=${encodedPrompt}${modelParam}${seedParam}`;
           const response = await fetch(proxyUrl);
           
@@ -133,7 +136,7 @@ export class GoogleGenAI {
           messages.push({ role: "system", content: config.systemInstruction });
         }
         
-                // Handle array of parts or string
+        // Handle array of parts or string
         if (Array.isArray(contents)) {
           if (contents.length > 0 && typeof contents[0] === 'object' && 'role' in contents[0]) {
             // It's a list of conversation messages: { role: string, parts: any[] }
@@ -185,21 +188,50 @@ export class GoogleGenAI {
             }
           }
 
-          const response = await openai.chat.completions.create({
-            model: model || 'openai', // Route handler will enforce tier model securely
-            messages: messages,
-            temperature: config?.temperature,
-            top_p: config?.topP,
-            response_format: response_format
-          }).withResponse();
-          
-          const remainingTokens = response.response.headers.get('x-remaining-tokens');
+          const targetModel = model || 'openai';
+          let completion;
+          let remainingTokens: string | null = null;
+
+          try {
+            const resp = await openai.chat.completions.create({
+              model: targetModel,
+              messages: messages,
+              temperature: config?.temperature,
+              top_p: config?.topP,
+              response_format: response_format
+            }).withResponse();
+            remainingTokens = resp.response.headers.get('x-remaining-tokens');
+            completion = resp.data;
+          } catch (firstErr: any) {
+            console.warn(`AI model '${targetModel}' failed (${firstErr?.message || firstErr}). Retrying with fallback model 'openai'...`);
+            try {
+              const resp = await openai.chat.completions.create({
+                model: 'openai',
+                messages: messages,
+                temperature: config?.temperature,
+                top_p: config?.topP,
+                ...(config?.responseMimeType === 'application/json' || response_format ? { response_format: { type: "json_object" } } : {})
+              }).withResponse();
+              remainingTokens = resp.response.headers.get('x-remaining-tokens');
+              completion = resp.data;
+            } catch (fallbackErr: any) {
+              console.warn(`Fallback JSON generation failed (${fallbackErr?.message || fallbackErr}). Retrying with standard text mode...`);
+              const resp = await openai.chat.completions.create({
+                model: 'openai',
+                messages: messages,
+                temperature: config?.temperature,
+                top_p: config?.topP
+              }).withResponse();
+              remainingTokens = resp.response.headers.get('x-remaining-tokens');
+              completion = resp.data;
+            }
+          }
+
           if (remainingTokens && typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('tokenConsumed', { detail: parseInt(remainingTokens) }));
           }
 
-          const completion = response.data;
-          let responseText = completion.choices[0].message.content || "";
+          let responseText = completion.choices[0]?.message?.content || "";
           
           // Append watermark only for free tier and only for plain text (not JSON)
           if (isFreeTier && !isArrayRoot && !config?.responseSchema && config?.responseMimeType !== 'application/json') {
