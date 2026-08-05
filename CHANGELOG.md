@@ -2,6 +2,9 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.6] - 5 Agustus 2026
+- Menambahkan file SKILL.md pada folder .agents untuk otomatisasi pemahaman arsitektur oleh AI Agent.
+
 ## [5.3.5] - 24 Juni 2026
 - Memperbaiki duplikasi deklarasi POLLINATIONS_API_KEY pada bindings API Cloudflare.
 - Menyelesaikan masalah TypeScript ('unknown' is not assignable to 'SetStateAction') pada BlogAdminPanel dan BlogPost.

@@ -1,8 +1,17 @@
 [
   {
+    "version": "5.3.6",
+    "date": "5 Agustus 2026",
+    "badge": "Terbaru",
+    "icon": "Wrench",
+    "commits": [
+      "Menambahkan file SKILL.md pada folder .agents untuk otomatisasi pemahaman arsitektur oleh AI Agent."
+    ]
+  },
+  {
     "version": "5.3.5",
     "date": "24 Juni 2026",
-    "badge": "Terbaru",
+    "badge": null,
     "icon": "Wrench",
     "commits": [
       "Memperbaiki duplikasi deklarasi POLLINATIONS_API_KEY pada bindings API Cloudflare.",
