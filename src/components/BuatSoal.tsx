@@ -3,8 +3,8 @@ import ModelSelector from './ModelSelector';
 
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
-import { TKA_LITERASI_CONFIG, TKA_NUMERASI_CONFIG } from '../data/tkaData';
-import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw, BookOpen, Calculator } from 'lucide-react';
+import { TKA_LITERASI_CONFIG, TKA_NUMERASI_CONFIG, getTKALiterasiConfig, getTKANumerasiConfig, getTKABahasaInggrisConfig, getTKAConfigBySubtype } from '../data/tkaData';
+import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw, BookOpen, Calculator, Globe } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import PrintSupportModal from './PrintSupportModal';
@@ -205,10 +205,9 @@ export default function BuatSoal() {
       if (type === 'kisi-kisi') {
         let tkaSpecificPrompt = '';
         if (formData.tipeUjian === 'Other') {
-          if (formData.subTipeUjian === 'TKA Literasi') {
-            tkaSpecificPrompt = `\n\n${TKA_LITERASI_CONFIG.promptRules}\n\nWAJIB: Seluruh elemen, tujuan pembelajaran, materi, dan indikator soal kisi-kisi HARUS secara eksplisit mengacu pada Matriks Asesmen TKA Literasi (Pemahaman Tekstual, Pemahaman Inferensial, dan Evaluasi dan Apresiasi).`;
-          } else if (formData.subTipeUjian === 'TKA Numerasi') {
-            tkaSpecificPrompt = `\n\n${TKA_NUMERASI_CONFIG.promptRules}\n\nWAJIB: Seluruh elemen, materi, dan indikator soal kisi-kisi HARUS mengacu pada Elemen TKA Numerasi (Bilangan Rasional, Objek Geometri, Pengukuran, serta Penyajian dan Penggunaan Data) dengan konteks pemecahan masalah nyata.`;
+          const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
+          if (tkaCfg) {
+            tkaSpecificPrompt = `\n\n${tkaCfg.promptRules}\n\nWAJIB: Seluruh elemen, tujuan pembelajaran, materi, dan indikator soal kisi-kisi HARUS secara eksplisit mengacu pada Kerangka dan Matriks Asesmen Resmi ${tkaCfg.nama} untuk jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
           }
         }
 
@@ -248,7 +247,7 @@ Berikan output dalam format JSON murni:
       "noSoal": "..."
     }
   ]
-}`;
+}   `;
         responseSchema = {
           type: Type.OBJECT,
           properties: {
@@ -273,10 +272,9 @@ Berikan output dalam format JSON murni:
       } else {
         let extraInstructions = '';
         if (formData.tipeUjian === 'Other' && formData.subTipeUjian) {
-          if (formData.subTipeUjian === 'TKA Literasi') {
-            extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI TKA LITERASI (BAHASA INDONESIA):\n${TKA_LITERASI_CONFIG.promptRules}\n- PENTING KHUSUS TKA LITERASI: Setiap butir soal WAJIB diawali dengan teks stimulus bacaan (Teks Informasi atau Teks Fiksi alur maju orang pertama). Panjang stimulus tepat 150–200 kata, kalimat 3–7 kata berpola SPOK dasar, kosakata dominan denotatif. Pertanyaan wajib menguji Pemahaman Tekstual, Pemahaman Inferensial, atau Evaluasi dan Apresiasi sesuai Matriks Asesmen.`;
-          } else if (formData.subTipeUjian === 'TKA Numerasi') {
-            extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI TKA NUMERASI (MATEMATIKA):\n${TKA_NUMERASI_CONFIG.promptRules}\n- PENTING KHUSUS TKA NUMERASI: Setiap butir soal WAJIB berakar pada permasalahan dalam konteks matematika atau keseharian (personal, keluarga, lingkungan sekitar). Soal harus mengukur Pengetahuan matematika, Representasi matematis, Penalaran, Pemecahan masalah matematis, atau Koneksi matematis sesuai cakupan materi (Bilangan Rasional, Objek Geometri, Pengukuran, Penyajian dan Penggunaan Data).`;
+          const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
+          if (tkaCfg) {
+            extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI ${tkaCfg.nama.toUpperCase()}:\n${tkaCfg.promptRules}\n- PENTING KHUSUS ${formData.subTipeUjian.toUpperCase()}: Setiap butir soal WAJIB memenuhi standar stimulus, batasan jumlah kata bacaan/soal, karakteristik kebahasaan/matematika, level kognitif resmi (knowing/understanding, applying, reasoning), dan matriks subkompetensi resmi TKA jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
           } else {
             extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Lakukan pencarian web real-time menggunakan Google Search tool untuk mencari referensi soal dan kisi-kisi resmi ${formData.subTipeUjian} terbaru dari tahun 2022 hingga 2026.`;
           }
@@ -840,6 +838,8 @@ Berikan output dalam format JSON murni:
                               newMapel = 'bahasa-indonesia';
                             } else if (newSub === 'TKA Numerasi') {
                               newMapel = 'matematika';
+                            } else if (newSub === 'TKA Literasi Bahasa Inggris') {
+                              newMapel = 'bahasa-inggris';
                             }
                             setFormData({
                               ...formData,
@@ -849,8 +849,9 @@ Berikan output dalam format JSON murni:
                           }}
                           className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                         >
-                          <option value="TKA Literasi">TKA: Literasi</option>
-                          <option value="TKA Numerasi">TKA: Numerasi</option>
+                          <option value="TKA Literasi">TKA: Literasi (Bahasa Indonesia)</option>
+                          <option value="TKA Numerasi">TKA: Numerasi (Matematika)</option>
+                          <option value="TKA Literasi Bahasa Inggris">TKA: Literasi Bahasa Inggris (SMA/SMK)</option>
                           <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
                           <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
                           <option value="Try Out">Try Out</option>
@@ -929,133 +930,204 @@ Berikan output dalam format JSON murni:
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-2 gap-2">
                     <h3 className="font-bold text-gray-800 text-sm">2. Materi & Indikator</h3>
-                    {formData.tipeUjian === 'Other' && (formData.subTipeUjian === 'TKA Literasi' || formData.subTipeUjian === 'TKA Numerasi') && (
+                    {formData.tipeUjian === 'Other' && (formData.subTipeUjian === 'TKA Literasi' || formData.subTipeUjian === 'TKA Numerasi' || formData.subTipeUjian === 'TKA Literasi Bahasa Inggris') && (
                       <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 flex items-center gap-1.5 self-start sm:self-auto">
                         <Sparkles size={12} className="text-blue-500" />
-                        Standar Resmi {formData.subTipeUjian} Aktif
+                        Standar Resmi {formData.subTipeUjian} ({(formData.jenjang || 'SD').toUpperCase()}) Aktif
                       </span>
                     )}
                   </div>
 
                   {/* TKA Literasi Helper */}
-                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi' && (
-                    <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/50 border border-blue-100 flex flex-col gap-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <BookOpen size={16} className="text-blue-600" />
-                          <span className="text-xs font-bold text-blue-900">Matriks Asesmen TKA Literasi (Membaca)</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 text-[10px]">
-                          <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Stimulus: 150–200 kata</span>
-                          <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Kalimat: 3–7 kata (SPOK)</span>
-                          <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Teks Informasi & Fiksi</span>
-                        </div>
-                      </div>
-                      
-                      <p className="text-[11px] text-gray-600">
-                        Klik subkompetensi di bawah untuk mengisi Materi dan Indikator secara otomatis sesuai standar resmi TKA Literasi:
-                      </p>
-
-                      <div className="space-y-2.5">
-                        {TKA_LITERASI_CONFIG.matriksAsesmen.map((grp, gIdx) => (
-                          <div key={gIdx} className="bg-white/90 p-2.5 rounded-lg border border-blue-100/70 shadow-2xs">
-                            <span className="text-[11px] font-bold text-indigo-900 block mb-1.5">
-                              {gIdx + 1}. {grp.kompetensi}
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {grp.subkompetensiList.map((sub, sIdx) => {
-                                const isSelected = formData.indikator === sub.subkompetensi;
-                                return (
-                                  <button
-                                    key={sIdx}
-                                    type="button"
-                                    onClick={() => {
-                                      setFormData({
-                                        ...formData,
-                                        materi: sub.materiDefault || sub.ringkasan,
-                                        indikator: sub.subkompetensi
-                                      });
-                                    }}
-                                    title={sub.subkompetensi}
-                                    className={`px-2.5 py-1 text-[11px] rounded-md transition-all text-left flex items-center gap-1.5 ${
-                                      isSelected
-                                        ? 'bg-blue-600 text-white font-semibold shadow-xs'
-                                        : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50'
-                                    }`}
-                                  >
-                                    {isSelected && <Check size={11} className="shrink-0" />}
-                                    <span>{sub.ringkasan}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi' && (() => {
+                    const currentLit = getTKALiterasiConfig(formData.jenjang);
+                    const jenjangUpper = (formData.jenjang || 'sd').toUpperCase();
+                    const stimulusTag = jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK') ? '250–300 kata' : jenjangUpper.includes('SMP') || jenjangUpper.includes('MTS') ? '200–250 kata' : '150–200 kata';
+                    const kalimatTag = jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK') ? '8–12 kata (kompleks)' : jenjangUpper.includes('SMP') || jenjangUpper.includes('MTS') ? '5–9 kata (setara)' : '3–7 kata (SPOK)';
+                    return (
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50/80 to-indigo-50/50 border border-blue-100 flex flex-col gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <BookOpen size={16} className="text-blue-600" />
+                            <span className="text-xs font-bold text-blue-900">Matriks Asesmen {currentLit.nama}</span>
                           </div>
-                        ))}
+                          <div className="flex flex-wrap gap-1.5 text-[10px]">
+                            <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Stimulus: {stimulusTag}</span>
+                            <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Kalimat: {kalimatTag}</span>
+                            <span className="bg-white/80 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-200">Teks Informasi & Fiksi</span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-[11px] text-gray-600">
+                          Klik subkompetensi di bawah untuk mengisi Materi dan Indikator secara otomatis sesuai standar resmi {currentLit.nama}:
+                        </p>
+
+                        <div className="space-y-2.5">
+                          {currentLit.matriksAsesmen.map((grp, gIdx) => (
+                            <div key={gIdx} className="bg-white/90 p-2.5 rounded-lg border border-blue-100/70 shadow-2xs">
+                              <span className="text-[11px] font-bold text-indigo-900 block mb-1.5">
+                                {gIdx + 1}. {grp.kompetensi}
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {grp.subkompetensiList.map((sub, sIdx) => {
+                                  const isSelected = formData.indikator === sub.subkompetensi;
+                                  return (
+                                    <button
+                                      key={sIdx}
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData({
+                                          ...formData,
+                                          materi: sub.materiDefault || sub.ringkasan,
+                                          indikator: sub.subkompetensi
+                                        });
+                                      }}
+                                      title={sub.subkompetensi}
+                                      className={`px-2.5 py-1 text-[11px] rounded-md transition-all text-left flex items-center gap-1.5 ${
+                                        isSelected
+                                          ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                                          : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50'
+                                      }`}
+                                    >
+                                      {isSelected && <Check size={11} className="shrink-0" />}
+                                      <span>{sub.ringkasan}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* TKA Numerasi Helper */}
-                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Numerasi' && (
-                    <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-50/80 to-teal-50/50 border border-emerald-100 flex flex-col gap-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <Calculator size={16} className="text-emerald-600" />
-                          <span className="text-xs font-bold text-emerald-950">Matriks Asesmen TKA Numerasi (Matematika SD/MI)</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5 text-[10px]">
-                          <span className="bg-white/80 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200">Konteks Matematika & Keseharian</span>
-                          <span className="bg-white/80 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200">5 Kemampuan Matematis</span>
-                        </div>
-                      </div>
-                      
-                      <p className="text-[11px] text-gray-600">
-                        Klik materi/cakupan di bawah untuk mengisi Materi dan Indikator secara otomatis sesuai standar resmi TKA Numerasi:
-                      </p>
-
-                      <div className="space-y-2.5">
-                        {TKA_NUMERASI_CONFIG.matriksAsesmen.map((mat, mIdx) => (
-                          <div key={mIdx} className="bg-white/90 p-2.5 rounded-lg border border-emerald-100/70 shadow-2xs">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[11px] font-bold text-emerald-900">
-                                {mIdx + 1}. {mat.elemen} - <span className="font-semibold text-emerald-700">{mat.subElemen}</span>
-                              </span>
-                              {mat.catatan && (
-                                <span className="text-[9px] text-gray-500 italic hidden sm:inline">{mat.catatan}</span>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {mat.cakupan.map((cakupanItem, cIdx) => {
-                                const isSelected = formData.materi === cakupanItem;
-                                return (
-                                  <button
-                                    key={cIdx}
-                                    type="button"
-                                    onClick={() => {
-                                      setFormData({
-                                        ...formData,
-                                        materi: cakupanItem,
-                                        indikator: `Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait ${cakupanItem}.`
-                                      });
-                                    }}
-                                    title={cakupanItem}
-                                    className={`px-2.5 py-1 text-[11px] rounded-md transition-all text-left flex items-center gap-1.5 ${
-                                      isSelected
-                                        ? 'bg-emerald-600 text-white font-semibold shadow-xs'
-                                        : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50'
-                                    }`}
-                                  >
-                                    {isSelected && <Check size={11} className="shrink-0" />}
-                                    <span>{cakupanItem}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
+                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Numerasi' && (() => {
+                    const currentNum = getTKANumerasiConfig(formData.jenjang);
+                    const jenjangUpper = (formData.jenjang || 'sd').toUpperCase();
+                    return (
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-50/80 to-teal-50/50 border border-emerald-100 flex flex-col gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Calculator size={16} className="text-emerald-600" />
+                            <span className="text-xs font-bold text-emerald-950">Matriks Asesmen {currentNum.nama}</span>
                           </div>
-                        ))}
+                          <div className="flex flex-wrap gap-1.5 text-[10px]">
+                            <span className="bg-white/80 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200">Konteks Nyata ({jenjangUpper})</span>
+                            <span className="bg-white/80 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200">Level 1, 2 & 3 (Penalaran)</span>
+                            <span className="bg-white/80 text-emerald-800 font-semibold px-2 py-0.5 rounded border border-emerald-200">{currentNum.elemen.length} Elemen Matematika</span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-[11px] text-gray-600">
+                          Klik materi/cakupan di bawah untuk mengisi Materi dan Indikator secara otomatis sesuai standar resmi {currentNum.nama}:
+                        </p>
+
+                        <div className="space-y-2.5">
+                          {currentNum.matriksAsesmen.map((mat, mIdx) => (
+                            <div key={mIdx} className="bg-white/90 p-2.5 rounded-lg border border-emerald-100/70 shadow-2xs">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[11px] font-bold text-emerald-900">
+                                  {mIdx + 1}. {mat.elemen} - <span className="font-semibold text-emerald-700">{mat.subElemen}</span>
+                                </span>
+                                {mat.catatan && (
+                                  <span className="text-[9px] text-gray-500 italic hidden sm:inline">{mat.catatan}</span>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {mat.cakupan.map((cakupanItem, cIdx) => {
+                                  const isSelected = formData.materi === cakupanItem;
+                                  return (
+                                    <button
+                                      key={cIdx}
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData({
+                                          ...formData,
+                                          materi: cakupanItem,
+                                          indikator: `Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait ${cakupanItem}.`
+                                        });
+                                      }}
+                                      title={cakupanItem}
+                                      className={`px-2.5 py-1 text-[11px] rounded-md transition-all text-left flex items-center gap-1.5 ${
+                                        isSelected
+                                          ? 'bg-emerald-600 text-white font-semibold shadow-xs'
+                                          : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50/50'
+                                      }`}
+                                    >
+                                      {isSelected && <Check size={11} className="shrink-0" />}
+                                      <span>{cakupanItem}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
+
+                  {/* TKA Literasi Bahasa Inggris Helper */}
+                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi Bahasa Inggris' && (() => {
+                    const currentIng = getTKABahasaInggrisConfig(formData.jenjang);
+                    return (
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50/80 to-violet-50/50 border border-purple-100 flex flex-col gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Globe size={16} className="text-purple-600" />
+                            <span className="text-xs font-bold text-purple-900">Matriks Asesmen {currentIng.nama}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 text-[10px]">
+                            <span className="bg-white/80 text-purple-700 font-semibold px-2 py-0.5 rounded border border-purple-200">CEFR: B1 (250–350w) & A2 (200–300w)</span>
+                            <span className="bg-white/80 text-purple-700 font-semibold px-2 py-0.5 rounded border border-purple-200">Descriptive, Recount, Narrative, Procedure, Exposition</span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-[11px] text-gray-600">
+                          Klik subkompetensi di bawah untuk mengisi Materi dan Indikator secara otomatis sesuai standar resmi {currentIng.nama}:
+                        </p>
+
+                        <div className="space-y-2.5">
+                          {currentIng.matriksAsesmen.map((grp, gIdx) => (
+                            <div key={gIdx} className="bg-white/90 p-2.5 rounded-lg border border-purple-100/70 shadow-2xs">
+                              <span className="text-[11px] font-bold text-purple-900 block mb-1.5">
+                                {gIdx + 1}. {grp.kompetensi}
+                              </span>
+                              <div className="flex flex-wrap gap-1.5">
+                                {grp.subkompetensiList.map((sub, sIdx) => {
+                                  const isSelected = formData.indikator === sub.subkompetensi;
+                                  return (
+                                    <button
+                                      key={sIdx}
+                                      type="button"
+                                      onClick={() => {
+                                        setFormData({
+                                          ...formData,
+                                          materi: sub.materiDefault || sub.ringkasan,
+                                          indikator: sub.subkompetensi
+                                        });
+                                      }}
+                                      title={sub.subkompetensi}
+                                      className={`px-2.5 py-1 text-[11px] rounded-md transition-all text-left flex items-center gap-1.5 ${
+                                        isSelected
+                                          ? 'bg-purple-600 text-white font-semibold shadow-xs'
+                                          : 'bg-gray-50 text-gray-700 border border-gray-200 hover:border-purple-400 hover:bg-purple-50/50'
+                                      }`}
+                                    >
+                                      {isSelected && <Check size={11} className="shrink-0" />}
+                                      <span>{sub.ringkasan}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                   <div>
@@ -1139,7 +1211,7 @@ Berikan output dalam format JSON murni:
                           setFormData({
                             ...formData, 
                             kerangkaTaksonomi: 'Bloom', 
-                            levelKognitif: formData.levelKognitif.filter(l => l.startsWith('C') || l === 'HOTS' || l === 'Kombinasi')
+                            levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan']
                           });
                         }}
                         className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
@@ -1151,8 +1223,21 @@ Berikan output dalam format JSON murni:
                         onClick={() => {
                           setFormData({
                             ...formData, 
+                            kerangkaTaksonomi: 'TKA', 
+                            levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
+                          });
+                        }}
+                        className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'TKA' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                      >
+                        Standar TKA
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData, 
                             kerangkaTaksonomi: 'SOLO', 
-                            levelKognitif: []
+                            levelKognitif: ['Multi-struktural', 'Relasional']
                           });
                         }}
                         className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
@@ -1165,6 +1250,8 @@ Berikan output dalam format JSON murni:
                     <div className="flex flex-wrap gap-2">
                       {(formData.kerangkaTaksonomi === 'Bloom' 
                         ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Mengaplikasikan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta', 'HOTS', 'Kombinasi']
+                        : formData.kerangkaTaksonomi === 'TKA'
+                        ? ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran', 'Kombinasi']
                         : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
                       ).map(lvl => (
                         <button
