@@ -2,6 +2,20 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.3.8] - 11 September 2026
+- **Kepatuhan Google AdSense**: Menambahkan file `public/ads.txt` untuk verifikasi kepemilikan dan otorisasi inventaris penayang (Publisher ID: `pub-6672360569413669`).
+- **Sitemap Generator**: Menambahkan `public/sitemap.xml` yang memetakan 12 URL publik prioritas (halaman statis dan seluruh artikel blog) untuk mempercepat indexing mesin pencari.
+- **Halaman Kontak Resmi**: Menambahkan `public/contact.html` yang dilengkapi kanal bantuan, jam operasional, dan FAQ interaktif (7 pertanyaan umum).
+- **Pembaruan Kebijakan Privasi**: Menulis ulang `public/privacy-policy.html` dalam Bahasa Indonesia (12 pasal komprehensif) sesuai UU PDP, transparansi pemrosesan data Google AdSense, Cloudflare, dan Google Gemini AI.
+- **Pembaruan Syarat & Ketentuan**: Menulis ulang `public/terms-of-service.html` dalam Bahasa Indonesia (15 pasal detail) terkait ketentuan lisensi output AI, etika penggunaan, dan batasan tanggung jawab.
+- **Penyempurnaan Halaman Tentang Kami**: Memperluas `public/about.html` dengan section 6 Kartu Fitur Unggulan, FAQ Accordion (6 pertanyaan), meta description, canonical tag, dan script AdSense.
+- **Pengayaan Konten Blog Pendidikan**: Menambahkan 5 artikel blog baru berkualitas tinggi (1.400–1.800 kata per artikel) dengan struktur SEO lengkap membahas Modul Ajar Kurikulum Merdeka, RPP Standar Nasional, Penilaian HOTS, Supervisi Akademik, dan Administrasi Sekolah Digital.
+
+## [5.3.7] - 3 September 2026
+- **Standar Kompetensi TKA**: Mengintegrasikan muatan Tes Kemampuan Akademik (TKA) untuk domain Literasi dan Numerasi jenjang SD, SMP, dan SMA pada modul Pembuat Soal (`BuatSoal.tsx`).
+- **Basis Data TKA**: Menambahkan dataset komprehensif kompetensi TKA (`src/data/tkaData.ts`) yang mencakup domain, subdomain, dan deskripsi capaian pembelajaran.
+- **Penyempurnaan UI/UX Evaluasi**: Merapikan navigasi dan pilihan kurikulum evaluasi pada generator soal agar lebih intuitif bagi pendidik.
+
 ## [5.3.6] - 5 Agustus 2026
 - Menambahkan file SKILL.md pada folder .agents untuk otomatisasi pemahaman arsitektur oleh AI Agent.
 
