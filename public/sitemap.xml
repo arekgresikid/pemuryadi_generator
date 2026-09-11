@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Halaman Utama -->
+  <url>
+    <loc>https://digen.id/</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Halaman Statis -->
+  <url>
+    <loc>https://digen.id/about.html</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/contact.html</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/privacy-policy.html</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/terms-of-service.html</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Artikel Blog -->
+  <url>
+    <loc>https://digen.id/blog/ai-yang-mengajar-tanpa-menggantikan-cara-guru-memakai-asisten-cerdas-untuk-personalisasi-pembelajaran-yang-sehat</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/bagaimana-ai-membantu-guru-mengurangi-beban-administrasi-menghemat-waktu-dan-mendorong-inovasi-pembelajaran</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/guru-vs-kelelahan-digital-strategi-ritual-mikro-menggunakan-ai-agar-kelas-tetap-hidup-tanpa-burnout</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/teknologi-dan-ai-solusi-efektif-mengurangi-beban-administratif-guru</loc>
+    <lastmod>2026-06-23</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/lelah-mengajar-itu-bisa-diperbaiki-strategi-edtech-berbasis-ai-untuk-merancang-ulang-rutinitas-guru-yang-berkelanjutan</loc>
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/berhenti-kerepotan-menilai-cara-ai-membantu-guru-memberi-umpan-balik-yang-lebih-cepat-akurat-dan-bermakna</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/guru-tak-lagi-capek-sendiri-strategi-cerdas-kurangi-beban-administrasi-dengan-ai-tanpa-mengorbankan-kualitas-mengajar</loc>
+    <lastmod>2026-07-08</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Baru -->
+  <url>
+    <loc>https://digen.id/blog/panduan-lengkap-membuat-modul-ajar-kurikulum-merdeka-dengan-ai</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/cara-efektif-membuat-rpp-kurikulum-merdeka-yang-sesuai-standar-nasional</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/strategi-penilaian-hots-yang-mudah-diterapkan-di-kelas</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/tips-supervisi-akademik-efektif-untuk-kepala-sekolah</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://digen.id/blog/mengelola-administrasi-sekolah-digital-panduan-lengkap-2026</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>never</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+</urlset>
