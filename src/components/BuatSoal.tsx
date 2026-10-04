@@ -13,6 +13,7 @@ import AIAssistedTextarea from './AIAssistedTextarea';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
 import LiveQuizOrchestrator from './LiveQuizOrchestrator';
+import { ReferenceFile, REF_MAX_FILES, REF_ACCEPT, processReferenceFile, buildContentsWithReferences } from '../utils/referenceFiles';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -24,6 +25,29 @@ export default function BuatSoal() {
   const [printTypeToProceed, setPrintTypeToProceed] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | null>(null);
   
   const [error, setError] = useState('');
+  const [referenceFiles, setReferenceFiles] = useState<ReferenceFile[]>([]);
+  const [isReadingRef, setIsReadingRef] = useState(false);
+  const [refError, setRefError] = useState('');
+
+  const handleReferenceFiles = async (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    setRefError('');
+    setIsReadingRef(true);
+    const added: ReferenceFile[] = [];
+    for (const file of Array.from(fileList)) {
+      if (referenceFiles.length + added.length >= REF_MAX_FILES) {
+        setRefError(`Maksimal ${REF_MAX_FILES} file referensi.`);
+        break;
+      }
+      try {
+        added.push(await processReferenceFile(file));
+      } catch (e: any) {
+        setRefError(e?.message || 'Gagal memproses file.');
+      }
+    }
+    if (added.length) setReferenceFiles(prev => [...prev, ...added]);
+    setIsReadingRef(false);
+  };
   
   const [formData, setFormData] = useLocalStorage<{
     jenjang: string;
@@ -397,7 +421,7 @@ Berikan output dalam format JSON murni:
 
       const response = await ai.models.generateContent({
         model: selectedModel,
-        contents: prompt,
+        contents: buildContentsWithReferences(prompt, referenceFiles),
         config: {
           responseMimeType: "application/json",
           responseSchema: responseSchema,
@@ -1264,6 +1288,37 @@ Berikan output dalam format JSON murni:
                         </button>
                       ))}
                     </div>
+
+                    <label className="block text-[10px] font-semibold text-gray-500 mt-5 mb-2 uppercase tracking-wider">Referensi Materi (Opsional)</label>
+                    <label
+                      onDragOver={e => e.preventDefault()}
+                      onDrop={e => { e.preventDefault(); handleReferenceFiles(e.dataTransfer.files); }}
+                      className="flex flex-col items-center justify-center gap-1 p-4 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/40 cursor-pointer transition-all text-center"
+                    >
+                      <input
+                        type="file"
+                        multiple
+                        accept={REF_ACCEPT}
+                        className="hidden"
+                        onChange={e => { handleReferenceFiles(e.target.files); e.target.value = ''; }}
+                      />
+                      {isReadingRef ? <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" /> : <FileText className="w-5 h-5 text-indigo-500" />}
+                      <span className="text-xs font-semibold text-slate-700">{isReadingRef ? 'Membaca file...' : 'Klik atau seret file ke sini'}</span>
+                      <span className="text-[10px] text-slate-500">JPG, PDF, Word (.docx), Excel (.xlsx) · maks {REF_MAX_FILES} file · 5 MB/file</span>
+                    </label>
+                    {refError && <p className="text-[11px] text-red-600 mt-2">{refError}</p>}
+                    {referenceFiles.length > 0 && (
+                      <ul className="mt-3 flex flex-col gap-2">
+                        {referenceFiles.map(f => (
+                          <li key={f.id} className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700">
+                            <span className="truncate">{f.name}</span>
+                            <button type="button" onClick={() => setReferenceFiles(prev => prev.filter(x => x.id !== f.id))} className="text-slate-400 hover:text-red-500 flex-shrink-0" aria-label={`Hapus ${f.name}`}>
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                 </div>
                 </div>
