@@ -3,7 +3,7 @@ import ModelSelector from './ModelSelector';
 
 import { GoogleGenAI, Type } from '../lib/genai';
 import { educationLevels, phaseClassMap, subjectsByLevel, cpData } from '../constants';
-import { TKA_LITERASI_CONFIG, TKA_NUMERASI_CONFIG, getTKALiterasiConfig, getTKANumerasiConfig, getTKABahasaInggrisConfig, getTKAConfigBySubtype } from '../data/tkaData';
+import { TKA_LITERASI_CONFIG, TKA_NUMERASI_CONFIG, getTKALiterasiConfig, getTKANumerasiConfig, getTKABahasaInggrisConfig, getTKAConfigBySubtype, buildTKAMatriksText } from '../data/tkaData';
 import { Loader2, FileText, List, Printer, AlertTriangle, Lightbulb, Sparkles, Save , Trash2, CheckCircle, ChevronDown, Copy, Check, Info, Image as ImageIcon, AlertCircle, RefreshCw, BookOpen, Calculator, Globe } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, createPrintWindow } from '../utils/print';
@@ -161,6 +161,23 @@ export default function BuatSoal() {
     }
   };
 
+  // Ilustrasi stimulus bersama (gaya buku sekolah grayscale)
+  const buildStimulusImageUrl = (description: string) => {
+    const styled = encodeURIComponent(`${description}, black and white grayscale educational textbook illustration, Indonesian school workbook cartoon style, clean ink outlines with soft gray shading, friendly characters, no text, no letters, plain white background`);
+    const seed = Math.floor(Math.random() * 1000000);
+    return `/api/generate-image?prompt=${styled}&model=${selectedImageModel}&seed=${seed}`;
+  };
+
+  const handleGenerateImageForStimulus = (stimulusId: string) => {
+    setResultSoal((prev: any) => {
+      if (!prev || !Array.isArray(prev.stimulusList)) return prev;
+      return {
+        ...prev,
+        stimulusList: prev.stimulusList.map((st: any) => st.id === stimulusId ? { ...st, gambarUrl: buildStimulusImageUrl(st.gambarDeskripsi || st.judul || '') } : st)
+      };
+    });
+  };
+
   const [resultKisiKisi, setResultKisiKisi] = useState<any>(null);
   const [resultSoal, setResultSoal] = useState<any>(null);
 
@@ -211,6 +228,16 @@ export default function BuatSoal() {
       const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       const cp = getCP();
 
+      // Matriks Asesmen resmi TKA diterapkan di belakang layar oleh Model AI
+      const tkaMatriksInstruction = (cfg: any) => {
+        const matriksText = buildTKAMatriksText(cfg);
+        if (!matriksText) return '';
+        const autoPick = !formData.materi?.trim() && !formData.indikator?.trim();
+        return `\n\nMATRIKS ASESMEN RESMI ${String(cfg.nama || '').toUpperCase()} (ACUAN UTAMA):\n${matriksText}\n\n${autoPick
+          ? 'Materi dan Indikator TIDAK diisi guru: Model AI WAJIB memilih sendiri elemen/subkompetensi dari matriks di atas dan menyebarkan soal secara proporsional ke seluruh elemen/subkompetensi yang relevan untuk jenjang ini, dengan proporsi level kognitif (Pemahaman, Aplikasi, Penalaran) sesuai standar TKA.'
+          : 'Fokuskan soal pada Materi/Indikator yang diisi guru, lalu petakan setiap butir ke elemen/subkompetensi yang paling sesuai dalam matriks di atas.'}`;
+      };
+
       // Token limit is now securely enforced centrally in lib/genai.ts
 
       let prompt = '';
@@ -232,6 +259,7 @@ export default function BuatSoal() {
           const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
           if (tkaCfg) {
             tkaSpecificPrompt = `\n\n${tkaCfg.promptRules}\n\nWAJIB: Seluruh elemen, tujuan pembelajaran, materi, dan indikator soal kisi-kisi HARUS secara eksplisit mengacu pada Kerangka dan Matriks Asesmen Resmi ${tkaCfg.nama} untuk jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
+            tkaSpecificPrompt += tkaMatriksInstruction(tkaCfg);
           }
         }
 
@@ -243,8 +271,8 @@ Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
 Capaian Pembelajaran: ${cp}
-Materi Esensial: ${formData.materi}
-Indikator Asesmen: ${formData.indikator}
+Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
 ${breakdownSoal}
@@ -299,6 +327,7 @@ Berikan output dalam format JSON murni:
           const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
           if (tkaCfg) {
             extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI ${tkaCfg.nama.toUpperCase()}:\n${tkaCfg.promptRules}\n- PENTING KHUSUS ${formData.subTipeUjian.toUpperCase()}: Setiap butir soal WAJIB memenuhi standar stimulus, batasan jumlah kata bacaan/soal, karakteristik kebahasaan/matematika, level kognitif resmi (knowing/understanding, applying, reasoning), dan matriks subkompetensi resmi TKA jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
+            extraInstructions += tkaMatriksInstruction(tkaCfg);
           } else {
             extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Lakukan pencarian web real-time menggunakan Google Search tool untuk mencari referensi soal dan kisi-kisi resmi ${formData.subTipeUjian} terbaru dari tahun 2022 hingga 2026.`;
           }
@@ -310,6 +339,15 @@ Berikan output dalam format JSON murni:
 
         if (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0) {
           extraInstructions += `\n- SOAL BERGAMBAR (SANGAT PENTING): Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Anda WAJIB membuat tepat ${formData.jumlahSoalBergambar} soal yang membutuhkan gambar/diagram ilustrasi visual. Untuk soal bergambar ini, Anda MUTLAK harus mengisi field "gambarDeskripsi" di format JSON dengan prompt gambar (bahasa Inggris) yang sangat detail. JANGAN KOSONGKAN "gambarDeskripsi" untuk soal bergambar! Contoh: "A detailed map of Indonesia showing major islands", "A diagram of human digestive system". Untuk soal reguler yang tidak butuh gambar, biarkan kosong.`;
+        }
+
+        const tkaCfgForStimulus = formData.tipeUjian === 'Other' ? getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang) : null;
+        const useStimulus = !!tkaCfgForStimulus || formData.tipeUjian === 'Asesmen Nasional' || (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0);
+        if (useStimulus) {
+          extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama. Setiap stimulus dipakai oleh 3–5 soal berurutan (Model AI menentukan jumlah yang paling sesuai). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap sesuai batasan jumlah kata standar jenjang; untuk numerasi boleh berupa konteks cerita beserta data), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang sangat detail tentang adegan utama stimulus, tanpa teks di dalam gambar; contoh: "Indonesian elementary school students in uniforms sorting plastic bottles, paper and cardboard into separate recycling bins at a school waste bank booth"), dan "rentangSoal" (contoh "1-5"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong. Pertanyaan soal TIDAK perlu mengulang teks stimulus.`;
+        }
+        if (useStimulus || formData.bentukSoal.includes('Kombinasi')) {
+          extraInstructions += `\n- VARIASI BENTUK SOAL AKM/TKA: Boleh memvariasikan "Pilihan Ganda", "Pilihan Ganda Kompleks" (lebih dari satu jawaban benar; opsi di "opsiTambahan"; kunci berisi semua huruf yang benar), dan "Benar/Salah" (isi "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar" atau "Salah"}]; field "kunci" soal berisi ringkasan, misal "A. Benar, B. Salah, C. Benar").`;
         }
 
         if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
@@ -324,8 +362,8 @@ Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
 Capaian Pembelajaran: ${cp}
-Materi Esensial: ${formData.materi}
-Indikator Asesmen: ${formData.indikator}
+Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
 Rincian Target Reguler: ${breakdownSoal}
@@ -340,10 +378,15 @@ ${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Ber
 
 Berikan output dalam format JSON murni:
 {
+  "stimulusList": [
+    { "id": "S1", "judul": "...", "teks": "...", "gambarDeskripsi": "...", "gambarUrl": "", "rentangSoal": "1-5" }
+  ],
   "soalList": [
     { 
-      "jenisSoal": "Pilihan Ganda / Uraian / dll", 
+      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / dll", 
       "no": "...", 
+      "stimulusId": "S1 atau kosong", 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
       "pertanyaan": "...", 
       "opsiTambahan": ["A. ...", "B. ..."], 
       "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
@@ -371,9 +414,11 @@ Berikan output dalam format JSON murni:
               properties: {
                 jenisSoal: { type: Type.STRING },
                 no: { type: Type.STRING },
+                stimulusId: { type: Type.STRING },
                 pertanyaan: { type: Type.STRING },
                 opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
                 pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
+                pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
                 kunci: { type: Type.STRING },
                 pembahasan: { type: Type.STRING },
                 skor: { type: Type.STRING },
@@ -384,6 +429,21 @@ Berikan output dalam format JSON murni:
                 gambarUrl: { type: Type.STRING }
               },
               required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan", "gambarDeskripsi"]
+            }
+          },
+          stimulusList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                id: { type: Type.STRING },
+                judul: { type: Type.STRING },
+                teks: { type: Type.STRING },
+                gambarDeskripsi: { type: Type.STRING },
+                gambarUrl: { type: Type.STRING },
+                rentangSoal: { type: Type.STRING }
+              },
+              required: ["id", "judul", "teks", "gambarDeskripsi"]
             }
           }
         };
@@ -453,6 +513,13 @@ Berikan output dalam format JSON murni:
         }
         if (generatedData.soalABKList) {
           generatedData.soalABKList = processSoalImages(generatedData.soalABKList);
+        }
+        if (Array.isArray(generatedData.stimulusList)) {
+          generatedData.stimulusList = generatedData.stimulusList.map((st: any) => (
+            (st.gambarDeskripsi || st.judul) && !st.gambarUrl
+              ? { ...st, gambarUrl: buildStimulusImageUrl(st.gambarDeskripsi || st.judul) }
+              : st
+          ));
         }
       }
 
@@ -612,6 +679,37 @@ Berikan output dalam format JSON murni:
   const renderSoalPrint = (type: 'naskah' | 'kunci' | 'kartu') => {
     if (!resultSoal || (!resultSoal.soalList && !resultSoal.soalABKList)) return '';
     const { meta, soalList = [], soalABKList = [] } = resultSoal;
+    const stimulusList: any[] = Array.isArray(resultSoal.stimulusList) ? resultSoal.stimulusList : [];
+    const isKompleks = (s: any) => /kompleks/i.test(s?.jenisSoal || '');
+    const getStimulus = (s: any) => s?.stimulusId ? stimulusList.find((x: any) => x.id === s.stimulusId) : null;
+    const stimulusRentang = (stimulusId: string) => {
+      const nums = soalList.filter((x: any) => x.stimulusId === stimulusId).map((x: any) => x.no);
+      return nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]}` : `${nums[0] || ''}`;
+    };
+    const stimulusHeaderPrint = (s: any, i: number) => {
+      const st = getStimulus(s);
+      if (!st) return '';
+      if (i > 0 && soalList[i - 1]?.stimulusId === s.stimulusId) return '';
+      return `
+        <div style="margin: 20px 0;">
+          <p style="font-weight: bold; margin-bottom: 6px;">Bacalah teks berikut untuk menjawab soal nomor ${stimulusRentang(s.stimulusId)}.</p>
+          <h3 style="text-align: center; margin: 6px 0 12px;">${st.judul || ''}</h3>
+          ${st.gambarUrl ? `<img src="${st.gambarUrl}" style="float: right; width: 45%; max-height: 9cm; object-fit: contain; margin: 0 0 10px 15px; border: 1px solid #ccc;" />` : ''}
+          <div style="white-space: pre-wrap; text-align: justify;">${st.teks || ''}</div>
+          <div style="clear: both;"></div>
+        </div>
+      `;
+    };
+    const stimulusKartuPrint = (s: any) => {
+      const st = getStimulus(s);
+      if (!st) return '';
+      return `<div style="margin-bottom: 10px; padding: 8px; border: 1px dashed #999; font-size: 12px;"><strong>Stimulus: ${st.judul || ''}</strong><div style="white-space: pre-wrap; margin-top: 4px;">${st.teks || ''}</div>${st.gambarUrl ? `<img src="${st.gambarUrl}" style="max-width: 6cm; max-height: 6cm; margin-top: 6px; border: 1px solid #ccc; display: block;" />` : ''}</div>`;
+    };
+    const benarSalahPrint = (s: any) => (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
+      <table style="width: 90%; margin: 8px 0 10px;">
+        <thead><tr><th>Pernyataan</th><th style="width: 60px;">Benar</th><th style="width: 60px;">Salah</th></tr></thead>
+        <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center;">○</td><td style="text-align: center;">○</td></tr>`).join('')}</tbody>
+      </table>` : '';
 
     const printHeader = `
       ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
@@ -639,8 +737,10 @@ Berikan output dalam format JSON murni:
                    <strong>Bentuk Soal:</strong> ${s.jenisSoal}
                 </div>
                 <div class="kartu-right">
+                   ${stimulusKartuPrint(s)}
                    <strong>Rumusan Soal / Pertanyaan:</strong><br/>
                    <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
+                   ${benarSalahPrint(s)}
                    
                    ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
@@ -751,7 +851,8 @@ Berikan output dalam format JSON murni:
     return `
       <h2>NASKAH SOAL</h2>
       ${printHeader}
-      ${soalList.map((s: any) => `
+      ${soalList.map((s: any, i: number) => `
+        ${stimulusHeaderPrint(s, i)}
         <div style="margin-bottom: 20px; page-break-inside: avoid;">
           <div style="display: flex;">
             <div style="width: 30px; font-weight: bold;">${s.no}.</div>
@@ -760,9 +861,11 @@ Berikan output dalam format JSON murni:
               
               ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
+              ${benarSalahPrint(s)}
+
               ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                 <div style="margin-left: 10px;">
-                  ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
+                  ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
                 </div>
               ` : ''}
               ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
@@ -963,7 +1066,8 @@ Berikan output dalam format JSON murni:
                   </div>
 
                   {/* TKA Literasi Helper */}
-                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi' && (() => {
+                  {/* Disembunyikan: Matriks Asesmen diterapkan otomatis oleh Model AI di belakang layar */}
+                  {false && formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi' && (() => {
                     const currentLit = getTKALiterasiConfig(formData.jenjang);
                     const jenjangUpper = (formData.jenjang || 'sd').toUpperCase();
                     const stimulusTag = jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK') ? '250–300 kata' : jenjangUpper.includes('SMP') || jenjangUpper.includes('MTS') ? '200–250 kata' : '150–200 kata';
@@ -1027,7 +1131,8 @@ Berikan output dalam format JSON murni:
                   })()}
 
                   {/* TKA Numerasi Helper */}
-                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Numerasi' && (() => {
+                  {/* Disembunyikan: Matriks Asesmen diterapkan otomatis oleh Model AI di belakang layar */}
+                  {false && formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Numerasi' && (() => {
                     const currentNum = getTKANumerasiConfig(formData.jenjang);
                     const jenjangUpper = (formData.jenjang || 'sd').toUpperCase();
                     return (
@@ -1094,7 +1199,8 @@ Berikan output dalam format JSON murni:
                   })()}
 
                   {/* TKA Literasi Bahasa Inggris Helper */}
-                  {formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi Bahasa Inggris' && (() => {
+                  {/* Disembunyikan: Matriks Asesmen diterapkan otomatis oleh Model AI di belakang layar */}
+                  {false && formData.tipeUjian === 'Other' && formData.subTipeUjian === 'TKA Literasi Bahasa Inggris' && (() => {
                     const currentIng = getTKABahasaInggrisConfig(formData.jenjang);
                     return (
                       <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50/80 to-violet-50/50 border border-purple-100 flex flex-col gap-3">
@@ -1166,7 +1272,7 @@ Berikan output dalam format JSON murni:
                     <AIAssistedInput type="text"
                       value={formData.materi}
                       onChange={e => setFormData({...formData, materi: e.target.value})}
-                      placeholder="Contoh: Pecahan, Ekosistem, dll."
+                      placeholder={formData.tipeUjian === 'Other' && ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) ? 'Kosongkan agar Model AI memilih otomatis dari matriks resmi' : 'Contoh: Pecahan, Ekosistem, dll.'}
                       className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                     />
                   </div>
@@ -1176,7 +1282,7 @@ Berikan output dalam format JSON murni:
                       <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Indikator Asesmen</label>
                       <AIAssistedTextarea value={formData.indikator}
                         onChange={e => setFormData({...formData, indikator: e.target.value})}
-                        placeholder="Contoh: Peserta didik dapat menganalisis..."
+                        placeholder={formData.tipeUjian === 'Other' && ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) ? 'Kosongkan agar Model AI memilih otomatis dari matriks resmi' : 'Contoh: Peserta didik dapat menganalisis...'}
                         className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all h-24" />
                     </div>
                   </div>
@@ -1557,7 +1663,46 @@ Berikan output dalam format JSON murni:
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="font-bold text-indigo-600 text-lg border-b border-indigo-200 pb-2 mb-4 mt-8">A. NASKAH SOAL (REGULER)</h3>
                     {resultSoal.soalList.map((s: any, i: number) => (
-                      <div key={i} className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl animate-in fade-in duration-200">
+                      <React.Fragment key={i}>
+                      {s.stimulusId && (i === 0 || resultSoal.soalList[i - 1]?.stimulusId !== s.stimulusId) && (() => {
+                        const st = (resultSoal.stimulusList || []).find((x: any) => x.id === s.stimulusId);
+                        if (!st) return null;
+                        const nums = resultSoal.soalList.filter((x: any) => x.stimulusId === s.stimulusId).map((x: any) => x.no);
+                        const rentang = nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]}` : `${nums[0] || ''}`;
+                        return (
+                          <div className="p-5 border border-amber-200 bg-amber-50/40 rounded-xl">
+                            <p className="text-sm font-bold text-gray-800 mb-2">Bacalah teks berikut untuk menjawab soal nomor {rentang}.</p>
+                            <h4 className="text-center font-bold text-gray-900 text-base mb-3">{st.judul}</h4>
+                            <div className="flow-root">
+                              {(st.gambarDeskripsi || st.gambarUrl) && (
+                                <div className="sm:float-right sm:ml-4 mb-3 sm:w-[45%]">
+                                  {st.gambarUrl ? (
+                                    <div className="relative group">
+                                      <img src={st.gambarUrl} alt={st.judul || 'Ilustrasi stimulus'} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+                                      <button
+                                        onClick={() => handleGenerateImageForStimulus(st.id)}
+                                        className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                                        title="Regenerate Ilustrasi"
+                                      >
+                                        <span>🔄</span>
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleGenerateImageForStimulus(st.id)}
+                                      className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
+                                    >
+                                      <span>🎨 Generate Ilustrasi Stimulus</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                              <div className="text-sm text-gray-800 whitespace-pre-wrap text-justify leading-relaxed">{st.teks}</div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      <div className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl animate-in fade-in duration-200">
                         <p className="font-medium text-gray-900 mb-4 flex gap-3">
                           <span className="text-gray-500 shrink-0">{s.no}.</span>
                           <span className="whitespace-pre-wrap">{s.pertanyaan}</span>
@@ -1602,10 +1747,33 @@ Berikan output dalam format JSON murni:
                           </div>
                         )}
                         
+                        {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                          <div className="pl-8 mb-3 overflow-x-auto">
+                            <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
+                              <thead>
+                                <tr className="bg-gray-100">
+                                  <th className="border border-gray-300 px-3 py-1.5 text-left">Pernyataan</th>
+                                  <th className="border border-gray-300 px-3 py-1.5 w-16">Benar</th>
+                                  <th className="border border-gray-300 px-3 py-1.5 w-16">Salah</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                  <tr key={k}>
+                                    <td className="border border-gray-300 px-3 py-1.5">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                    <td className="border border-gray-300 px-3 py-1.5 text-center">○</td>
+                                    <td className="border border-gray-300 px-3 py-1.5 text-center">○</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+
                         {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                           <div className="pl-8 space-y-2">
                             {s.opsiTambahan.map((o: string, j: number) => (
-                              <div key={j} className="text-sm text-gray-600">{o}</div>
+                              <div key={j} className="text-sm text-gray-600">{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
                             ))}
                           </div>
                         )}
@@ -1629,6 +1797,7 @@ Berikan output dalam format JSON murni:
                           <span className="text-xs bg-gray-100 border border-gray-300 px-2 py-1 rounded text-gray-500">{s.jenisSoal}</span>
                         </div>
                       </div>
+                      </React.Fragment>
                     ))}
 
                     {resultSoal.soalABKList && resultSoal.soalABKList.length > 0 && (

@@ -948,3 +948,22 @@ export function getTKAConfigBySubtype(subTipe: string, jenjang: string = 'sd') {
   }
   return null;
 }
+
+/**
+ * Serialisasi Matriks Asesmen resmi TKA menjadi teks untuk disisipkan ke prompt AI.
+ * Matriks tidak lagi ditampilkan di UI; Model AI yang memilih elemen/subkompetensi secara otomatis.
+ */
+export function buildTKAMatriksText(cfg: any): string {
+  if (!cfg || !Array.isArray(cfg.matriksAsesmen)) return '';
+  return cfg.matriksAsesmen.map((item: any, idx: number) => {
+    if (Array.isArray(item.subkompetensiList)) {
+      const subs = item.subkompetensiList.map((s: any) => `   - ${s.subkompetensi}`).join('\n');
+      return `${idx + 1}. ${item.kompetensi}${item.deskripsi ? ` — ${item.deskripsi}` : ''}\n${subs}`;
+    }
+    if (Array.isArray(item.cakupan)) {
+      const cak = item.cakupan.map((c: string) => `   - ${c}`).join('\n');
+      return `${idx + 1}. ${item.elemen} – ${item.subElemen}${item.kompetensi ? ` (${item.kompetensi})` : ''}${item.catatan ? ` [Catatan: ${item.catatan}]` : ''}\n${cak}`;
+    }
+    return '';
+  }).filter(Boolean).join('\n');
+}
