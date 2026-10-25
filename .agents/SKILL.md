@@ -26,8 +26,7 @@ Platform ini menggunakan arsitektur modern berbasis serverless dan edge computin
 - **Serverless API:** Cloudflare Workers menggunakan framework **Hono** (`functions/api/[[route]].ts`).
 - **Database:** Cloudflare D1 (Serverless SQLite).
 - **AI Engines:** 
-  - **Google Gemini API** / **OpenAI SDK Wrapper** (`@google/genai`) dari `src/lib/genai.ts`.
-  - **Pollinations AI Proxy** (sebagai fallback Text & Image generator bypass).
+  - **Multi-Model AI Engine & Proxy:** Menggunakan client OpenAI SDK wrapper (`src/lib/genai.ts`) yang terhubung ke **Pollinations AI Proxy** (`functions/api/[[route]].ts` -> `/api/chat/completions` & `/api/generate-image`), mendukung berbagai model teks (OpenAI, DeepSeek, Claude, Qwen, Mistral, dll.) dan model gambar (Flux, Wan Image, Z-Image, dll.) dengan alokasi model berbasis tier pengguna.
 - **Authentication:** Google OAuth 2.0 via Hono JWT Cookies.
 
 ---
@@ -45,7 +44,7 @@ Semua komponen utama berada di `src/components/`. Terdapat puluhan alat cerdas, 
 - `DailyJournal.tsx`, `MengajarHarian.tsx` - Jurnal/Buku Kerja.
 
 ### 2. Generator Evaluasi & Soal
-- `BuatSoal.tsx` - Generator soal cerdas.
+- `BuatSoal.tsx` - Generator soal cerdas Kurikulum Merdeka, TKA (Literasi & Numerasi dengan matriks resmi otomatis di belakang layar), wacana stimulus bersama + ilustrasi visual otomatis, serta variasi bentuk soal (PG, PG Kompleks, Benar/Salah, Menjodohkan, Uraian, dan Adaptasi ABK).
 - `WorksheetGenerator.tsx` - LKPD interaktif.
 - `AIAssistedInput.tsx`, `AIAssistedTextarea.tsx` - Komponen cerdas injeksi AI pada form.
 

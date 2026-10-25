@@ -37,9 +37,9 @@
 - **Kalender Pendidikan & Analisis Hari Efektif**: Menghitung jam mengajar bersih secara real-time.
 
 #### 3.3. Evaluasi & Soal
-- **AI Soal Generator**: Pembuatan soal Pilihan Ganda, Essay, AKM (Literasi & Numerasi), HOTS.
+- **AI Soal Generator**: Pembuatan soal Pilihan Ganda, Pilihan Ganda Kompleks, Benar/Salah, Menjodohkan, Essay/Uraian, AKM/TKA (Literasi & Numerasi dengan matriks kompetensi resmi otomatis di belakang layar), HOTS, serta stimulus wacana bersama terintegrasi dengan ilustrasi gambar otomatis.
 - **Isian Rumpang (Fill in the Blank)**: Soal melengkapi kalimat.
-- **Kisi-kisi Soal**: Template otomatis untuk pedoman ujian.
+- **Kisi-kisi Soal**: Template otomatis untuk pedoman ujian terstandarisasi.
 - **Evaluasi Mutu (KSP/SPMI)**: Evaluasi berbasis AI (menggunakan 5 Why, Fishbone, Venn Diagram) untuk memberikan rekomendasi program strategis lintas standar KSP.
 
 #### 3.4. Gamifikasi & Media Interaktif
@@ -48,7 +48,7 @@
 
 #### 3.5. AI Tools & Produktivitas
 - **Chatbot Pendidikan**: Chat AI untuk diskusi pedagogik.
-- **AI Visual Generator**: *Text-to-image* khusus untuk ilustrasi bahan ajar.
+- **AI Visual Generator**: *Text-to-image* khusus untuk ilustrasi bahan ajar (terhubung ke generator model gambar AI).
 - **Analisis Dokumen (PDF/Word)**: Upload dokumen untuk diringkas atau dianalisis.
 - **Pembagi Kelompok (Group Generator)** & **Barcode/QR Generator**.
 - **Jurnal Mengajar Guru**: Catatan refleksi harian guru.
@@ -61,7 +61,7 @@
 - **Frontend**: React.js 18.3, TypeScript 5.6, Vite, Tailwind CSS 3.4, Framer Motion (untuk UI UX & Animasi).
 - **Backend / Infrastruktur**: Cloudflare Pages (Hosting) & Cloudflare Workers (Serverless API).
 - **Database**: Cloudflare D1 (Serverless SQLite) untuk menyimpan data pengguna, riwayat generasi, dan transaksi token.
-- **AI Engine**: Google Gemini AI (Models: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash-exp`).
+- **AI Engine**: Multi-Model AI Engine via Pollinations Proxy (Mendukung model teks: OpenAI GPT, DeepSeek, Claude, Qwen, Mistral; serta model gambar: Flux, Wan Image, Z-Image).
 
 #### 4.2. Skema Database Utama
 - **`users`**: Menyimpan ID, email, nama, tier langganan, saldo token.

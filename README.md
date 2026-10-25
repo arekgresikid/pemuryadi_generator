@@ -9,9 +9,9 @@
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-Pages-F38020?style=for-the-badge&logo=cloudflare)](https://pages.cloudflare.com)
-[![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-4285F4?style=for-the-badge&logo=google)](https://ai.google.dev)
+[![AI Engine](https://img.shields.io/badge/AI_Engine-Multi--Model-8A2BE2?style=for-the-badge&logo=openai)](https://digen.id)
 
-**Pemuryadi Generator** adalah platform komprehensif berbasis Artificial Intelligence (AI) yang dirancang khusus untuk membantu guru, pendidik, dan siswa dalam kegiatan belajar mengajar. Ditenagai oleh teknologi **Google Gemini AI**, aplikasi ini menyediakan berbagai generator cerdas untuk mengotomatiskan pembuatan administrasi guru dan media pembelajaran interaktif.
+**Pemuryadi Generator** adalah platform komprehensif berbasis Artificial Intelligence (AI) yang dirancang khusus untuk membantu guru, pendidik, dan siswa dalam kegiatan belajar mengajar. Ditenagai oleh arsitektur **Multi-Model AI (OpenAI GPT, DeepSeek, Claude, Qwen, Flux, dll.)**, aplikasi ini menyediakan berbagai generator cerdas untuk mengotomatiskan pembuatan administrasi guru dan media pembelajaran interaktif.
 
 [Demo](https://digen.id) • [Dokumentasi](#-dokumentasi) • [Roadmap](#-roadmap) • [FAQ](#-faq)
 
@@ -50,11 +50,11 @@
 ### 🎯 Pembuatan Soal & Evaluasi
 | Fitur | Deskripsi | Status |
 |-------|-----------|--------|
-| **Buat Soal AI** | Generator soal Pilihan Ganda, Essay, HOTS, AKM Literasi & Numerasi | ✅ |
+| **Buat Soal AI** | Generator soal Pilihan Ganda, PG Kompleks, Benar/Salah, Menjodohkan, HOTS, AKM/TKA (Literasi & Numerasi dengan matriks resmi otomatis), serta wacana stimulus bersama + ilustrasi gambar otomatis | ✅ |
 | **Soal Isian Rumpang** | Generator fill-in-the-blank questions otomatis | ✅ |
 | **Crossword Generator** | Teka-teki silang (TTS) dari materi pelajaran | ✅ |
 | **Word Search Generator** | Puzzle pencarian kata edukatif | ✅ |
-| **Kisi-Kisi Soal** | Template kisi-kisi ulangan/ujian | 🚧 Beta |
+| **Kisi-Kisi Soal** | Template kisi-kisi ulangan/ujian terstandarisasi | ✅ |
 
 ### 🎮 Gamifikasi & Media Pembelajaran
 | Fitur | Deskripsi | Status |
@@ -149,13 +149,12 @@ graph TB
 
 #### Backend & Infrastructure
 - **Cloudflare Pages** - Static Hosting
-- **Cloudflare Workers** - Serverless Functions
+- **Cloudflare Workers** - Serverless Functions (Hono Framework)
 - **Cloudflare D1** - SQLite Database
 - **Cloudflare R2** - Object Storage (future)
-- **Google Gemini AI** - LLM Engine
-  - gemini-2.0-flash-exp
-  - gemini-1.5-pro
-  - gemini-1.5-flash
+- **Multi-Model AI Engine** - OpenAI SDK Wrapper via Pollinations Proxy
+  - Model Teks: OpenAI GPT-5/6, DeepSeek V4, Claude, Qwen, Mistral
+  - Model Gambar: Flux Schnell, Wan Image, Z-Image
 - **Google OAuth 2.0** - Authentication
 
 </td>
@@ -165,10 +164,10 @@ graph TB
 ## 🛠️ Teknologi yang Digunakan
 
 - **Frontend:** React.js, TypeScript, Vite, Tailwind CSS, Framer Motion, Lucide React
-- **Backend & Hosting:** Cloudflare Pages, Cloudflare Workers
+- **Backend & Hosting:** Cloudflare Pages, Cloudflare Workers (Hono)
 - **Database:** Cloudflare D1 (Serverless SQLite)
-- **Autentikasi:** Google OAuth
-- **AI Engine:** Google Gemini API (`gemini-2.5-pro`, `gemini-2.5-flash`)
+- **Autentikasi:** Google OAuth 2.0
+- **AI Engine:** Multi-Model AI Engine via Pollinations Proxy (OpenAI, DeepSeek, Claude, Qwen, Flux, dll.)
 
 ## 🚀 Cara Menjalankan Secara Lokal (Development)
 
