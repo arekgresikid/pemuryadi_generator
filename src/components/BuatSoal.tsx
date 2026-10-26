@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import ModelSelector from './ModelSelector';
 
 import { GoogleGenAI, Type } from '../lib/genai';
@@ -132,14 +133,50 @@ export default function BuatSoal() {
   };
 
   const [generatingImageIndex, setGeneratingImageIndex] = useState<{index: number, isABK: boolean} | null>(null);
+  const [generatingStimulusId, setGeneratingStimulusId] = useState<string | null>(null);
+
+  const updateQuestionDeskripsi = (index: number, newDesc: string, isABK: boolean) => {
+    setResultSoal((prev: any) => {
+      if (!prev) return prev;
+      const next = { ...prev };
+      if (isABK && next.soalABKList) {
+        const list = [...next.soalABKList];
+        list[index] = { ...list[index], gambarDeskripsi: newDesc };
+        next.soalABKList = list;
+      } else if (next.soalList) {
+        const list = [...next.soalList];
+        list[index] = { ...list[index], gambarDeskripsi: newDesc };
+        next.soalList = list;
+      }
+      return next;
+    });
+  };
+
+  const updateStimulusDeskripsi = (stimulusId: string, newDesc: string) => {
+    setResultSoal((prev: any) => {
+      if (!prev || !Array.isArray(prev.stimulusList)) return prev;
+      return {
+        ...prev,
+        stimulusList: prev.stimulusList.map((st: any) => st.id === stimulusId ? { ...st, gambarDeskripsi: newDesc } : st)
+      };
+    });
+  };
 
   const handleGenerateImageForQuestion = async (index: number, description: string, isABK: boolean) => {
+    if (generatingImageIndex) return;
     setGeneratingImageIndex({ index, isABK });
     try {
       const cleanDescription = encodeURIComponent(`${description}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
       const seed = Math.floor(Math.random() * 1000000);
       const url = `/api/generate-image?prompt=${cleanDescription}&model=${selectedImageModel}&seed=${seed}`;
       
+      const img = new Image();
+      img.src = url;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Gagal memuat gambar dari server.'));
+      });
+
       setResultSoal((prev: any) => {
         if (!prev) return prev;
         const next = { ...prev };
@@ -154,8 +191,10 @@ export default function BuatSoal() {
         }
         return next;
       });
-    } catch (e) {
+      toast.success('Gambar soal berhasil dibuat!');
+    } catch (e: any) {
       console.error(e);
+      toast.error('Gagal membuat gambar soal. Token tidak terpotong.');
     } finally {
       setGeneratingImageIndex(null);
     }
@@ -168,14 +207,35 @@ export default function BuatSoal() {
     return `/api/generate-image?prompt=${styled}&model=${selectedImageModel}&seed=${seed}`;
   };
 
-  const handleGenerateImageForStimulus = (stimulusId: string) => {
-    setResultSoal((prev: any) => {
-      if (!prev || !Array.isArray(prev.stimulusList)) return prev;
-      return {
-        ...prev,
-        stimulusList: prev.stimulusList.map((st: any) => st.id === stimulusId ? { ...st, gambarUrl: buildStimulusImageUrl(st.gambarDeskripsi || st.judul || '') } : st)
-      };
-    });
+  const handleGenerateImageForStimulus = async (stimulusId: string) => {
+    if (generatingStimulusId) return;
+    setGeneratingStimulusId(stimulusId);
+    try {
+      const st = (resultSoal?.stimulusList || []).find((x: any) => x.id === stimulusId);
+      const desc = st?.gambarDeskripsi || st?.judul || '';
+      const url = buildStimulusImageUrl(desc);
+
+      const img = new Image();
+      img.src = url;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = () => reject(new Error('Gagal memuat gambar stimulus.'));
+      });
+
+      setResultSoal((prev: any) => {
+        if (!prev || !Array.isArray(prev.stimulusList)) return prev;
+        return {
+          ...prev,
+          stimulusList: prev.stimulusList.map((item: any) => item.id === stimulusId ? { ...item, gambarUrl: url } : item)
+        };
+      });
+      toast.success('Ilustrasi stimulus berhasil dibuat!');
+    } catch (e: any) {
+      console.error(e);
+      toast.error('Gagal membuat ilustrasi stimulus. Token tidak terpotong.');
+    } finally {
+      setGeneratingStimulusId(null);
+    }
   };
 
   const [resultKisiKisi, setResultKisiKisi] = useState<any>(null);
@@ -1673,25 +1733,50 @@ Berikan output dalam format JSON murni:
                             <h4 className="text-center font-bold text-gray-900 text-base mb-3">{st.judul}</h4>
                             <div className="flow-root">
                               {(st.gambarDeskripsi || st.gambarUrl) && (
-                                <div className="sm:float-right sm:ml-4 mb-3 sm:w-[45%]">
+                                <div className="sm:float-right sm:ml-4 mb-3 sm:w-[48%]">
                                   {st.gambarUrl ? (
                                     <div className="relative group">
                                       <img src={st.gambarUrl} alt={st.judul || 'Ilustrasi stimulus'} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
                                       <button
                                         onClick={() => handleGenerateImageForStimulus(st.id)}
+                                        disabled={generatingStimulusId === st.id}
                                         className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                        title="Regenerate Ilustrasi"
+                                        title="Regenerate Ilustrasi (1 Token)"
                                       >
-                                        <span>🔄</span>
+                                        {generatingStimulusId === st.id ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : <span>🔄</span>}
                                       </button>
                                     </div>
                                   ) : (
-                                    <button
-                                      onClick={() => handleGenerateImageForStimulus(st.id)}
-                                      className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                                    >
-                                      <span>🎨 Generate Ilustrasi Stimulus</span>
-                                    </button>
+                                    <div className="p-3 bg-white border border-amber-300 rounded-lg shadow-sm space-y-2">
+                                      <div className="flex items-center justify-between text-xs font-semibold text-amber-900">
+                                        <span>🎨 Deskripsi Ilustrasi Stimulus</span>
+                                        <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
+                                      </div>
+                                      <textarea
+                                        rows={2}
+                                        value={st.gambarDeskripsi || ''}
+                                        onChange={(e) => updateStimulusDeskripsi(st.id, e.target.value)}
+                                        placeholder="Sunting deskripsi visual stimulus sebelum generate..."
+                                        className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-amber-500 bg-amber-50/30 text-gray-800"
+                                      />
+                                      <button
+                                        onClick={() => handleGenerateImageForStimulus(st.id)}
+                                        disabled={generatingStimulusId === st.id}
+                                        className="w-full py-1.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                                      >
+                                        {generatingStimulusId === st.id ? (
+                                          <>
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            <span>Memproses Gambar...</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <ImageIcon className="w-3.5 h-3.5" />
+                                            <span>Buat Gambar Stimulus (1 Token)</span>
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
                                   )}
                                 </div>
                               )}
@@ -1707,7 +1792,7 @@ Berikan output dalam format JSON murni:
                         </p>
 
                         {s.gambarDeskripsi && (
-                          <div className="pl-8 mb-4">
+                          <div className="pl-8 mb-4 max-w-md">
                             {s.gambarUrl ? (
                               <div className="relative group max-w-xs">
                                 <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
@@ -1715,7 +1800,7 @@ Berikan output dalam format JSON murni:
                                   onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
                                   disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
                                   className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                  title="Regenerate Gambar"
+                                  title="Regenerate Gambar (1 Token)"
                                 >
                                   {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
@@ -1725,22 +1810,36 @@ Berikan output dalam format JSON murni:
                                 </button>
                               </div>
                             ) : (
-                              <button
-                                onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
-                                className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                              >
-                                {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
-                                  <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Memproses...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>🎨 Generate Gambar Ilustrasi</span>
-                                  </>
-                                )}
-                              </button>
+                              <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm space-y-2">
+                                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                                  <span>🎨 Deskripsi Gambar Soal No. {s.no}</span>
+                                  <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
+                                </div>
+                                <textarea
+                                  rows={2}
+                                  value={s.gambarDeskripsi || ''}
+                                  onChange={(e) => updateQuestionDeskripsi(i, e.target.value, false)}
+                                  placeholder="Sunting deskripsi visual soal sebelum generate..."
+                                  className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-slate-50 text-gray-800"
+                                />
+                                <button
+                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
+                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
+                                  className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                >
+                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
+                                    <>
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      <span>Memproses...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ImageIcon className="w-3.5 h-3.5" />
+                                      <span>Buat Gambar (1 Token)</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
                             )}
                           </div>
                         )}
@@ -1809,7 +1908,7 @@ Berikan output dalam format JSON murni:
                             </p>
 
                             {s.gambarDeskripsi && (
-                              <div className="pl-8 mb-4">
+                              <div className="pl-8 mb-4 max-w-md">
                                 {s.gambarUrl ? (
                                   <div className="relative group max-w-xs">
                                     <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
@@ -1817,7 +1916,7 @@ Berikan output dalam format JSON murni:
                                       onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
                                       disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
                                       className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                      title="Regenerate Gambar"
+                                      title="Regenerate Gambar (1 Token)"
                                     >
                                       {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
                                         <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
@@ -1827,22 +1926,36 @@ Berikan output dalam format JSON murni:
                                     </button>
                                   </div>
                                 ) : (
-                                  <button
-                                    onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                    disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                                  >
-                                    {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                      <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        <span>Memproses...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span>🎨 Generate Gambar Ilustrasi</span>
-                                      </>
-                                    )}
-                                  </button>
+                                  <div className="p-3 bg-white border border-blue-200 rounded-lg shadow-sm space-y-2">
+                                    <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
+                                      <span>🎨 Deskripsi Gambar Soal ABK No. {s.no}</span>
+                                      <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
+                                    </div>
+                                    <textarea
+                                      rows={2}
+                                      value={s.gambarDeskripsi || ''}
+                                      onChange={(e) => updateQuestionDeskripsi(i, e.target.value, true)}
+                                      placeholder="Sunting deskripsi visual soal sebelum generate..."
+                                      className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-slate-50 text-gray-800"
+                                    />
+                                    <button
+                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
+                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
+                                      className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+                                    >
+                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
+                                        <>
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                          <span>Memproses...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <ImageIcon className="w-3.5 h-3.5" />
+                                          <span>Buat Gambar (1 Token)</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
                                 )}
                               </div>
                             )}
