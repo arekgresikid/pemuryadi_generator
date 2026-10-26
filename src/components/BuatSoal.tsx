@@ -329,7 +329,7 @@ Berikan output dalam format JSON murni:
             extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI ${tkaCfg.nama.toUpperCase()}:\n${tkaCfg.promptRules}\n- PENTING KHUSUS ${formData.subTipeUjian.toUpperCase()}: Setiap butir soal WAJIB memenuhi standar stimulus, batasan jumlah kata bacaan/soal, karakteristik kebahasaan/matematika, level kognitif resmi (knowing/understanding, applying, reasoning), dan matriks subkompetensi resmi TKA jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
             extraInstructions += tkaMatriksInstruction(tkaCfg);
           } else {
-            extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Lakukan pencarian web real-time menggunakan Google Search tool untuk mencari referensi soal dan kisi-kisi resmi ${formData.subTipeUjian} terbaru dari tahun 2022 hingga 2026.`;
+            extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Sesuaikan dengan standar kurikulum dan panduan asesmen resmi ${formData.subTipeUjian}.`;
           }
         } else if (formData.tipeUjian === 'Olimpiade') {
           extraInstructions += `\n- Standar Olimpiade: Sesuaikan cakupan dan bobot soal dengan standar kompetisi olimpiade sains resmi (seperti OSN tingkat kabupaten/provinsi/nasional, IMO untuk Matematika, IPhO untuk Fisika, IChO untuk Kimia, IBO untuk Biologi, dll.) sesuai dengan mata pelajaran ${mapelLabel}. Soal harus bertipe analisis mendalam, pemecahan masalah kompleks, dan menantang.`;
@@ -370,10 +370,9 @@ Rincian Target Reguler: ${breakdownSoal}
 ${extraInstructions}
 
 PENTING:
-- PENCARIAN REAL-TIME: Kamu harus melampirkan referensi data riil, kasus aktual, atau informasi pendukung yang sedang tren di search dari 2022 - 2026 jika relevan dengan tipe ujian. Sebutkan bahwa source dukungan berasal dari "Source Nano Banana 2".
 - PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi ${formData.hasInklusi ? '2 bagian' : '1 bagian'} dalam JSON:
   1. "soalList": Berisi soal Reguler sesuai jumlah target pengunjung.
-${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".\n` : ''}- Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dari berita real-time kalau memungkinkan.
+${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".\n` : ''}- Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dan relevan.
 - JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" atau "Projek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
 
 Berikan output dalam format JSON murni:
@@ -484,8 +483,7 @@ Berikan output dalam format JSON murni:
         contents: buildContentsWithReferences(prompt, referenceFiles),
         config: {
           responseMimeType: "application/json",
-          responseSchema: responseSchema,
-          tools: [{ googleSearch: {} }],
+          responseSchema: responseSchema
         }
       });
 
