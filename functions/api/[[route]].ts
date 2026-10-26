@@ -846,6 +846,9 @@ app.post('/logs', async (c) => {
   return c.json({ success: true });
 });
 
+// --- In-flight Image Deduplication (In-Memory per Worker Isolate) ---
+const inFlightImageFetches = new Map<string, Promise<{ ok: boolean; status: number; contentType: string; buffer: ArrayBuffer }>>();
+
 // --- Image Generation Proxy ---
 app.get('/generate-image', async (c) => {
   const prompt = c.req.query('prompt');
@@ -856,20 +859,25 @@ app.get('/generate-image', async (c) => {
     return c.json({ error: 'Prompt is required' }, 400);
   }
 
-  // Enforce tier models and token deduction
-  let profile;
-  let isFree = false;
-  try {
-    const user = c.get('user');
-    
-    if (user && user.uid) {
-      if (!checkUserRateLimit(user.uid)) {
-        return c.json({ error: 'Too many requests. Please try again later.' }, 429);
-      }
-    }
+  const user = c.get('user');
+  const db = c.env.DB as D1Database;
 
-    const db = c.env.DB as D1Database;
+  // In-memory per-minute rate limiting
+  if (user && user.uid) {
+    if (!checkUserRateLimit(user.uid)) {
+      return c.json({ error: 'Too many requests. Please try again later.' }, 429);
+    }
+  }
+
+  let profile: any;
+  let isFree = false;
+  let isPrivileged = false;
+  let tokenReserved = false;
+
+  try {
     profile = await db.prepare('SELECT tier, tokens, role FROM users WHERE uid = ?').bind(user?.uid).first();
+    const role = String(profile?.role || 'siswa').toLowerCase();
+    isPrivileged = role === 'owner' || role === 'admin';
     isFree = !profile || profile.tier === 'Free';
     
     if (isFree) {
@@ -877,20 +885,48 @@ app.get('/generate-image', async (c) => {
     } else {
       model = model || 'wan-image'; // Default for Pro
     }
-    
-    // Deduct token
-    if (profile) {
-      const role = String(profile.role || 'siswa').toLowerCase();
-      if (role !== 'owner' && role !== 'admin') {
-        if ((profile.tokens as number) <= 0) {
-          return c.json({ error: 'Out of tokens' }, 403);
+
+    // 1. Rate Limit per Akun (10 gambar per jam) - pengecualian untuk owner/admin
+    if (user && user.uid && !isPrivileged) {
+      try {
+        const oneHourAgo = new Date(Date.now() - 3600 * 1000).toISOString();
+        const hourlyRes = await db.prepare(
+          "SELECT COUNT(*) as count FROM token_usage_logs WHERE uid = ? AND action LIKE 'Image Generation%' AND timestamp >= ?"
+        ).bind(user.uid, oneHourAgo).first();
+        if (hourlyRes && ((hourlyRes.count as number) || 0) >= 10) {
+          return c.json({ error: 'Batas pembuatan gambar per jam (10 gambar/jam) telah tercapai. Silakan coba lagi nanti.' }, 429);
         }
-        await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ?').bind(user?.uid).run();
-        profile.tokens = (profile.tokens as number) - 1;
-        try {
-          await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)').bind(user?.uid, 'Image Generation', 1, new Date().toISOString()).run();
-        } catch (e) {}
+      } catch (rateErr) {
+        console.error('Rate limit query error:', rateErr);
       }
+    }
+
+    // 2. Plafon Global Harian (default 500 gambar/hari, dapat diatur via env IMAGE_DAILY_CAP)
+    try {
+      const todayStart = new Date();
+      todayStart.setUTCHours(0, 0, 0, 0);
+      const dailyGlobalRes = await db.prepare(
+        "SELECT COUNT(*) as count FROM token_usage_logs WHERE action LIKE 'Image Generation%' AND timestamp >= ?"
+      ).bind(todayStart.toISOString()).first();
+      const globalCap = parseInt((c.env as any).IMAGE_DAILY_CAP || '500', 10);
+      if (dailyGlobalRes && ((dailyGlobalRes.count as number) || 0) >= globalCap && !isPrivileged) {
+        return c.json({ error: 'Plafon harian pembuatan gambar sistem telah tercapai. Silakan coba kembali besok.' }, 429);
+      }
+    } catch (capErr) {
+      console.error('Daily cap query error:', capErr);
+    }
+
+    // 3. Reservasi Token (Atomic: potong hanya jika tokens > 0)
+    if (profile && !isPrivileged) {
+      if ((profile.tokens as number) <= 0) {
+        return c.json({ error: 'Out of tokens' }, 403);
+      }
+      const deductRes = await db.prepare('UPDATE users SET tokens = tokens - 1, tokensUsed = tokensUsed + 1 WHERE uid = ? AND tokens > 0').bind(user?.uid).run();
+      if (!deductRes.meta.changes || deductRes.meta.changes === 0) {
+        return c.json({ error: 'Out of tokens' }, 403);
+      }
+      tokenReserved = true;
+      profile.tokens = (profile.tokens as number) - 1;
     }
   } catch (e) {
     model = 'flux'; // Fallback on error
@@ -898,36 +934,84 @@ app.get('/generate-image', async (c) => {
 
   const encodedPrompt = encodeURIComponent(prompt);
   const apiKey = (c.env as any).POLLINATIONS_API_KEY || (c.env as any).VITE_POLLINATIONS_API_KEY || "";
-  
-  try {
-    let imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true`, {
-      headers: apiKey ? {
-        'Authorization': `Bearer ${apiKey}`
-      } : {}
-    });
+  const fetchKey = `${model}:${seed}:${encodedPrompt}`;
 
-    if (!imageResponse.ok) {
-      // Fallback: try default image prompt without model parameter
-      imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?seed=${seed}&nologo=true`, {
-        headers: apiKey ? {
-          'Authorization': `Bearer ${apiKey}`
-        } : {}
+  try {
+    // 4. In-flight Deduplication (menggabungkan request bersamaan yang identik)
+    let fetchPromise = inFlightImageFetches.get(fetchKey);
+    if (!fetchPromise) {
+      fetchPromise = (async () => {
+        let imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?model=${model}&seed=${seed}&nologo=true`, {
+          headers: apiKey ? {
+            'Authorization': `Bearer ${apiKey}`
+          } : {}
+        });
+
+        // 5. Retry terbatas: Hanya retry 1x fallback jika status kegagalan adalah 5xx (server error)
+        if (!imageResponse.ok && imageResponse.status >= 500) {
+          imageResponse = await fetch(`https://gen.pollinations.ai/image/${encodedPrompt}?seed=${seed}&nologo=true`, {
+            headers: apiKey ? {
+              'Authorization': `Bearer ${apiKey}`
+            } : {}
+          });
+        }
+
+        if (!imageResponse.ok) {
+          return { ok: false, status: imageResponse.status, contentType: '', buffer: new ArrayBuffer(0) };
+        }
+
+        const buffer = await imageResponse.arrayBuffer();
+        const contentType = imageResponse.headers.get('Content-Type') || 'image/jpeg';
+        return { ok: true, status: 200, contentType, buffer };
+      })();
+
+      inFlightImageFetches.set(fetchKey, fetchPromise);
+      fetchPromise.finally(() => {
+        inFlightImageFetches.delete(fetchKey);
       });
     }
 
-    if (!imageResponse.ok) {
-      return c.json({ error: 'Image generation failed', status: imageResponse.status }, imageResponse.status as any);
+    const result = await fetchPromise;
+
+    if (!result.ok) {
+      // Refund token jika reservasi telah dilakukan sebelumnya
+      if (tokenReserved && user?.uid) {
+        try {
+          await db.prepare('UPDATE users SET tokens = tokens + 1, tokensUsed = tokensUsed - 1 WHERE uid = ?').bind(user.uid).run();
+          if (profile) profile.tokens = (profile.tokens as number) + 1;
+        } catch (refundErr) {
+          console.error('Failed to refund token on image generation failure:', refundErr);
+        }
+      }
+      return c.json({ error: 'Image generation failed', status: result.status }, result.status as any);
     }
 
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    const headersRecord: Record<string, string> = {};
-    headersRecord['Content-Type'] = imageResponse.headers.get('Content-Type') || 'image/jpeg';
-    headersRecord['Cache-Control'] = 'public, max-age=31536000';
+    // 6. Penagihan Berhasil: Catat ke token_usage_logs (owner/admin dicatat 0 token)
+    if (user && user.uid) {
+      try {
+        const actionLabel = isPrivileged ? 'Image Generation (Owner/Admin)' : 'Image Generation';
+        const spent = isPrivileged ? 0 : 1;
+        await db.prepare('INSERT INTO token_usage_logs (uid, action, tokens_spent, timestamp) VALUES (?, ?, ?, ?)').bind(user.uid, actionLabel, spent, new Date().toISOString()).run();
+      } catch (logErr) {
+        console.error('Failed to write token_usage_logs:', logErr);
+      }
+    }
+
+    const headersRecord: Record<string, string> = {
+      'Content-Type': result.contentType,
+      'Cache-Control': 'public, max-age=31536000'
+    };
     if (profile) {
       headersRecord['x-remaining-tokens'] = String(profile.tokens);
     }
-    return c.body(arrayBuffer, 200, headersRecord);
+    return c.body(result.buffer, 200, headersRecord);
   } catch (err: any) {
+    // Refund token jika terjadi error tak terduga
+    if (tokenReserved && user?.uid) {
+      try {
+        await db.prepare('UPDATE users SET tokens = tokens + 1, tokensUsed = tokensUsed - 1 WHERE uid = ?').bind(user.uid).run();
+      } catch (refundErr) {}
+    }
     return c.json({ error: 'Internal server error', details: err.message }, 500);
   }
 });
