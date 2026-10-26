@@ -341,6 +341,8 @@ Berikan output dalam format JSON murni:
           extraInstructions += `\n- SOAL BERGAMBAR (SANGAT PENTING): Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Anda WAJIB membuat tepat ${formData.jumlahSoalBergambar} soal yang membutuhkan gambar/diagram ilustrasi visual. Untuk soal bergambar ini, Anda MUTLAK harus mengisi field "gambarDeskripsi" di format JSON dengan prompt gambar (bahasa Inggris) yang sangat detail. JANGAN KOSONGKAN "gambarDeskripsi" untuk soal bergambar! Contoh: "A detailed map of Indonesia showing major islands", "A diagram of human digestive system". Untuk soal reguler yang tidak butuh gambar, biarkan kosong.`;
         }
 
+        extraInstructions += `\n- ATURAN GAMBAR & VISUAL: Isi field "gambarDeskripsi" HANYA jika visual benar-benar diperlukan untuk menjawab soal atau memahami stimulus. Jika teks sudah cukup, biarkan kosong (""). Untuk TKA/AKM, utamakan visual pada stimulus bersama ("stimulusList"). Jangan membuat deskripsi gambar individual yang berulang jika satu stimulus sudah mencukupi.`;
+
         const tkaCfgForStimulus = formData.tipeUjian === 'Other' ? getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang) : null;
         const useStimulus = !!tkaCfgForStimulus || formData.tipeUjian === 'Asesmen Nasional' || (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0);
         if (useStimulus) {
@@ -427,7 +429,7 @@ Berikan output dalam format JSON murni:
                 gambarDeskripsi: { type: Type.STRING },
                 gambarUrl: { type: Type.STRING }
               },
-              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan", "gambarDeskripsi"]
+              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan"]
             }
           },
           stimulusList: {
@@ -442,7 +444,7 @@ Berikan output dalam format JSON murni:
                 gambarUrl: { type: Type.STRING },
                 rentangSoal: { type: Type.STRING }
               },
-              required: ["id", "judul", "teks", "gambarDeskripsi"]
+              required: ["id", "judul", "teks"]
             }
           }
         };
@@ -467,7 +469,7 @@ Berikan output dalam format JSON murni:
                 gambarDeskripsi: { type: Type.STRING },
                 gambarUrl: { type: Type.STRING }
               },
-              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan", "gambarDeskripsi"]
+              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan"]
             }
           };
         }
