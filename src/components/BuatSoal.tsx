@@ -498,14 +498,12 @@ Berikan output dalam format JSON murni:
       if (type === 'soal') {
         const processSoalImages = (soalList: any[]) => {
           if (!soalList) return [];
-          return soalList.map(s => {
-            if (s.gambarDeskripsi && !s.gambarUrl) {
-              const cleanDescription = encodeURIComponent(`${s.gambarDeskripsi}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
-              const seed = Math.floor(Math.random() * 1000000);
-              s.gambarUrl = `/api/generate-image?prompt=${cleanDescription}&model=${selectedImageModel}&seed=${seed}`;
-            }
-            return s;
-          });
+          return soalList.map(s => ({
+            ...s,
+            // P0-2: Jangan buat gambar otomatis. Biarkan gambarUrl kosong jika belum dibuat,
+            // namun pertahankan gambarUrl lama jika sudah ada dari data tersimpan.
+            gambarUrl: s.gambarUrl || ''
+          }));
         };
 
         if (generatedData.soalList) {
@@ -515,11 +513,11 @@ Berikan output dalam format JSON murni:
           generatedData.soalABKList = processSoalImages(generatedData.soalABKList);
         }
         if (Array.isArray(generatedData.stimulusList)) {
-          generatedData.stimulusList = generatedData.stimulusList.map((st: any) => (
-            (st.gambarDeskripsi || st.judul) && !st.gambarUrl
-              ? { ...st, gambarUrl: buildStimulusImageUrl(st.gambarDeskripsi || st.judul) }
-              : st
-          ));
+          generatedData.stimulusList = generatedData.stimulusList.map((st: any) => ({
+            ...st,
+            // P0-2: Pertahankan gambarUrl stimulus jika sudah ada, jangan buat otomatis
+            gambarUrl: st.gambarUrl || ''
+          }));
         }
       }
 
