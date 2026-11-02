@@ -35,6 +35,8 @@
 - **Rubrik Penilaian**: Menyediakan matriks asesmen Pengetahuan, Keterampilan, dan Sikap.
 - **Prota & Promes**: Penyusunan Program Tahunan dan Program Semester berdasarkan alokasi waktu otomatis.
 - **Kalender Pendidikan & Analisis Hari Efektif**: Menghitung jam mengajar bersih secara real-time.
+- **Mata Pelajaran Koding & Kecerdasan Artifisial (KKA)**: Mendukung seluruh jenjang (PAUD, SD, SMP, SMA/SMK) dengan CP dan ATP bertahap (computational thinking dasar, visual block Scratch, pemrograman teks Python, hingga konsep dan etika Generative AI).
+- **Mata Pelajaran Muatan Lokal (Mulok) & Bahasa Daerah**: Mendukung preset bahasa daerah nusantara (Bahasa Jawa, Sunda, Banjar, Bali, Madura, Minangkabau, Bugis/Makassar, Batak, Sasak, Dayak, Kutai), Seni Budaya & Kearifan Lokal Daerah, serta opsi kustom daerah untuk fleksibilitas kurikulum Pemda di seluruh Indonesia.
 
 #### 3.3. Evaluasi & Soal
 - **AI Soal Generator**: Pembuatan soal Pilihan Ganda, Pilihan Ganda Kompleks, Benar/Salah, Menjodohkan, Essay/Uraian, AKM/TKA (Literasi & Numerasi dengan matriks kompetensi resmi otomatis di belakang layar), HOTS, serta stimulus wacana bersama terintegrasi dengan ilustrasi gambar otomatis.
