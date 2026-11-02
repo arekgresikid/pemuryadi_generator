@@ -3,6 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ArrowLeft, Calendar, User, ArrowRight } from 'lucide-react';
 
+const extractCoverImage = (content: string): string | null => {
+  if (!content) return null;
+  const match = content.match(/!\[.*?\]\((https?:\/\/[^\s\)]+)\)/);
+  return match ? match[1] : null;
+};
+
 export default function BlogPost({ slug }: { slug: string }) {
   const [post, setPost] = useState<any>(null);
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
@@ -79,23 +85,43 @@ export default function BlogPost({ slug }: { slug: string }) {
           </div>
         </header>
 
-        {/* Thumbnail Default via CSS (Tanpa Load Gambar) */}
-        <div className="w-full h-48 sm:h-64 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 shadow-inner flex items-center justify-center mb-10 overflow-hidden relative">
-          <div className="absolute inset-0 bg-white/10 backdrop-blur-sm mix-blend-overlay"></div>
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-          <div className="relative z-10 flex flex-col items-center justify-center text-white/90">
-            <svg className="w-20 h-20 mb-4 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <span className="font-bold text-xl md:text-3xl text-center px-6 leading-snug drop-shadow-md opacity-90 line-clamp-3">
-              {post.title}
-            </span>
-          </div>
-        </div>
+        {/* Cover Thumbnail Artikel */}
+        {(() => {
+          const coverImg = extractCoverImage(post.content);
+          if (coverImg) {
+            return (
+              <div className="w-full aspect-[16/9] sm:h-80 md:h-96 rounded-3xl overflow-hidden mb-10 shadow-sm border border-gray-100 relative group">
+                <img 
+                  src={coverImg} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" 
+                />
+              </div>
+            );
+          }
+          return (
+            <div className="w-full h-48 sm:h-64 rounded-3xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 shadow-inner flex items-center justify-center mb-10 overflow-hidden relative">
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm mix-blend-overlay"></div>
+              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+              <div className="relative z-10 flex flex-col items-center justify-center text-white/90">
+                <svg className="w-20 h-20 mb-4 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span className="font-bold text-xl md:text-3xl text-center px-6 leading-snug drop-shadow-md opacity-90 line-clamp-3">
+                  {post.title}
+                </span>
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-sm">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {post.content.replace(/^\s*#\s+[^\n]*\n?/, '')}
+            {post.content
+              .replace(/^\s*#\s+[^\n]*\n?/, '')
+              .replace(/!\[.*?\]\(https?:\/\/[^\s\)]+\)\n?/, (match: string, offset: number) => {
+                return offset < 50 ? '' : match;
+              })}
           </ReactMarkdown>
         </div>
 

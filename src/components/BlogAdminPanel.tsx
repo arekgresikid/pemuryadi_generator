@@ -66,8 +66,21 @@ Ketentuan Penulisan:
       const titleLine = lines.find(line => line.trim().startsWith('# '));
       const extractedTitle = titleLine ? titleLine.replace(/^#\s*/, '').trim() : topicToUse;
 
+      // Generate image prompt based on title
+      const imagePrompt = encodeURIComponent(`${extractedTitle}, modern educational vector illustration, warm vibrant soft pastel colors, clean minimal flat art style, Indonesian classroom context, high quality 16:9 banner`);
+      const coverMarkdown = `\n\n![${extractedTitle}](https://gen.pollinations.ai/image/${imagePrompt}?model=flux&width=1200&height=630&nologo=true)\n\n`;
+
+      let finalContent = generatedText;
+      if (!finalContent.includes('![')) {
+        if (titleLine) {
+          finalContent = finalContent.replace(titleLine, titleLine + coverMarkdown);
+        } else {
+          finalContent = `# ${extractedTitle}${coverMarkdown}${finalContent}`;
+        }
+      }
+
       setUploadTitle(extractedTitle);
-      setUploadContent(generatedText);
+      setUploadContent(finalContent);
       toast.success('Artikel AI berhasil dibuat! Silakan tinjau dan unggah.', { id: toastId });
     } catch (e: any) {
       console.error('Failed to generate AI blog:', e);
@@ -480,7 +493,29 @@ Ketentuan Penulisan:
               />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Konten Markdown</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-bold text-gray-700">Konten Markdown</label>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!uploadTitle.trim()) {
+                    toast.error('Masukkan Judul Artikel terlebih dahulu!');
+                    return;
+                  }
+                  const imgPrompt = encodeURIComponent(`${uploadTitle.trim()}, modern educational vector illustration, warm pastel colors, clean flat minimal art, Indonesian school`);
+                  const imgTag = `![${uploadTitle.trim()}](https://gen.pollinations.ai/image/${imgPrompt}?model=flux&width=1200&height=630&nologo=true)\n\n`;
+                  setUploadContent(prev => {
+                    const cleaned = prev.replace(/!\[.*?\]\(https?:\/\/gen\.pollinations\.ai\/.*?\)\n*/g, '');
+                    return imgTag + cleaned;
+                  });
+                  toast.success('✨ Gambar cover AI berhasil disisipkan ke artikel!');
+                }}
+                className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-lg text-xs flex items-center gap-1 transition-colors border border-blue-200"
+              >
+                <Sparkles size={13} />
+                Sisipkan Cover AI
+              </button>
+            </div>
             <textarea 
               value={uploadContent}
               onChange={(e) => setUploadContent(e.target.value)}
