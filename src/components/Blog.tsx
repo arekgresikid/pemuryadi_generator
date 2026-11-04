@@ -29,6 +29,7 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPosts, setTotalPosts] = useState(0);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const postsPerPage = 6;
 
   useEffect(() => {
@@ -90,10 +91,12 @@ export default function Blog() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
               {posts.map((post) => {
-                const coverImg = extractCoverImage(post.content);
-                const category = getCategoryInfo(post.title, post.content);
+                const postContent = post?.content || '';
+                const postTitle = post?.title || '';
+                const coverImg = extractCoverImage(postContent);
+                const category = getCategoryInfo(postTitle, postContent);
                 const IconComponent = category.icon;
-                const cleanSnippet = post.content
+                const cleanSnippet = postContent
                   .replace(/!\[.*?\]\(.*?\)/g, '')
                   .replace(/#+\s/g, '')
                   .replace(/[*_~`]/g, '')
@@ -108,12 +111,13 @@ export default function Blog() {
                   >
                     {/* Card Cover Banner: Rasio 16:9 Proporsional Sesuai Card */}
                     <div className="w-full aspect-[16/9] relative overflow-hidden bg-slate-100">
-                      {coverImg ? (
+                      {coverImg && !failedImages[post.id] ? (
                         <img 
                           src={coverImg} 
                           alt={post.title} 
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
+                          onError={() => setFailedImages(prev => ({ ...prev, [post.id]: true }))}
                         />
                       ) : (
                         <div className={`w-full h-full bg-gradient-to-tr ${category.gradient} flex flex-col items-center justify-center p-6 text-white text-center relative overflow-hidden`}>

@@ -13,6 +13,7 @@ export default function BlogPost({ slug }: { slug: string }) {
   const [post, setPost] = useState<any>(null);
   const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -87,14 +88,17 @@ export default function BlogPost({ slug }: { slug: string }) {
 
         {/* Cover Thumbnail Artikel */}
         {(() => {
-          const coverImg = extractCoverImage(post.content);
-          if (coverImg) {
+          const postContent = post?.content || '';
+          const postTitle = post?.title || '';
+          const coverImg = extractCoverImage(postContent);
+          if (coverImg && !imgFailed) {
             return (
               <div className="w-full aspect-[16/9] sm:h-80 md:h-96 rounded-3xl overflow-hidden mb-10 shadow-sm border border-gray-100 relative group">
                 <img 
                   src={coverImg} 
                   alt={post.title} 
-                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500" 
+                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                  onError={() => setImgFailed(true)}
                 />
               </div>
             );
@@ -117,7 +121,7 @@ export default function BlogPost({ slug }: { slug: string }) {
 
         <div className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-2xl prose-img:shadow-sm">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {post.content
+            {(post?.content || '')
               .replace(/^\s*#\s+[^\n]*\n?/, '')
               .replace(/!\[.*?\]\(https?:\/\/[^\s\)]+\)\n?/, (match: string, offset: number) => {
                 return offset < 50 ? '' : match;

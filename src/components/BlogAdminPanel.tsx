@@ -68,7 +68,7 @@ Ketentuan Penulisan:
 
       // Generate image prompt based on title
       const imagePrompt = encodeURIComponent(`${extractedTitle}, modern educational vector illustration, warm vibrant soft pastel colors, clean minimal flat art style, Indonesian classroom context, high quality 16:9 banner`);
-      const coverMarkdown = `\n\n![${extractedTitle}](https://gen.pollinations.ai/image/${imagePrompt}?model=flux&width=1200&height=630&nologo=true)\n\n`;
+      const coverMarkdown = `\n\n![${extractedTitle}](https://image.pollinations.ai/prompt/${imagePrompt}?width=1200&height=675&nologo=true)\n\n`;
 
       let finalContent = generatedText;
       if (!finalContent.includes('![')) {
