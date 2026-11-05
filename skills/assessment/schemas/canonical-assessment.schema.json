@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CanonicalAssessment",
+  "type": "object",
+  "required": ["soalList"],
+  "properties": {
+    "stimulusList": { "type": "array" },
+    "soalList": { "type": "array" },
+    "soalABKList": { "type": "array" }
+  }
+}
+

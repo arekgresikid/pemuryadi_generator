@@ -15,6 +15,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
 import LiveQuizOrchestrator from './LiveQuizOrchestrator';
 import { ReferenceFile, REF_MAX_FILES, REF_ACCEPT, processReferenceFile, buildContentsWithReferences } from '../utils/referenceFiles';
+import { buildRuntimeAssessmentSkillPrompt } from '../lib/assessmentSkillLoader';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -313,6 +314,19 @@ export default function BuatSoal() {
          breakdownSoal = `Jumlah Soal: ${formData.bentukSoal.map(b => `${b} (${formData.jumlahSoalPerBentuk[b] || 0})`).join(', ')}. Total: ${totalSoal} Soal.`;
       }
 
+      const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
+        jenjang: formData.jenjang,
+        mapel: formData.mapel,
+        tipeUjian: formData.tipeUjian,
+        subTipeUjian: formData.subTipeUjian,
+        kerangkaTaksonomi: formData.kerangkaTaksonomi,
+        levelKognitif: formData.levelKognitif,
+        totalSoal,
+        terdapatSoalBergambar: formData.terdapatSoalBergambar,
+        jumlahSoalBergambar: formData.jumlahSoalBergambar,
+        hasInklusi: formData.hasInklusi,
+      });
+
       if (type === 'kisi-kisi') {
         let tkaSpecificPrompt = '';
         if (formData.tipeUjian === 'Other') {
@@ -343,7 +357,7 @@ PENTING:
 - Selaraskan dengan CP. Tujuan Pembelajaran (TP) diturunkan dari CP.
 - Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS) jika dipilih.
 - Kaitkan soal dengan konteks nyata (meaningful learning).
-- Jika Asesmen Nasional/Olimpiade/TKA, pastikan kisi-kisi memuat indikator stimulus (literasi/numerasi) dan soal menantang HOTS.
+- Jika Asesmen Nasional/Olimpiade/TKA, pastikan kisi-kisi memuat indikator stimulus (literasi/numerasi) dan soal menantang HOTS.${runtimeSkillPrompt}
 
 Berikan output dalam format JSON murni:
 {
@@ -404,7 +418,8 @@ Berikan output dalam format JSON murni:
         extraInstructions += `\n- ATURAN GAMBAR & VISUAL: Isi field "gambarDeskripsi" HANYA jika visual benar-benar diperlukan untuk menjawab soal atau memahami stimulus. Jika teks sudah cukup, biarkan kosong (""). Untuk TKA/AKM, utamakan visual pada stimulus bersama ("stimulusList"). Jangan membuat deskripsi gambar individual yang berulang jika satu stimulus sudah mencukupi.`;
 
         const tkaCfgForStimulus = formData.tipeUjian === 'Other' ? getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang) : null;
-        const useStimulus = !!tkaCfgForStimulus || formData.tipeUjian === 'Asesmen Nasional' || (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0);
+        const useStimulus = !!tkaCfgForStimulus || formData.tipeUjian === 'Asesmen Nasional';
+        extraInstructions += runtimeSkillPrompt;
         if (useStimulus) {
           extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama. Setiap stimulus dipakai oleh 3–5 soal berurutan (Model AI menentukan jumlah yang paling sesuai). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap sesuai batasan jumlah kata standar jenjang; untuk numerasi boleh berupa konteks cerita beserta data), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang sangat detail tentang adegan utama stimulus, tanpa teks di dalam gambar; contoh: "Indonesian elementary school students in uniforms sorting plastic bottles, paper and cardboard into separate recycling bins at a school waste bank booth"), dan "rentangSoal" (contoh "1-5"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong. Pertanyaan soal TIDAK perlu mengulang teks stimulus.`;
         }

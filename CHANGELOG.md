@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.0] - 5 November 2026
+- Modular Assessment Engineering System (v1.0.0): Menambahkan arsitektur skill modular di skills/assessment/ dan runtime loader (src/lib/assessmentSkillLoader.ts) untuk Ujian Biasa, AKM, Olimpiade, Live Quiz, TKA/Try Out, serta Survei Karakter & Sulingjar.
+- Stimulus Budgeting Policy & Anti Pseudo-HOTS: Mencegah seluruh soal 1-50 dipaksa memakai wacana panjang pada Ujian Biasa serta mengoperasionalkan repertoar kognitif Bloom (C1-C6) dan Taksonomi SOLO dengan aturan No-Lookup (Anti Ctrl+F) untuk soal HOTS.
+- Kurikulum KKA, Muatan Lokal Nusantara, & Optimasi Cover Blog: Mendukung mata pelajaran Koding & Kecerdasan Artifisial (KKA) lintas jenjang (PAUD-SMK), 13+ preset Bahasa Daerah/Mulok, serta kartu cover blog rasio 16:9 dengan fallback gradien otomatis.
+
 ## [5.3.9] - 4 Oktober 2026
 - Upload Dokumen & Gambar Referensi Materi: Mendukung upload JPG, JPEG, PDF, Word (.docx), dan Excel (.xlsx) pada Pembuat Soal sebagai stimulus kontekstual AI.
 - Integrasi Parser Client-Side: Menggunakan pdfjs-dist, mammoth, dan xlsx untuk memproses file langsung di browser secara aman tanpa beban server.

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AssessmentContract",
+  "type": "object",
+  "required": ["assessment_id", "assessment_type", "subject", "education_level", "item_count", "skill_version"],
+  "properties": {
+    "assessment_id": { "type": "string" },
+    "assessment_type": { "type": "string" },
+    "subject": { "type": "string" },
+    "education_level": { "type": "string" },
+    "item_count": { "type": "integer", "minimum": 1, "maximum": 60 },
+    "skill_version": { "type": "string" }
+  }
+}
+
