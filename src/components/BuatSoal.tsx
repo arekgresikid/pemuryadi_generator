@@ -112,13 +112,39 @@ export default function BuatSoal() {
 
   const handleLevelKognitifChange = (lvl: string) => {
     let current = [...formData.levelKognitif];
-    if (lvl === 'Kombinasi') { current = ['Kombinasi']; }
-    else {
+    const lotsLevels = ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Mengaplikasikan'];
+    if (lvl === 'Kombinasi') {
+      current = ['Kombinasi'];
+    } else if (lvl === 'HOTS') {
+      if (current.includes('HOTS')) {
+        current = current.filter(c => c !== 'HOTS');
+      } else {
+        // Aktifkan mode Pure HOTS (otomatis unselect C1-C3 & Kombinasi agar tidak tercampur LOTS)
+        current = ['C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta', 'HOTS'];
+      }
+    } else {
       current = current.filter(c => c !== 'Kombinasi');
-      if (current.includes(lvl)) current = current.filter(c => c !== lvl);
-      else current.push(lvl);
+      if (current.includes(lvl)) {
+        current = current.filter(c => c !== lvl);
+        // Jika seluruh C4/C5/C6 dilepas, lepas juga label HOTS
+        if (!current.some(c => c.startsWith('C4') || c.startsWith('C5') || c.startsWith('C6'))) {
+          current = current.filter(c => c !== 'HOTS');
+        }
+      } else {
+        current.push(lvl);
+        // Jika memilih C1/C2/C3 saat mode HOTS aktif, lepas label Pure HOTS agar menjadi campuran yang jujur
+        if (lotsLevels.includes(lvl)) {
+          current = current.filter(c => c !== 'HOTS');
+        }
+      }
     }
-    if (current.length === 0) current = ['C1 - Mengingat'];
+    if (current.length === 0) {
+      current = formData.kerangkaTaksonomi === 'TKA'
+        ? ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
+        : formData.kerangkaTaksonomi === 'SOLO'
+        ? ['Multi-struktural', 'Relasional']
+        : ['C2 - Memahami', 'C3 - Mengaplikasikan'];
+    }
     setFormData({ ...formData, levelKognitif: current });
   };
 
@@ -286,8 +312,34 @@ export default function BuatSoal() {
       const ai = new GoogleGenAI({});
       
       const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
-      const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
-      const cp = getCP();
+      const baseMapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
+      let mapelLabel = baseMapelLabel;
+      let cp = getCP();
+
+      if (formData.tipeUjian === 'Other') {
+        if (formData.subTipeUjian === 'TKA Literasi') {
+          mapelLabel = 'Bahasa Indonesia (TKA Literasi Membaca)';
+          cp = cpData[`${formData.jenjang}-bahasa-indonesia-${formData.fase}`] || cp;
+        } else if (formData.subTipeUjian === 'TKA Numerasi') {
+          mapelLabel = 'Matematika (TKA Numerasi)';
+          cp = cpData[`${formData.jenjang}-matematika-${formData.fase}`] || cp;
+        } else if (formData.subTipeUjian === 'TKA Literasi Bahasa Inggris') {
+          mapelLabel = 'Bahasa Inggris (TKA Literasi Bahasa Inggris SMA/SMK)';
+          cp = cpData[`${formData.jenjang}-bahasa-inggris-${formData.fase}`] || cp;
+        } else if (formData.subTipeUjian === 'TKA Survei Lingkungan Belajar') {
+          mapelLabel = 'Survei Lingkungan Belajar (Sulingjar)';
+          cp = 'Instrumen Evaluasi Iklim Keamanan, Kebinekaan, Inklusivitas, Kepemimpinan Instruksional, dan Kualitas Pembelajaran Satuan Pendidikan (Standar Pusmendik).';
+        } else if (formData.subTipeUjian === 'TKA Survei Karakter') {
+          mapelLabel = 'Survei Karakter (Profil Lulusan)';
+          cp = 'Instrumen Asesmen Kematangan Karakter, Dilema Moral/Etika (SJT), Integritas, Kebinekaan Global, Gotong Royong, Kemandirian, Penalaran Kritis, dan Kreativitas.';
+        }
+      }
+
+      const kerangkaTaksonomiLabel = formData.kerangkaTaksonomi === 'Bloom'
+        ? 'Taksonomi Bloom'
+        : formData.kerangkaTaksonomi === 'TKA'
+        ? 'Standar Resmi TKA (Level 1 Pemahaman, Level 2 Aplikasi, Level 3 Penalaran)'
+        : 'Taksonomi SOLO';
 
       // Matriks Asesmen resmi TKA diterapkan di belakang layar oleh Model AI
       const tkaMatriksInstruction = (cfg: any) => {
@@ -348,7 +400,7 @@ Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
-Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
+Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
 ${breakdownSoal}
 ${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
 ${tkaSpecificPrompt}
@@ -442,7 +494,7 @@ Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
-Level Kognitif (${formData.kerangkaTaksonomi === 'Bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'}): ${formData.levelKognitif.join(', ')}
+Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
 Rincian Target Reguler: ${breakdownSoal}
 ${extraInstructions}
 
@@ -459,26 +511,26 @@ Berikan output dalam format JSON murni:
   ],
   "soalList": [
     { 
-      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / dll", 
       "no": "...", 
+      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / dll", 
       "stimulusId": "S1 atau kosong", 
-      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
+      "materi": "...",
+      "levelKognitif": "Tulis level spesifik beserta operasi kognitifnya (wajib diisi SEBELUM menulis pertanyaan)",
+      "indikatorSoal": "Rumuskan indikator operasional spesifik yang menguji levelKognitif di atas",
       "pertanyaan": "...", 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
       "opsiTambahan": ["A. ...", "B. ..."], 
       "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
       "kunci": "...", 
       "pembahasan": "...",
       "skor": "...",
-      "materi": "...",
-      "indikatorSoal": "...",
-      "levelKognitif": "...",
       "gambarDeskripsi": "...",
       "gambarUrl": ""
     }
   ]${formData.hasInklusi ? `,
   "soalABKList": [
     {
-      "jenisSoal": "...", "no": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "materi": "...", "indikatorSoal": "...", "levelKognitif": "...", "gambarDeskripsi": "...", "gambarUrl": ""
+      "no": "...", "jenisSoal": "...", "materi": "...", "levelKognitif": "...", "indikatorSoal": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "gambarDeskripsi": "...", "gambarUrl": ""
     }
   ]` : ''}
 }`;
@@ -488,23 +540,23 @@ Berikan output dalam format JSON murni:
             items: {
               type: Type.OBJECT,
               properties: {
-                jenisSoal: { type: Type.STRING },
                 no: { type: Type.STRING },
+                jenisSoal: { type: Type.STRING },
                 stimulusId: { type: Type.STRING },
+                materi: { type: Type.STRING },
+                levelKognitif: { type: Type.STRING },
+                indikatorSoal: { type: Type.STRING },
                 pertanyaan: { type: Type.STRING },
+                pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
                 opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
                 pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-                pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
                 kunci: { type: Type.STRING },
                 pembahasan: { type: Type.STRING },
                 skor: { type: Type.STRING },
-                materi: { type: Type.STRING },
-                indikatorSoal: { type: Type.STRING },
-                levelKognitif: { type: Type.STRING },
                 gambarDeskripsi: { type: Type.STRING },
                 gambarUrl: { type: Type.STRING }
               },
-              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan"]
+              required: ["no", "jenisSoal", "materi", "levelKognitif", "indikatorSoal", "pertanyaan", "kunci", "pembahasan"]
             }
           },
           stimulusList: {
@@ -1017,7 +1069,31 @@ Berikan output dalam format JSON murni:
                         {['Ujian Biasa', 'Asesmen Nasional', 'Olimpiade', 'Live Quiz', 'Other'].map(tipe => (
                           <button
                             key={tipe}
-                            onClick={() => setFormData({...formData, tipeUjian: tipe})}
+                            onClick={() => {
+                              if (tipe === 'Other') {
+                                const sub = formData.subTipeUjian || 'TKA Literasi';
+                                const syncedMapel = sub === 'TKA Literasi'
+                                  ? 'bahasa-indonesia'
+                                  : sub === 'TKA Numerasi'
+                                  ? 'matematika'
+                                  : sub === 'TKA Literasi Bahasa Inggris'
+                                  ? 'bahasa-inggris'
+                                  : formData.mapel;
+                                const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(sub);
+                                setFormData({
+                                  ...formData,
+                                  tipeUjian: tipe,
+                                  subTipeUjian: sub,
+                                  mapel: syncedMapel,
+                                  ...(isTKAAcademic ? {
+                                    kerangkaTaksonomi: 'TKA',
+                                    levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
+                                  } : {})
+                                });
+                              } else {
+                                setFormData({ ...formData, tipeUjian: tipe });
+                              }
+                            }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${formData.tipeUjian === tipe ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 border border-gray-300 hover:border-blue-200'}`}
                           >
                             {tipe}
@@ -1041,10 +1117,15 @@ Berikan output dalam format JSON murni:
                             } else if (newSub === 'TKA Literasi Bahasa Inggris') {
                               newMapel = 'bahasa-inggris';
                             }
+                            const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(newSub);
                             setFormData({
                               ...formData,
                               subTipeUjian: newSub,
-                              mapel: newMapel
+                              mapel: newMapel,
+                              ...(isTKAAcademic ? {
+                                kerangkaTaksonomi: 'TKA',
+                                levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
+                              } : {})
                             });
                           }}
                           className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
