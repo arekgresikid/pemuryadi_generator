@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { supervisionIndicators, educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { GoogleGenAI, Type } from '../lib/genai';
+import { buildSupervisionSkillPrompt } from '../lib/skills/supervisionSkillLoader';
 import PrintSupportModal from './PrintSupportModal';
 import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, getSignatureHtml, createPrintWindow } from '../utils/print';
@@ -206,6 +207,8 @@ export default function Supervision() {
         B. Pelaksanaan: ${supervisionIndicators.execution.join(', ')}
         C. Asesmen: ${supervisionIndicators.assessment.join(', ')}
         D. Refleksi: ${supervisionIndicators.reflection.join(', ')}
+
+        ${buildSupervisionSkillPrompt({ sources })}
 
         TUGAS ANDA:
         1. Berikan skor (1-4) untuk setiap poin instrumen di atas berdasarkan analisis dokumen.

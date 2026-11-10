@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { cpData, pabProfilPelajar, mapelNames, modelNames, educationLevels, phaseClassMap, subjectsByLevel, topicsBySubject } from '../constants';
 import { GoogleGenAI, Type } from '../lib/genai';
+import { buildAdministrationSkillPrompt } from '../lib/skills/administrationSkillLoader';
 import PrintSupportModal from './PrintSupportModal';
 import AIVisualGenerator from './AIVisualGenerator';
 import PDFRemixUpload from './PDFRemixUpload';
@@ -190,6 +191,20 @@ ${custom.tp && customData.tpList.some(v => v) ? `- Tujuan Pembelajaran: ${custom
 ${custom.pp && customData.ppList.some(v => v) ? `- Profil Pelajar Pancasila: ${customData.ppList.filter(v => v).join(', ')}` : ''}
 ${custom.kp && (customData.kpPembuka || customData.kpInti || customData.kpPenutup) ? `- Kegiatan Pembelajaran: Pembuka (${customData.kpPembuka}), Inti (${customData.kpInti}), Penutup (${customData.kpPenutup})` : ''}
 ${prinsipInti.length > 0 ? `- Prinsip Kegiatan Inti: Pastikan kegiatan inti mencerminkan prinsip ${prinsipInti.join(', ')}.` : ''}
+
+${buildAdministrationSkillPrompt({
+  jenjang,
+  fase,
+  kelas: formData.kelas,
+  mapel: mapelLabel,
+  topik,
+  model: modelName,
+  formatPerangkat,
+  hasInklusi: formData.hasInklusi,
+  jumlahInklusi: formData.jumlahInklusi,
+  kerangkaTaksonomi: formData.kerangkaTaksonomi,
+  levelTaksonomi: formData.levelTaksonomi
+})}
 
 Konteks Kurikulum Merdeka & Pedagogi (SANGAT PENTING):
 1. Taksonomi/Pendekatan Kognitif: ${formData.kerangkaTaksonomi === 'bloom' ? 'Taksonomi Bloom' : 'Taksonomi SOLO'} pada level: ${formData.levelTaksonomi}.

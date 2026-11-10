@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { printElement } from '../utils/print';
 import { Loader2, Leaf, Users, Building, FileBarChart, CheckSquare, BookOpen, ChevronRight, Check, CheckCircle2, Circle, BrainCircuit, Printer, Save, RefreshCw, Download, FileText, ShieldCheck } from 'lucide-react';
 import { GoogleGenAI } from '../lib/genai';
+import { buildEvaluationSkillPrompt } from '../lib/skills/evaluationSkillLoader';
 import ReactMarkdown from 'react-markdown';
 
 // Define the Adiwiyata Wizard inside the same file for brevity
@@ -77,7 +78,9 @@ Jika ada data yang tampak tidak konsisten, gunakan logika 'Venn Diagram' untuk m
 Pastikan rekomendasi memiliki keterkaitan kuat antara gap yang teridentifikasi dan program intervensi yang disusun.
 DILARANG KERAS memberikan sapaan, pembukaan, atau penutup. Fokus pada output audit yang preskriptif.
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -411,7 +414,9 @@ WAJIB gunakan analisis '5 Why' dan 'Fishbone Analysis' untuk mengidentifikasi ak
 Gunakan data objektif (asesmen nasional, observasi) sebagai basis rekomendasi terintegrasi lintas standar.
 DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni (Tabel, Bold, List).
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -801,7 +806,9 @@ Tugas Anda mendalami validitas pemetaan mutu kependudukan sekolah menggunakan an
 Identifikasi akar masalah dari ketercapaian indikator SSK dan berikan rekomendasi program yang terintegrasi standar kurikulum dan sarana.
 DILARANG memberikan sapaan atau penutup. Hasilkan output audit Markdown murni.
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -1272,7 +1279,9 @@ Berikan rekomendasi yang memastikan keterkaitan kuat antara masalah teridentifik
 DILARANG KERAS menyapa, memberikan pendahuluan, dan dilarang menggunakan basa-basi penutup. 
 Output Anda HARUS 100% MURNI berupa analisis audit (Markdown) tanpa paragraf pengantar AI.
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -1571,7 +1580,9 @@ WAJIB gunakan analisis '5 Why' dan 'Fishbone Analysis' untuk mengurai temuan aud
 Berikan rekomendasi perbaikan yang mengintegrasikan standar ISO dengan standar nasional pendidikan secara kohesif.
 DILARANG memberikan sapaan atau penutup.
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -2035,7 +2046,9 @@ Anda wajib menggunakan analisis '5 Why', 'Fishbone Analysis', dan 'Venn Diagram'
 Berikan rekomendasi preskriptif yang menjamin integrasi antar program lintas standar.
 DILARANG KERAS menyapa, basa-basi pengantar, atau memberi kata penutup. Fokus pada output audit murni.
 
-WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).`;
+WAJIB: Berikan juga saran konkrit mengarahkan pengguna untuk melengkapi dokumen-dokumen yang ada di "Tab Administrasi" aplikasi ini yang sesuai untuk menunjang program tersebut (jumlahnya, administrasi apa saja, dan rincikan nama dokumennya, contoh: Mengajar Harian, Kalender Pendidikan, Analisis Hari Efektif, Program Tahunan, Program Semester, RPM, Modul Ajar, Jurnal, Modul P5, Supervisi, KKTP, Rubrik Penilaian, Modul Kokurikuler, Buat Soal, Laporan Kegiatan).
+
+${buildEvaluationSkillPrompt({ step: currentStep, jenjang: data.jenjang, data })}`;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
