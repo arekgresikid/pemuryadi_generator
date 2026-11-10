@@ -120,26 +120,68 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   } else if (isCPNSTWK) {
     sections.push(
       `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES WAWASAN KEBANGSAAN (TWK):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 65, Skor Benar = 5, Salah = 0, Opsi A–E).\n` +
-        `  2) FOKUS 5 PILAR TWK: Integritas (Anti-Korupsi/Kode Etik ASN), Bela Negara, Nasionalisme, Pilar Negara (Pancasila, UUD 1945, NKRI, Bhinneka Tunggal Ika), dan Bahasa Indonesia (Tata Tulis Kedinasan/PUEBI/Kaidah Resmi).\n` +
-        `  3) ANTI-HAFALAN PASAL MENTAH (STIMULUS KASUS DILEMATIS): DILARANG membuat soal berupa hafalan tanggal, nomor pasal mentah, atau kutipan undang-undang tanpa konteks. Setiap butir soal WAJIB diawali skenario kasus nyata dinamika birokrasi, pelayanan publik, atau tantangan kebangsaan modern di mana calon ASN diuji kemampuan analisis dan pengambilan keputusannya.\n` +
-        `  4) PEMBAHASAN: Wajib menyertakan landasan konstitusi, regulasi terkait, atau prinsip integritas yang menjadi dasar opsi jawaban benar.`
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 65, Skor Benar = 5, Salah = 0, Pilihan Ganda Tunggal 5 Opsi A–E).\n` +
+        `  2) RUANG LINGKUP 5 PILAR UTAMA RESMI TWK:\n` +
+        `     a) Nasionalisme: Mampu mewujudkan kepentingan nasional melalui cita-cita dan tujuan yang sama dengan tetap mempertahankan identitas nasional (patriotisme, cinta tanah air, sejarah pergerakan nasional, kedaulatan bangsa di tengah percaturan global, dan menjaga persatuan dari ancaman disintegrasi).\n` +
+        `     b) Integritas: Menjunjung tinggi kejujuran, ketangguhan, komitmen, dan konsistensi sikap bernegara, nilai integritas antikorupsi, transparansi birokrasi, serta keteladanan tokoh pejuang bangsa.\n` +
+        `     c) Bela Negara: Berperan aktif mempertahankan eksistensi bangsa dan kedaulatan negara berdasarkan 5 Nilai Dasar Bela Negara (UU No. 23/2019): Cinta Tanah Air, Sadar Berbangsa & Bernegara, Setia pada Pancasila, Rela Berkorban, dan Memiliki Kemampuan Awal Bela Negara; menghadapi ancaman militer, non-militer, dan hibrida.\n` +
+        `     d) Pilar Negara: Karakter positif melalui pemahaman & pengamalan nilai-nilai:\n` +
+        `        - Pancasila: Falsafah, dasar negara, ideologi terbuka, butir pengamalan Sila 1 s.d. Sila 5, perumusan BPUPKI/PPKI.\n` +
+        `        - UUD 1945: Pembukaan (makna alinea & pokok pikiran), Batang Tubuh amandemen I–IV (sistem ketatanegaraan, lembaga negara MPR, DPR, DPD, Presiden, MK, MA, KY, BPK, pemilu, HAM pasal 28A–J, pendidikan pasal 31, perekonomian pasal 33).\n` +
+        `        - NKRI: Bentuk negara kesatuan, kedaulatan wilayah Deklarasi Djuanda, wawasan nusantara, otonomi daerah, sejarah diplomasi & perjuangan mempertahankan kemerdekaan (KMB, Linggarjati, Renville, Agresi Militer).\n` +
+        `        - Bhinneka Tunggal Ika: Lambang Garuda Pancasila, Kitab Sutasoma karya Mpu Tantular, integrasi nasional, toleransi dan penanganan konflik multikultural.\n` +
+        `     e) Bahasa Negara: Menggunakan Bahasa Indonesia sebagai bahasa persatuan (Pasal 36 UUD 1945, UU No. 24/2009). Menguji kaidah PUEBI/EYD V (huruf kapital, tanda baca, penulisan kata serapan/gabungan), kalimat efektif, ide pokok paragraf, simpulan bacaan, serta diksi baku kedinasan.\n` +
+        `  3) PERBEDAAN TEGAS DENGAN TKP (DILARANG MEMBUAT SOAL BERGAYA TKP/SJT!):\n` +
+        `     * PERINGATAN KERAS: TWK BUKAN TES KARAKTERISTIK PRIBADI ATAU SITUATIONAL JUDGEMENT TEST! DILARANG KERAS membuat pertanyaan bergaya "Sebagai seorang ASN, apa tindakan yang Anda ambil jika..." atau menanyakan respon perilaku pribadi!\n` +
+        `     * BENTUK SOAL TWK: Soal TWK adalah tes kognitif/pengetahuan & analisis berbasis teks peristiwa, fakta sejarah, wacana ketatanegaraan, atau fenomena kebangsaan di mana pertanyaannya menguji pemahaman konsep konstitusi, butir Pancasila, unsur bela negara, atau kaidah bahasa. Contoh pola kalimat tanya TWK yang benar:\n` +
+        `       - "Tindakan warga negara pada wacana di atas merupakan wujud pengamalan Pancasila, khususnya Sila..."\n` +
+        `       - "Berdasarkan UUD 1945, kewenangan lembaga X dalam menyelesaikan sengketa tersebut adalah..."\n` +
+        `       - "Unsur nilai dasar bela negara yang paling dominan tercermin pada peristiwa tersebut adalah..."\n` +
+        `       - "Kalimat tidak efektif atau kesalahan tanda baca pada kutipan teks kedinasan di atas terdapat pada nomor..."\n` +
+        `  4) SISTEM SKOR & KUNCI: Tepat HANYA 1 OPSI BENAR (skor 5 poin), dan 4 opsi lainnya salah (skor 0 poin). Kunci jawaban HANYA berisi 1 huruf (misal: "B" atau "B. Setia pada Pancasila sebagai ideologi negara"). DILARANG membuat bobot bertingkat 1-5 pada TWK!\n` +
+        `  5) PEMBAHASAN: Uraikan landasan hukum, pasal UUD 1945, butir sila Pancasila, atau fakta sejarah yang menjadi dasar opsi benar.`
     );
   } else if (isCPNSTIU) {
     sections.push(
       `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES INTELIGENSI UMUM (TIU):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 80, Skor Benar = 5, Salah = 0, Opsi A–E).\n` +
-        `  2) CAKUPAN MATERI UTAMA: Kemampuan Verbal (Analogi, Silogisme Kategoris, Penalaran Analitis Posisi/Urutan), Kemampuan Numerik (Berhitung Cepat, Deret Angka, Perbandingan Kuantitatif Berpola x vs y, Soal Cerita Aljabar/Aritmetika Sosial), dan Kemampuan Figural (Analogi Gambar, Ketidaksamaan, Serial).\n` +
-        `  3) PROTOKOL PEMBUKTIAN LOGIKA/HITUNG (PRE-REASONING DI PEMBAHASAN): Pada field "pembahasan", Anda WAJIB menjabarkan [Langkah Pembuktian Logika Formal / Matematis] secara bertahap (premis mayor-minor untuk silogisme, atau pola beda/rasio deret untuk numerik) sebelum menyimpulkan kunci jawaban, guna menjamin ketepatan mutlak bebas halusinasi.`
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 80, Skor Benar = 5, Salah = 0, Pilihan Ganda Tunggal 5 Opsi A–E).\n` +
+        `  2) RUANG LINGKUP 3 KEMAMPUAN UTAMA RESMI TIU:\n` +
+        `     a) Kemampuan Verbal:\n` +
+        `        - Analogi: Mengukur penalaran melalui perbandingan dua konsep kata yang memiliki hubungan setara (A : B = C : D).\n` +
+        `        - Silogisme: Menarik kesimpulan logis dari premis-premis (premis mayor dan minor, modus ponens/tollens/silogisme hipotesis atau kategoris dengan kata kuantor: semua, sebagian, tidak ada).\n` +
+        `        - Penalaran Analitis: Menganalisis informasi kondisi batasan untuk menarik kesimpulan urutan posisi, jadwal kegiatan, atau perbandingan bertingkat.\n` +
+        `     b) Kemampuan Numerik:\n` +
+        `        - Berhitung Cepat: Operasi hitung bilangan pecahan, desimal, persentase, aljabar sederhana yang menuntut trik hitung efisien.\n` +
+        `        - Deret Angka: Menemukan pola barisan angka (aritmetika, geometri, lompat selang-seling, Fibonacci, bertingkat).\n` +
+        `        - Perbandingan Kuantitatif: Menentukan hubungan matematis antara dua besaran nilai x dan y (x > y, x < y, x = y, atau hubungan tidak dapat ditentukan).\n` +
+        `        - Soal Cerita: Memodelkan situasi nyata matematis (kecepatan-jarak-waktu, perbandingan senilai/berbalik nilai, usia, aritmetika sosial untung-rugi-diskon, dan kerja bersama).\n` +
+        `     c) Kemampuan Figural:\n` +
+        `        - Analogi Gambar: Hubungan perubahan bentuk gambar A ke B setara dengan C ke D.\n` +
+        `        - Ketidaksamaan Gambar: Mengidentifikasi 1 gambar yang tidak mengikuti pola/prinsip dari 5 gambar yang disajikan.\n` +
+        `        - Serial Pola Gambar: Melanjutkan pola urutan transformasi visual berikutnya.\n` +
+        `  3) FORMAT SOAL: Seluruh butir soal WAJIB memiliki tepat 1 jawaban pasti benar (skor 5) dan 4 opsi pengecoh yang masuk akal (skor 0). Rumusan soal to the point, padat informasi, bebas narasi basa-basi yang tidak relevan dengan logika/hitungan.\n` +
+        `  4) PROTOKOL PRE-REASONING DI PEMBAHASAN: Pada field "pembahasan", jabarkan langkah pembuktian logika formal/matematis bertahap (premis silogisme, rumus hitung, pola deret angka, atau analisis aturan posisi) secara rinci dan bebas halusinasi.`
     );
   } else if (isCPNSTKP) {
     sections.push(
       `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES KARAKTERISTIK PRIBADI (TKP):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 166, Opsi A–E dengan Skala Bobot 1 sampai 5 poin, TIDAK ADA nilai 0).\n` +
-        `  2) 6 ASPEK UTAMA TKP: Pelayanan Publik (kepuasan pengguna layanan), Jejaring Kerja (kolaborasi & kemitraan), Sosial Budaya (adaptasi keberagaman), Teknologi Informasi & Komunikasi (digitalisasi kerja), Profesionalisme (tanggung jawab tugas), dan Anti-Radikalisme (moderasi beragama & loyalitas Pancasila).\n` +
-        `  3) ATURAN MUTLAK SKALA BOBOT 1–5: DILARANG membuat urutan sekuensial (seperti A=5, B=4, C=3, D=2, E=1). Sebar bobot secara alami dan bervariasi sesuai kualitas respon perilaku.\n` +
-        `  4) INTEGRASI SKOR OPSI & KUNCI: Anda WAJIB mengisi field "skorOpsi" dengan bobot integer { "A": x, "B": y, "C": z, "D": w, "E": v } di mana nilai 1–5 terdistribusi lengkap. Kunci jawaban utama harus memuat rekapitulasi bobot (contoh: "A=3 | B=5 | C=2 | D=4 | E=1").\n` +
-        `  5) PEMBAHASAN: Uraikan analisis rubrik gradasi respon ASN BerAKHLAK yang menjelaskan mengapa opsi berbobot 5 merupakan tindakan paling solutif, matang, dan beretika tinggi.`
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 166, Pilihan Ganda 5 Opsi A–E dengan Skala Bobot 1 sampai 5 poin, TIDAK ADA nilai 0).\n` +
+        `  2) RUANG LINGKUP 6 ASPEK PERILAKU ASN BERAKHLAK:\n` +
+        `     a) Pelayanan Publik: Menampilkan keramahtamahan, empati, responsif terhadap kebutuhan masyarakat/pengguna layanan, mengutamakan kepuasan publik sesuai tupoksi wewenang, tidak emosional saat dikritik.\n` +
+        `     b) Jejaring Kerja: Membangun hubungan kemitraan, kolaborasi tim kerja, bersedia berbagi informasi, dan menjaga hubungan profesional yang sehat antarpegawai/instansi.\n` +
+        `     c) Sosial Budaya: Beradaptasi dan bekerja efektif di lingkungan kerja yang majemuk (beragam suku, agama, ras, dan budaya), menghormati perbedaan tanpa prasangka, inklusif terhadap rekan kerja.\n` +
+        `     d) Teknologi Informasi & Komunikasi (TIK): Mampu memanfaatkan teknologi digital secara efektif untuk mempercepat kerja, antusias mempelajari sistem/aplikasi baru kedinasan, menjaga keamanan data kantor.\n` +
+        `     e) Profesionalisme: Melaksanakan tugas dan fungsi sesuai standar jabatan, tuntas tugas tepat waktu, disiplin, mengutamakan tanggung jawab kedinasan di atas urusan pribadi, tidak mudah teralihkan.\n` +
+        `     f) Anti-Radikalisme: Peka dan tanggap menjaring informasi terkait bahaya radikalisme, memegang teguh moderasi beragama, setia pada ideologi Pancasila dan kedaulatan NKRI, tidak mentolerir bibit intoleransi.\n` +
+        `  3) KONSTRUKSI BUTIR SOAL SITUATIONAL JUDGEMENT TEST (SJT):\n` +
+        `     * Setiap butir soal berupa skenario situasi dilema kerja/pelayanan/sosial yang dihadapi pegawai ASN.\n` +
+        `     * Kalimat pertanyaan berupa: "Tindakan yang paling tepat Anda lakukan adalah..." atau "Sikap Anda dalam menghadapi situasi tersebut adalah..."\n` +
+        `     * Seluruh 5 opsi jawaban (A, B, C, D, E) harus tampak wajar dan manusiawi dilakukan, namun merefleksikan gradasi kedewasaan perilaku dari bobot 1 (paling pasif/reaktif) hingga bobot 5 (paling proaktif, solutif, matang, dan berintegritas tinggi).\n` +
+        `  4) ATURAN MUTLAK SKALA BOBOT 1–5 (NON-SEKUENSIAL):\n` +
+        `     * DILARANG membuat urutan bobot sekuensial (seperti A=5, B=4, C=3, D=2, E=1). Sebar bobot secara alami dan acak pada setiap nomor (misal No 1: A=3, B=5, C=2, D=4, E=1; No 2: A=4, B=1, C=5, D=3, E=2).\n` +
+        `     * Anda WAJIB mengisi field "skorOpsi" dengan bobot integer { "A": x, "B": y, "C": z, "D": w, "E": v } di mana nilai 1 s.d. 5 terdistribusi lengkap.\n` +
+        `     * Field "kunci" WAJIB memuat rekapitulasi bobot (contoh: "A=3 | B=5 | C=2 | D=4 | E=1"). Field "skor" diisi "Skala 1 - 5".\n` +
+        `  5) PEMBAHASAN: Uraikan analisis rubrik gradasi respon mengapa opsi berbobot 5 merupakan tindakan paling tepat dan sesuai dengan prinsip Core Values ASN BerAKHLAK.`
     );
   }
 

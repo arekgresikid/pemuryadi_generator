@@ -320,7 +320,11 @@ export default function BuatSoal() {
       let cp = getCP();
 
       const headerStandardPrompt = isCPNS
-        ? 'Pastikan dokumen ini disusun sesuai standar resmi Badan Kepegawaian Negara (BKN) dan Kementerian Pendayagunaan Aparatur Negara dan Reformasi Birokrasi (KemenPANRB) Republik Indonesia, mengacu pada KepmenPANRB No. 321/2024 untuk Seleksi Kompetensi Dasar (SKD) Calon Pegawai Negeri Sipil (CPNS).'
+        ? (formData.subTipeUjian === 'CPNS SKD - TWK'
+            ? 'Pastikan dokumen soal ini disusun sesuai standar resmi Badan Kepegawaian Negara (BKN) dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Wawasan Kebangsaan (TWK) SKD CPNS. TWK MENGUJI PENGETAHUAN, PEMAHAMAN, DAN ANALISIS KOGNITIF 5 PILAR KEBANGSAAN (bukan SJT / tes kepribadian). Setiap soal wajib memiliki TEPAT 1 KUNCI JAWABAN BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0).'
+            : formData.subTipeUjian === 'CPNS SKD - TIU'
+            ? 'Pastikan dokumen soal ini disusun sesuai standar resmi BKN dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Inteligensi Umum (TIU) SKD CPNS. TIU menguji kemampuan Penalaran Verbal, Numerik, dan Figural secara presisi dan objektif. Setiap butir soal wajib memiliki TEPAT 1 KUNCI JAWABAN BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0).'
+            : 'Pastikan dokumen soal ini disusun sesuai standar resmi BKN dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Karakteristik Pribadi (TKP) SKD CPNS. TKP berupa Situational Judgement Test (SJT) yang menguji respon perilaku ASN BerAKHLAK pada 6 Aspek dengan skala bobot nilai bertingkat 1 sampai 5 untuk seluruh 5 opsi jawaban (TIDAK ADA JAWABAN BERNILAI 0).')
         : 'Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.';
 
       if (formData.tipeUjian === 'Other') {
@@ -341,13 +345,13 @@ export default function BuatSoal() {
           cp = 'Instrumen Asesmen Kematangan Karakter, Dilema Moral/Etika (SJT), Integritas, Kebinekaan Global, Gotong Royong, Kemandirian, Penalaran Kritis, dan Kreativitas.';
         } else if (formData.subTipeUjian === 'CPNS SKD - TWK') {
           mapelLabel = 'Wawasan Kebangsaan (Tes Wawasan Kebangsaan - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: Integritas (Anti-Korupsi/Kode Etik ASN), Bela Negara, Nasionalisme, Pilar Negara (Pancasila, UUD 1945, NKRI, Bhinneka Tunggal Ika), dan Bahasa Indonesia Kedinasan.';
+          cp = 'KepmenPANRB No. 321/2024: 5 Pilar Resmi TWK — 1) Nasionalisme (Kedaulatan & Identitas Bangsa), 2) Integritas (Anti-Korupsi & Kejujuran Moral), 3) Bela Negara (5 Nilai Dasar UU 23/2019), 4) Pilar Negara (Pancasila Sila 1-5, Batang Tubuh UUD 1945 & Lembaga Negara, NKRI, Bhinneka Tunggal Ika), 5) Bahasa Negara (PUEBI/EYD V, Kalimat Efektif, Diksi Kedinasan). Asesmen Kognitif Murni (Bukan SJT/Karakteristik Pribadi), Skor Benar 5 / Salah 0.';
         } else if (formData.subTipeUjian === 'CPNS SKD - TIU') {
           mapelLabel = 'Inteligensi Umum (Tes Inteligensi Umum - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: Kemampuan Verbal (Analogi, Silogisme Kategoris, Penalaran Analitis), Kemampuan Numerik (Berhitung, Deret, Perbandingan Kuantitatif), dan Kemampuan Figural.';
+          cp = 'KepmenPANRB No. 321/2024: 3 Domain Resmi TIU — 1) Kemampuan Verbal (Analogi Kata, Silogisme Kategoris/Hipotesis, Penalaran Analitis Posisi/Kondisi), 2) Kemampuan Numerik (Berhitung Cepat Aljabar/Pecahan/Persen, Deret Angka, Perbandingan Kuantitatif x vs y, Soal Cerita Aritmetika Sosial), 3) Kemampuan Figural (Analogi, Ketidaksamaan, Serial Pola). Skor Benar 5 / Salah 0.';
         } else if (formData.subTipeUjian === 'CPNS SKD - TKP') {
           mapelLabel = 'Karakteristik Pribadi (Tes Karakteristik Pribadi - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: Pelayanan Publik, Jejaring Kerja, Sosial Budaya, Teknologi Informasi dan Komunikasi, Profesionalisme, dan Anti-Radikalisme.';
+          cp = 'KepmenPANRB No. 321/2024: 6 Aspek Perilaku ASN BerAKHLAK — 1) Pelayanan Publik, 2) Jejaring Kerja, 3) Sosial Budaya, 4) Teknologi Informasi dan Komunikasi, 5) Profesionalisme, 6) Anti-Radikalisme. Format Situational Judgement Test (SJT) dengan pembobotan nilai 1 s.d. 5 untuk setiap opsi (tidak ada nilai 0).';
         }
       }
 
@@ -1570,28 +1574,33 @@ Berikan output dalam format JSON murni:
                         <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Pilih Sub-Topik Resmi BKN:</span>
                         <div className="flex flex-wrap gap-1.5">
                           {(formData.subTipeUjian === 'CPNS SKD - TWK' ? [
-                            'Semua Topik TWK',
-                            'Integritas & Anti-Korupsi',
-                            'Bela Negara & Cinta Tanah Air',
-                            'Pilar Negara (Pancasila & UUD 1945)',
-                            'Nasionalisme & Bhinneka Tunggal Ika',
-                            'Bahasa Indonesia Kedinasan'
+                            'Semua 5 Pilar TWK',
+                            'Nasionalisme (Identitas & Kedaulatan)',
+                            'Integritas (Anti-Korupsi & Kejujuran)',
+                            'Bela Negara (5 Nilai Dasar UU 23/2019)',
+                            'Pilar Negara: Pancasila (Sila 1-5 & Ideologi)',
+                            'Pilar Negara: UUD 1945 & Ketatanegaraan',
+                            'Pilar Negara: NKRI & Sejarah Kemerdekaan',
+                            'Pilar Negara: Bhinneka Tunggal Ika & Integrasi',
+                            'Bahasa Negara (PUEBI, Kalimat Efektif, Diksi)'
                           ] : formData.subTipeUjian === 'CPNS SKD - TIU' ? [
                             'Semua Topik TIU',
-                            'Silogisme Logis & Penarikan Kesimpulan',
-                            'Penalaran Analitis (Urutan Posisi)',
-                            'Deret Angka & Pola Bilangan',
-                            'Perbandingan Kuantitatif Berpola',
-                            'Soal Cerita Aritmetika Sosial',
-                            'Penalaran Figural (Pola Gambar)'
+                            'Verbal: Analogi Kata (Padanan Konsep)',
+                            'Verbal: Silogisme (Penarikan Kesimpulan)',
+                            'Verbal: Penalaran Analitis (Urutan Posisi)',
+                            'Numerik: Berhitung Cepat (Aljabar & Pecahan)',
+                            'Numerik: Deret Angka & Pola Bilangan',
+                            'Numerik: Perbandingan Kuantitatif (x vs y)',
+                            'Numerik: Soal Cerita Aritmetika Sosial',
+                            'Figural: Analogi, Ketidaksamaan & Serial'
                           ] : [
-                            'Semua Topik TKP',
-                            'Pelayanan Publik & Kepuasan Pengguna',
-                            'Jejaring Kerja & Kolaborasi Digital',
-                            'Sosial Budaya & Adaptasi Keberagaman',
-                            'Teknologi Informasi & Transformasi Digital',
-                            'Profesionalisme & Integritas Kerja',
-                            'Anti-Radikalisme & Loyalitas Negara'
+                            'Semua 6 Aspek TKP',
+                            'Pelayanan Publik (Keramahan & Kepuasan)',
+                            'Jejaring Kerja (Kolaborasi Kemitraan)',
+                            'Sosial Budaya (Adaptasi & Multikultural)',
+                            'Teknologi Informasi & Komunikasi Digital',
+                            'Profesionalisme (Tanggung Jawab ASN)',
+                            'Anti-Radikalisme & Moderasi Beragama'
                           ]).map(topic => {
                             const isSelected = topic.startsWith('Semua') ? !formData.materi : formData.materi === topic;
                             return (
@@ -1708,8 +1717,10 @@ Berikan output dalam format JSON murni:
                           </div>
                           <p className="text-xs text-gray-600 leading-relaxed">
                             {formData.subTipeUjian === 'CPNS SKD - TKP'
-                              ? 'Menilai kedewasaan respon tindakan, integritas publik, adaptasi teknologi, dan orientasi pelayanan ASN BerAKHLAK.'
-                              : 'Mengukur kecakapan berpikir kritis tingkat tinggi (HOTS), analisis kasus birokrasi, logika analitis silogisme, dan pemecahan masalah kuantitatif.'}
+                              ? 'Menilai respon perilaku ASN BerAKHLAK pada 6 Aspek melalui Situational Judgement Test (SJT) dengan skala bobot nilai 1 s.d. 5 (tidak ada nilai 0).'
+                              : formData.subTipeUjian === 'CPNS SKD - TWK'
+                              ? 'Mengukur penguasaan kognitif objektif pada 5 Pilar Kebangsaan (Nasionalisme, Integritas, Bela Negara, Pilar Negara, Bahasa Negara) dengan 1 kunci jawaban pasti (Skor Benar=5, Salah=0).'
+                              : 'Mengukur kecakapan penalaran logika objektif pada 3 Domain Resmi TIU (Verbal, Numerik, Figural) dengan 1 kunci jawaban pasti (Skor Benar=5, Salah=0).'}
                           </p>
                           <div className="flex flex-wrap gap-2 mt-1">
                             <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full border border-indigo-200">Level 2 - Aplikasi Kontekstual</span>
