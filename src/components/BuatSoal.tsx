@@ -62,6 +62,7 @@ export default function BuatSoal() {
     indikator: string;
     tipeUjian: string;
     subTipeUjian: string;
+    tarafOlimpiade?: string;
     bentukSoal: string[];
     kerangkaTaksonomi: string;
     levelKognitif: string[];
@@ -83,6 +84,7 @@ export default function BuatSoal() {
     indikator: '',
     tipeUjian: 'Ujian Biasa',
     subTipeUjian: 'TKA Literasi',
+    tarafOlimpiade: 'Kabupaten (OSN-K / SASMO)',
     bentukSoal: ['Pilihan Ganda'],
     kerangkaTaksonomi: 'Bloom',
     levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan'],
@@ -377,6 +379,7 @@ export default function BuatSoal() {
         mapel: formData.mapel,
         tipeUjian: formData.tipeUjian,
         subTipeUjian: formData.subTipeUjian,
+        tarafOlimpiade: formData.tarafOlimpiade,
         kerangkaTaksonomi: formData.kerangkaTaksonomi,
         levelKognitif: formData.levelKognitif,
         totalSoal,
@@ -464,7 +467,17 @@ Berikan output dalam format JSON murni:
             extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Sesuaikan dengan standar kurikulum dan panduan asesmen resmi ${formData.subTipeUjian}.`;
           }
         } else if (formData.tipeUjian === 'Olimpiade') {
-          extraInstructions += `\n- Standar Olimpiade: Sesuaikan cakupan dan bobot soal dengan standar kompetisi olimpiade sains resmi (seperti OSN tingkat kabupaten/provinsi/nasional, IMO untuk Matematika, IPhO untuk Fisika, IChO untuk Kimia, IBO untuk Biologi, dll.) sesuai dengan mata pelajaran ${mapelLabel}. Soal harus bertipe analisis mendalam, pemecahan masalah kompleks, dan menantang.`;
+          const taraf = formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)';
+          extraInstructions += `\n- STANDAR RESMI OLIMPIADE SAINS & MATEMATIKA BERTARAF INTERNASIONAL (TARAF: ${taraf.toUpperCase()}):\n` +
+            `  1) PEDOMAN BOBOT KOMPETISI: Sesuaikan cakupan materi, kedalaman abstraksi, dan kompleksitas masalah dengan standar resmi:\n` +
+            `     * SD/MI: OSN SD Puspresnas (Matematika & IPA Sains), SASMO (Grades 1-6), AMC 8, Kangaroo Math, VANDA Science.\n` +
+            `     * SMP/MTs: OSN SMP Puspresnas (Matematika, IPA Terpadu, IPS), IJSO (Fisika-Kimia-Biologi terpadu), SASMO Junior, AMC 8/10.\n` +
+            `     * SMA/MA: OSN SMA Puspresnas & Tingkat Dunia (Matematika/IMO, Fisika/IPhO, Kimia/IChO, Biologi/IBO, Informatika/IOI, Astronomi/IOAA, Kebumian/IESO, Ekonomi/IEO, Geografi/IGeO).\n` +
+            `  2) ANTI PLUG-AND-CHUG MANDATE: DILARANG KERAS membuat soal rutin atau substitusi 1 rumus baku. Soal WAJIB menuntut minimal 3 tahapan penalaran (eksplorasi invarian/struktur tersembunyi, pemodelan matematis/ilmiah, dan perhitungan presisi).\n` +
+            `  3) FORMAT ISIAN SINGKAT INTEGER (AIME / SASMO SECTION B): Jika bentuk soal berupa "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa bilangan bulat non-negatif pasti (0–999 atau p+q pecahan paling sederhana) tanpa opsi tebakan.\n` +
+            `  4) REKAYASA PENGECOH: Pilihan salah pada pilihan ganda WAJIB mencerminkan jebakan miskonsepsi khas kompetisi (off-by-one, boundary case error, tanda/arah vektor terbalik, solusi parsial).\n` +
+            `  5) PROTOKOL PEMBAHASAN STANDAR EMAS: Field "pembahasan" WAJIB memuat 4 bagian: (a) Ide Kunci / Breakthrough Insight, (b) Langkah Penurunan & Pembuktian Formal Lengkap (sebutkan nama teorema: AM-GM, Cauchy-Schwarz, Menelaus, Gauss, Hess, dsb.), (c) Peringatan Perangkap Pengecoh, dan (d) Trik Cepat / Heuristik Alternatif.\n` +
+            `  6) NOTASI LATEX STRICT: Seluruh variabel, persamaan, pecahan (\\frac{a}{b}), akar (\\sqrt{x}), pertidaksamaan (\\le, \\ge), dan reaksi kimia WAJIB menggunakan notasi LaTeX presisi.`;
         } else if (formData.tipeUjian === 'Live Quiz') {
           extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat. Pembahasan harus to the point.`;
         }
@@ -1120,6 +1133,14 @@ Berikan output dalam format JSON murni:
                                     levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
                                   } : {})
                                 });
+                              } else if (tipe === 'Olimpiade') {
+                                setFormData({
+                                  ...formData,
+                                  tipeUjian: tipe,
+                                  tarafOlimpiade: formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)',
+                                  kerangkaTaksonomi: 'Bloom',
+                                  levelKognitif: ['C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta']
+                                });
                               } else {
                                 setFormData({ ...formData, tipeUjian: tipe });
                               }
@@ -1166,6 +1187,22 @@ Berikan output dalam format JSON murni:
                           <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
                           <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
                           <option value="Try Out">Try Out</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {formData.tipeUjian === 'Olimpiade' && (
+                      <div className="flex-1 w-full min-w-[240px] animate-in fade-in slide-in-from-top-1 duration-200">
+                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Taraf Kompetisi Sains / Matematika</label>
+                        <select
+                          value={formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)'}
+                          onChange={e => setFormData({ ...formData, tarafOlimpiade: e.target.value })}
+                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                        >
+                          <option value="Kabupaten (OSN-K / SASMO)">Tingkat Kabupaten (OSN-K / SASMO Foundation)</option>
+                          <option value="Provinsi (OSN-P / AMC)">Tingkat Provinsi (OSN-P / AMC 10-12)</option>
+                          <option value="Nasional (OSN)">Tingkat Nasional (OSN Puspresnas)</option>
+                          <option value="Internasional (IMO / IPhO / IChO / IBO / IOI / AIME / IJSO)">Taraf Internasional (IMO / IPhO / IChO / IBO / IOI / AIME / IJSO)</option>
                         </select>
                       </div>
                     )}
@@ -1245,6 +1282,12 @@ Berikan output dalam format JSON murni:
                       <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 flex items-center gap-1.5 self-start sm:self-auto">
                         <Sparkles size={12} className="text-blue-500" />
                         Standar Resmi {formData.subTipeUjian} ({(formData.jenjang || 'SD').toUpperCase()}) Aktif
+                      </span>
+                    )}
+                    {formData.tipeUjian === 'Olimpiade' && (
+                      <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1.5 self-start sm:self-auto">
+                        <Sparkles size={12} className="text-amber-500" />
+                        Standar Olimpiade: {formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)'}
                       </span>
                     )}
                   </div>
@@ -1677,31 +1720,58 @@ Berikan output dalam format JSON murni:
                 </div>
 
                 {/* Section 5: Tips */}
-                <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row gap-6 justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 mb-2 relative z-10">
-                      <Lightbulb size={16} /> Tips Menyusun Kisi-Kisi
-                    </h3>
-                    <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
-                      <li>Selaraskan dengan CP &rarr; ATP &rarr; TP</li>
-                      <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
-                      <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
-                      <li>Variasikan level kognitif (tidak hanya mengingat)</li>
-                    </ul>
+                {formData.tipeUjian === 'Olimpiade' ? (
+                  <div className="bg-amber-50/60 rounded-xl p-4 border border-amber-200 relative overflow-hidden shadow-sm flex flex-col md:flex-row gap-6 justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-amber-800 flex items-center gap-2 mb-2 relative z-10">
+                        <Lightbulb size={16} className="text-amber-600" /> Tips Standar Olimpiade Sains & Matematika
+                      </h3>
+                      <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                        <li>Fokus pada penalaran non-rutin, struktur invarian, dan kondisi batas</li>
+                        <li>Format Pilihan Ganda (SASMO/AMC) atau Isian Singkat (AIME Integer 0–999)</li>
+                        <li>Dilarang rumus instan satu baris (Anti Plug-and-Chug Mandate)</li>
+                        <li>Taraf kompetisi saat ini: <strong>{formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)'}</strong></li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-red-600 flex items-center gap-2 mb-2 relative z-10">
+                        <AlertTriangle size={16} /> Hindari dalam Soal Olimpiade
+                      </h3>
+                      <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                        <li>Soal hafalan rumus atau definisi buku teks langsung</li>
+                        <li>Pengecoh acak tanpa jebakan miskonsepsi/off-by-one</li>
+                        <li>Pembahasan singkat tanpa pembuktian formal & teorema kunci</li>
+                      </ul>
+                    </div>
                   </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-sm font-bold text-red-500 flex items-center gap-2 mb-2 relative z-10">
-                      <AlertTriangle size={16} /> Hindari Kesalahan Umum
-                    </h3>
-                    <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
-                      <li>Indikator hanya pada level mengingat (C1)</li>
-                      <li>Tidak mencerminkan pembelajaran kontekstual</li>
-                      <li>Soal tidak mengukur pemahaman mendalam</li>
-                      <li>Distribusi level kognitif tidak seimbang</li>
-                    </ul>
+                ) : (
+                  <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row gap-6 justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 mb-2 relative z-10">
+                        <Lightbulb size={16} /> Tips Menyusun Kisi-Kisi
+                      </h3>
+                      <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                        <li>Selaraskan dengan CP &rarr; ATP &rarr; TP</li>
+                        <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
+                        <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
+                        <li>Variasikan level kognitif (tidak hanya mengingat)</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-red-500 flex items-center gap-2 mb-2 relative z-10">
+                        <AlertTriangle size={16} /> Hindari Kesalahan Umum
+                      </h3>
+                      <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
+                        <li>Indikator hanya pada level mengingat (C1)</li>
+                        <li>Tidak mencerminkan pembelajaran kontekstual</li>
+                        <li>Soal tidak mengukur pemahaman mendalam</li>
+                        <li>Distribusi level kognitif tidak seimbang</li>
+                      </ul>
+                    </div>
                   </div>
-                </div>
+                )}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-2">

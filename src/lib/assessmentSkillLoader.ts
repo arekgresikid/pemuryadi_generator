@@ -20,6 +20,7 @@ export interface AssessmentSkillContext {
   terdapatSoalBergambar?: boolean;
   jumlahSoalBergambar?: number;
   hasInklusi?: boolean;
+  tarafOlimpiade?: string;
 }
 
 export function isHOTSSelectionOnly(levels: string[]): boolean {
@@ -117,6 +118,27 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
       `- ARSITEKTUR KHUSUS TRY OUT KOMPREHENSIF:\n` +
         `  * Susun paket simulasi ujian standar yang mencakup lintas topik/materi esensial pada mata pelajaran ini secara menyeluruh, dengan tingkat kesulitan berjenjang menyerupai ujian akhir sesungguhnya.`
     );
+  } else if (isOlimpiade) {
+    const taraf = ctx.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)';
+    sections.push(
+      `- ARSITEKTUR KHUSUS OLIMPIADE SAINS & MATEMATIKA BERTAARAF NASIONAL & INTERNASIONAL:\n` +
+        `  1) TARAF KOMPETISI: "${taraf.toUpperCase()}" (${jenjangUpper}).\n` +
+        `     * Bobot soal, kedalaman abstraksi, dan kompleksitas analisis WAJIB disesuaikan ketat dengan taraf kompetisi ini.\n` +
+        `     * Kabupaten (OSN-K / SASMO Foundation): Fondasi penalaran kompetisi, pemecahan masalah non-rutin awal, teka-teki logika, dan sifat-sifat dasar matematika/sains analitis.\n` +
+        `     * Provinsi (OSN-P / AMC 10-12): Masalah multi-tahap tingkat lanjut dengan jebakan aljabar/konsep, keterkaitan antartopik, dan eliminasi kasus batas.\n` +
+        `     * Nasional (OSN): Eksplorasi mendalam, pemodelan sistem fisika/biologi/kimia kompleks, geometri sintetis, dan pembuktian formal.\n` +
+        `     * Internasional (IMO / IPhO / IChO / IBO / IOI / AIME / IJSO): Standar dunia, menuntut penemuan invarian, teorema lanjutan (AM-GM, Cauchy-Schwarz, Fermat, Ptolemy, Navier-Stokes/Gauss, CFT/Nernst, linkage/enzymatic kinetics), dan ketelitian tingkat tinggi.\n` +
+        `  2) ATURAN MUTLAK ANTI PLUG-AND-CHUG (LARANGAN RUMUS INSTAN):\n` +
+        `     * DILARANG KERAS membuat soal yang selesai hanya dengan memasukkan angka ke 1 rumus baku buku teks sekolah!\n` +
+        `     * Setiap soal WAJIB menuntut minimal 3 lompatan penalaran: (a) Eksplorasi kondisi/invarian tersembunyi, (b) Transformasi pemodelan matematis/ilmiah, dan (c) Eksekusi perhitungan presisi serta eliminasi solusi semu.\n` +
+        `  3) FORMAT ISIAN SINGKAT ANGKA BULAT (AIME / SASMO SECTION B STYLE):\n` +
+        `     * Jika butir soal bertipe "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa BILANGAN BULAT NON-NEGATIF PASTI (misal: 42, 128, 750) atau format p+q pecahan paling sederhana, sehingga 100% kedap dari tebakan acak.\n` +
+        `  4) REKAYASA PENGECOH JEBAKAN KOMPETISI OTENTIK (PILIHAN GANDA):\n` +
+        `     * Pengecoh BUKAN angka acak! Wajib merefleksikan perangkap khas kompetisi: off-by-one error, kelalaian kasus batas/nol, solusi separuh jalan, atau pembalikan tanda/vektor.\n` +
+        `  5) PROTOKOL PEMBAHASAN STANDAR EMAS:\n` +
+        `     * Setiap field "pembahasan" WAJIB menguraikan 4 elemen: (a) Ide Kunci / Breakthrough Concept, (b) Langkah Penurunan & Teorema Formal Lengkap, (c) Peringatan Perangkap Pengecoh, dan (d) Metode Cepat / Heuristik Alternatif.\n` +
+        `  6) STANDAR NOTASI MATEMATIKA: Gunakan notasi LaTeX murni yang presisi untuk setiap persamaan, variabel, pecahan (\\frac{a}{b}), akar (\\sqrt{x}), pertidaksamaan (\\le, \\ge), dan notasi himpunan.`
+    );
   } else if (isCPNSTWK) {
     sections.push(
       `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES WAWASAN KEBANGSAAN (TWK):\n` +
@@ -197,7 +219,7 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
     );
   } else if (isOlimpiade) {
     sections.push(
-      `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada kepadatan informasi ilmiah/matematis dan skenario masalah non-rutin. Jangan menambahkan cerita naratif berbunga-bunga yang tidak dibutuhkan dalam perhitungan atau pembuktian.`
+      `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada kepadatan informasi ilmiah/matematis dan skenario masalah non-rutin. Jangan menambahkan cerita naratif berbunga-bunga yang tidak dibutuhkan dalam perhitungan atau pembuktian. Seluruh parameter fisis, konstruksi geometri, kondisi batas, atau premis logika ditulis presisi tanpa basa-basi naratif.`
     );
   } else if (isCPNS) {
     if (isCPNSTWK) {
