@@ -50,7 +50,11 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   const isSulingjar = ctx.tipeUjian === 'Other' && sub.includes('Survei Lingkungan Belajar');
   const isSurveiKarakter = ctx.tipeUjian === 'Other' && sub.includes('Survei Karakter');
   const isTryOut = ctx.tipeUjian === 'Other' && sub === 'Try Out';
-  const isSurvey = isSulingjar || isSurveiKarakter;
+  const isCPNSTWK = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TWK');
+  const isCPNSTIU = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TIU');
+  const isCPNSTKP = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TKP');
+  const isCPNS = isCPNSTWK || isCPNSTIU || isCPNSTKP;
+  const isSurvey = isSulingjar || isSurveiKarakter || isCPNSTKP;
   const isAKM = ctx.tipeUjian === 'Asesmen Nasional';
   const isTKAAcademic = isTKALiterasi || isTKANumerasi || isTKAInggris;
   const isLiveQuiz = ctx.tipeUjian === 'Live Quiz';
@@ -113,6 +117,30 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
       `- ARSITEKTUR KHUSUS TRY OUT KOMPREHENSIF:\n` +
         `  * Susun paket simulasi ujian standar yang mencakup lintas topik/materi esensial pada mata pelajaran ini secara menyeluruh, dengan tingkat kesulitan berjenjang menyerupai ujian akhir sesungguhnya.`
     );
+  } else if (isCPNSTWK) {
+    sections.push(
+      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES WAWASAN KEBANGSAAN (TWK):\n` +
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 65, Skor Benar = 5, Salah = 0, Opsi A–E).\n` +
+        `  2) FOKUS 5 PILAR TWK: Integritas (Anti-Korupsi/Kode Etik ASN), Bela Negara, Nasionalisme, Pilar Negara (Pancasila, UUD 1945, NKRI, Bhinneka Tunggal Ika), dan Bahasa Indonesia (Tata Tulis Kedinasan/PUEBI/Kaidah Resmi).\n` +
+        `  3) ANTI-HAFALAN PASAL MENTAH (STIMULUS KASUS DILEMATIS): DILARANG membuat soal berupa hafalan tanggal, nomor pasal mentah, atau kutipan undang-undang tanpa konteks. Setiap butir soal WAJIB diawali skenario kasus nyata dinamika birokrasi, pelayanan publik, atau tantangan kebangsaan modern di mana calon ASN diuji kemampuan analisis dan pengambilan keputusannya.\n` +
+        `  4) PEMBAHASAN: Wajib menyertakan landasan konstitusi, regulasi terkait, atau prinsip integritas yang menjadi dasar opsi jawaban benar.`
+    );
+  } else if (isCPNSTIU) {
+    sections.push(
+      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES INTELIGENSI UMUM (TIU):\n` +
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 80, Skor Benar = 5, Salah = 0, Opsi A–E).\n` +
+        `  2) CAKUPAN MATERI UTAMA: Kemampuan Verbal (Analogi, Silogisme Kategoris, Penalaran Analitis Posisi/Urutan), Kemampuan Numerik (Berhitung Cepat, Deret Angka, Perbandingan Kuantitatif Berpola x vs y, Soal Cerita Aljabar/Aritmetika Sosial), dan Kemampuan Figural (Analogi Gambar, Ketidaksamaan, Serial).\n` +
+        `  3) PROTOKOL PEMBUKTIAN LOGIKA/HITUNG (PRE-REASONING DI PEMBAHASAN): Pada field "pembahasan", Anda WAJIB menjabarkan [Langkah Pembuktian Logika Formal / Matematis] secara bertahap (premis mayor-minor untuk silogisme, atau pola beda/rasio deret untuk numerik) sebelum menyimpulkan kunci jawaban, guna menjamin ketepatan mutlak bebas halusinasi.`
+    );
+  } else if (isCPNSTKP) {
+    sections.push(
+      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES KARAKTERISTIK PRIBADI (TKP):\n` +
+        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Passing Grade 166, Opsi A–E dengan Skala Bobot 1 sampai 5 poin, TIDAK ADA nilai 0).\n` +
+        `  2) 6 ASPEK UTAMA TKP: Pelayanan Publik (kepuasan pengguna layanan), Jejaring Kerja (kolaborasi & kemitraan), Sosial Budaya (adaptasi keberagaman), Teknologi Informasi & Komunikasi (digitalisasi kerja), Profesionalisme (tanggung jawab tugas), dan Anti-Radikalisme (moderasi beragama & loyalitas Pancasila).\n` +
+        `  3) ATURAN MUTLAK SKALA BOBOT 1–5: DILARANG membuat urutan sekuensial (seperti A=5, B=4, C=3, D=2, E=1). Sebar bobot secara alami dan bervariasi sesuai kualitas respon perilaku.\n` +
+        `  4) INTEGRASI SKOR OPSI & KUNCI: Anda WAJIB mengisi field "skorOpsi" dengan bobot integer { "A": x, "B": y, "C": z, "D": w, "E": v } di mana nilai 1–5 terdistribusi lengkap. Kunci jawaban utama harus memuat rekapitulasi bobot (contoh: "A=3 | B=5 | C=2 | D=4 | E=1").\n` +
+        `  5) PEMBAHASAN: Uraikan analisis rubrik gradasi respon ASN BerAKHLAK yang menjelaskan mengapa opsi berbobot 5 merupakan tindakan paling solutif, matang, dan beretika tinggi.`
+    );
   }
 
   // 2. Stimulus Budgeting Policy
@@ -128,6 +156,13 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   } else if (isOlimpiade) {
     sections.push(
       `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada kepadatan informasi ilmiah/matematis dan skenario masalah non-rutin. Jangan menambahkan cerita naratif berbunga-bunga yang tidak dibutuhkan dalam perhitungan atau pembuktian.`
+    );
+  } else if (isCPNS) {
+    sections.push(
+      `- KEBIJAKAN STIMULUS CPNS SKD (STANDAR CAT BKN - WAJIB MURNI SOAL MANDIRI):\n` +
+        `  * DILARANG KERAS MEMBUAT WACANA BERSAMA ("stimulusList")! Biarkan array "stimulusList": [] KOSONG!\n` +
+        `  * 100% butir soal WAJIB berupa SOAL MANDIRI BERKONTEKS (seluruh narasi kasus/skenario masalah 2–5 kalimat ditulis LANGSUNG di dalam field "pertanyaan", dengan "stimulusId": "").\n` +
+        `  * Opsi jawaban tepat 5 pilihan (A, B, C, D, E). DILARANG memecah skenario kasus menjadi stimulus wacana terpisah!`
     );
   } else if (!isSurvey) {
     const maxSharedGroups = ctx.totalSoal >= 30 ? 3 : ctx.totalSoal >= 15 ? 2 : 1;
@@ -197,7 +232,11 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   );
 
   // 5. Level-Specific Safeguards (PAUD to SMK)
-  if (jenjangUpper === 'PAUD' || jenjangUpper === 'TK') {
+  if (isCPNS) {
+    sections.push(
+      `- STANDAR SASARAN CALON ASN: Target audiens adalah Sarjana / Profesional / Calon Aparatur Sipil Negara. Gunakan register bahasa birokrasi resmi, baku, profesional, dan menantang daya nalar tingkat tinggi.`
+    );
+  } else if (jenjangUpper === 'PAUD' || jenjangUpper === 'TK') {
     sections.push(
       `- PENGAMANAN KHUSUS PAUD (FASE FONDASI): Fokus pada asesmen perkembangan autentik melalui aktivitas bermain konkret, pengenalan pola/warna/bentuk, pemantik lisan guru, dan indikator perilaku teramati.`
     );
