@@ -2,6 +2,12 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.2] - 10 November 2026
+- Pemisahan Modul Dedicated CPNSGenerator (v2.0.0): Meluncurkan modul mandiri khusus SKD CPNS / PPPK berbasis CAT BKN (KepmenPANRB No. 321/2024) yang sepenuhnya terisolasi dari kurikulum sekolah.
+- Pembersihan Skema & Bebas Bocoran Tabel: Menghapus total array Pernyataan Benar/Salah dan Menjodohkan dari skema CPNS, mencegah bocornya pembahasan/kunci ke dalam soal ujian.
+- Key Balancing Protocol: Menerapkan protokol distribusi kunci jawaban merata (~20% per opsi A-E) untuk menghilangkan bias opsi A pada model AI.
+- Kunci & Pembahasan Tersembunyi: Kunci jawaban dan pembahasan ditampilkan terpisah (dapat dibuka per soal) serta dicetak di halaman terpisah, dilengkapi indikator sebaran kunci A-E untuk verifikasi cepat.
+
 ## [5.4.1] - 10 November 2026
 - Standardisasi Penuh CPNS SKD CAT BKN (KepmenPANRB No. 321/2024): Menegakkan pemisahan fundamental antara TWK, TIU, dan TKP baik pada level System Prompt, Runtime Skill Loader, maupun JSON Schema Enforcement.
 - Penegasan TWK Kognitif Objektif: Membasmi kemunculan soal dilema perilaku/SJT pada TWK ('Sebagai seorang ASN...'), mewajibkan perspektif orang ketiga untuk pengujian 5 Pilar Kebangsaan (Nasionalisme, Integritas Hukum/Tokoh, Bela Negara UU 23/2019, Pilar Negara Pancasila/UUD/NKRI/Bhinneka, Bahasa Negara EYD V), dengan penskoran pasti 1 Kunci Benar (5 poin) dan 4 Salah (0 poin).

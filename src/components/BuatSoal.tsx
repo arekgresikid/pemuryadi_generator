@@ -542,21 +542,19 @@ Berikan output dalam format JSON murni:
       "indikatorSoal": "Rumuskan indikator operasional spesifik yang menguji levelKognitif di atas",
       "pertanyaan": "${
         formData.subTipeUjian === 'CPNS SKD - TWK'
-          ? 'WAJIB soal kognitif/analisis objektif orang ketiga tentang 5 Pilar TWK (DILARANG pakai kata Anda atau menanyakan respon perilaku pribadi). Contoh: Berdasarkan wacana di atas, wujud pengamalan Pancasila Sila ke-... atau Berdasarkan Pasal 23E UUD 1945, lembaga yang berwenang...'
+          ? 'WAJIB soal kognitif/analisis objektif orang ketiga tentang 5 Pilar TWK (DILARANG pakai kata Anda atau menanyakan respon perilaku pribadi, DILARANG membocorkan jawaban di pertanyaan).'
           : formData.subTipeUjian === 'CPNS SKD - TIU'
-          ? 'WAJIB soal penalaran logika/matematis/verbal to the point (analogi kata A:B = C:D, silogisme premis, deret angka, soal cerita berhitung, dll). 1 Kunci Benar (5 poin).'
+          ? 'WAJIB soal penalaran logika/matematis/verbal to the point (DILARANG membocorkan rumus/langkah hitung/jawaban di dalam teks pertanyaan).'
           : formData.subTipeUjian === 'CPNS SKD - TKP'
           ? 'WAJIB skenario dilema kedinasan orang kedua (Anda). Kalimat tanya: Tindakan yang paling tepat Anda lakukan adalah...'
           : '...'
       }", 
-      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
-      "opsiTambahan": ${isCPNS ? '["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."]' : '["A. ...", "B. ..."]'}, 
-      ${formData.subTipeUjian === 'CPNS SKD - TKP' ? '"skorOpsi": { "A": 3, "B": 5, "C": 2, "D": 4, "E": 1 },\n      ' : ''}"pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
-      "kunci": "${
+      ${!isCPNS ? '"pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], \n      ' : ''}"opsiTambahan": ${isCPNS ? '["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."]' : '["A. ...", "B. ..."]'}, 
+      ${formData.subTipeUjian === 'CPNS SKD - TKP' ? '"skorOpsi": { "A": 3, "B": 5, "C": 2, "D": 4, "E": 1 },\n      ' : ''}${isCPNS ? '' : '"pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],\n      '}"kunci": "${
         formData.subTipeUjian === 'CPNS SKD - TKP'
           ? 'A=3 | B=5 | C=2 | D=4 | E=1'
           : isCPNS
-          ? 'Huruf kunci benar (misal: B)'
+          ? 'Satu huruf jawaban benar (sebar merata antara A, B, C, D, E - JANGAN semua A)'
           : '...'
       }", 
       "pembahasan": "...",
@@ -577,42 +575,50 @@ Berikan output dalam format JSON murni:
     }
   ]` : ''}
 }`;
+        const itemProperties: any = {
+          no: { type: Type.STRING },
+          jenisSoal: { type: Type.STRING },
+          materi: { type: Type.STRING },
+          levelKognitif: { type: Type.STRING },
+          indikatorSoal: { type: Type.STRING },
+          pertanyaan: { type: Type.STRING },
+          opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+          kunci: { type: Type.STRING },
+          skorOpsi: {
+            type: Type.OBJECT,
+            properties: {
+              A: { type: Type.INTEGER },
+              B: { type: Type.INTEGER },
+              C: { type: Type.INTEGER },
+              D: { type: Type.INTEGER },
+              E: { type: Type.INTEGER }
+            }
+          },
+          pembahasan: { type: Type.STRING },
+          skor: { type: Type.STRING },
+          gambarDeskripsi: { type: Type.STRING },
+          gambarUrl: { type: Type.STRING }
+        };
+
+        if (!isCPNS) {
+          itemProperties.stimulusId = { type: Type.STRING };
+          itemProperties.pernyataanBenarSalah = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } };
+          itemProperties.pasanganMenjodohkan = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } };
+        }
+
         let propertiesObj: any = {
           soalList: {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
-              properties: {
-                no: { type: Type.STRING },
-                jenisSoal: { type: Type.STRING },
-                stimulusId: { type: Type.STRING },
-                materi: { type: Type.STRING },
-                levelKognitif: { type: Type.STRING },
-                indikatorSoal: { type: Type.STRING },
-                pertanyaan: { type: Type.STRING },
-                pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
-                opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
-                pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-                kunci: { type: Type.STRING },
-                skorOpsi: {
-                  type: Type.OBJECT,
-                  properties: {
-                    A: { type: Type.INTEGER },
-                    B: { type: Type.INTEGER },
-                    C: { type: Type.INTEGER },
-                    D: { type: Type.INTEGER },
-                    E: { type: Type.INTEGER }
-                  }
-                },
-                pembahasan: { type: Type.STRING },
-                skor: { type: Type.STRING },
-                gambarDeskripsi: { type: Type.STRING },
-                gambarUrl: { type: Type.STRING }
-              },
+              properties: itemProperties,
               required: ["no", "jenisSoal", "materi", "levelKognitif", "indikatorSoal", "pertanyaan", "kunci", "pembahasan"]
             }
-          },
-          stimulusList: {
+          }
+        };
+
+        if (!isCPNS) {
+          propertiesObj.stimulusList = {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
@@ -626,8 +632,8 @@ Berikan output dalam format JSON murni:
               },
               required: ["id", "judul", "teks"]
             }
-          }
-        };
+          };
+        }
 
         if (formData.hasInklusi) {
           propertiesObj.soalABKList = {
@@ -682,7 +688,8 @@ ATURAN MUTLAK TWK:
    - Bela Negara: 5 Nilai Dasar Bela Negara UU No. 23/2019, kedaulatan, ancaman militer/non-militer/hibrida.
    - Pilar Negara: Pancasila (Sila 1-5 & butir pengamalan), Batang Tubuh UUD 1945 Amandemen I-IV & Lembaga Negara, NKRI & Diplomasi Kemerdekaan, Bhinneka Tunggal Ika & Integrasi.
    - Bahasa Negara: EYD V / PUEBI, Kalimat Efektif kedinasan, Ide Pokok Paragraf, Diksi Baku.
-4. PENSKORAN TWK: Tepat 1 kunci jawaban benar (Skor 5) dan 4 opsi salah (Skor 0). DILARANG membuat bobot bertingkat 1-5 pada TWK!`;
+4. PENSKORAN TWK: Tepat 1 kunci jawaban benar (Skor 5) dan 4 opsi salah (Skor 0). DILARANG membuat bobot bertingkat 1-5 pada TWK!
+5. KEY BALANCING: Sebar kunci jawaban benar secara acak dan merata di antara huruf A, B, C, D, dan E (~20% tiap huruf). DILARANG menaruh semua kunci jawaban di huruf A!`;
       } else if (formData.subTipeUjian === 'CPNS SKD - TIU') {
         systemInstruction = `PERAN: Anda adalah Ahli Pembuat Soal Resmi CAT BKN dan KemenPANRB (KepmenPANRB No. 321/2024) khusus subtes Tes Inteligensi Umum (TIU) SKD CPNS.
 ATURAN MUTLAK TIU:
@@ -690,7 +697,9 @@ ATURAN MUTLAK TIU:
    - Kemampuan Verbal: Analogi Kata (A : B = C : D), Silogisme premis logis, Penalaran Analitis posisi/urutan.
    - Kemampuan Numerik: Berhitung Cepat aljabar/pecahan/persen, Deret Angka, Perbandingan Kuantitatif (x vs y), Soal Cerita Aritmetika Sosial.
    - Kemampuan Figural: Analogi, Ketidaksamaan, Serial Pola Gambar.
-2. Setiap butir soal memiliki TEPAT 1 JAWABAN PASTI BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0). Rumusan soal to the point, matematis/logis.`;
+2. Setiap butir soal memiliki TEPAT 1 JAWABAN PASTI BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0). Rumusan soal to the point, matematis/logis.
+3. DILARANG KERAS menuliskan langkah penyelesaian, kesimpulan, atau bocoran jawaban di dalam teks pertanyaan. Semua langkah hitung hanya ditulis di field pembahasan.
+4. KEY BALANCING: Sebar kunci jawaban benar secara acak dan merata di antara huruf A, B, C, D, dan E (~20% tiap huruf). DILARANG menaruh semua kunci jawaban di huruf A!`;
       } else if (formData.subTipeUjian === 'CPNS SKD - TKP') {
         systemInstruction = `PERAN: Anda adalah Asesor Psikologi SDM Aparatur dan Ahli Pembuat Soal Resmi CAT BKN (KepmenPANRB No. 321/2024) khusus subtes Tes Karakteristik Pribadi (TKP) SKD CPNS.
 ATURAN MUTLAK TKP:
@@ -738,6 +747,10 @@ ATURAN MUTLAK TKP:
 
         if (generatedData.soalList) {
           generatedData.soalList = processSoalImages(generatedData.soalList).map((s: any) => {
+            if (isCPNS || s.jenisSoal === 'Pilihan Ganda') {
+              s.pernyataanBenarSalah = [];
+              s.pasanganMenjodohkan = [];
+            }
             if (formData.subTipeUjian === 'CPNS SKD - TKP') {
               if (s.skorOpsi && typeof s.skorOpsi === 'object') {
                 const parts = ['A', 'B', 'C', 'D', 'E'].map(k => `${k}=${s.skorOpsi[k] ?? '?'}`);
@@ -963,13 +976,12 @@ ATURAN MUTLAK TKP:
       if (!st) return '';
       return `<div style="margin-bottom: 10px; padding: 8px; border: 1px dashed #999; font-size: 12px;"><strong>Stimulus: ${st.judul || ''}</strong><div style="white-space: pre-wrap; margin-top: 4px;">${st.teks || ''}</div>${st.gambarUrl ? `<img src="${st.gambarUrl}" style="max-width: 6cm; max-height: 6cm; margin-top: 6px; border: 1px solid #ccc; display: block;" />` : ''}</div>`;
     };
-    const benarSalahPrint = (s: any) => (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
+    const isCPNSPrint = meta.tipeUjian === 'Other' && (meta.subTipeUjian?.startsWith('CPNS SKD') || false);
+    const benarSalahPrint = (s: any) => (!isCPNSPrint && Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
       <table style="width: 90%; margin: 8px 0 10px;">
         <thead><tr><th>Pernyataan</th><th style="width: 60px;">Benar</th><th style="width: 60px;">Salah</th></tr></thead>
         <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center;">○</td><td style="text-align: center;">○</td></tr>`).join('')}</tbody>
       </table>` : '';
-
-    const isCPNSPrint = meta.tipeUjian === 'Other' && (meta.subTipeUjian?.startsWith('CPNS SKD') || false);
     const printHeader = `
       ${useLogo && logoUrl && !isCPNSPrint ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
       <div class="header-info">
@@ -1305,28 +1317,21 @@ ATURAN MUTLAK TKP:
 
                   {/* Row 2: Selects */}
                   {isCPNS ? (
-                    <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 rounded-xl shadow-sm border border-slate-700/80 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in duration-200">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center shrink-0">
-                          <Landmark className="text-blue-400 w-5 h-5" />
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Formasi:</span>
+                          <span className="text-xs font-medium text-gray-800">Calon Pegawai Negeri Sipil / Pelamar Umum Nasional</span>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold uppercase tracking-wider text-blue-300">Formasi Sasaran:</span>
-                            <span className="text-xs bg-blue-500/30 text-blue-200 px-2.5 py-0.5 rounded-full font-semibold border border-blue-400/30">Calon Pegawai Negeri Sipil / Pelamar Umum Nasional</span>
-                          </div>
-                          <p className="text-sm font-semibold text-white mt-1">
-                            {formData.subTipeUjian === 'CPNS SKD - TWK' && 'Tes Wawasan Kebangsaan (TWK) — Nilai Ambang Batas: 65 (Skor Benar=5, Salah=0)'}
-                            {formData.subTipeUjian === 'CPNS SKD - TIU' && 'Tes Inteligensi Umum (TIU) — Nilai Ambang Batas: 80 (Skor Benar=5, Salah=0)'}
-                            {formData.subTipeUjian === 'CPNS SKD - TKP' && 'Tes Karakteristik Pribadi (TKP) — Nilai Ambang Batas: 166 (Skala Bobot 1 s.d. 5)'}
-                          </p>
-                        </div>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {formData.subTipeUjian === 'CPNS SKD - TWK' && 'Tes Wawasan Kebangsaan (TWK) · Nilai Ambang Batas: 65 · Skor Benar=5, Salah=0'}
+                          {formData.subTipeUjian === 'CPNS SKD - TIU' && 'Tes Inteligensi Umum (TIU) · Nilai Ambang Batas: 80 · Skor Benar=5, Salah=0'}
+                          {formData.subTipeUjian === 'CPNS SKD - TKP' && 'Tes Karakteristik Pribadi (TKP) · Nilai Ambang Batas: 166 · Skala Bobot 1 s.d. 5'}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
-                        <span className="text-[11px] text-slate-300 bg-white/10 px-2.5 py-1 rounded-md border border-white/10 font-mono">
-                          KepmenPANRB No. 321/2024
-                        </span>
-                      </div>
+                      <span className="text-[11px] text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200 font-mono shrink-0 self-start md:self-auto">
+                        KepmenPANRB No. 321/2024
+                      </span>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
@@ -1687,10 +1692,10 @@ ATURAN MUTLAK TKP:
                     
                     {/* Kolom Kiri: Bentuk Soal */}
                     {isCPNS ? (
-                      <div className="flex flex-col gap-3 p-4 bg-slate-50/80 rounded-xl border border-slate-200">
-                        <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs uppercase tracking-wider">
-                          <CheckCircle size={15} className="text-emerald-600" />
-                          Format Baku Sistem CAT BKN (5 Pilihan: A, B, C, D, E)
+                      <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="flex items-center gap-2 text-gray-800 font-semibold text-xs uppercase tracking-wider">
+                          <CheckCircle size={15} className="text-blue-600" />
+                          Format Standar CAT BKN (5 Pilihan: A, B, C, D, E)
                         </div>
                         <p className="text-xs text-gray-600 leading-relaxed">
                           Sesuai KepmenPANRB No. 321/2024, seluruh butir soal seleksi SKD menggunakan format pilihan ganda tunggal dengan 5 opsi jawaban (A–E).
@@ -1760,9 +1765,9 @@ ATURAN MUTLAK TKP:
                     {/* Kolom Kanan: Taksonomi & Level */}
                     <div>
                       {isCPNS ? (
-                        <div className="flex flex-col gap-3 p-4 bg-slate-50/80 rounded-xl border border-slate-200">
-                          <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs uppercase tracking-wider">
-                            <Sparkles size={15} className="text-indigo-600" />
+                        <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                          <div className="flex items-center gap-2 text-gray-800 font-semibold text-xs uppercase tracking-wider">
+                            <Sparkles size={15} className="text-blue-600" />
                             Standar Kompetensi Kognitif SKD CAT
                           </div>
                           <p className="text-xs text-gray-600 leading-relaxed">
@@ -1773,8 +1778,8 @@ ATURAN MUTLAK TKP:
                               : 'Mengukur kecakapan penalaran logika objektif pada 3 Domain Resmi TIU (Verbal, Numerik, Figural) dengan 1 kunci jawaban pasti (Skor Benar=5, Salah=0).'}
                           </p>
                           <div className="flex flex-wrap gap-2 mt-1">
-                            <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full border border-indigo-200">Level 2 - Aplikasi Kontekstual</span>
-                            <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-semibold rounded-full border border-indigo-200">Level 3 - Penalaran & Studi Kasus</span>
+                            <span className="px-3 py-1 bg-white text-gray-700 text-xs font-medium rounded-full border border-gray-300">Level 2 - Aplikasi Kontekstual</span>
+                            <span className="px-3 py-1 bg-white text-gray-700 text-xs font-medium rounded-full border border-gray-300">Level 3 - Penalaran & Studi Kasus</span>
                           </div>
                         </div>
                       ) : (
@@ -2285,7 +2290,7 @@ ATURAN MUTLAK TKP:
                           </div>
                         )}
                         
-                        {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                        {!(resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD') || false) && Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                           <div className="pl-8 mb-3 overflow-x-auto">
                             <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
                               <thead>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode, DownloadCloud } from 'lucide-react';
+import { Terminal, LayoutDashboard, Users, Gamepad2, BookOpen, FileText, MonitorPlay, Shield, Map, Puzzle, Dices, Trophy, Search, Grid, Calendar, Calculator, ClipboardList, ClipboardCheck, Clipboard, BookMarked, BookText, Target, Tent, FileQuestion, Leaf, Smile, BarChart, Book, Library, Coins, MessageSquare, X, Share2, History, QrCode, DownloadCloud, Award } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { loginWithGoogle, logout, incrementFavorites, addActivityLog } from './api';
 import { useAuth } from './AuthContext';
@@ -27,6 +27,7 @@ import MengajarHarian from './components/MengajarHarian';
 import ApkDownloadModal from './components/ApkDownloadModal';
 import KKTP from './components/KKTP';
 import BuatSoal from './components/BuatSoal';
+import CPNSGenerator from './components/CPNSGenerator';
 import SNP from './components/SNP';
 import ModulP5 from './components/ModulP5';
 import RubrikPenilaian from './components/RubrikPenilaian';
@@ -272,6 +273,16 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  useEffect(() => {
+    const handleNav = (e: any) => {
+      if (e.detail) {
+        handleTabChange(e.detail);
+      }
+    };
+    window.addEventListener('navigateTab', handleNav);
+    return () => window.removeEventListener('navigateTab', handleNav);
+  }, []);
   useEffect(() => { localStorage.setItem('pemuryadi_brightness', String(brightness)); }, [brightness]);
   useEffect(() => { localStorage.setItem('pemuryadi_isDevUnlocked', String(isDevUnlocked)); }, [isDevUnlocked]);
   const [devPromptTarget, setDevPromptTarget] = useState<string | null>(null);
@@ -433,6 +444,7 @@ export default function App() {
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
+        { id: 'cpns-generator', icon: <Award size={16} />, label: 'SKD CPNS / PPPK', premiumOnly: true },
         { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
       ]
     },
@@ -768,6 +780,7 @@ export default function App() {
             {activeTab === 'modul-p5' && <ModulP5 />}
             {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
+            {activeTab === 'cpns-generator' && <CPNSGenerator />}
             {activeTab === 'laporan-kegiatan' && <LaporanKegiatan />}
             {activeTab === 'evaluasi-mutu' && <EvaluasiMutu />}
             {activeTab === 'reports' && <Reports />}
