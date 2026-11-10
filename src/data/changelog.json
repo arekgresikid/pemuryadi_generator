@@ -1,8 +1,20 @@
 [
   {
+    "version": "5.4.1",
+    "date": "10 November 2026",
+    "badge": "Terbaru",
+    "icon": "Award",
+    "commits": [
+      "Standardisasi Penuh CPNS SKD CAT BKN (KepmenPANRB No. 321/2024): Menegakkan pemisahan fundamental antara TWK, TIU, dan TKP baik pada level System Prompt, Runtime Skill Loader, maupun JSON Schema Enforcement.",
+      "Penegasan TWK Kognitif Objektif: Membasmi kemunculan soal dilema perilaku/SJT pada TWK ('Sebagai seorang ASN...'), mewajibkan perspektif orang ketiga untuk pengujian 5 Pilar Kebangsaan (Nasionalisme, Integritas Hukum/Tokoh, Bela Negara UU 23/2019, Pilar Negara Pancasila/UUD/NKRI/Bhinneka, Bahasa Negara EYD V), dengan penskoran pasti 1 Kunci Benar (5 poin) dan 4 Salah (0 poin).",
+      "Struktur 3 Domain Resmi TIU: Mengunci arsitektur Verbal (Analogi, Silogisme, Penalaran Analitis), Numerik (Berhitung Cepat, Deret, Perbandingan Kuantitatif x vs y, Aritmetika Sosial), dan Figural dengan penskoran Benar 5 / Salah 0.",
+      "Format SJT BerAKHLAK Resmi TKP: Memastikan seluruh butir soal TKP berbentuk Situational Judgement Test pada 6 Aspek BerAKHLAK dengan pembobotan nilai acak bertingkat 1 s.d. 5 di seluruh opsi tanpa nilai 0."
+    ]
+  },
+  {
     "version": "5.4.0",
     "date": "5 November 2026",
-    "badge": "Terbaru",
+    "badge": null,
     "icon": "Sparkles",
     "commits": [
       "Modular Assessment Engineering System (v1.1.0): Menambahkan arsitektur skill modular di skills/assessment/ dan runtime loader (src/lib/assessmentSkillLoader.ts) untuk Ujian Biasa, AKM, Olimpiade, Live Quiz, TKA/Try Out, serta Survei Karakter & Sulingjar.",

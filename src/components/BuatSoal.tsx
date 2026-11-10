@@ -540,13 +540,33 @@ Berikan output dalam format JSON murni:
       "materi": "...",
       "levelKognitif": "Tulis level spesifik beserta operasi kognitifnya (wajib diisi SEBELUM menulis pertanyaan)",
       "indikatorSoal": "Rumuskan indikator operasional spesifik yang menguji levelKognitif di atas",
-      "pertanyaan": "...", 
+      "pertanyaan": "${
+        formData.subTipeUjian === 'CPNS SKD - TWK'
+          ? 'WAJIB soal kognitif/analisis objektif orang ketiga tentang 5 Pilar TWK (DILARANG pakai kata Anda atau menanyakan respon perilaku pribadi). Contoh: Berdasarkan wacana di atas, wujud pengamalan Pancasila Sila ke-... atau Berdasarkan Pasal 23E UUD 1945, lembaga yang berwenang...'
+          : formData.subTipeUjian === 'CPNS SKD - TIU'
+          ? 'WAJIB soal penalaran logika/matematis/verbal to the point (analogi kata A:B = C:D, silogisme premis, deret angka, soal cerita berhitung, dll). 1 Kunci Benar (5 poin).'
+          : formData.subTipeUjian === 'CPNS SKD - TKP'
+          ? 'WAJIB skenario dilema kedinasan orang kedua (Anda). Kalimat tanya: Tindakan yang paling tepat Anda lakukan adalah...'
+          : '...'
+      }", 
       "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
       "opsiTambahan": ${isCPNS ? '["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."]' : '["A. ...", "B. ..."]'}, 
       ${formData.subTipeUjian === 'CPNS SKD - TKP' ? '"skorOpsi": { "A": 3, "B": 5, "C": 2, "D": 4, "E": 1 },\n      ' : ''}"pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
-      "kunci": "...", 
+      "kunci": "${
+        formData.subTipeUjian === 'CPNS SKD - TKP'
+          ? 'A=3 | B=5 | C=2 | D=4 | E=1'
+          : isCPNS
+          ? 'Huruf kunci benar (misal: B)'
+          : '...'
+      }", 
       "pembahasan": "...",
-      "skor": "...",
+      "skor": "${
+        formData.subTipeUjian === 'CPNS SKD - TKP'
+          ? 'Skala 1 - 5'
+          : isCPNS
+          ? '5'
+          : '...'
+      }",
       "gambarDeskripsi": "...",
       "gambarUrl": ""
     }
@@ -650,12 +670,42 @@ Berikan output dalam format JSON murni:
         };
       }
 
+      let systemInstruction = '';
+      if (formData.subTipeUjian === 'CPNS SKD - TWK') {
+        systemInstruction = `PERAN: Anda adalah Ahli Pembuat Soal Resmi CAT BKN dan KemenPANRB (KepmenPANRB No. 321/2024) khusus subtes Tes Wawasan Kebangsaan (TWK) SKD CPNS.
+ATURAN MUTLAK TWK:
+1. TWK BUKAN TES KARAKTERISTIK PRIBADI (TKP) DAN BUKAN SITUATIONAL JUDGEMENT TEST (SJT)!
+2. DILARANG KERAS membuat pertanyaan bersudut pandang orang pertama/kedua seperti: "Anda adalah seorang ASN...", "Sebagai ASN apa tindakan Anda...", "Apa sikap yang Anda ambil jika...".
+3. Seluruh butir soal TWK WAJIB menggunakan sudut pandang OBJEKTIF / ORANG KETIGA yang menguji PENGETAHUAN KOGNITIF & ANALISIS 5 PILAR KEBANGSAAN:
+   - Nasionalisme: cita-cita nasional, kedaulatan, identitas bangsa, sejarah pergerakan nasional.
+   - Integritas: nilai kejujuran moral, delik hukum Tipikor, keteladanan pejuang bangsa (Bung Hatta, Baharuddin Lopa, Agus Salim, Hoegeng). BUKAN menanyakan respon tindakan pribadi jika diajak korupsi!
+   - Bela Negara: 5 Nilai Dasar Bela Negara UU No. 23/2019, kedaulatan, ancaman militer/non-militer/hibrida.
+   - Pilar Negara: Pancasila (Sila 1-5 & butir pengamalan), Batang Tubuh UUD 1945 Amandemen I-IV & Lembaga Negara, NKRI & Diplomasi Kemerdekaan, Bhinneka Tunggal Ika & Integrasi.
+   - Bahasa Negara: EYD V / PUEBI, Kalimat Efektif kedinasan, Ide Pokok Paragraf, Diksi Baku.
+4. PENSKORAN TWK: Tepat 1 kunci jawaban benar (Skor 5) dan 4 opsi salah (Skor 0). DILARANG membuat bobot bertingkat 1-5 pada TWK!`;
+      } else if (formData.subTipeUjian === 'CPNS SKD - TIU') {
+        systemInstruction = `PERAN: Anda adalah Ahli Pembuat Soal Resmi CAT BKN dan KemenPANRB (KepmenPANRB No. 321/2024) khusus subtes Tes Inteligensi Umum (TIU) SKD CPNS.
+ATURAN MUTLAK TIU:
+1. Terstruktur secara presisi pada 3 Domain Resmi:
+   - Kemampuan Verbal: Analogi Kata (A : B = C : D), Silogisme premis logis, Penalaran Analitis posisi/urutan.
+   - Kemampuan Numerik: Berhitung Cepat aljabar/pecahan/persen, Deret Angka, Perbandingan Kuantitatif (x vs y), Soal Cerita Aritmetika Sosial.
+   - Kemampuan Figural: Analogi, Ketidaksamaan, Serial Pola Gambar.
+2. Setiap butir soal memiliki TEPAT 1 JAWABAN PASTI BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0). Rumusan soal to the point, matematis/logis.`;
+      } else if (formData.subTipeUjian === 'CPNS SKD - TKP') {
+        systemInstruction = `PERAN: Anda adalah Asesor Psikologi SDM Aparatur dan Ahli Pembuat Soal Resmi CAT BKN (KepmenPANRB No. 321/2024) khusus subtes Tes Karakteristik Pribadi (TKP) SKD CPNS.
+ATURAN MUTLAK TKP:
+1. TKP MURNI FORMAT SITUATIONAL JUDGEMENT TEST (SJT) yang menguji respon perilaku calon ASN pada 6 Aspek BerAKHLAK: Pelayanan Publik, Jejaring Kerja, Sosial Budaya, TIK, Profesionalisme, dan Anti-Radikalisme.
+2. Kalimat soal menyajikan skenario dilema kedinasan orang kedua ("Anda") dengan pertanyaan: "Tindakan yang paling tepat Anda lakukan adalah..." atau "Sikap Anda dalam menghadapi situasi tersebut adalah...".
+3. PENSKORAN: WAJIB pembobotan bertingkat 1 sampai 5 poin untuk SELURUH 5 pilihan (A, B, C, D, E) secara acak non-sekuensial. TIDAK ADA NILAI 0. Field 'skorOpsi' WAJIB terisi lengkap.`;
+      }
+
       const response = await ai.models.generateContent({
         model: selectedModel,
         contents: buildContentsWithReferences(prompt, referenceFiles),
         config: {
           responseMimeType: "application/json",
-          responseSchema: responseSchema
+          responseSchema: responseSchema,
+          systemInstruction: systemInstruction || undefined
         }
       });
 
