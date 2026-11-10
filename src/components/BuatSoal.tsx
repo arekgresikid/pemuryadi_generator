@@ -97,7 +97,6 @@ export default function BuatSoal() {
 
   const [useLogo, setUseLogo] = useLocalStorage<boolean>('BuatSoal_useLogo', false);
   const [logoUrl, setLogoUrl] = useLocalStorage<string | null>('BuatSoal_logoUrl', null);
-  const isCPNS = formData.tipeUjian === 'Other' && (formData.subTipeUjian?.startsWith('CPNS SKD') || false);
 
   const handleBentukSoalChange = (bentuk: string) => {
     let current = [...formData.bentukSoal];
@@ -312,20 +311,13 @@ export default function BuatSoal() {
     try {
       const ai = new GoogleGenAI({});
       
-      const isCPNS = formData.tipeUjian === 'Other' && (formData.subTipeUjian?.startsWith('CPNS SKD') || false);
       const rawJenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
-      const jenjangLabel = isCPNS ? 'Umum / Calon Pegawai Negeri Sipil (Seleksi Nasional BKN)' : rawJenjangLabel;
+      const jenjangLabel = rawJenjangLabel;
       const baseMapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
       let mapelLabel = baseMapelLabel;
       let cp = getCP();
 
-      const headerStandardPrompt = isCPNS
-        ? (formData.subTipeUjian === 'CPNS SKD - TWK'
-            ? 'Pastikan dokumen soal ini disusun sesuai standar resmi Badan Kepegawaian Negara (BKN) dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Wawasan Kebangsaan (TWK) SKD CPNS. TWK MENGUJI PENGETAHUAN, PEMAHAMAN, DAN ANALISIS KOGNITIF 5 PILAR KEBANGSAAN (bukan SJT / tes kepribadian). Setiap soal wajib memiliki TEPAT 1 KUNCI JAWABAN BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0).'
-            : formData.subTipeUjian === 'CPNS SKD - TIU'
-            ? 'Pastikan dokumen soal ini disusun sesuai standar resmi BKN dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Inteligensi Umum (TIU) SKD CPNS. TIU menguji kemampuan Penalaran Verbal, Numerik, dan Figural secara presisi dan objektif. Setiap butir soal wajib memiliki TEPAT 1 KUNCI JAWABAN BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0).'
-            : 'Pastikan dokumen soal ini disusun sesuai standar resmi BKN dan KemenPANRB (KepmenPANRB No. 321/2024) untuk Tes Karakteristik Pribadi (TKP) SKD CPNS. TKP berupa Situational Judgement Test (SJT) yang menguji respon perilaku ASN BerAKHLAK pada 6 Aspek dengan skala bobot nilai bertingkat 1 sampai 5 untuk seluruh 5 opsi jawaban (TIDAK ADA JAWABAN BERNILAI 0).')
-        : 'Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.';
+      const headerStandardPrompt = 'Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.';
 
       if (formData.tipeUjian === 'Other') {
         if (formData.subTipeUjian === 'TKA Literasi') {
@@ -343,15 +335,6 @@ export default function BuatSoal() {
         } else if (formData.subTipeUjian === 'TKA Survei Karakter') {
           mapelLabel = 'Survei Karakter (Profil Lulusan)';
           cp = 'Instrumen Asesmen Kematangan Karakter, Dilema Moral/Etika (SJT), Integritas, Kebinekaan Global, Gotong Royong, Kemandirian, Penalaran Kritis, dan Kreativitas.';
-        } else if (formData.subTipeUjian === 'CPNS SKD - TWK') {
-          mapelLabel = 'Wawasan Kebangsaan (Tes Wawasan Kebangsaan - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: 5 Pilar Resmi TWK — 1) Nasionalisme (Kedaulatan & Identitas Bangsa), 2) Integritas (Anti-Korupsi & Kejujuran Moral), 3) Bela Negara (5 Nilai Dasar UU 23/2019), 4) Pilar Negara (Pancasila Sila 1-5, Batang Tubuh UUD 1945 & Lembaga Negara, NKRI, Bhinneka Tunggal Ika), 5) Bahasa Negara (PUEBI/EYD V, Kalimat Efektif, Diksi Kedinasan). Asesmen Kognitif Murni (Bukan SJT/Karakteristik Pribadi), Skor Benar 5 / Salah 0.';
-        } else if (formData.subTipeUjian === 'CPNS SKD - TIU') {
-          mapelLabel = 'Inteligensi Umum (Tes Inteligensi Umum - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: 3 Domain Resmi TIU — 1) Kemampuan Verbal (Analogi Kata, Silogisme Kategoris/Hipotesis, Penalaran Analitis Posisi/Kondisi), 2) Kemampuan Numerik (Berhitung Cepat Aljabar/Pecahan/Persen, Deret Angka, Perbandingan Kuantitatif x vs y, Soal Cerita Aritmetika Sosial), 3) Kemampuan Figural (Analogi, Ketidaksamaan, Serial Pola). Skor Benar 5 / Salah 0.';
-        } else if (formData.subTipeUjian === 'CPNS SKD - TKP') {
-          mapelLabel = 'Karakteristik Pribadi (Tes Karakteristik Pribadi - SKD CPNS)';
-          cp = 'KepmenPANRB No. 321/2024: 6 Aspek Perilaku ASN BerAKHLAK — 1) Pelayanan Publik, 2) Jejaring Kerja, 3) Sosial Budaya, 4) Teknologi Informasi dan Komunikasi, 5) Profesionalisme, 6) Anti-Radikalisme. Format Situational Judgement Test (SJT) dengan pembobotan nilai 1 s.d. 5 untuk setiap opsi (tidak ada nilai 0).';
         }
       }
 
@@ -415,11 +398,11 @@ export default function BuatSoal() {
         prompt = `${headerStandardPrompt}
 
 Buatkan Kisi-kisi Soal untuk:
-${isCPNS ? 'Mata Ujian' : 'Mata Pelajaran'}: ${mapelLabel}
+Mata Pelajaran: ${mapelLabel}
 Jenjang / Sasaran: ${jenjangLabel}
-${isCPNS ? `Sasaran Formasi: Calon Pegawai Negeri Sipil (Pelamar Umum Nasional)\nStandar Regulasi: CAT BKN (KepmenPANRB No. 321/2024)` : `Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}`}
+Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
-${isCPNS ? 'Standar Kisi-kisi Resmi BKN' : 'Capaian Pembelajaran'}: ${cp}
+Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
@@ -509,11 +492,11 @@ Berikan output dalam format JSON murni:
         prompt = `${headerStandardPrompt}
 
 Buatkan Soal beserta Kunci Jawabannya untuk:
-${isCPNS ? 'Mata Ujian' : 'Mata Pelajaran'}: ${mapelLabel}
-Jenjang / Sasaran: ${jenjangLabel}
-${isCPNS ? `Sasaran Formasi: Calon Pegawai Negeri Sipil (Pelamar Umum Nasional)\nStandar Regulasi: CAT BKN (KepmenPANRB No. 321/2024)` : `Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}`}
+Mata Pelajaran: ${mapelLabel}
+Jenjang: ${jenjangLabel}
+Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
-${isCPNS ? 'Standar Kisi-kisi Resmi BKN' : 'Capaian Pembelajaran'}: ${cp}
+Capaian Pembelajaran: ${cp}
 Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
@@ -540,31 +523,13 @@ Berikan output dalam format JSON murni:
       "materi": "...",
       "levelKognitif": "Tulis level spesifik beserta operasi kognitifnya (wajib diisi SEBELUM menulis pertanyaan)",
       "indikatorSoal": "Rumuskan indikator operasional spesifik yang menguji levelKognitif di atas",
-      "pertanyaan": "${
-        formData.subTipeUjian === 'CPNS SKD - TWK'
-          ? 'WAJIB soal kognitif/analisis objektif orang ketiga tentang 5 Pilar TWK (DILARANG pakai kata Anda atau menanyakan respon perilaku pribadi, DILARANG membocorkan jawaban di pertanyaan).'
-          : formData.subTipeUjian === 'CPNS SKD - TIU'
-          ? 'WAJIB soal penalaran logika/matematis/verbal to the point (DILARANG membocorkan rumus/langkah hitung/jawaban di dalam teks pertanyaan).'
-          : formData.subTipeUjian === 'CPNS SKD - TKP'
-          ? 'WAJIB skenario dilema kedinasan orang kedua (Anda). Kalimat tanya: Tindakan yang paling tepat Anda lakukan adalah...'
-          : '...'
-      }", 
-      ${!isCPNS ? '"pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], \n      ' : ''}"opsiTambahan": ${isCPNS ? '["A. ...", "B. ...", "C. ...", "D. ...", "E. ..."]' : '["A. ...", "B. ..."]'}, 
-      ${formData.subTipeUjian === 'CPNS SKD - TKP' ? '"skorOpsi": { "A": 3, "B": 5, "C": 2, "D": 4, "E": 1 },\n      ' : ''}${isCPNS ? '' : '"pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],\n      '}"kunci": "${
-        formData.subTipeUjian === 'CPNS SKD - TKP'
-          ? 'A=3 | B=5 | C=2 | D=4 | E=1'
-          : isCPNS
-          ? 'Satu huruf jawaban benar (sebar merata antara A, B, C, D, E - JANGAN semua A)'
-          : '...'
-      }", 
+      "pertanyaan": "...", 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
+      "opsiTambahan": ["A. ...", "B. ..."], 
+      "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
+      "kunci": "...", 
       "pembahasan": "...",
-      "skor": "${
-        formData.subTipeUjian === 'CPNS SKD - TKP'
-          ? 'Skala 1 - 5'
-          : isCPNS
-          ? '5'
-          : '...'
-      }",
+      "skor": "...",
       "gambarDeskripsi": "...",
       "gambarUrl": ""
     }
@@ -578,33 +543,20 @@ Berikan output dalam format JSON murni:
         const itemProperties: any = {
           no: { type: Type.STRING },
           jenisSoal: { type: Type.STRING },
+          stimulusId: { type: Type.STRING },
           materi: { type: Type.STRING },
           levelKognitif: { type: Type.STRING },
           indikatorSoal: { type: Type.STRING },
           pertanyaan: { type: Type.STRING },
+          pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
           opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+          pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
           kunci: { type: Type.STRING },
-          skorOpsi: {
-            type: Type.OBJECT,
-            properties: {
-              A: { type: Type.INTEGER },
-              B: { type: Type.INTEGER },
-              C: { type: Type.INTEGER },
-              D: { type: Type.INTEGER },
-              E: { type: Type.INTEGER }
-            }
-          },
           pembahasan: { type: Type.STRING },
           skor: { type: Type.STRING },
           gambarDeskripsi: { type: Type.STRING },
           gambarUrl: { type: Type.STRING }
         };
-
-        if (!isCPNS) {
-          itemProperties.stimulusId = { type: Type.STRING };
-          itemProperties.pernyataanBenarSalah = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } };
-          itemProperties.pasanganMenjodohkan = { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } };
-        }
 
         let propertiesObj: any = {
           soalList: {
@@ -614,11 +566,8 @@ Berikan output dalam format JSON murni:
               properties: itemProperties,
               required: ["no", "jenisSoal", "materi", "levelKognitif", "indikatorSoal", "pertanyaan", "kunci", "pembahasan"]
             }
-          }
-        };
-
-        if (!isCPNS) {
-          propertiesObj.stimulusList = {
+          },
+          stimulusList: {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
@@ -632,8 +581,8 @@ Berikan output dalam format JSON murni:
               },
               required: ["id", "judul", "teks"]
             }
-          };
-        }
+          }
+        };
 
         if (formData.hasInklusi) {
           propertiesObj.soalABKList = {
@@ -647,16 +596,6 @@ Berikan output dalam format JSON murni:
                 opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
                 pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
                 kunci: { type: Type.STRING },
-                skorOpsi: {
-                  type: Type.OBJECT,
-                  properties: {
-                    A: { type: Type.INTEGER },
-                    B: { type: Type.INTEGER },
-                    C: { type: Type.INTEGER },
-                    D: { type: Type.INTEGER },
-                    E: { type: Type.INTEGER }
-                  }
-                },
                 pembahasan: { type: Type.STRING },
                 skor: { type: Type.STRING },
                 materi: { type: Type.STRING },
@@ -677,36 +616,6 @@ Berikan output dalam format JSON murni:
       }
 
       let systemInstruction = '';
-      if (formData.subTipeUjian === 'CPNS SKD - TWK') {
-        systemInstruction = `PERAN: Anda adalah Ahli Pembuat Soal Resmi CAT BKN dan KemenPANRB (KepmenPANRB No. 321/2024) khusus subtes Tes Wawasan Kebangsaan (TWK) SKD CPNS.
-ATURAN MUTLAK TWK:
-1. TWK BUKAN TES KARAKTERISTIK PRIBADI (TKP) DAN BUKAN SITUATIONAL JUDGEMENT TEST (SJT)!
-2. DILARANG KERAS membuat pertanyaan bersudut pandang orang pertama/kedua seperti: "Anda adalah seorang ASN...", "Sebagai ASN apa tindakan Anda...", "Apa sikap yang Anda ambil jika...".
-3. Seluruh butir soal TWK WAJIB menggunakan sudut pandang OBJEKTIF / ORANG KETIGA yang menguji PENGETAHUAN KOGNITIF & ANALISIS 5 PILAR KEBANGSAAN:
-   - Nasionalisme: cita-cita nasional, kedaulatan, identitas bangsa, sejarah pergerakan nasional.
-   - Integritas: nilai kejujuran moral, delik hukum Tipikor, keteladanan pejuang bangsa (Bung Hatta, Baharuddin Lopa, Agus Salim, Hoegeng). BUKAN menanyakan respon tindakan pribadi jika diajak korupsi!
-   - Bela Negara: 5 Nilai Dasar Bela Negara UU No. 23/2019, kedaulatan, ancaman militer/non-militer/hibrida.
-   - Pilar Negara: Pancasila (Sila 1-5 & butir pengamalan), Batang Tubuh UUD 1945 Amandemen I-IV & Lembaga Negara, NKRI & Diplomasi Kemerdekaan, Bhinneka Tunggal Ika & Integrasi.
-   - Bahasa Negara: EYD V / PUEBI, Kalimat Efektif kedinasan, Ide Pokok Paragraf, Diksi Baku.
-4. PENSKORAN TWK: Tepat 1 kunci jawaban benar (Skor 5) dan 4 opsi salah (Skor 0). DILARANG membuat bobot bertingkat 1-5 pada TWK!
-5. KEY BALANCING: Sebar kunci jawaban benar secara acak dan merata di antara huruf A, B, C, D, dan E (~20% tiap huruf). DILARANG menaruh semua kunci jawaban di huruf A!`;
-      } else if (formData.subTipeUjian === 'CPNS SKD - TIU') {
-        systemInstruction = `PERAN: Anda adalah Ahli Pembuat Soal Resmi CAT BKN dan KemenPANRB (KepmenPANRB No. 321/2024) khusus subtes Tes Inteligensi Umum (TIU) SKD CPNS.
-ATURAN MUTLAK TIU:
-1. Terstruktur secara presisi pada 3 Domain Resmi:
-   - Kemampuan Verbal: Analogi Kata (A : B = C : D), Silogisme premis logis, Penalaran Analitis posisi/urutan.
-   - Kemampuan Numerik: Berhitung Cepat aljabar/pecahan/persen, Deret Angka, Perbandingan Kuantitatif (x vs y), Soal Cerita Aritmetika Sosial.
-   - Kemampuan Figural: Analogi, Ketidaksamaan, Serial Pola Gambar.
-2. Setiap butir soal memiliki TEPAT 1 JAWABAN PASTI BENAR (Skor 5) dan 4 OPSI SALAH (Skor 0). Rumusan soal to the point, matematis/logis.
-3. DILARANG KERAS menuliskan langkah penyelesaian, kesimpulan, atau bocoran jawaban di dalam teks pertanyaan. Semua langkah hitung hanya ditulis di field pembahasan.
-4. KEY BALANCING: Sebar kunci jawaban benar secara acak dan merata di antara huruf A, B, C, D, dan E (~20% tiap huruf). DILARANG menaruh semua kunci jawaban di huruf A!`;
-      } else if (formData.subTipeUjian === 'CPNS SKD - TKP') {
-        systemInstruction = `PERAN: Anda adalah Asesor Psikologi SDM Aparatur dan Ahli Pembuat Soal Resmi CAT BKN (KepmenPANRB No. 321/2024) khusus subtes Tes Karakteristik Pribadi (TKP) SKD CPNS.
-ATURAN MUTLAK TKP:
-1. TKP MURNI FORMAT SITUATIONAL JUDGEMENT TEST (SJT) yang menguji respon perilaku calon ASN pada 6 Aspek BerAKHLAK: Pelayanan Publik, Jejaring Kerja, Sosial Budaya, TIK, Profesionalisme, dan Anti-Radikalisme.
-2. Kalimat soal menyajikan skenario dilema kedinasan orang kedua ("Anda") dengan pertanyaan: "Tindakan yang paling tepat Anda lakukan adalah..." atau "Sikap Anda dalam menghadapi situasi tersebut adalah...".
-3. PENSKORAN: WAJIB pembobotan bertingkat 1 sampai 5 poin untuk SELURUH 5 pilihan (A, B, C, D, E) secara acak non-sekuensial. TIDAK ADA NILAI 0. Field 'skorOpsi' WAJIB terisi lengkap.`;
-      }
 
       const response = await ai.models.generateContent({
         model: selectedModel,
@@ -746,26 +655,7 @@ ATURAN MUTLAK TKP:
         };
 
         if (generatedData.soalList) {
-          generatedData.soalList = processSoalImages(generatedData.soalList).map((s: any) => {
-            if (isCPNS || s.jenisSoal === 'Pilihan Ganda') {
-              s.pernyataanBenarSalah = [];
-              s.pasanganMenjodohkan = [];
-            }
-            if (formData.subTipeUjian === 'CPNS SKD - TKP') {
-              if (s.skorOpsi && typeof s.skorOpsi === 'object') {
-                const parts = ['A', 'B', 'C', 'D', 'E'].map(k => `${k}=${s.skorOpsi[k] ?? '?'}`);
-                s.kunci = parts.join(' | ');
-              }
-              if (!s.skor || s.skor === '1' || s.skor === '5') {
-                s.skor = 'Skala 1 - 5';
-              }
-            } else if (formData.subTipeUjian === 'CPNS SKD - TWK' || formData.subTipeUjian === 'CPNS SKD - TIU') {
-              if (!s.skor || s.skor === '1') {
-                s.skor = '5';
-              }
-            }
-            return s;
-          });
+          generatedData.soalList = processSoalImages(generatedData.soalList);
         }
         if (generatedData.soalABKList) {
           generatedData.soalABKList = processSoalImages(generatedData.soalABKList);
@@ -906,14 +796,9 @@ ATURAN MUTLAK TKP:
       <h2>KISI-KISI ${meta.tipeUjian ? meta.tipeUjian.toUpperCase() : 'SOAL'}</h2>
       <div class="header-info">
         <table>
-          <tr><td width="150">${meta.subTipeUjian?.startsWith('CPNS SKD') ? 'Mata Ujian' : 'Mata Pelajaran'}</td><td>: ${meta.mapelLabel}</td></tr>
-          ${meta.subTipeUjian?.startsWith('CPNS SKD') ? `
-            <tr><td>Sasaran / Formasi</td><td>: Calon Pegawai Negeri Sipil (CPNS / ASN)</td></tr>
-            <tr><td>Standar Regulasi</td><td>: KepmenPANRB No. 321/2024 (CAT BKN)</td></tr>
-          ` : `
-            <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
-            <tr><td>Fase</td><td>: ${meta.fase}</td></tr>
-          `}
+          <tr><td width="150">Mata Pelajaran</td><td>: ${meta.mapelLabel}</td></tr>
+          <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
+          <tr><td>Fase</td><td>: ${meta.fase}</td></tr>
         </table>
       </div>
       <table>
@@ -976,24 +861,18 @@ ATURAN MUTLAK TKP:
       if (!st) return '';
       return `<div style="margin-bottom: 10px; padding: 8px; border: 1px dashed #999; font-size: 12px;"><strong>Stimulus: ${st.judul || ''}</strong><div style="white-space: pre-wrap; margin-top: 4px;">${st.teks || ''}</div>${st.gambarUrl ? `<img src="${st.gambarUrl}" style="max-width: 6cm; max-height: 6cm; margin-top: 6px; border: 1px solid #ccc; display: block;" />` : ''}</div>`;
     };
-    const isCPNSPrint = meta.tipeUjian === 'Other' && (meta.subTipeUjian?.startsWith('CPNS SKD') || false);
-    const benarSalahPrint = (s: any) => (!isCPNSPrint && Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
+    const benarSalahPrint = (s: any) => (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
       <table style="width: 90%; margin: 8px 0 10px;">
         <thead><tr><th>Pernyataan</th><th style="width: 60px;">Benar</th><th style="width: 60px;">Salah</th></tr></thead>
         <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center;">○</td><td style="text-align: center;">○</td></tr>`).join('')}</tbody>
       </table>` : '';
     const printHeader = `
-      ${useLogo && logoUrl && !isCPNSPrint ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
+      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
       <div class="header-info">
         <table>
-          <tr><td width="150">${isCPNSPrint ? 'Mata Ujian' : 'Mata Pelajaran'}</td><td>: ${meta.mapelLabel}</td></tr>
-          ${isCPNSPrint ? `
-            <tr><td>Sasaran / Formasi</td><td>: Calon Pegawai Negeri Sipil (Seleksi CASN)</td></tr>
-            <tr><td>Tipe Seleksi</td><td>: Seleksi Kompetensi Dasar (CAT BKN - ${meta.subTipeUjian})</td></tr>
-          ` : `
-            <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
-            <tr><td>Tipe Ujian</td><td>: ${meta.tipeUjian}</td></tr>
-          `}
+          <tr><td width="150">Mata Pelajaran</td><td>: ${meta.mapelLabel}</td></tr>
+          <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
+          <tr><td>Tipe Ujian</td><td>: ${meta.tipeUjian}</td></tr>
         </table>
       </div>
     `;
@@ -1229,15 +1108,8 @@ ATURAN MUTLAK TKP:
                                   ? 'matematika'
                                   : sub === 'TKA Literasi Bahasa Inggris'
                                   ? 'bahasa-inggris'
-                                  : sub === 'CPNS SKD - TWK'
-                                  ? 'wawasan-kebangsaan'
-                                  : sub === 'CPNS SKD - TIU'
-                                  ? 'penalaran-logis'
-                                  : sub === 'CPNS SKD - TKP'
-                                  ? 'karakteristik-pribadi'
                                   : formData.mapel;
                                 const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(sub);
-                                const isCPNSSub = ['CPNS SKD - TWK', 'CPNS SKD - TIU', 'CPNS SKD - TKP'].includes(sub);
                                 setFormData({
                                   ...formData,
                                   tipeUjian: tipe,
@@ -1246,9 +1118,6 @@ ATURAN MUTLAK TKP:
                                   ...(isTKAAcademic ? {
                                     kerangkaTaksonomi: 'TKA',
                                     levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
-                                  } : isCPNSSub ? {
-                                    kerangkaTaksonomi: 'TKA',
-                                    levelKognitif: sub === 'CPNS SKD - TKP' ? ['Level 3 - Penalaran'] : ['Level 2 - Aplikasi', 'Level 3 - Penalaran']
                                   } : {})
                                 });
                               } else {
@@ -1277,15 +1146,8 @@ ATURAN MUTLAK TKP:
                               newMapel = 'matematika';
                             } else if (newSub === 'TKA Literasi Bahasa Inggris') {
                               newMapel = 'bahasa-inggris';
-                            } else if (newSub === 'CPNS SKD - TWK') {
-                              newMapel = 'wawasan-kebangsaan';
-                            } else if (newSub === 'CPNS SKD - TIU') {
-                              newMapel = 'penalaran-logis';
-                            } else if (newSub === 'CPNS SKD - TKP') {
-                              newMapel = 'karakteristik-pribadi';
                             }
                             const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(newSub);
-                            const isCPNSSub = ['CPNS SKD - TWK', 'CPNS SKD - TIU', 'CPNS SKD - TKP'].includes(newSub);
                             setFormData({
                               ...formData,
                               subTipeUjian: newSub,
@@ -1293,9 +1155,6 @@ ATURAN MUTLAK TKP:
                               ...(isTKAAcademic ? {
                                 kerangkaTaksonomi: 'TKA',
                                 levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
-                              } : isCPNSSub ? {
-                                kerangkaTaksonomi: 'TKA',
-                                levelKognitif: newSub === 'CPNS SKD - TKP' ? ['Level 3 - Penalaran'] : ['Level 2 - Aplikasi', 'Level 3 - Penalaran']
                               } : {})
                             });
                           }}
@@ -1306,9 +1165,6 @@ ATURAN MUTLAK TKP:
                           <option value="TKA Literasi Bahasa Inggris">TKA: Literasi Bahasa Inggris (SMA/SMK)</option>
                           <option value="TKA Survei Lingkungan Belajar">TKA: Survei Lingkungan Belajar (Sulingjar)</option>
                           <option value="TKA Survei Karakter">TKA: Survei Karakter</option>
-                          <option value="CPNS SKD - TWK">CPNS SKD: TWK (Wawasan Kebangsaan)</option>
-                          <option value="CPNS SKD - TIU">CPNS SKD: TIU (Inteligensi Umum)</option>
-                          <option value="CPNS SKD - TKP">CPNS SKD: TKP (Karakteristik Pribadi)</option>
                           <option value="Try Out">Try Out</option>
                         </select>
                       </div>
@@ -1316,100 +1172,79 @@ ATURAN MUTLAK TKP:
                   </div>
 
                   {/* Row 2: Selects */}
-                  {isCPNS ? (
-                    <div className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Formasi:</span>
-                          <span className="text-xs font-medium text-gray-800">Calon Pegawai Negeri Sipil / Pelamar Umum Nasional</span>
-                        </div>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {formData.subTipeUjian === 'CPNS SKD - TWK' && 'Tes Wawasan Kebangsaan (TWK) · Nilai Ambang Batas: 65 · Skor Benar=5, Salah=0'}
-                          {formData.subTipeUjian === 'CPNS SKD - TIU' && 'Tes Inteligensi Umum (TIU) · Nilai Ambang Batas: 80 · Skor Benar=5, Salah=0'}
-                          {formData.subTipeUjian === 'CPNS SKD - TKP' && 'Tes Karakteristik Pribadi (TKP) · Nilai Ambang Batas: 166 · Skala Bobot 1 s.d. 5'}
-                        </p>
-                      </div>
-                      <span className="text-[11px] text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200 font-mono shrink-0 self-start md:self-auto">
-                        KepmenPANRB No. 321/2024
-                      </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jenjang</label>
+                      <select 
+                        value={formData.jenjang}
+                        onChange={e => setFormData({...formData, jenjang: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        {educationLevels.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+                      </select>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Jenjang</label>
-                        <select 
-                          value={formData.jenjang}
-                          onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        >
-                          {educationLevels.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
-                        </select>
-                      </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Fase</label>
-                        <select 
-                          value={formData.fase}
-                          onChange={e => setFormData({...formData, fase: e.target.value})}
-                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        >
-                          <option value="" disabled>Pilih Fase</option>
-                          {phaseClassMap[formData.jenjang]?.phases?.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Kelas</label>
-                        <select 
-                          value={formData.kelas}
-                          onChange={e => setFormData({...formData, kelas: e.target.value})}
-                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        >
-                          <option value="" disabled>Pilih Kelas</option>
-                          {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Semester</label>
-                        <select 
-                          value={formData.semester}
-                          onChange={e => setFormData({...formData, semester: e.target.value})}
-                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        >
-                          <option value="1">Ganjil (1)</option>
-                          <option value="2">Genap (2)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Mata Pelajaran</label>
-                        <select 
-                          value={formData.mapel}
-                          onChange={e => setFormData({...formData, mapel: e.target.value})}
-                          className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                        >
-                          {subjectsByLevel[formData.jenjang]?.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                        </select>
-                      </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Fase</label>
+                      <select 
+                        value={formData.fase}
+                        onChange={e => setFormData({...formData, fase: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="" disabled>Pilih Fase</option>
+                        {phaseClassMap[formData.jenjang]?.phases?.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+                      </select>
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Kelas</label>
+                      <select 
+                        value={formData.kelas}
+                        onChange={e => setFormData({...formData, kelas: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="" disabled>Pilih Kelas</option>
+                        {phaseClassMap[formData.jenjang]?.classes?.[formData.fase]?.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Semester</label>
+                      <select 
+                        value={formData.semester}
+                        onChange={e => setFormData({...formData, semester: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        <option value="1">Ganjil (1)</option>
+                        <option value="2">Genap (2)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Mata Pelajaran</label>
+                      <select 
+                        value={formData.mapel}
+                        onChange={e => setFormData({...formData, mapel: e.target.value})}
+                        className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                      >
+                        {subjectsByLevel[formData.jenjang]?.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                      </select>
+                    </div>
+                  </div>
                   
-                  {!isCPNS && (
-                    <div className="mt-4">
-                      <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
-                    </div>
-                  )}
+                  <div className="mt-4">
+                    <LogoUploader useLogo={useLogo} setUseLogo={setUseLogo} logoUrl={logoUrl} setLogoUrl={setLogoUrl} />
+                  </div>
                 </div>
 
                 {/* Section 2: Materi & Indikator */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-2 gap-2">
                     <h3 className="font-bold text-gray-800 text-sm">2. Materi & Indikator</h3>
-                    {formData.tipeUjian === 'Other' && (formData.subTipeUjian === 'TKA Literasi' || formData.subTipeUjian === 'TKA Numerasi' || formData.subTipeUjian === 'TKA Literasi Bahasa Inggris' || formData.subTipeUjian?.startsWith('CPNS SKD')) && (
+                    {formData.tipeUjian === 'Other' && (formData.subTipeUjian === 'TKA Literasi' || formData.subTipeUjian === 'TKA Numerasi' || formData.subTipeUjian === 'TKA Literasi Bahasa Inggris') && (
                       <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 flex items-center gap-1.5 self-start sm:self-auto">
                         <Sparkles size={12} className="text-blue-500" />
-                        Standar Resmi {formData.subTipeUjian} {formData.subTipeUjian?.startsWith('CPNS SKD') ? '(KepmenPANRB 321/2024)' : `(${(formData.jenjang || 'SD').toUpperCase()})`} Aktif
+                        Standar Resmi {formData.subTipeUjian} ({(formData.jenjang || 'SD').toUpperCase()}) Aktif
                       </span>
                     )}
                   </div>
@@ -1621,57 +1456,9 @@ ATURAN MUTLAK TKP:
                     <AIAssistedInput type="text"
                       value={formData.materi}
                       onChange={e => setFormData({...formData, materi: e.target.value})}
-                      placeholder={formData.tipeUjian === 'Other' && (['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) || formData.subTipeUjian?.startsWith('CPNS SKD')) ? 'Kosongkan agar Model AI memilih otomatis dari standar resmi' : 'Contoh: Pecahan, Ekosistem, dll.'}
+                      placeholder={formData.tipeUjian === 'Other' && ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) ? 'Kosongkan agar Model AI memilih otomatis dari standar resmi' : 'Contoh: Pecahan, Ekosistem, dll.'}
                       className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
                     />
-                    {isCPNS && (
-                      <div className="mt-2.5">
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1.5">Pilih Sub-Topik Resmi BKN:</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(formData.subTipeUjian === 'CPNS SKD - TWK' ? [
-                            'Semua 5 Pilar TWK',
-                            'Nasionalisme (Identitas & Kedaulatan)',
-                            'Integritas (Anti-Korupsi & Kejujuran)',
-                            'Bela Negara (5 Nilai Dasar UU 23/2019)',
-                            'Pilar Negara: Pancasila (Sila 1-5 & Ideologi)',
-                            'Pilar Negara: UUD 1945 & Ketatanegaraan',
-                            'Pilar Negara: NKRI & Sejarah Kemerdekaan',
-                            'Pilar Negara: Bhinneka Tunggal Ika & Integrasi',
-                            'Bahasa Negara (PUEBI, Kalimat Efektif, Diksi)'
-                          ] : formData.subTipeUjian === 'CPNS SKD - TIU' ? [
-                            'Semua Topik TIU',
-                            'Verbal: Analogi Kata (Padanan Konsep)',
-                            'Verbal: Silogisme (Penarikan Kesimpulan)',
-                            'Verbal: Penalaran Analitis (Urutan Posisi)',
-                            'Numerik: Berhitung Cepat (Aljabar & Pecahan)',
-                            'Numerik: Deret Angka & Pola Bilangan',
-                            'Numerik: Perbandingan Kuantitatif (x vs y)',
-                            'Numerik: Soal Cerita Aritmetika Sosial',
-                            'Figural: Analogi, Ketidaksamaan & Serial'
-                          ] : [
-                            'Semua 6 Aspek TKP',
-                            'Pelayanan Publik (Keramahan & Kepuasan)',
-                            'Jejaring Kerja (Kolaborasi Kemitraan)',
-                            'Sosial Budaya (Adaptasi & Multikultural)',
-                            'Teknologi Informasi & Komunikasi Digital',
-                            'Profesionalisme (Tanggung Jawab ASN)',
-                            'Anti-Radikalisme & Moderasi Beragama'
-                          ]).map(topic => {
-                            const isSelected = topic.startsWith('Semua') ? !formData.materi : formData.materi === topic;
-                            return (
-                              <button
-                                key={topic}
-                                type="button"
-                                onClick={() => setFormData({ ...formData, materi: topic.startsWith('Semua') ? '' : topic })}
-                                className={`px-2 py-0.5 text-[11px] rounded-full border transition-all ${isSelected ? 'bg-blue-600 text-white border-blue-600 font-semibold shadow-2xs' : 'bg-gray-100/80 hover:bg-gray-200 text-gray-700 border-gray-200'}`}
-                              >
-                                {topic}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <div>
@@ -1679,7 +1466,7 @@ ATURAN MUTLAK TKP:
                       <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Indikator Asesmen</label>
                       <AIAssistedTextarea value={formData.indikator}
                         onChange={e => setFormData({...formData, indikator: e.target.value})}
-                        placeholder={formData.tipeUjian === 'Other' && (['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) || formData.subTipeUjian?.startsWith('CPNS SKD')) ? 'Kosongkan agar Model AI memilih otomatis dari standar resmi' : 'Contoh: Peserta didik dapat menganalisis...'}
+                        placeholder={formData.tipeUjian === 'Other' && ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(formData.subTipeUjian) ? 'Kosongkan agar Model AI memilih otomatis dari standar resmi' : 'Contoh: Peserta didik dapat menganalisis...'}
                         className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all h-24" />
                     </div>
                   </div>
@@ -1691,162 +1478,107 @@ ATURAN MUTLAK TKP:
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     
                     {/* Kolom Kiri: Bentuk Soal */}
-                    {isCPNS ? (
-                      <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <div className="flex items-center gap-2 text-gray-800 font-semibold text-xs uppercase tracking-wider">
-                          <CheckCircle size={15} className="text-blue-600" />
-                          Format Standar CAT BKN (5 Pilihan: A, B, C, D, E)
-                        </div>
-                        <p className="text-xs text-gray-600 leading-relaxed">
-                          Sesuai KepmenPANRB No. 321/2024, seluruh butir soal seleksi SKD menggunakan format pilihan ganda tunggal dengan 5 opsi jawaban (A–E).
-                          {formData.subTipeUjian === 'CPNS SKD - TKP' ? ' Penilaian menggunakan skala pembobotan 1 sampai 5 poin tanpa nilai 0.' : ' Jawaban benar bernilai 5 poin dan salah bernilai 0 poin.'}
-                        </p>
-                        <div className="mt-2 flex items-center gap-3">
-                          <label className="text-xs font-semibold text-gray-700">Jumlah Target Soal:</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max="50"
-                            value={formData.jumlahSoalPerBentuk['Pilihan Ganda'] || 10}
-                            onChange={e => {
-                              const val = parseInt(e.target.value) || 1;
-                              setFormData({
-                                ...formData,
-                                bentukSoal: ['Pilihan Ganda'],
-                                jumlahSoalPerBentuk: { 'Pilihan Ganda': val },
-                                jumlahSoalTotal: val
-                              });
-                            }}
-                            className="w-20 p-2 text-xs border border-gray-300 rounded-lg bg-white text-gray-900 font-bold focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-center"
-                          />
-                          <span className="text-xs text-gray-500">butir soal (disarankan 5–15 butir per generate)</span>
+                    <div className="flex flex-col gap-5">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Bentuk Soal</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
+                          <div key={bentuk} className="flex flex-col gap-2">
+                            <label className="flex items-center gap-3 cursor-pointer bg-gray-50 p-2.5 rounded-lg border border-gray-200 hover:border-blue-300 transition-all min-h-[46px]">
+                              <input
+                                type="checkbox"
+                                checked={formData.bentukSoal.includes(bentuk)}
+                                onChange={() => handleBentukSoalChange(bentuk)}
+                                className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white flex-shrink-0"
+                              />
+                              <span className="text-[11px] text-gray-700 leading-tight">{bentuk}</span>
+                            </label>
+                            {formData.bentukSoal.includes(bentuk) && bentuk !== 'Kombinasi' && (
+                              <input 
+                                type="number" 
+                                min="1" 
+                                value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
+                                onChange={e => setFormData({...formData, jumlahSoalPerBentuk: {...formData.jumlahSoalPerBentuk, [bentuk]: parseInt(e.target.value) || 0}})} 
+                                placeholder="Jumlah Soal"
+                                className="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
+                              />
+                            )}
+                          </div>
+                        ))}
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex flex-col gap-5">
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Bentuk Soal</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
-                            <div key={bentuk} className="flex flex-col gap-2">
-                              <label className="flex items-center gap-3 cursor-pointer bg-gray-50 p-2.5 rounded-lg border border-gray-200 hover:border-blue-300 transition-all min-h-[46px]">
-                                <input
-                                  type="checkbox"
-                                  checked={formData.bentukSoal.includes(bentuk)}
-                                  onChange={() => handleBentukSoalChange(bentuk)}
-                                  className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white flex-shrink-0"
-                                />
-                                <span className="text-[11px] text-gray-700 leading-tight">{bentuk}</span>
-                              </label>
-                              {formData.bentukSoal.includes(bentuk) && bentuk !== 'Kombinasi' && (
-                                <input 
-                                  type="number" 
-                                  min="1" 
-                                  value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
-                                  onChange={e => setFormData({...formData, jumlahSoalPerBentuk: {...formData.jumlahSoalPerBentuk, [bentuk]: parseInt(e.target.value) || 0}})} 
-                                  placeholder="Jumlah Soal"
-                                  className="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
-                                />
-                              )}
-                            </div>
-                          ))}
-                          </div>
-                        </div>
 
-                        {formData.bentukSoal.includes('Kombinasi') && (
-                          <div>
-                            <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
-                            <input type="number" min="1" max="100" value={formData.jumlahSoalTotal} onChange={e => setFormData({...formData, jumlahSoalTotal: parseInt(e.target.value) || 1})} className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
-                          </div>
-                        )}
-                      </div>
-                    )}
+                      {formData.bentukSoal.includes('Kombinasi') && (
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
+                          <input type="number" min="1" max="100" value={formData.jumlahSoalTotal} onChange={e => setFormData({...formData, jumlahSoalTotal: parseInt(e.target.value) || 1})} className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                        </div>
+                      )}
+                    </div>
 
                     {/* Kolom Kanan: Taksonomi & Level */}
                     <div>
-                      {isCPNS ? (
-                        <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                          <div className="flex items-center gap-2 text-gray-800 font-semibold text-xs uppercase tracking-wider">
-                            <Sparkles size={15} className="text-blue-600" />
-                            Standar Kompetensi Kognitif SKD CAT
-                          </div>
-                          <p className="text-xs text-gray-600 leading-relaxed">
-                            {formData.subTipeUjian === 'CPNS SKD - TKP'
-                              ? 'Menilai respon perilaku ASN BerAKHLAK pada 6 Aspek melalui Situational Judgement Test (SJT) dengan skala bobot nilai 1 s.d. 5 (tidak ada nilai 0).'
-                              : formData.subTipeUjian === 'CPNS SKD - TWK'
-                              ? 'Mengukur penguasaan kognitif objektif pada 5 Pilar Kebangsaan (Nasionalisme, Integritas, Bela Negara, Pilar Negara, Bahasa Negara) dengan 1 kunci jawaban pasti (Skor Benar=5, Salah=0).'
-                              : 'Mengukur kecakapan penalaran logika objektif pada 3 Domain Resmi TIU (Verbal, Numerik, Figural) dengan 1 kunci jawaban pasti (Skor Benar=5, Salah=0).'}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mt-1">
-                            <span className="px-3 py-1 bg-white text-gray-700 text-xs font-medium rounded-full border border-gray-300">Level 2 - Aplikasi Kontekstual</span>
-                            <span className="px-3 py-1 bg-white text-gray-700 text-xs font-medium rounded-full border border-gray-300">Level 3 - Penalaran & Studi Kasus</span>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Kerangka Taksonomi</label>
-                          <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4 w-full">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData({
-                                  ...formData, 
-                                  kerangkaTaksonomi: 'Bloom', 
-                                  levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan']
-                                });
-                              }}
-                              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
-                            >
-                              Taksonomi Bloom
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData({
-                                  ...formData, 
-                                  kerangkaTaksonomi: 'TKA', 
-                                  levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
-                                });
-                              }}
-                              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'TKA' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
-                            >
-                              Standar TKA
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFormData({
-                                  ...formData, 
-                                  kerangkaTaksonomi: 'SOLO', 
-                                  levelKognitif: ['Multi-struktural', 'Relasional']
-                                });
-                              }}
-                              className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
-                            >
-                              Taksonomi SOLO
-                            </button>
-                          </div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Kerangka Taksonomi</label>
+                      <div className="flex bg-slate-50 p-1 rounded-full border border-slate-100 mb-4 w-full">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData, 
+                              kerangkaTaksonomi: 'Bloom', 
+                              levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan']
+                            });
+                          }}
+                          className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'Bloom' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                        >
+                          Taksonomi Bloom
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData, 
+                              kerangkaTaksonomi: 'TKA', 
+                              levelKognitif: ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran']
+                            });
+                          }}
+                          className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'TKA' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                        >
+                          Standar TKA
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData, 
+                              kerangkaTaksonomi: 'SOLO', 
+                              levelKognitif: ['Multi-struktural', 'Relasional']
+                            });
+                          }}
+                          className={`flex-1 py-2 text-xs font-bold rounded-full transition-all ${formData.kerangkaTaksonomi === 'SOLO' ? 'bg-white text-indigo-900 shadow-sm border border-slate-200' : 'text-indigo-800/70 hover:text-indigo-900 hover:bg-white/50'}`}
+                        >
+                          Taksonomi SOLO
+                        </button>
+                      </div>
 
-                          <label className="block text-[10px] font-semibold text-gray-500 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
-                          <div className="flex flex-wrap gap-2">
-                            {(formData.kerangkaTaksonomi === 'Bloom' 
-                              ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Mengaplikasikan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta', 'HOTS', 'Kombinasi']
-                              : formData.kerangkaTaksonomi === 'TKA'
-                              ? ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran', 'Kombinasi']
-                              : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
-                            ).map(lvl => (
-                              <button
-                                key={lvl}
-                                type="button"
-                                onClick={() => handleLevelKognitifChange(lvl)}
-                                className={`px-3 py-1.5 text-[11px] font-bold rounded-full border transition-all ${formData.levelKognitif.includes(lvl) ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
-                              >
-                                {lvl}
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      )}
+                      <label className="block text-[10px] font-semibold text-gray-500 mb-2 uppercase tracking-wider">Level Yang Digunakan</label>
+                      <div className="flex flex-wrap gap-2">
+                        {(formData.kerangkaTaksonomi === 'Bloom' 
+                          ? ['C1 - Mengingat', 'C2 - Memahami', 'C3 - Mengaplikasikan', 'C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta', 'HOTS', 'Kombinasi']
+                          : formData.kerangkaTaksonomi === 'TKA'
+                          ? ['Level 1 - Pengetahuan & Pemahaman', 'Level 2 - Aplikasi', 'Level 3 - Penalaran', 'Kombinasi']
+                          : ['Pra-struktural', 'Uni-struktural', 'Multi-struktural', 'Relasional', 'Abstrak Diperluas']
+                        ).map(lvl => (
+                          <button
+                            key={lvl}
+                            type="button"
+                            onClick={() => handleLevelKognitifChange(lvl)}
+                            className={`px-3 py-1.5 text-[11px] font-bold rounded-full border transition-all ${formData.levelKognitif.includes(lvl) ? 'bg-indigo-50 border-indigo-200 text-indigo-900 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300 hover:bg-indigo-50/50'}`}
+                          >
+                            {lvl}
+                          </button>
+                        ))}
+                      </div>
 
                     <label className="block text-[10px] font-semibold text-gray-500 mt-5 mb-2 uppercase tracking-wider">Referensi Materi (Opsional)</label>
                     <label
@@ -1883,141 +1615,90 @@ ATURAN MUTLAK TKP:
                 </div>
 
                 {/* Section 4: Opsi Tambahan */}
-                {isCPNS ? (
-                  formData.subTipeUjian === 'CPNS SKD - TIU' ? (
-                    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm animate-in fade-in duration-200">
-                      <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">4. Opsi Tambahan TIU Figural</h3>
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">4. Opsi Tambahan</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Opsi Inklusi */}
+                    <div className="flex flex-col gap-3">
                       <label className="flex items-center gap-3 cursor-pointer">
                         <input 
                           type="checkbox" 
-                          checked={formData.terdapatSoalBergambar}
-                          onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked, jumlahSoalBergambar: e.target.checked ? 3 : 0})}
+                          checked={formData.hasInklusi}
+                          onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
                           className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
                         />
-                        <span className="text-sm font-medium text-gray-700">Sertakan Soal Figural (Pola Serial Gambar / Rotasi Simetri)</span>
+                        <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
                       </label>
-                      {formData.terdapatSoalBergambar && (
-                        <div className="pl-7 mt-3 animate-in fade-in duration-200">
-                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Soal Figural (Bergambar)</label>
+                      
+                      {formData.hasInklusi && (
+                        <div className="pl-7 animate-in fade-in duration-200">
+                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Siswa Inklusi</label>
                           <input 
                             type="number" 
                             min="1" 
-                            max="10" 
-                            className="w-32 p-2 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" 
-                            value={formData.jumlahSoalBergambar === 0 ? '' : formData.jumlahSoalBergambar} 
-                            onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})} 
+                            className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                            placeholder="Masukkan jumlah siswa inklusi..."
+                            value={formData.jumlahInklusi === 0 ? "" : formData.jumlahInklusi}
+                            onChange={(e) => setFormData({...formData, jumlahInklusi: parseInt(e.target.value) || 0})}
                           />
                         </div>
                       )}
                     </div>
-                  ) : null
-                ) : (
-                  <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                    <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2 mb-4">4. Opsi Tambahan</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Opsi Inklusi */}
-                      <div className="flex flex-col gap-3">
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input 
-                            type="checkbox" 
-                            checked={formData.hasInklusi}
-                            onChange={(e) => setFormData({...formData, hasInklusi: e.target.checked})}
-                            className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
-                          />
-                          <span className="text-sm font-medium text-gray-700">Terdapat Anak Inklusi</span>
-                        </label>
-                        
-                        {formData.hasInklusi && (
-                          <div className="pl-7 animate-in fade-in duration-200">
-                            <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Siswa Inklusi</label>
-                            <input 
-                              type="number"
-                              min="1"
-                              className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                              placeholder="Masukkan jumlah siswa inklusi..."
-                              value={formData.jumlahInklusi === 0 ? '' : formData.jumlahInklusi}
-                              onChange={(e) => setFormData({...formData, jumlahInklusi: parseInt(e.target.value) || 0})}
-                            />
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Opsi Gambar */}
-                      <div className="flex flex-col gap-3">
-                        <label className="flex items-center gap-3 cursor-pointer">
+                    {/* Opsi Gambar */}
+                    <div className="flex flex-col gap-3">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.terdapatSoalBergambar}
+                          onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
+                          className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
+                      </label>
+                      
+                      {formData.terdapatSoalBergambar && (
+                        <div className="pl-7 animate-in fade-in duration-200">
+                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
                           <input 
-                            type="checkbox" 
-                            checked={formData.terdapatSoalBergambar}
-                            onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
-                            className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
+                            type="number" 
+                            min="1" 
+                            max="20" 
+                            className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
+                            placeholder="Masukkan jumlah soal bergambar..."
+                            value={formData.jumlahSoalBergambar === 0 ? "" : formData.jumlahSoalBergambar}
+                            onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
                           />
-                          <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
-                        </label>
-                        
-                        {formData.terdapatSoalBergambar && (
-                          <div className="pl-7 animate-in fade-in duration-200">
-                            <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
-                            <input 
-                              type="number"
-                              min="1"
-                              max="20"
-                              className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                              placeholder="Masukkan jumlah soal bergambar..."
-                              value={formData.jumlahSoalBergambar === 0 ? '' : formData.jumlahSoalBergambar}
-                              onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
-                            />
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Section 5: Tips */}
                 <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100 relative overflow-hidden shadow-sm flex flex-col md:flex-row gap-6 justify-between">
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-blue-600 flex items-center gap-2 mb-2 relative z-10">
-                      <Lightbulb size={16} /> {isCPNS ? 'Tips Sukses Latihan SKD CPNS' : 'Tips Menyusun Kisi-Kisi'}
+                      <Lightbulb size={16} /> Tips Menyusun Kisi-Kisi
                     </h3>
                     <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
-                      {isCPNS ? (
-                        <>
-                          <li>Pelajari pembahasan mendalam pada setiap butir soal untuk memahami logika penilaian resmi BKN</li>
-                          <li>Gunakan paket kecil (5–15 butir) untuk latihan harian terfokus tanpa pemborosan kuota token</li>
-                          <li>Perhatikan ambang batas KepmenPANRB No. 321/2024: TWK 65, TIU 80, TKP 166</li>
-                          <li>Gunakan tombol Cetak/PDF untuk menyimpan naskah soal dan kunci pembahasan rapi siap cetak</li>
-                        </>
-                      ) : (
-                        <>
-                          <li>Selaraskan dengan CP → ATP → TP</li>
-                          <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
-                          <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
-                          <li>Variasikan level kognitif (tidak hanya mengingat)</li>
-                        </>
-                      )}
+                      <li>Selaraskan dengan CP &rarr; ATP &rarr; TP</li>
+                      <li>Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS)</li>
+                      <li>Kaitkan soal dengan konteks nyata (meaningful learning)</li>
+                      <li>Variasikan level kognitif (tidak hanya mengingat)</li>
                     </ul>
                   </div>
                   
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-red-500 flex items-center gap-2 mb-2 relative z-10">
-                      <AlertTriangle size={16} /> {isCPNS ? 'Poin Kritis Kelulusan CAT BKN' : 'Hindari Kesalahan Umum'}
+                      <AlertTriangle size={16} /> Hindari Kesalahan Umum
                     </h3>
                     <ul className="text-[11px] text-gray-700 space-y-1 pl-4 list-disc relative z-10 leading-tight">
-                      {isCPNS ? (
-                        <>
-                          <li>Passing grade SKD adalah syarat kumulatif (ketiga subtes TWK, TIU, TKP wajib lolos semua)</li>
-                          <li>Pada TKP tidak ada jawaban bernilai 0, hindari memilih opsi yang terlalu pasif atau defensif</li>
-                          <li>Pada TIU, utamakan manajemen waktu: lewati sementara soal hitungan rumit yang memakan waktu lama</li>
-                        </>
-                      ) : (
-                        <>
-                          <li>Indikator hanya pada level mengingat (C1)</li>
-                          <li>Tidak mencerminkan pembelajaran kontekstual</li>
-                          <li>Soal tidak mengukur pemahaman mendalam</li>
-                          <li>Distribusi level kognitif tidak seimbang</li>
-                        </>
-                      )}
+                      <li>Indikator hanya pada level mengingat (C1)</li>
+                      <li>Tidak mencerminkan pembelajaran kontekstual</li>
+                      <li>Soal tidak mengukur pemahaman mendalam</li>
+                      <li>Distribusi level kognitif tidak seimbang</li>
                     </ul>
                   </div>
                 </div>
@@ -2290,7 +1971,7 @@ ATURAN MUTLAK TKP:
                           </div>
                         )}
                         
-                        {!(resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD') || false) && Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                        {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                           <div className="pl-8 mb-3 overflow-x-auto">
                             <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
                               <thead>
@@ -2610,11 +2291,9 @@ ATURAN MUTLAK TKP:
                          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                            <div className="p-4 space-y-4 md:col-span-1 text-sm">
                              <div>
-                               <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">{resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD') ? 'Mata Ujian' : 'Mata Pelajaran'}</div>
+                               <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">'Mata Pelajaran'</div>
                                <div className="text-gray-700">
-                                 {resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD')
-                                   ? `${resultSoal.meta?.mapelLabel} / Formasi CASN (BKN)`
-                                   : `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`}
+                                 `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`
                                </div>
                              </div>
                              <div>
@@ -2685,11 +2364,9 @@ ATURAN MUTLAK TKP:
                              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                                <div className="p-4 space-y-4 md:col-span-1 text-sm bg-blue-50">
                                  <div>
-                                   <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">{resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD') ? 'Mata Ujian' : 'Mata Pelajaran'}</div>
+                                   <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">'Mata Pelajaran'</div>
                                    <div className="text-gray-700">
-                                     {resultSoal.meta?.subTipeUjian?.startsWith('CPNS SKD')
-                                       ? `${resultSoal.meta?.mapelLabel} / Formasi CASN (BKN)`
-                                       : `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`}
+                                     `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`
                                    </div>
                                  </div>
                                  <div>
