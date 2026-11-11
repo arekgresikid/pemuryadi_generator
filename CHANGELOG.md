@@ -2,6 +2,13 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.3] - 11 November 2026
+- Pemurnian Orkestrator & Penghapusan Kontradiksi Stimulus: Menghilangkan konflik stimulus pada Ujian Biasa dan Live Quiz (100% mandiri/standalone to-the-point tanpa wacana bocor), serta mengunci wacana cluster hanya untuk Asesmen Nasional (AKM) dan TKA.
+- Perbaikan Format Benar/Salah & Pilihan Ganda Kompleks: Memperbaiki syarat prompt agar skema pernyataanBenarSalah dan kotak centang (☐) selalu aktif kapanpun guru memilih bentuk soal tersebut, tanpa terhalang status stimulus.
+- Lengkap Rendering UI & Cetak: Menambahkan tabel pernyataan Benar/Salah di Naskah Soal ABK, Kartu Soal Reguler, dan Kartu Soal ABK (baik UI maupun hasil cetak).
+- Penataan Alur Kognitif & Eliminasi Token Bloat: Mengembalikan urutan field JSON ke alur alami yang ringan, menghapus paksaan pre-reasoning berlebihan, serta menjadikan mode HOTS panduan pedagogis adaptif sesuai jenjang siswa.
+- Perbaikan Bug Sintaks & Stabilisasi State: Memperbaiki bug literal 'Mata Pelajaran' dan ekspresi ${...} pada Kartu Soal, serta menyelaraskan transisi pergantian tipe ujian agar tidak mereset mapel guru.
+
 ## [5.4.2] - 10 November 2026
 - Pemisahan Modul Dedicated CPNSGenerator (v2.0.0): Meluncurkan modul mandiri khusus SKD CPNS / PPPK berbasis CAT BKN (KepmenPANRB No. 321/2024) yang sepenuhnya terisolasi dari kurikulum sekolah.
 - Pembersihan Skema & Bebas Bocoran Tabel: Menghapus total array Pernyataan Benar/Salah dan Menjodohkan dari skema CPNS, mencegah bocornya pembahasan/kunci ke dalam soal ujian.

@@ -490,12 +490,21 @@ Berikan output dalam format JSON murni:
 
         extraInstructions += runtimeSkillPrompt;
         if (useStimulus) {
-          extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama. Setiap stimulus dipakai oleh 3–5 soal berurutan (Model AI menentukan jumlah yang paling sesuai). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap sesuai batasan jumlah kata standar jenjang; untuk numerasi boleh berupa konteks cerita beserta data), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang sangat detail tentang adegan utama stimulus, tanpa teks di dalam gambar; contoh: "Indonesian elementary school students in uniforms sorting plastic bottles, paper and cardboard into separate recycling bins at a school waste bank booth"), dan "rentangSoal" (contoh "1-5"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong. Pertanyaan soal TIDAK perlu mengulang teks stimulus.`;
+          extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama. Setiap stimulus dipakai oleh 3–5 soal berurutan (Model AI menentukan jumlah yang paling sesuai). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap sesuai batasan jumlah kata standar jenjang; untuk numerasi boleh berupa konteks cerita beserta data), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang sangat detail tentang adegan utama stimulus, tanpa teks di dalam gambar), dan "rentangSoal" (contoh "1-5"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong. Pertanyaan soal TIDAK perlu mengulang teks stimulus.`;
         } else {
           extraInstructions += `\n- ATURAN MUTLAK SOAL MANDIRI (STANDALONE): Tipe ujian ini TIDAK MENGGUNAKAN wacana bersama ("stimulusList"). DILARANG KERAS membuat wacana/stimulus bersama! Anda WAJIB membiarkan array "stimulusList": [] KOSONG! Seluruh deskripsi masalah, data, atau skenario kasus WAJIB ditulis langsung di dalam field "pertanyaan" pada masing-masing nomor. Seluruh butir soal WAJIB mengisi "stimulusId": "".`;
         }
-        if (useStimulus || formData.bentukSoal.includes('Kombinasi')) {
-          extraInstructions += `\n- VARIASI BENTUK SOAL AKM/TKA: Boleh memvariasikan "Pilihan Ganda", "Pilihan Ganda Kompleks" (lebih dari satu jawaban benar; opsi di "opsiTambahan"; kunci berisi semua huruf yang benar), dan "Benar/Salah" (isi "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar" atau "Salah"}]; field "kunci" soal berisi ringkasan, misal "A. Benar, B. Salah, C. Benar").`;
+
+        const hasBenarSalah = formData.bentukSoal.some(b => /benar\s*salah/i.test(b));
+        const hasKompleks = formData.bentukSoal.some(b => /kompleks/i.test(b));
+        const hasKombinasi = formData.bentukSoal.includes('Kombinasi');
+
+        if (hasBenarSalah || hasKompleks || hasKombinasi || useStimulus) {
+          extraInstructions += `\n- FORMAT KHUSUS BENTUK SOAL:
+  1) BENAR / SALAH: Untuk butir soal Benar/Salah, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}, {"pernyataan": "...", "kunci": "Salah"}]. Berikan 2–4 pernyataan bermakna. Field "kunci" berisi rangkuman (contoh: "A. Benar, B. Salah, C. Benar").
+  2) PILIHAN GANDA KOMPLEKS (LEBIH DARI 1 JAWABAN BENAR): Tulis opsi lengkap di "opsiTambahan" (contoh: ["A. ...", "B. ...", "C. ...", "D. ..."]). Field "kunci" memuat seluruh huruf jawaban yang benar (contoh: "A dan C" atau "A, C, D").
+  3) MENJODOHKAN: Isi array "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}].
+  4) PILIHAN GANDA: Isi 4-5 pilihan di "opsiTambahan" ("A. ...", "B. ...", dst), kunci berupa satu huruf kapital.`;
         }
 
         if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
@@ -531,25 +540,25 @@ Berikan output dalam format JSON murni:
   "soalList": [
     { 
       "no": "...", 
-      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Uraian / dll", 
+      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Menjodohkan / Isian Singkat / Uraian", 
       "stimulusId": "${useStimulus ? 'S1 atau kosong' : ''}", 
-      "materi": "...",
-      "levelKognitif": "Tulis level spesifik beserta operasi kognitifnya (wajib diisi SEBELUM menulis pertanyaan)",
-      "indikatorSoal": "Rumuskan indikator operasional spesifik yang menguji levelKognitif di atas",
       "pertanyaan": "...", 
-      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
       "opsiTambahan": ["A. ...", "B. ..."], 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
       "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
       "kunci": "...", 
       "pembahasan": "...",
       "skor": "...",
+      "levelKognitif": "...",
+      "indikatorSoal": "...",
+      "materi": "...",
       "gambarDeskripsi": "...",
       "gambarUrl": ""
     }
   ]${formData.hasInklusi ? `,
   "soalABKList": [
     {
-      "no": "...", "jenisSoal": "...", "materi": "...", "levelKognitif": "...", "indikatorSoal": "...", "pertanyaan": "...", "opsiTambahan": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "gambarDeskripsi": "...", "gambarUrl": ""
+      "no": "...", "jenisSoal": "...", "pertanyaan": "...", "opsiTambahan": [], "pernyataanBenarSalah": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "levelKognitif": "...", "indikatorSoal": "...", "materi": "...", "gambarDeskripsi": "...", "gambarUrl": ""
     }
   ]` : ''}
 }`;
@@ -557,16 +566,16 @@ Berikan output dalam format JSON murni:
           no: { type: Type.STRING },
           jenisSoal: { type: Type.STRING },
           stimulusId: { type: Type.STRING },
-          materi: { type: Type.STRING },
-          levelKognitif: { type: Type.STRING },
-          indikatorSoal: { type: Type.STRING },
           pertanyaan: { type: Type.STRING },
-          pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
           opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+          pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
           pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
           kunci: { type: Type.STRING },
           pembahasan: { type: Type.STRING },
           skor: { type: Type.STRING },
+          levelKognitif: { type: Type.STRING },
+          indikatorSoal: { type: Type.STRING },
+          materi: { type: Type.STRING },
           gambarDeskripsi: { type: Type.STRING },
           gambarUrl: { type: Type.STRING }
         };
@@ -577,7 +586,7 @@ Berikan output dalam format JSON murni:
             items: {
               type: Type.OBJECT,
               properties: itemProperties,
-              required: ["no", "jenisSoal", "materi", "levelKognitif", "indikatorSoal", "pertanyaan", "kunci", "pembahasan"]
+              required: ["no", "jenisSoal", "pertanyaan", "kunci", "pembahasan"]
             }
           },
           stimulusList: {
@@ -602,22 +611,8 @@ Berikan output dalam format JSON murni:
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
-              properties: {
-                jenisSoal: { type: Type.STRING },
-                no: { type: Type.STRING },
-                pertanyaan: { type: Type.STRING },
-                opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
-                pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-                kunci: { type: Type.STRING },
-                pembahasan: { type: Type.STRING },
-                skor: { type: Type.STRING },
-                materi: { type: Type.STRING },
-                indikatorSoal: { type: Type.STRING },
-                levelKognitif: { type: Type.STRING },
-                gambarDeskripsi: { type: Type.STRING },
-                gambarUrl: { type: Type.STRING }
-              },
-              required: ["jenisSoal", "no", "pertanyaan", "kunci", "pembahasan"]
+              properties: itemProperties,
+              required: ["no", "jenisSoal", "pertanyaan", "kunci", "pembahasan"]
             }
           };
         }
@@ -912,9 +907,11 @@ Berikan output dalam format JSON murni:
                    
                    ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
+                   ${benarSalahPrint(s)}
+
                    ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                      <div style="margin-left: 15px; margin-bottom: 10px;">
-                       ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
+                       ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
                      </div>
                    ` : ''}
 
@@ -954,9 +951,11 @@ Berikan output dalam format JSON murni:
                    
                    ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
+                   ${benarSalahPrint(s)}
+
                    ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                      <div style="margin-left: 15px; margin-bottom: 10px;">
-                       ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
+                       ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
                      </div>
                    ` : ''}
 
@@ -1059,9 +1058,11 @@ Berikan output dalam format JSON murni:
 
               ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
+              ${benarSalahPrint(s)}
+
               ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
                 <div style="margin-left: 10px;">
-                  ${s.opsiTambahan.map((o: string) => `<div>${o}</div>`).join('')}
+                  ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
                 </div>
               ` : ''}
               ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
@@ -1115,6 +1116,7 @@ Berikan output dalam format JSON murni:
                             onClick={() => {
                               if (tipe === 'Other') {
                                 const sub = formData.subTipeUjian || 'TKA Literasi';
+                                const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(sub);
                                 const syncedMapel = sub === 'TKA Literasi'
                                   ? 'bahasa-indonesia'
                                   : sub === 'TKA Numerasi'
@@ -1122,7 +1124,6 @@ Berikan output dalam format JSON murni:
                                   : sub === 'TKA Literasi Bahasa Inggris'
                                   ? 'bahasa-inggris'
                                   : formData.mapel;
-                                const isTKAAcademic = ['TKA Literasi', 'TKA Numerasi', 'TKA Literasi Bahasa Inggris'].includes(sub);
                                 setFormData({
                                   ...formData,
                                   tipeUjian: tipe,
@@ -1142,7 +1143,15 @@ Berikan output dalam format JSON murni:
                                   levelKognitif: ['C4 - Menganalisis', 'C5 - Mengevaluasi', 'C6 - Mencipta']
                                 });
                               } else {
-                                setFormData({ ...formData, tipeUjian: tipe });
+                                const shouldResetTaksonomi = formData.kerangkaTaksonomi === 'TKA' && tipe !== 'Other';
+                                setFormData({
+                                  ...formData,
+                                  tipeUjian: tipe,
+                                  ...(shouldResetTaksonomi ? {
+                                    kerangkaTaksonomi: 'Bloom',
+                                    levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan']
+                                  } : {})
+                                });
                               }
                             }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${formData.tipeUjian === tipe ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 border border-gray-300 hover:border-blue-200'}`}
@@ -2157,10 +2166,33 @@ Berikan output dalam format JSON murni:
                               </div>
                             )}
                             
+                            {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                              <div className="pl-8 mb-3 overflow-x-auto">
+                                <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
+                                  <thead>
+                                    <tr className="bg-gray-100">
+                                      <th className="border border-gray-300 px-3 py-1.5 text-left">Pernyataan</th>
+                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">Benar</th>
+                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">Salah</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                      <tr key={k}>
+                                        <td className="border border-gray-300 px-3 py-1.5">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                        <td className="border border-gray-300 px-3 py-1.5 text-center">○</td>
+                                        <td className="border border-gray-300 px-3 py-1.5 text-center">○</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+
                             {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                               <div className="pl-8 space-y-2">
                                 {s.opsiTambahan.map((o: string, j: number) => (
-                                  <div key={j} className="text-sm text-gray-600">{o}</div>
+                                  <div key={j} className="text-sm text-gray-600">{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
                                 ))}
                               </div>
                             )}
@@ -2361,9 +2393,9 @@ Berikan output dalam format JSON murni:
                          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                            <div className="p-4 space-y-4 md:col-span-1 text-sm">
                              <div>
-                               <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">'Mata Pelajaran'</div>
+                               <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Mata Pelajaran</div>
                                <div className="text-gray-700">
-                                 `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`
+                                 {resultSoal.meta?.mapelLabel} / Kelas {resultSoal.meta?.kelas}
                                </div>
                              </div>
                              <div>
@@ -2380,10 +2412,33 @@ Berikan output dalam format JSON murni:
                              <div className="text-[10px] text-gray-500 font-bold uppercase mb-2">Buku Sumber / Rumusan Soal:</div>
                              <div className="text-gray-900 mb-4 flex-1 whitespace-pre-wrap">{s.pertanyaan}</div>
                              
+                             {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                               <div className="mb-4 overflow-x-auto">
+                                 <table className="w-full text-xs text-gray-700 border border-gray-300 bg-white">
+                                   <thead>
+                                     <tr className="bg-gray-100">
+                                       <th className="border border-gray-300 px-2.5 py-1 text-left">Pernyataan</th>
+                                       <th className="border border-gray-300 px-2 py-1 w-14 text-center">Benar</th>
+                                       <th className="border border-gray-300 px-2 py-1 w-14 text-center">Salah</th>
+                                     </tr>
+                                   </thead>
+                                   <tbody>
+                                     {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                       <tr key={k}>
+                                         <td className="border border-gray-300 px-2.5 py-1">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                         <td className="border border-gray-300 px-2 py-1 text-center">○</td>
+                                         <td className="border border-gray-300 px-2 py-1 text-center">○</td>
+                                       </tr>
+                                     ))}
+                                   </tbody>
+                                 </table>
+                               </div>
+                             )}
+
                              {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                                <div className="space-y-1 mb-4 text-sm text-gray-700">
                                  {s.opsiTambahan.map((o: string, j: number) => (
-                                   <div key={j}>{o}</div>
+                                   <div key={j}>{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
                                  ))}
                                </div>
                              )}
@@ -2434,9 +2489,9 @@ Berikan output dalam format JSON murni:
                              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                                <div className="p-4 space-y-4 md:col-span-1 text-sm bg-blue-50">
                                  <div>
-                                   <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">'Mata Pelajaran'</div>
+                                   <div className="text-[10px] text-gray-500 font-bold uppercase mb-1">Mata Pelajaran</div>
                                    <div className="text-gray-700">
-                                     `${resultSoal.meta?.mapelLabel} / Kelas ${resultSoal.meta?.kelas}`
+                                     {resultSoal.meta?.mapelLabel} / Kelas {resultSoal.meta?.kelas}
                                    </div>
                                  </div>
                                  <div>
@@ -2492,10 +2547,33 @@ Berikan output dalam format JSON murni:
                                    </div>
                                  )}
                                  
+                                 {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                                   <div className="mb-4 overflow-x-auto">
+                                     <table className="w-full text-xs text-gray-700 border border-gray-300 bg-white">
+                                       <thead>
+                                         <tr className="bg-gray-100">
+                                           <th className="border border-gray-300 px-2.5 py-1 text-left">Pernyataan</th>
+                                           <th className="border border-gray-300 px-2 py-1 w-14 text-center">Benar</th>
+                                           <th className="border border-gray-300 px-2 py-1 w-14 text-center">Salah</th>
+                                         </tr>
+                                       </thead>
+                                       <tbody>
+                                         {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                           <tr key={k}>
+                                             <td className="border border-gray-300 px-2.5 py-1">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                             <td className="border border-gray-300 px-2 py-1 text-center">○</td>
+                                             <td className="border border-gray-300 px-2 py-1 text-center">○</td>
+                                           </tr>
+                                         ))}
+                                       </tbody>
+                                     </table>
+                                   </div>
+                                 )}
+
                                  {s.opsiTambahan && s.opsiTambahan.length > 0 && (
                                    <div className="space-y-1 mb-4 text-sm text-gray-700">
                                      {s.opsiTambahan.map((o: string, j: number) => (
-                                       <div key={j}>{o}</div>
+                                       <div key={j}>{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
                                      ))}
                                    </div>
                                  )}

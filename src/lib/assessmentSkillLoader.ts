@@ -61,9 +61,9 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   const isLiveQuiz = ctx.tipeUjian === 'Live Quiz';
   const isOlimpiade = ctx.tipeUjian === 'Olimpiade';
 
-  // 0. Pre-Reasoning Field Order Instruction (Autoregressive Alignment)
+  // 0. Panduan Konstruksi Soal yang Bersih & Fokus
   sections.push(
-    `- URUTAN BERPIKIR SEBELUM MENULIS SOAL (PRE-REASONING PROTOCOL): Untuk setiap butir soal di "soalList", Anda WAJIB menetapkan "levelKognitif" dan merumuskan "indikatorSoal" yang spesifik TERLEBIH DAHULU sebelum menulis kalimat "pertanyaan". Pastikan kalimat "pertanyaan" benar-benar mengeksekusi tuntutan berpikir pada "indikatorSoal" tersebut, bukan sekadar tempelan label.`
+    `- PANDUAN KONSTRUKSI BUTIR SOAL: Rumuskan pertanyaan yang jelas, terukur, dan bermakna edukatif. Pastikan kalimat pertanyaan langsung menguji capaian pembelajaran tanpa bertele-tele.`
   );
 
   // 1. Dedicated Sub-Type Architecture for Tab "Other (TKA / Try Out)"
@@ -207,19 +207,19 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
     );
   }
 
-  // 2. Stimulus Budgeting Policy
-  if (isLiveQuiz) {
+  // 2. Stimulus Policy (Tegas & Tanpa Kontradiksi)
+  if (isLiveQuiz || ctx.tipeUjian === 'Ujian Biasa') {
     sections.push(
-      `- KEBIJAKAN ANGGARAN STIMULUS (LIVE QUIZ): 90%–100% butir soal WAJIB berupa SOAL MANDIRI (Standalone) yang ringkas, padat, dan cepat dibaca (<25 kata) tanpa wacana panjang (biarkan "stimulusId" kosong ""). Opsi jawaban tepat 4 pilihan singkat.`
+      `- KEBIJAKAN SOAL MANDIRI (STANDALONE): Seluruh butir soal WAJIB berupa SOAL MANDIRI yang to the point dan kontekstual tanpa wacana bacaan bersama ("stimulusList": [] KOSONG, dan "stimulusId": ""). Deskripsi, data, atau skenario masalah ditulis langsung di dalam field "pertanyaan" masing-masing nomor.`
     );
   } else if (isAKM || isTKAAcademic) {
     const estimatedClusters = Math.max(1, Math.ceil(ctx.totalSoal / 4));
     sections.push(
-      `- KEBIJAKAN STIMULUS BERSAMA (AKM / TKA CLUSTER): DILARANG membuat 1 wacana terpisah untuk setiap 1 soal! Buat sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana SETIAP 1 stimulus dipakai bersama oleh 3–5 soal berurutan. Pastikan setiap soal di bawah stimulus mengukur subkompetensi/level yang berbeda dan tidak saling membocorkan jawaban.`
+      `- KEBIJAKAN STIMULUS BERSAMA (AKM / TKA CLUSTER): Kelompokkan soal ke dalam sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana setiap 1 stimulus dipakai bersama oleh 3–5 soal berurutan. Setiap butir soal mengukur kompetensi yang berbeda dan mengisi "stimulusId" sesuai id stimulus.`
     );
   } else if (isOlimpiade) {
     sections.push(
-      `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada kepadatan informasi ilmiah/matematis dan skenario masalah non-rutin. Jangan menambahkan cerita naratif berbunga-bunga yang tidak dibutuhkan dalam perhitungan atau pembuktian. Seluruh parameter fisis, konstruksi geometri, kondisi batas, atau premis logika ditulis presisi tanpa basa-basi naratif.`
+      `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada skenario masalah non-rutin, kepadatan data matematis/ilmiah presisi, kondisi batas, dan struktur invarian tanpa basa-basi naratif.`
     );
   } else if (isCPNS) {
     if (isCPNSTWK) {
@@ -244,44 +244,24 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
           `  * Opsi jawaban tepat 5 pilihan (A, B, C, D, E) dengan SKALA BOBOT 1 SAMPAI 5 POIN (TIDAK ADA NILAI 0).`
       );
     }
-  } else if (!isSurvey) {
-    const maxSharedGroups = ctx.totalSoal >= 30 ? 3 : ctx.totalSoal >= 15 ? 2 : 1;
-    sections.push(
-      `- KEBIJAKAN ANGGARAN STIMULUS (ANTI STIMULUS OVERLOAD 1–${ctx.totalSoal}): JANGAN membuat wacana/stimulus untuk semua nomor! Gunakan distribusi proporsional:\n` +
-        `  1) Minimal 60%–70% butir soal WAJIB berupa SOAL MANDIRI (Standalone / kasus singkat 1–3 kalimat langsung di dalam "pertanyaan", dengan "stimulusId": "").\n` +
-        `  2) Maksimal hanya boleh ada ${maxSharedGroups} wacana bersama di "stimulusList" (masing-masing untuk 3–5 soal kontekstual/HOTS).\n` +
-        `  3) Jika "Terdapat Soal Bergambar" aktif (${ctx.jumlahSoalBergambar || 0} soal), hanya isi "gambarDeskripsi" pada tepat ${ctx.jumlahSoalBergambar || 0} nomor soal tersebut saja.`
-    );
   }
 
-  // 3. Strict HOTS Enforcement & Cognitive Task Design Repertoire (Khusus Sekolah, Bukan CPNS/Survei)
+  // 3. HOTS Guidance & Cognitive Task Design (Proporsional Sesuai Jenjang)
   const pureHOTS = isHOTSSelectionOnly(ctx.levelKognitif);
   const anyHOTS = hasAnyHOTSSelection(ctx.levelKognitif) || isOlimpiade;
 
   if (!isSurvey && !isCPNS) {
     if (pureHOTS) {
       sections.push(
-        `- MANDAT MUTLAK 100% HOTS MURNI (PENGGUNA MEMILIH MODE HOTS):\n` +
-          `  * PERINGATAN KERAS: Pengunjung secara eksplisit meminta soal HOTS (${ctx.levelKognitif.join(', ')}). Anda DILARANG KERAS membuat soal hafalan (C1), pemahaman definisi langsung (C2), atau substitusi satu rumus rutin (C3)!\n` +
-          `  * SELURUH 100% BUTIR SOAL (Nomor 1 s.d. Nomor ${ctx.totalSoal}) WAJIB berada pada level penalaran tingkat tinggi (C4 Menganalisis / C5 Mengevaluasi / C6 Mencipta, atau Level 3 Penalaran, atau SOLO Relasional / Abstrak Diperluas).\n` +
-          `  * SETIAP BUTIR SOAL WAJIB menerapkan salah satu dari 5 Mekanika Kognitif HOTS berikut:\n` +
-          `    1) Manipulasi Variabel / "What-If" Analysis (C4): Sajikan suatu kondisi/data/sistem, lalu ubah satu variabel kunci dan minta siswa menganalisis dampak berantainya.\n` +
-          `    2) Evaluasi Klaim & Deteksi Kekeliruan / Error Analysis (C5): Sajikan dua pendapat, argumen, atau langkah penyelesaian yang saling bertentangan, lalu minta siswa mengevaluasi klaim mana yang valid/keliru beserta bukti logisnya.\n` +
-          `    3) Sintesis Lintas-Data & Diagnosis Anomali (C4–C5): Sajikan perbandingan dua kasus/data/fenomena, lalu minta siswa menemukan pola hubungan sebab-akibat atau penyebab anomali yang tidak tertulis secara eksplisit.\n` +
-          `    4) Keputusan Berbasis Trade-off Kriteria (C5): Minta siswa menentukan solusi/keputusan paling tepat di bawah minimal 2–3 syarat batasan yang saling mengunci (misal: efisiensi vs biaya vs dampak lingkungan/keamanan).\n` +
-          `    5) Evaluasi Rancangan / Hipotesis Baru (C6): Minta siswa merancang atau memilih rancangan prosedur/model solusi baru yang memenuhi seluruh spesifikasi batasan.\n` +
-          `  * ATURAN MUTLAK NO-LOOKUP (ANTI CTRL+F): Tidak boleh ada satu pun soal yang jawabannya bisa ditemukan hanya dengan menyalin kalimat dari teks bacaan! Siswa wajib mengolah bukti di soal dengan konsep ilmu untuk menjawab.\n` +
-          `  * PEMBAHASAN WAJIB MENDALAM: Pada field "pembahasan", jabarkan: (a) Premis/Bukti Kunci pada Soal, (b) Langkah Penalaran Multi-Tahap (Step 1 -> Step 2 -> Kesimpulan), dan (c) Analisis Mengapa Pengecoh Salah.`
+        `- PANDUAN SOAL HOTS (PENALARAN TINGKAT TINGGI):\n` +
+          `  * Fokuskan butir soal pada level penalaran/analisis (C4–C6 / Level 3 TKA / SOLO Relasional-Abstrak) sesuai usia dan jenjang ${jenjangUpper}.\n` +
+          `  * Terapkan konteks nyata pemecahan masalah: analisis hubungan sebab-akibat, evaluasi klaim/kondisi, atau penyelesaian multi-langkah.\n` +
+          `  * Berikan pembahasan yang menjelaskan alur pemikiran dan justifikasi jawaban yang benar.`
       );
     } else if (anyHOTS) {
-      const targetHotsCount = Math.max(2, Math.ceil(ctx.totalSoal * 0.4));
       sections.push(
-        `- KUOTA & MEKANIKA WAJIB SOAL HOTS (KOMBINASI LEVEL KOGNITIF):\n` +
-          `  * Karena pilihan level kognitif mencakup unsur HOTS/Penalaran (${ctx.levelKognitif.join(', ')}), minimal ${targetHotsCount} dari ${ctx.totalSoal} butir soal WAJIB merupakan soal HOTS sejati (C4 Menganalisis / C5 Mengevaluasi / C6 Mencipta / Level 3 Penalaran / SOLO Relasional–Abstrak Diperluas).\n` +
-          `  * Untuk setiap nomor yang berlabel C4/C5/C6/Level 3 Penalaran/Relasional/Abstrak Diperluas:\n` +
-          `    - DILARANG membuat pertanyaan definisi/ingatan yang hanya diberi kalimat pembuka panjang (Pseudo-HOTS).\n` +
-          `    - WAJIB menuntut manipulasi variabel (What-If), perbandingan dua data/kasus, evaluasi klaim yang mengandung kekeliruan, atau pengambilan keputusan berbasis kriteria.\n` +
-          `    - Kunci jawaban DILARANG tertulis secara eksplisit/literal di dalam teks stimulus (No-Lookup / Anti Ctrl+F Rule).`
+        `- PANDUAN LEVEL KOGNITIF:\n` +
+          `  * Sebarkan tingkat kesulitan secara seimbang (${ctx.levelKognitif.join(', ')}). Sertakan variasi soal pemahaman konsep, aplikasi kontekstual, dan penalaran analitis yang sesuai jenjang ${jenjangUpper}.`
       );
     }
 
@@ -305,10 +285,9 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
 
   // 4. Distractor Engineering & Cognitive Diversity
   sections.push(
-    `- REKAYASA PENGECOH (DISTRACTOR ENGINEERING) & ANTI TEST-WISENESS:\n` +
-      `  * Setiap opsi pengecoh (pilihan salah) WAJIB dirancang dari jalur miskonsepsi yang masuk akal (salah konsep, salah langkah prosedur/perhitungan, atau salah tafsir data).\n` +
-      `  * Panjang kalimat dan kerumitan bahasa pada semua opsi jawaban (A–D atau A–E) WAJIB setara/homogen (DILARANG membuat kunci jawaban tampak paling panjang atau paling lengkap sendirian).\n` +
-      `  * Pastikan variasi kalimat tanya antar-nomor beragam (jangan mengulang pola kalimat yang sama berturut-turut).`
+    `- REKAYASA PENGECOH (DISTRACTOR ENGINEERING):\n` +
+      `  * Setiap pilihan salah dirancang masuk akal (miskonsepsi umum atau kekeliruan perhitungan lazim).\n` +
+      `  * Panjang kalimat dan tata bahasa opsi A–D / A–E dibuat proporsional dan homogen.`
   );
 
   // 5. Level-Specific Safeguards (PAUD to CPNS)
@@ -327,10 +306,6 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
       );
     }
   } else if (jenjangUpper === 'PAUD' || jenjangUpper === 'TK') {
-    sections.push(
-      `- PENGAMANAN KHUSUS PAUD (FASE FONDASI): Fokus pada asesmen perkembangan autentik melalui aktivitas bermain konkret, pengenalan pola/warna/bentuk, pemantik lisan guru, dan indikator perilaku teramati.`
-    );
-  } else if (jenjangUpper === 'SMK' && !isSurvey) {
     sections.push(
       `- PENGAMANAN KHUSUS PAUD (FASE FONDASI): Fokus pada asesmen perkembangan autentik melalui aktivitas bermain konkret, pengenalan pola/warna/bentuk, pemantik lisan guru, dan indikator perilaku teramati.`
     );
