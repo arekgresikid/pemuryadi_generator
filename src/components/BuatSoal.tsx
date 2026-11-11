@@ -476,8 +476,8 @@ Berikan output dalam format JSON murni:
             `  2) ANTI PLUG-AND-CHUG MANDATE: DILARANG KERAS membuat soal rutin atau substitusi 1 rumus baku. Soal WAJIB menuntut minimal 3 tahapan penalaran (eksplorasi invarian/struktur tersembunyi, pemodelan matematis/ilmiah, dan perhitungan presisi).\n` +
             `  3) FORMAT ISIAN SINGKAT INTEGER (AIME / SASMO SECTION B): Jika bentuk soal berupa "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa bilangan bulat non-negatif pasti (0–999 atau p+q pecahan paling sederhana) tanpa opsi tebakan.\n` +
             `  4) REKAYASA PENGECOH: Pilihan salah pada pilihan ganda WAJIB mencerminkan jebakan miskonsepsi khas kompetisi (off-by-one, boundary case error, tanda/arah vektor terbalik, solusi parsial).\n` +
-            `  5) PROTOKOL PEMBAHASAN STANDAR EMAS: Field "pembahasan" WAJIB memuat 4 bagian: (a) Ide Kunci / Breakthrough Insight, (b) Langkah Penurunan & Pembuktian Formal Lengkap (sebutkan nama teorema: AM-GM, Cauchy-Schwarz, Menelaus, Gauss, Hess, dsb.), (c) Peringatan Perangkap Pengecoh, dan (d) Trik Cepat / Heuristik Alternatif.\n` +
-            `  6) NOTASI LATEX STRICT: Seluruh variabel, persamaan, pecahan (\\frac{a}{b}), akar (\\sqrt{x}), pertidaksamaan (\\le, \\ge), dan reaksi kimia WAJIB menggunakan notasi LaTeX presisi.`;
+            `  5) PEMBAHASAN NATURAL & JELAS: Tulis langkah penyelesaian secara runtut, logis, dan to-the-point menuju jawaban akhir tanpa berbelit-belit atau memecah pembahasan menjadi sub-paragraf kaku yang memicu halusinasi.\n` +
+            `  6) NOTASI MATEMATIKA BERSIH & RAMAH BACA (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b = 11/12, a ≤ b ≤ c, x², √x, ±, ≥, ≤). DILARANG KERAS menggunakan kode pemrograman LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, \\qquad, atau tanda dolar $ matematika yang merusak tampilan cetak.`;
         } else if (formData.tipeUjian === 'Live Quiz') {
           extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat. Pembahasan harus to the point.`;
         }
@@ -988,6 +988,23 @@ Berikan output dalam format JSON murni:
             <tr>
               <td style="text-align:center;">${s.no}</td>
               <td>
+                ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
+                  <div style="font-size: 11px; margin-bottom: 8px; color: #444; background: #fafafa; padding: 6px; border: 1px solid #eee;">
+                    <strong>Pilihan Jawaban:</strong><br/>
+                    ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
+                  </div>
+                ` : ''}
+                ${Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 ? `
+                  <div style="font-size: 11px; margin-bottom: 8px;">
+                    <strong>Kunci Pernyataan Benar/Salah:</strong><br/>
+                    <table style="width: 100%; border: 1px solid #ccc; font-size: 11px; margin-top: 4px;">
+                      <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 80px;">Kunci</th></tr></thead>
+                      <tbody>
+                        ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold;">${p.kunci}</td></tr>`).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                ` : ''}
                 <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci}</span><br/><br/>
                 ${s.pembahasan ? `<strong>Pembahasan:</strong><br/><span style="white-space:pre-wrap;">${s.pembahasan}</span>` : ''}
               </td>
@@ -1004,6 +1021,23 @@ Berikan output dalam format JSON murni:
               <tr>
                 <td style="text-align:center;">${s.no}</td>
                 <td>
+                  ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
+                    <div style="font-size: 11px; margin-bottom: 8px; color: #444; background: #fafafa; padding: 6px; border: 1px solid #eee;">
+                      <strong>Pilihan Jawaban:</strong><br/>
+                      ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
+                    </div>
+                  ` : ''}
+                  ${Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 ? `
+                    <div style="font-size: 11px; margin-bottom: 8px;">
+                      <strong>Kunci Pernyataan Benar/Salah:</strong><br/>
+                      <table style="width: 100%; border: 1px solid #ccc; font-size: 11px; margin-top: 4px;">
+                        <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 80px;">Kunci</th></tr></thead>
+                        <tbody>
+                          ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold;">${p.kunci}</td></tr>`).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  ` : ''}
                   <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci}</span><br/><br/>
                   ${s.pembahasan ? `<strong>Pembahasan:</strong><br/><span style="white-space:pre-wrap;">${s.pembahasan}</span>` : ''}
                 </td>
@@ -2237,7 +2271,37 @@ Berikan output dalam format JSON murni:
                     {resultSoal.soalList.map((s: any, i: number) => (
                       <div key={i} className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl mb-6">
                         <div className="mb-3 text-sm text-gray-600"><strong>Soal No. {s.no}</strong> ({s.jenisSoal})</div>
-                        <p className="text-gray-700 mb-4 italic pl-4 border-l-2 border-gray-300 line-clamp-2">{s.pertanyaan}</p>
+                        <p className="text-gray-700 mb-3 italic pl-4 border-l-2 border-gray-300 whitespace-pre-wrap">{s.pertanyaan}</p>
+                        
+                        {s.opsiTambahan && s.opsiTambahan.length > 0 && (
+                          <div className="pl-4 mb-4 space-y-1 text-xs text-gray-700 bg-white p-3 rounded-lg border border-gray-200">
+                            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pilihan Jawaban:</div>
+                            {s.opsiTambahan.map((o: string, j: number) => (
+                              <div key={j} className="text-gray-700">{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
+                            ))}
+                          </div>
+                        )}
+
+                        {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                          <div className="pl-4 mb-4 overflow-x-auto">
+                            <table className="w-full max-w-2xl text-xs text-gray-700 border border-gray-300 bg-white">
+                              <thead>
+                                <tr className="bg-gray-100">
+                                  <th className="border border-gray-300 px-2.5 py-1 text-left">Pernyataan</th>
+                                  <th className="border border-gray-300 px-2 py-1 w-20 text-center">Kunci</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                  <tr key={k}>
+                                    <td className="border border-gray-300 px-2.5 py-1">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                    <td className="border border-gray-300 px-2 py-1 text-center font-bold text-emerald-700">{p.kunci}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
                         
                         {s.gambarDeskripsi && (
                           <div className="pl-4 mb-4">
@@ -2304,7 +2368,37 @@ Berikan output dalam format JSON murni:
                         {resultSoal.soalABKList.map((s: any, i: number) => (
                           <div key={i} className="p-5 border border-blue-200 bg-blue-50 rounded-xl mb-6">
                             <div className="mb-3 text-sm text-blue-500"><strong>Soal No. {s.no}</strong> ({s.jenisSoal})</div>
-                            <p className="text-gray-700 mb-4 italic pl-4 border-l-2 border-blue-200 line-clamp-2">{s.pertanyaan}</p>
+                            <p className="text-gray-700 mb-3 italic pl-4 border-l-2 border-blue-200 whitespace-pre-wrap">{s.pertanyaan}</p>
+                            
+                            {s.opsiTambahan && s.opsiTambahan.length > 0 && (
+                              <div className="pl-4 mb-4 space-y-1 text-xs text-gray-700 bg-white p-3 rounded-lg border border-blue-200">
+                                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pilihan Jawaban:</div>
+                                {s.opsiTambahan.map((o: string, j: number) => (
+                                  <div key={j} className="text-gray-700">{/kompleks/i.test(s.jenisSoal || '') ? '☐ ' : ''}{o}</div>
+                                ))}
+                              </div>
+                            )}
+
+                            {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
+                              <div className="pl-4 mb-4 overflow-x-auto">
+                                <table className="w-full max-w-2xl text-xs text-gray-700 border border-blue-200 bg-white">
+                                  <thead>
+                                    <tr className="bg-blue-100/50">
+                                      <th className="border border-blue-200 px-2.5 py-1 text-left">Pernyataan</th>
+                                      <th className="border border-blue-200 px-2 py-1 w-20 text-center">Kunci</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {s.pernyataanBenarSalah.map((p: any, k: number) => (
+                                      <tr key={k}>
+                                        <td className="border border-blue-200 px-2.5 py-1">{String.fromCharCode(65 + k)}. {p.pernyataan}</td>
+                                        <td className="border border-blue-200 px-2 py-1 text-center font-bold text-emerald-700">{p.kunci}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
                             
                             {s.gambarDeskripsi && (
                               <div className="pl-4 mb-4">

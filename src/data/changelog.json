@@ -6,6 +6,9 @@
     "icon": "Sparkles",
     "commits": [
       "Pemurnian Orkestrator & Penghapusan Kontradiksi Stimulus: Menghilangkan konflik stimulus pada Ujian Biasa dan Live Quiz (100% mandiri/standalone to-the-point tanpa wacana bocor), serta mengunci wacana cluster hanya untuk Asesmen Nasional (AKM) dan TKA.",
+      "Notasi Matematika Bersih & Ramah Cetak (Unicode): Menghapus paksaan kode LaTeX mentah yang bocor di layar, menggantinya dengan notasi standar Indonesia dan simbol Unicode (1/a + 1/b, ≤, ≥, x², √x) yang langsung terbaca rapi oleh guru dan siswa.",
+      "Penyederhanaan Pembahasan Olimpiade: Menghapus protokol 4-bagian kaku yang memicu halusinasi/scratchpad leak, mengembalikan alur pembahasan runtut, logis, dan to-the-point menuju jawaban akhir.",
+      "Tampilan Lengkap Pilihan Jawaban di Tab Kunci & Bahas: Menampilkan daftar opsi jawaban (A, B, C, D) dan tabel kunci Benar/Salah di bawah soal pada tab Kunci & Bahas serta naskah cetak agar guru mengetahui rincian pilihan opsi secara gamblang.",
       "Perbaikan Format Benar/Salah & Pilihan Ganda Kompleks: Memperbaiki syarat prompt agar skema pernyataanBenarSalah dan kotak centang (☐) selalu aktif kapanpun guru memilih bentuk soal tersebut, tanpa terhalang status stimulus.",
       "Lengkap Rendering UI & Cetak: Menambahkan tabel pernyataan Benar/Salah di Naskah Soal ABK, Kartu Soal Reguler, dan Kartu Soal ABK (baik UI maupun hasil cetak).",
       "Penataan Alur Kognitif & Eliminasi Token Bloat: Mengembalikan urutan field JSON ke alur alami yang ringan, menghapus paksaan pre-reasoning berlebihan, serta menjadikan mode HOTS panduan pedagogis adaptif sesuai jenjang siswa.",

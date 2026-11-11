@@ -135,9 +135,8 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
         `     * Jika butir soal bertipe "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa BILANGAN BULAT NON-NEGATIF PASTI (misal: 42, 128, 750) atau format p+q pecahan paling sederhana, sehingga 100% kedap dari tebakan acak.\n` +
         `  4) REKAYASA PENGECOH JEBAKAN KOMPETISI OTENTIK (PILIHAN GANDA):\n` +
         `     * Pengecoh BUKAN angka acak! Wajib merefleksikan perangkap khas kompetisi: off-by-one error, kelalaian kasus batas/nol, solusi separuh jalan, atau pembalikan tanda/vektor.\n` +
-        `  5) PROTOKOL PEMBAHASAN STANDAR EMAS:\n` +
-        `     * Setiap field "pembahasan" WAJIB menguraikan 4 elemen: (a) Ide Kunci / Breakthrough Concept, (b) Langkah Penurunan & Teorema Formal Lengkap, (c) Peringatan Perangkap Pengecoh, dan (d) Metode Cepat / Heuristik Alternatif.\n` +
-        `  6) STANDAR NOTASI MATEMATIKA: Gunakan notasi LaTeX murni yang presisi untuk setiap persamaan, variabel, pecahan (\\frac{a}{b}), akar (\\sqrt{x}), pertidaksamaan (\\le, \\ge), dan notasi himpunan.`
+        `  5) PEMBAHASAN NATURAL & JELAS: Tulis langkah penyelesaian secara runtut, logis, dan to-the-point menuju jawaban akhir tanpa berbelit-belit atau memecah pembahasan menjadi sub-paragraf kaku yang memicu halusinasi.\n` +
+        `  6) NOTASI MATEMATIKA BERSIH & RAMAH BACA (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b = 11/12, a ≤ b ≤ c, x², √x, ±, ≥, ≤). DILARANG KERAS menggunakan kode pemrograman LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, \\qquad, atau tanda dolar $ matematika yang merusak tampilan cetak.`
     );
   } else if (isCPNSTWK) {
     sections.push(
