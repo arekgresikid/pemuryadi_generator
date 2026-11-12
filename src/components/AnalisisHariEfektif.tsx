@@ -1,5 +1,5 @@
 import { parseMarkdown } from '../utils/markdown';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Loader2, Printer, Calculator, Settings, FileText, Save , Trash2 } from 'lucide-react';
@@ -59,6 +59,23 @@ export default function AnalisisHariEfektif() {
   const [error, setError] = useState<string | null>(null);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        jenjang: profile.jenjang || prev.jenjang,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027',
+        namaSekolah: profile.namaSekolah || prev.namaSekolah,
+        namaGuru: profile.nama || profile.displayName || prev.namaGuru,
+        jenisNipGuru: profile.jenisNipGuru || prev.jenisNipGuru,
+        nipGuru: profile.nip || prev.nipGuru,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+      }));
+    }
+  }, [profile]);
 
   const generateAnalisis = async () => {
     setIsGenerating(true);
@@ -269,7 +286,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 {resultHtml && (
                   <div className="flex flex-col items-end gap-1">
                     <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-red-500 border border-black hover:bg-red-600 text-black text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
-                      <Printer size={16} /> Cetak A4
+                      <Printer size={16} /> Cetak Dokumen
                     </button>
                     <p className="text-[9px] text-slate-600 italic text-right">
                       * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>

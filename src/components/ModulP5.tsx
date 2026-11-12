@@ -34,13 +34,15 @@ export default function ModulP5() {
     tema: string;
     topik: string;
     alokasiWaktu: string;
+    tahunAjaran: string;
   }>('ModulP5Data', {
     jenjang: '',
     fase: '',
     kelas: '',
     tema: temaP5List[0],
     topik: '',
-    alokasiWaktu: '120 JP'
+    alokasiWaktu: '120 JP',
+    tahunAjaran: '2026/2027'
   });
 
   const [useLogo, setUseLogo] = useLocalStorage<boolean>('ModulP5_useLogo', false);
@@ -49,15 +51,16 @@ export default function ModulP5() {
   const [result, setResult] = useState<any>(null);
 
   useEffect(() => {
-    if (profile && !formData.jenjang) {
+    if (profile) {
       setFormData(prev => ({
         ...prev,
-        jenjang: profile.jenjang?.toLowerCase() || 'sd'
+        jenjang: prev.jenjang || profile.jenjang?.toLowerCase() || 'sd',
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027'
       }));
     } else if (!formData.jenjang) {
       setFormData(prev => ({ ...prev, jenjang: 'sd' }));
     }
-  }, [profile, formData.jenjang]);
+  }, [profile]);
 
   useEffect(() => {
     if (!formData.jenjang) return;
@@ -233,6 +236,7 @@ Format output harus JSON murni:
           <tr><td style="width: 150px; border: none; padding: 2px;">Jenjang</td><td style="border: none; padding: 2px;">: ${meta.jenjangLabel}</td></tr>
           <tr><td style="border: none; padding: 2px;">Kelas/Fase</td><td style="border: none; padding: 2px;">: ${meta.kelas} / ${meta.fase}</td></tr>
           <tr><td style="border: none; padding: 2px;">Tema Projek</td><td style="border: none; padding: 2px;">: ${meta.tema}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Tahun Pelajaran</td><td style="border: none; padding: 2px;">: ${meta.tahunAjaran || '-'}</td></tr>
           <tr><td style="border: none; padding: 2px;">Topik Spesifik</td><td style="border: none; padding: 2px;">: ${meta.topik}</td></tr>
           <tr><td style="border: none; padding: 2px;">Alokasi Waktu</td><td style="border: none; padding: 2px;">: ${meta.alokasiWaktu}</td></tr>
         </table>
@@ -345,7 +349,10 @@ Format output harus JSON murni:
             h4 { text-align: left; margin-top: 20px; }
             .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(0,0,0,0.05); z-index: -1; white-space: nowrap; pointer-events: none; }
             @media print {
-              @page { margin: 1cm; }
+              @page {
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
+              }
               body { padding: 0; }
               tr { page-break-inside: avoid; }
             }
@@ -440,6 +447,16 @@ Format output harus JSON murni:
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Tahun Pelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    value={formData.tahunAjaran} 
+                    onChange={(e) => setFormData({...formData, tahunAjaran: e.target.value})}
+                    className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-colors"
+                    placeholder="2026/2027"
+                  />
+                </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Tema P5</label>
                   <select 

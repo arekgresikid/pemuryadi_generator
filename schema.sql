@@ -16,7 +16,7 @@ CREATE TABLE users (
   -- Extra profile fields from QuickProfile
   nip TEXT,
   jenjang TEXT,
-  tahunPelajaran TEXT,
+  tahunPelajaran TEXT DEFAULT '2026/2027',
   namaSekolah TEXT,
   kepalaSekolah TEXT,
   jenisNipKepalaSekolah TEXT,

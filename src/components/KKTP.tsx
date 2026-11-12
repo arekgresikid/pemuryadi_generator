@@ -96,7 +96,13 @@ export default function KKTP() {
         ...prev,
         guruMapel: profile.displayName || prev.guruMapel,
         nipGuruMapel: profile.nip || prev.nipGuruMapel,
-        eduLevel: profile.jenjang?.toLowerCase() || prev.eduLevel
+        eduLevel: profile.jenjang?.toLowerCase() || prev.eduLevel,
+        satuanPendidikan: profile.namaSekolah || prev.satuanPendidikan,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+        jenisNipGuruMapel: profile.jenisNipGuru || prev.jenisNipGuruMapel,
+        tahunPelajaran: profile.tahunPelajaran || prev.tahunPelajaran || '2026/2027'
       }));
     }
   }, [profile]);
@@ -211,7 +217,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
       <head>
           <title>KKTP - ${subjectLabel}</title>
           <style>
-              @page { size: portrait; margin: 30mm 30mm 30mm 40mm; }
+              @page { size: letter; margin: 1cm 1cm 1cm 2cm; }
               body { font-family: 'Arial', 'Helvetica', 'Inter', sans-serif; line-height: 1.4; color: black; position: relative; margin: 0; padding: 0; }
               .header { text-align: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 10px; }
               .info-table { width: 100%; margin-bottom: 15px; font-size: 10pt; }
@@ -361,7 +367,7 @@ Minimal buatkan 3-5 TP yang relevan dengan topik tersebut.`;
           </div>` : ''}
           
           <div style="margin-top: 30px; text-align: center; font-style: italic; font-size: 8pt; color: #666;">
-              Dokumen ini dihasilkan secara otomatis oleh AI Generator KKTP - Pemuryadi<br/>
+              Dokumen ini dihasilkan secara otomatis oleh Mesin Generator KKTP - Pemuryadi<br/>
               Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}
           </div>
 

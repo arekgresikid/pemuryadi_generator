@@ -41,6 +41,7 @@ export default function RubrikPenilaian() {
     jenisAsesmen: string;
     skala: string;
     tujuanPembelajaran: string;
+    tahunAjaran: string;
   }>('RubrikPenilaianData', {
     jenjang: '',
     fase: '',
@@ -48,21 +49,23 @@ export default function RubrikPenilaian() {
     mapel: '',
     jenisAsesmen: jenisAsesmenList[0],
     skala: skalaList[0],
-    tujuanPembelajaran: ''
+    tujuanPembelajaran: '',
+    tahunAjaran: '2026/2027'
   });
 
   const [result, setResult] = useState<any>(null);
 
   useEffect(() => {
-    if (profile && !formData.jenjang) {
+    if (profile) {
       setFormData(prev => ({
         ...prev,
-        jenjang: profile.jenjang?.toLowerCase() || 'sd'
+        jenjang: prev.jenjang || profile.jenjang?.toLowerCase() || 'sd',
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027'
       }));
     } else if (!formData.jenjang) {
       setFormData(prev => ({ ...prev, jenjang: 'sd' }));
     }
-  }, [profile, formData.jenjang]);
+  }, [profile]);
 
   useEffect(() => {
     if (!formData.jenjang) return;
@@ -231,6 +234,7 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
       <div style="margin-bottom: 20px;">
         <table style="width: 100%; border: none;">
           <tr><td style="width: 150px; border: none; padding: 2px;">Mata Pelajaran</td><td style="border: none; padding: 2px;">: ${meta.mapelLabel}</td></tr>
+          <tr><td style="border: none; padding: 2px;">Tahun Pelajaran</td><td style="border: none; padding: 2px;">: ${meta.tahunAjaran || '-'}</td></tr>
           <tr><td style="border: none; padding: 2px;">Kelas/Semester</td><td style="border: none; padding: 2px;">: ${meta.kelas} / ${meta.fase}</td></tr>
           <tr><td style="border: none; padding: 2px;">Jenis Asesmen</td><td style="border: none; padding: 2px;">: ${meta.jenisAsesmen}</td></tr>
           <tr><td style="border: none; padding: 2px; vertical-align: top;">Tujuan</td><td style="border: none; padding: 2px;">: ${meta.tujuanPembelajaran}</td></tr>
@@ -317,7 +321,10 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
             h4 { text-align: left; margin-top: 20px; }
             .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(0,0,0,0.05); z-index: -1; white-space: nowrap; pointer-events: none; }
             @media print {
-              @page { margin: 1cm; }
+              @page {
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
+              }
               body { padding: 0; }
               tr { page-break-inside: avoid; }
             }
@@ -436,6 +443,16 @@ Catatan: skor1 sampai skor4 merepresentasikan level dari paling rendah ke paling
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Tahun Pelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    value={formData.tahunAjaran} 
+                    onChange={(e) => setFormData({...formData, tahunAjaran: e.target.value})}
+                    className="w-full p-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                    placeholder="2026/2027"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Skala Penilaian</label>

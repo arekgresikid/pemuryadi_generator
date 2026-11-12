@@ -63,7 +63,7 @@ export default function ModuleGenerator() {
   const [error, setError] = useState('');
   const [formData, setFormData] = useLocalStorage('ModuleGenerator_formData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
-    semester: '1', tahunAjaran: '2024/2025', mapel: 'bahasa-indonesia', topik: '', lintasDisiplin: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
+    semester: '1', tahunAjaran: '2026/2027', mapel: 'bahasa-indonesia', topik: '', lintasDisiplin: '', isCustomTopik: false, waktu: '', model: 'pbl', mediaStyle: 'outline', tingkatanKognitif: 'Campuran (Sesuai Kurikulum Merdeka)',
     remixText: '', hasInklusi: false, jumlahInklusi: '', kerangkaTaksonomi: 'bloom', levelTaksonomi: 'Campuran (Sesuai Kurikulum Merdeka)'
   });
 
@@ -126,7 +126,13 @@ export default function ModuleGenerator() {
         ...prev,
         namaGuru: profile.displayName || prev.namaGuru,
         nip: profile.nip || prev.nip,
-        jenjang: profile.jenjang?.toLowerCase() || prev.jenjang
+        jenjang: profile.jenjang?.toLowerCase() || prev.jenjang,
+        namaSekolah: profile.namaSekolah || prev.namaSekolah,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+        jenisNipGuru: profile.jenisNipGuru || prev.jenisNipGuru,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027'
       }));
     }
   }, [profile]);
@@ -168,6 +174,7 @@ export default function ModuleGenerator() {
 Buatkan ${formatInstruction} dengan format ${formData.mediaStyle === 'outline' ? 'Outline/Ringkasan' : 'Lengkap/Penuh'} untuk:
 Mata Pelajaran: ${mapelLabel}
 Topik/Materi: ${topik || 'Topik umum sesuai mata pelajaran'}
+Tahun Pelajaran: ${formData.tahunAjaran}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
 Model Pembelajaran: ${modelName}
 Alokasi Waktu: ${formData.waktu || '2 JP (2 x 35 menit)'}
@@ -318,8 +325,8 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
           <script src="https://cdn.tailwindcss.com"></script>
           <style>
               @page {
-                size: A4;
-                margin: 30mm 30mm 30mm 40mm;
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
               }
               @media print {
                   body { 
@@ -350,7 +357,8 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
               .markdown-table ul { list-style-type: disc; }
               .markdown-table ol { list-style-type: decimal; }
               @page landscape-page {
-                size: A4 landscape;
+                size: letter landscape;
+                margin: 1cm 1cm 1cm 2cm;
               }
               .landscape-section {
                 page: landscape-page;
@@ -705,6 +713,16 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua bagian t
                   <select value={formData.semester} onChange={e => setFormData({...formData, semester: e.target.value})} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all">
                     <option value="1">Semester 1</option><option value="2">Semester 2</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tahun Pelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    placeholder="2026/2027"
+                    value={formData.tahunAjaran}
+                    onChange={e => setFormData({...formData, tahunAjaran: e.target.value})}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-cyan-500 transition-all"
+                  />
                 </div>
               </div>
               

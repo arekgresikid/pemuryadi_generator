@@ -85,8 +85,8 @@ export const universalPrint = (contentHtml: string, title: string = 'Print Docum
         color: black;
       }
       @page {
-        size: A4;
-        margin: 20mm;
+        size: letter;
+        margin: 1cm 1cm 1cm 2cm;
       }
       body {
         background: #fff !important;

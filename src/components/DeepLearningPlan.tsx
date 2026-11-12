@@ -53,6 +53,7 @@ export default function DeepLearningPlan() {
   const [formData, setFormData] = useLocalStorage('DeepLearningPlanData', {
     sekolah: '',
     jenisSekolah: 'Negeri',
+    tahunPelajaran: '2026/2027',
     namaGuru: '',
     jenisNipGuru: 'NIP',
     nip: '',
@@ -141,7 +142,13 @@ const TAKSONOMI_SOLO = [
         ...prev,
         namaGuru: profile.displayName || prev.namaGuru,
         nip: profile.nip || prev.nip,
-        eduLevel: profile.jenjang?.toLowerCase() || prev.eduLevel
+        eduLevel: profile.jenjang?.toLowerCase() || prev.eduLevel,
+        sekolah: profile.namaSekolah || prev.sekolah,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+        jenisNipGuru: profile.jenisNipGuru || prev.jenisNipGuru,
+        tahunPelajaran: profile.tahunPelajaran || prev.tahunPelajaran || '2026/2027'
       }));
     }
   }, [profile]);
@@ -223,6 +230,7 @@ const TAKSONOMI_SOLO = [
 Buatkan ${formatInstruction} untuk:
 Mata Pelajaran: ${subjectLabel}
 Topik/Materi: ${formData.topikMateri}
+Tahun Pelajaran: ${formData.tahunPelajaran}
 Fase/Kelas/Semester: ${faseLabel} / ${kelasLabel} / Semester ${formData.semester}
 Alokasi Waktu: ${formData.alokasiWaktu || 'Tidak ditentukan'}
 Nama Guru: ${formData.namaGuru}
@@ -379,8 +387,8 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
           <title>Rencana Pembelajaran Mendalam</title>
           <style>
               @page {
-                size: A4;
-                margin: 30mm 30mm 30mm 40mm;
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
               }
               @media print {
                   body { 
@@ -617,7 +625,7 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
               </div>` : ''}
               
               <div style="margin-top: 50px; text-align: center; font-style: italic; font-size: 10px; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
-                  Dokumen ini dihasilkan secara otomatis oleh AI Deep Learning Plan - Pemuryadi<br/>
+                  Dokumen ini dihasilkan secara otomatis oleh Mesin Generator Deep Learning Plan - Pemuryadi<br/>
                   Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}<br/>
                   *Jangan lupa support saya agar makin berusaha dalam memperbaiki website ini*
               </div>
@@ -725,6 +733,16 @@ Berikan hasil dalam format JSON dengan struktur berikut. Pastikan semua rencana 
                   <option value="Guru Kelas">Guru Kelas</option>
                   <option value="Guru Mapel (PJOK, PAdDP)">Guru Mapel (PJOK, PAdDP)</option>
                 </select>
+              </div>
+              <div className="col-span-2 md:col-span-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Pelajaran</label>
+                <AIAssistedInput
+                  type="text"
+                  placeholder="2026/2027"
+                  value={formData.tahunPelajaran}
+                  onChange={e => setFormData({...formData, tahunPelajaran: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-emerald-500 transition-all"
+                />
               </div>
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Semester</label>

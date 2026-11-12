@@ -1,5 +1,5 @@
 import { parseMarkdown } from '../utils/markdown';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI } from '../lib/genai';
 import { Loader2, Printer, Calendar, Settings, FileText, Save , Trash2 } from 'lucide-react';
@@ -54,6 +54,20 @@ export default function KalenderPendidikan() {
   const [resultHtml, setResultHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        jenjang: profile.jenjang || prev.jenjang,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027',
+        namaSekolah: profile.namaSekolah || prev.namaSekolah,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+      }));
+    }
+  }, [profile]);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -254,7 +268,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 {resultHtml && (
                   <div className="flex flex-col items-end gap-1">
                     <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-black text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
-                      <Printer size={16} /> Cetak A4
+                      <Printer size={16} /> Cetak Dokumen
                     </button>
                     <p className="text-[9px] text-slate-600 italic text-right">
                       * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>

@@ -16,7 +16,7 @@ export default function DailyJournal() {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const [formData, setFormData] = useLocalStorage('DailyJournalData', {
     namaGuru: '', jenisNipGuru: 'NIP', nip: '', namaSekolah: '', jenisSekolah: 'Negeri', kepalaSekolah: '', jenisNipKepalaSekolah: 'NIP', nipKepalaSekolah: '', jenjang: 'sd', kelas: '1', fase: 'A',
-    semester: '1', tahunAjaran: '', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, tanggal: new Date().toISOString().split('T')[0], jam: '',
+    semester: '1', tahunAjaran: '2026/2027', mapel: 'bahasa-indonesia', topik: '', isCustomTopik: false, tanggal: new Date().toISOString().split('T')[0], jam: '',
     cp: '', atp: '', catatan: '', refleksi: '', ttdGuru: '', ttdKS: ''
   });
   
@@ -35,6 +35,23 @@ export default function DailyJournal() {
     const currentJam = now.toTimeString().slice(0, 5);
     setFormData(prev => ({ ...prev, jam: currentJam }));
   }, []);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        namaGuru: profile.displayName || prev.namaGuru,
+        nip: profile.nip || prev.nip,
+        jenjang: profile.jenjang?.toLowerCase() || prev.jenjang,
+        namaSekolah: profile.namaSekolah || prev.namaSekolah,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+        jenisNipGuru: profile.jenisNipGuru || prev.jenisNipGuru,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027'
+      }));
+    }
+  }, [profile]);
 
   useEffect(() => {
     const defaultCp = cpData[formData.mapel]?.[formData.fase] || '';
@@ -177,8 +194,8 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
           <title>Jurnal Harian Pembelajaran</title>
           <style>
               @page {
-                size: A4;
-                margin: 0;
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
               }
               @media print {
                   body { 
@@ -289,7 +306,7 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                       <tr><td width="25%"><b>Mata Pelajaran</b></td><td>${result.mapelName || '-'}</td></tr>
                       <tr><td><b>Topik/Materi</b></td><td>${result.topik || '-'}</td></tr>
                       <tr><td><b>Jenjang / Kelas / Fase</b></td><td>${result.jenjangLabel || '-'} / ${result.kelasLabel || '-'} / ${result.faseLabel || '-'}</td></tr>
-                      <tr><td><b>Semester</b></td><td>${result.semester || '-'}</td></tr>
+                      <tr><td><b>Semester / Tahun Ajaran</b></td><td>${result.semester || '-'} / ${result.tahunAjaran || '-'}</td></tr>
                       <tr><td><b>Tanggal / Jam</b></td><td>${result.tanggalFormat} / ${result.jam || '-'}</td></tr>
                   </table>
               </div>
@@ -432,6 +449,16 @@ PASTIKAN HANYA MENGEMBALIKAN JSON VALID.`;
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Tahun Pelajaran</label>
+                    <AIAssistedInput
+                      type="text"
+                      placeholder="2026/2027"
+                      value={formData.tahunAjaran}
+                      onChange={e => setFormData({...formData, tahunAjaran: e.target.value})}
+                      className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                    />
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Kelas / Semester</label>
                     <div className="flex gap-2">

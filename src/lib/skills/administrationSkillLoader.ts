@@ -16,7 +16,7 @@ export interface AdministrationSkillContext {
   model: string;
   formatPerangkat: 'standar' | 'kemenag';
   hasInklusi?: boolean;
-  jumlahInklusi?: number;
+  jumlahInklusi?: number | string;
   kerangkaTaksonomi?: string;
   levelTaksonomi?: string;
 }
@@ -65,7 +65,7 @@ export function buildAdministrationSkillPrompt(ctx: AdministrationSkillContext):
   }
 
   // 4. Adaptasi Inklusi (ABK)
-  if (ctx.hasInklusi && (ctx.jumlahInklusi || 0) > 0) {
+  if (ctx.hasInklusi && (Number(ctx.jumlahInklusi) || 0) > 0) {
     sections.push(`
 4. MODIFIKASI PEMBELAJARAN INKLUSI (ABK):
    - Di kelas terdapat ${ctx.jumlahInklusi} peserta didik berkebutuhan khusus/inklusi.

@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from '../lib/genai';
 import { Upload, Loader2, FileText, Printer, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../AuthContext';
+import AIAssistedInput from './AIAssistedInput';
+import { universalPrint } from '../utils/print';
 
 export default function LaporanKegiatan() {
   const { profile } = useAuth();
+  const [tahunPelajaran, setTahunPelajaran] = useState('2026/2027');
   const [file, setFile] = useState<File | null>(null);
   const [base64Image, setBase64Image] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState('');
   const [error, setError] = useState('');
   const [prompt, setPrompt] = useState('berikan perintah untuk mengisi agar memperoleh jawaban');
+
+  useEffect(() => {
+    if (profile?.tahunPelajaran) {
+      setTahunPelajaran(profile.tahunPelajaran);
+    }
+  }, [profile]);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     input: true,
     result: false
@@ -44,7 +53,7 @@ export default function LaporanKegiatan() {
     setReport('');
 
     try {
-      const backendPrompt = "Buat laporan kegiatan sekolah (Intrakurikuler, Kokurikuler, atau Ekstrakurikuler) berdasarkan foto kegiatan ini. Laporan harus profesional, terstruktur, dan menggunakan gaya bahasa formal. Lakukan pencarian relevan jika diperlukan. JANGAN membuat/menambahkan bagian TANDA TANGAN di akhir laporan, cukup sampai pada penutup/kesimpulan saja. Tambahan dari user: " + prompt;
+      const backendPrompt = `Buat laporan kegiatan sekolah (Intrakurikuler, Kokurikuler, atau Ekstrakurikuler) Tahun Pelajaran ${tahunPelajaran} berdasarkan foto kegiatan ini. Laporan harus profesional, terstruktur, dan menggunakan gaya bahasa formal. Lakukan pencarian relevan jika diperlukan. JANGAN membuat/menambahkan bagian TANDA TANGAN di akhir laporan, cukup sampai pada penutup/kesimpulan saja. Tambahan dari user: ` + prompt;
 
       const ai = new GoogleGenAI({});
       const response = await ai.models.generateContent({
@@ -109,6 +118,17 @@ export default function LaporanKegiatan() {
                   {file && <p className="text-[11px] text-safe font-bold uppercase tracking-wider pl-1 truncate">Dipilih: {file.name}</p>}
                 </div>
 
+                <div>
+                  <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Tahun Pelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    value={tahunPelajaran}
+                    onChange={(e) => setTahunPelajaran(e.target.value)}
+                    placeholder="2026/2027"
+                    className="w-full border border-gray-200 p-3 font-sans text-sm focus:border-blue-600 rounded-none"
+                  />
+                </div>
+
                 <div className="space-y-4">
                   <label className="text-[10px] font-bold text-gray-900 uppercase tracking-widest block mb-2">Instruksi Laporan (Opsional)</label>
                   <textarea
@@ -150,7 +170,12 @@ export default function LaporanKegiatan() {
             <div className="p-6 md:p-8 space-y-6 border-t border-gray-100">
               {report && (
                 <div className="no-print flex justify-end mb-4">
-                  <button onClick={() => window.print()} className="flex items-center gap-2 bg-white text-gray-900 border border-gray-200 px-4 py-2 text-[10px] uppercase font-bold tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
+                  <button onClick={() => {
+                    const printEl = document.getElementById('printArea');
+                    if (printEl) {
+                      universalPrint(printEl.innerHTML, 'Laporan Kegiatan');
+                    }
+                  }} className="flex items-center gap-2 bg-white text-gray-900 border border-gray-200 px-4 py-2 text-[10px] uppercase font-bold tracking-widest hover:bg-gray-900 hover:text-white transition-colors">
                     <Printer size={14} /> Cetak Laporan
                   </button>
                 </div>

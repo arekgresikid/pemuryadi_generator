@@ -39,7 +39,7 @@ export default function Supervision() {
   
   const [formData, setFormData] = useLocalStorage('SupervisionData', {
     guru: '', nipGuru: '', supervisor: '', nipSupervisor: '', 
-    sekolah: '', tanggal: new Date().toISOString().split('T')[0], catatan: ''
+    sekolah: '', tahunAjaran: '2026/2027', tanggal: new Date().toISOString().split('T')[0], catatan: ''
   });
 
   const [sources, setSources] = useLocalStorage('Supervision_sources', {
@@ -64,7 +64,8 @@ export default function Supervision() {
         ...prev,
         guru: profile.displayName || prev.guru,
         nipGuru: profile.nip || prev.nipGuru,
-        sekolah: profile.namaSekolah || prev.sekolah
+        sekolah: profile.namaSekolah || prev.sekolah,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027'
       }));
       const level = profile.jenjang?.toLowerCase() || 'sd';
       if (['sd', 'smp', 'sma', 'paud'].includes(level)) {
@@ -323,8 +324,8 @@ export default function Supervision() {
           
           <style>
               @page {
-                size: A4;
-                margin: 0;
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
               }
               @media print {
                   body { 
@@ -422,6 +423,7 @@ export default function Supervision() {
 
               <h3 style="font-size: 14px; text-align: left; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">I. DATA UMUM</h3>
               <div class="row"><div class="label">Nama Sekolah:</div><div class="value">${formData.sekolah || '-'}</div></div>
+              <div class="row"><div class="label">Tahun Pelajaran:</div><div class="value">${formData.tahunAjaran || '-'}</div></div>
               <div class="row"><div class="label">Nama Guru:</div><div class="value">${formData.guru || '-'}</div></div>
               <div class="row"><div class="label">NIP/NUPTK/NIY/NRG/NPK Guru:</div><div class="value">${formData.nipGuru || '-'}</div></div>
               <div class="row"><div class="label">Mata Pelajaran:</div><div class="value">${subjectLabel}</div></div>
@@ -598,6 +600,14 @@ export default function Supervision() {
               
               <AIAssistedInput type="text" placeholder="Nama Supervisor" value={formData.supervisor} onChange={e => setFormData({...formData, supervisor: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
               <AIAssistedInput type="text" placeholder="NIP/NUPTK/NIY/NRG/NPK Supervisor" value={formData.nipSupervisor} onChange={e => setFormData({...formData, nipSupervisor: e.target.value})} className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all" />
+              
+              <AIAssistedInput
+                type="text"
+                placeholder="Tahun Pelajaran (contoh: 2026/2027)"
+                value={formData.tahunAjaran}
+                onChange={e => setFormData({...formData, tahunAjaran: e.target.value})}
+                className="bg-gray-50 border border-gray-300 rounded-lg p-3 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              />
               
               <select 
                 value={eduLevel}

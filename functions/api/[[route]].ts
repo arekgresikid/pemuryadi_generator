@@ -182,8 +182,8 @@ app.post('/auth/native-login', async (c) => {
       }
       
       await db.prepare(
-        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt, tahunPelajaran) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '2026/2027')`
       ).bind(
         tokenData.sub, tokenData.email, tokenData.name, tokenData.picture, role, initialTier, initialTokens, activeUntilStr, new Date().toISOString()
       ).run();
@@ -315,8 +315,8 @@ app.get('/auth/callback', async (c) => {
       }
       
       await db.prepare(
-        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO users (uid, email, displayName, photoURL, role, tier, tokens, activeUntil, createdAt, tahunPelajaran) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '2026/2027')`
       ).bind(
         userData.id, userData.email, userData.name, userData.picture, role, initialTier, initialTokens, activeUntilStr, new Date().toISOString()
       ).run();

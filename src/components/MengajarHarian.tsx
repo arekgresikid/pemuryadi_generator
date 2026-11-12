@@ -71,6 +71,7 @@ export default function MengajarHarian() {
   const [formData, setFormData] = useLocalStorage('MengajarHarianData', {
     jenisGuru: 'Guru Kelas',
     semester: 'Ganjil (1)',
+    tahunPelajaran: '2026/2027',
     jenjang: 'SD/MI',
     fase: 'Fase A',
     kelas: 'Kelas I',
@@ -121,7 +122,8 @@ export default function MengajarHarian() {
     if (profile) {
       setFormData(prev => ({
         ...prev,
-        jenjang: profile.jenjang || prev.jenjang
+        jenjang: profile.jenjang || prev.jenjang,
+        tahunPelajaran: profile.tahunPelajaran || prev.tahunPelajaran || '2026/2027'
       }));
     }
   }, [profile]);
@@ -177,6 +179,7 @@ export default function MengajarHarian() {
 Buatkan ${formatInstruction} dengan detail berikut:
 Informasi Umum:
 - Jenis Guru: ${formData.jenisGuru}
+- Tahun Pelajaran: ${formData.tahunPelajaran}
 - Semester: ${formData.semester}
 - Jenjang: ${formData.jenjang}
 - Fase: ${formData.fase}
@@ -358,8 +361,8 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             <title>Print - Mengajar Harian</title>
             <style>
               @page {
-                size: A4;
-                margin: 20mm 20mm 20mm 25mm;
+                size: letter;
+                margin: 1cm 1cm 1cm 2cm;
               }
               body {
                 font-family: Arial, sans-serif;
@@ -489,15 +492,14 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
             <div className="p-6 pt-4 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenis Guru</label>
-                  <select 
+                  <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Tahun Pelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    value={formData.tahunPelajaran}
+                    onChange={(e) => setFormData({...formData, tahunPelajaran: e.target.value})}
+                    placeholder="2026/2027"
                     className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
-                    value={formData.jenisGuru}
-                    onChange={(e) => setFormData({...formData, jenisGuru: e.target.value})}
-                  >
-                    <option className="bg-white text-black" value="Guru Kelas">Guru Kelas</option>
-                    <option className="bg-white text-black" value="Guru Mapel">Guru Mapel</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Semester</label>
@@ -510,6 +512,18 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                     <option className="bg-white text-black" value="Genap (2)">Genap (2)</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Jenis Guru</label>
+                <select 
+                  className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-red-500 transition-all outline-none"
+                  value={formData.jenisGuru}
+                  onChange={(e) => setFormData({...formData, jenisGuru: e.target.value})}
+                >
+                  <option className="bg-white text-black" value="Guru Kelas">Guru Kelas</option>
+                  <option className="bg-white text-black" value="Guru Mapel">Guru Mapel</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

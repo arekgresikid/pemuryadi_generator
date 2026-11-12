@@ -2,6 +2,14 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.4] - 12 November 2026
+- Standarisasi Tahun Pelajaran 2026/2027: Menetapkan default tahun berjalan 2026/2027 pada database (schema.sql & backend), QuickProfile, serta mensinkronkan data profil pengguna ke seluruh modul di Tab Administrasi.
+- Input AIAssistedInput Teks Manual di Seluruh Modul: Menambahkan kolom input manual cerdas untuk Tahun Pelajaran pada modul Mengajar Harian, RPM (Deep Learning), Modul Ajar, Jurnal Harian, Modul P5, Supervisi Guru, Rubrik Penilaian, dan Laporan Kegiatan.
+- Konversi Dropdown Modul Kokurikuler: Mengubah seleksi dropdown Tahun Ajaran pada Modul Kokurikuler menjadi input teks AIAssistedInput yang fleksibel dan tersinkronisasi.
+- Penghilangan Kata 'AI' pada Dokumen Resmi: Mengganti label footer 'AI Generator' menjadi 'Mesin Generator' pada KKTP dan RPM guna menjaga etika dan keabsahan dokumen administrasi sekolah.
+- Standarisasi Ukuran Cetak Letter & Margin Jilid: Mengatur konfigurasi @page menjadi ukuran kertas Letter dengan margin Top 1 cm, Right 1 cm, Bottom 1 cm, dan Left 2 cm untuk ruang jilid dan staples yang rapi.
+- Proteksi Buat Soal: Memastikan modul BuatSoal.tsx tetap utuh tanpa modifikasi sesuai instruksi pengguna.
+
 ## [5.4.3] - 11 November 2026
 - Pemurnian Orkestrator & Penghapusan Kontradiksi Stimulus: Menghilangkan konflik stimulus pada Ujian Biasa dan Live Quiz (100% mandiri/standalone to-the-point tanpa wacana bocor), serta mengunci wacana cluster hanya untuk Asesmen Nasional (AKM) dan TKA.
 - Notasi Matematika Bersih & Ramah Cetak (Unicode): Menghapus paksaan kode LaTeX mentah yang bocor di layar, menggantinya dengan notasi standar Indonesia dan simbol Unicode (1/a + 1/b, ≤, ≥, x², √x) yang langsung terbaca rapi oleh guru dan siswa.

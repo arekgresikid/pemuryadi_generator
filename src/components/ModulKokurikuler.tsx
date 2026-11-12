@@ -86,7 +86,7 @@ export default function ModulKokurikuler() {
   const [eduLevel, setEduLevel] = useState('sd');
   const [fase, setFase] = useState('A');
   const [kelas, setKelas] = useState('1');
-  const [tahunAjaran, setTahunAjaran] = useState('2024/2025');
+  const [tahunAjaran, setTahunAjaran] = useState('2026/2027');
   const [mapel, setMapel] = useState('bahasa-indonesia');
   const [topikMateri, setTopikMateri] = useState('');
   const [isCustomTopik, setIsCustomTopik] = useState(false);
@@ -221,6 +221,10 @@ export default function ModulKokurikuler() {
       setNamaGuru(profile.displayName || '');
       setNipGuru(profile.nip || '');
       setEduLevel(profile.jenjang?.toLowerCase() || 'sd');
+      setNamaSekolah(profile.namaSekolah || '');
+      setKepalaSekolah(profile.kepalaSekolah || '');
+      setNipKepalaSekolah(profile.nipKepalaSekolah || '');
+      setTahunAjaran(profile.tahunPelajaran || '2026/2027');
     }
   }, [profile]);
 
@@ -446,12 +450,13 @@ ATURAN KETAT PENULISAN & FORMAT (SANGAT PENTING):
                   
                   <div className="mt-4">
                     <label className="block text-xs font-medium text-gray-600 mb-1">Tahun Ajaran</label>
-                    <select value={tahunAjaran} onChange={e => setTahunAjaran(e.target.value)} className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all">
-                      <option value="2023/2024">2023/2024</option>
-                      <option value="2024/2025">2024/2025</option>
-                      <option value="2025/2026">2025/2026</option>
-                      <option value="2026/2027">2026/2027</option>
-                    </select>
+                    <AIAssistedInput
+                      type="text"
+                      placeholder="2026/2027"
+                      value={tahunAjaran}
+                      onChange={e => setTahunAjaran(e.target.value)}
+                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-amber-500 transition-all"
+                    />
                   </div>
 
                   <div className="mt-4">

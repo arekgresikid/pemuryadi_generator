@@ -83,6 +83,23 @@ export default function ProgramTahunan() {
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        jenjang: profile.jenjang || prev.jenjang,
+        tahunAjaran: profile.tahunPelajaran || prev.tahunAjaran || '2026/2027',
+        namaSekolah: profile.namaSekolah || prev.namaSekolah,
+        namaGuru: profile.nama || profile.displayName || prev.namaGuru,
+        jenisNipGuru: profile.jenisNipGuru || prev.jenisNipGuru,
+        nipGuru: profile.nip || prev.nipGuru,
+        kepalaSekolah: profile.kepalaSekolah || prev.kepalaSekolah,
+        jenisNipKepalaSekolah: profile.jenisNipKepalaSekolah || prev.jenisNipKepalaSekolah,
+        nipKepalaSekolah: profile.nipKepalaSekolah || prev.nipKepalaSekolah,
+      }));
+    }
+  }, [profile]);
+
   const generateProta = async () => {
     setIsGenerating(true);
     setError(null);
@@ -353,7 +370,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
                 {resultHtml && (
                   <div className="flex flex-col items-end gap-1">
                     <button onClick={() => setIsPrintModalOpen(true)} className="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-black text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
-                      <Printer size={16} /> Cetak A4
+                      <Printer size={16} /> Cetak Dokumen
                     </button>
                     <p className="text-[9px] text-slate-600 italic text-right">
                       * Gunakan Chrome di Desktop untuk hasil terbaik. Di mobile, gunakan "Simpan sebagai PDF".<br/>
