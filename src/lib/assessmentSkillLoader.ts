@@ -76,16 +76,36 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
         : '150–200 kata';
     sections.push(
       `- ARSITEKTUR KHUSUS TKA LITERASI (BAHASA INDONESIA ${jenjangUpper}):\n` +
-        `  1) FOKUS DOMAIN: Seluruh wacana dan butir soal WAJIB menguji Literasi Membaca Bahasa Indonesia (Teks Informasi Faktual & Teks Fiksi/Sastra sesuai matriks TKA ${jenjangUpper}). Abaikan mata pelajaran lain jika tidak relevan.\n` +
-        `  2) STIMULUS WAJIB BERBOBOT: Setiap stimulus di "stimulusList" WAJIB memiliki panjang ${wordRange}, memuat beberapa paragraf utuh atau data informasi yang kaya, dan menaungi 3–5 butir soal.\n` +
-        `  3) TIGA KOMPETENSI TKA LITERASI: Sebarkan soal (atau fokuskan sesuai level yang dipilih) pada: (a) Pemahaman Tekstual/Tersurat, (b) Pemahaman Inferensial (menyimpulkan ide pokok, kaitan sebab-akibat, makna ungkapan, perubahan karakter/latar yang tersirat), dan (c) Evaluasi & Apresiasi (menilai keakuratan fakta vs opini, kesesuaian antarunsur, relevansi kehidupan nyata, dan ketepatan penggunaan bahasa penulis).`
+        `  1) FOKUS DOMAIN & 3 HIRARKI RESMI: Seluruh wacana dan butir soal WAJIB menguji Literasi Membaca Bahasa Indonesia sesuai kisi-kisi resmi:\n` +
+        `     a. Pemahaman Tekstual: Menyusun kembali informasi (ikhtisar/bagan), mengidentifikasi informasi tersurat, kosakata/istilah objek fiksi & nonfiksi.\n` +
+        `     b. Pemahaman Inferensial: Makna ungkapan/idiom/peribahasa, menyimpulkan ide pokok/amanat/tokoh/nilai, perubahan objek/karakter/latar, prediksi kelanjutan kejadian sebab-akibat.\n` +
+        `     c. Evaluasi dan Apresiasi: Menilai kesesuaian ilustrasi dengan teks, akurasi fakta vs opini, relevansi kehidupan nyata, serta merefleksi gaya bahasa/aspek kebahasaan penulis.\n` +
+        `  2) ATURAN MUTLAK LARANGAN NOMOR INDEKS (..): DILARANG KERAS memunculkan nomor kurung seperti (1), (2), (13), dst. baik di dalam kalimat soal, pilihan jawaban, maupun indikatorSoal! Tulis indikator dan kalimat murni berbasis konsep operasional.\n` +
+        `  3) VARIASI 4 BENTUK SOAL RESMI: Dalam satu paket soal, wajib hadirkan variasi seimbang dari 4 bentuk soal resmi TKA:\n` +
+        `     - Pilihan Ganda (PG reguler 4 opsi A-D).\n` +
+        `     - Pilihan Ganda Kompleks (PGK kotak centang, multi-jawaban benar).\n` +
+        `     - Pernyataan Benar/Salah (tabel pernyataan baris dengan pilihan Benar / Salah).\n` +
+        `     - Menjodohkan (pasangan premis wacana atau makna ungkapan dengan respon yang tepat).\n` +
+        `  4) KOMBINASI SOAL BERBASIS STIMULUS & SOAL STANDALONE:\n` +
+        `     - Soal Berbasis Stimulus (65%–75%): Mengacu pada teks stimulus di "stimulusList" (${wordRange}) yang menaungi 2–4 butir soal berurutan.\n` +
+        `     - Soal Mandiri / Standalone (25%–35%): Soal to-the-point tanpa wacana panjang ("stimulusId": ""), misal menentukan makna ungkapan/peribahasa langsung, pembentukan kata baku, atau kelogisan kalimat.`
     );
   } else if (isTKANumerasi) {
     sections.push(
       `- ARSITEKTUR KHUSUS TKA NUMERASI (MATEMATIKA ${jenjangUpper}):\n` +
-        `  1) FOKUS DOMAIN: Seluruh stimulus dan butir soal WAJIB menguji Numerasi / Matematika ${jenjangUpper} sesuai elemen resmi TKA (Bilangan, Aljabar, Geometri & Pengukuran, Data & Peluang${jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK') ? ', serta Trigonometri' : ''}).\n` +
-        `  2) STIMULUS DATA NUMERIK OTENTIK: Setiap stimulus di "stimulusList" WAJIB memuat data numerik nyata (rincian tabel angka, perbandingan skema harga/diskon/keuangan, ukuran bangun/denah, atau data statistik eksperimen) yang menaungi 3–5 soal.\n` +
-        `  3) TUNTUTAN KOGNITIF NUMERASI: Pastikan soal tidak hanya menghitung rutin, melainkan menuntut pemodelan situasi nyata ke bentuk matematika (Applying) dan penalaran/evaluasi klaim matematis serta multi-step problem solving (Reasoning).`
+        `  1) FOKUS DOMAIN & 3 ELEMEN RESMI:\n` +
+        `     a. Bilangan (Bilangan Rasional): Pecahan senilai, perbandingan & pengurutan berbagai bentuk bilangan (cacah, pecahan, desimal, persen), faktor & bilangan prima, operasi hitung empat angka, pemodelan matematika, diagram alir aritmetika, operasi hitung campuran pecahan & bilangan asli, persamaan sederhana, KPK & FPB.\n` +
+        `     b. Geometri dan Pengukuran: Objek Geometri (ciri bangun datar, segi banyak tidak beraturan, konstruksi bangun ruang & visualisasi spasial tampak depan/atas/samping, segiempat/segitiga/lingkaran) serta Pengukuran (satuan baku panjang & berat, representasi visual volume, kesetimbangan neraca, durasi waktu jam analog, keliling & luas bangun datar gabungan segitiga/persegi panjang, besar sudut kontekstual).\n` +
+        `     c. Data dan Ketidakpastian: Penyajian & penggunaan data (evaluasi kesalahan diagram batang, interpretasi tabel/diagram batang, analisis data kategori tertentu, pemecahan masalah kontekstual berbasis data).\n` +
+        `  2) ATURAN MUTLAK LARANGAN NOMOR INDEKS (..): DILARANG KERAS memunculkan nomor kurung seperti (1), (2), (13), (26), dst. baik di dalam kalimat soal, pilihan jawaban, maupun indikatorSoal!\n` +
+        `  3) VARIASI 4 BENTUK SOAL RESMI: Dalam satu paket soal, wajib hadirkan variasi seimbang dari 4 bentuk soal resmi TKA:\n` +
+        `     - Pilihan Ganda (PG reguler 4 opsi A-D).\n` +
+        `     - Pilihan Ganda Kompleks (PGK kotak centang, multi-jawaban benar).\n` +
+        `     - Pernyataan Benar/Salah (tabel pernyataan verifikasi hitungan/klaim matematis dengan kolom Benar / Salah).\n` +
+        `     - Menjodohkan (pasangan premis operasi/bangun/satuan dengan respon/nilai yang tepat).\n` +
+        `  4) KOMBINASI SOAL BERBASIS STIMULUS & SOAL STANDALONE:\n` +
+        `     - Soal Berbasis Stimulus (65%–75%): Mengacu pada stimulus data numerik di "stimulusList" (tabel angka kontekstual, denah/neraca, diagram batang) yang menaungi 2–4 butir soal.\n` +
+        `     - Soal Mandiri / Standalone (25%–35%): Soal to-the-point tanpa wacana besar ("stimulusId": ""), seperti hitung cepat KPK/FPB, durasi jam analog, operasi pecahan senilai, atau identifikasi sifat bangun datar.`
     );
   } else if (isTKAInggris) {
     sections.push(
@@ -211,10 +231,17 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
     sections.push(
       `- KEBIJAKAN SOAL MANDIRI (STANDALONE): Seluruh butir soal WAJIB berupa SOAL MANDIRI yang to the point dan kontekstual tanpa wacana bacaan bersama ("stimulusList": [] KOSONG, dan "stimulusId": ""). Deskripsi, data, atau skenario masalah ditulis langsung di dalam field "pertanyaan" masing-masing nomor.`
     );
-  } else if (isAKM || isTKAAcademic) {
+  } else if (isTKAAcademic) {
+    const estimatedClusters = Math.max(1, Math.ceil((ctx.totalSoal * 0.7) / 3));
+    sections.push(
+      `- KEBIJAKAN STIMULUS HYBRID (TKA KISI-KISI RESMI: STIMULUS CLUSTER + STANDALONE):\n` +
+        `  * Kelompokkan sekitar 65%–75% butir soal ke dalam ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana setiap stimulus menaungi 2–4 butir soal beragam bentuk (PG, PGK, Benar/Salah, Menjodohkan) dengan "stimulusId" terisi.\n` +
+        `  * Sisanya sekitar 25%–35% butir soal WAJIB berupa SOAL MANDIRI / STANDALONE ("stimulusId": "") yang to-the-point langsung menguji konsep operasional tanpa wacana pengantar panjang.`
+    );
+  } else if (isAKM) {
     const estimatedClusters = Math.max(1, Math.ceil(ctx.totalSoal / 4));
     sections.push(
-      `- KEBIJAKAN STIMULUS BERSAMA (AKM / TKA CLUSTER): Kelompokkan soal ke dalam sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana setiap 1 stimulus dipakai bersama oleh 3–5 soal berurutan. Setiap butir soal mengukur kompetensi yang berbeda dan mengisi "stimulusId" sesuai id stimulus.`
+      `- KEBIJAKAN STIMULUS BERSAMA (AKM CLUSTER): Kelompokkan soal ke dalam sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana setiap 1 stimulus dipakai bersama oleh 3–5 soal berurutan. Setiap butir soal mengukur kompetensi yang berbeda dan mengisi "stimulusId" sesuai id stimulus.`
     );
   } else if (isOlimpiade) {
     sections.push(

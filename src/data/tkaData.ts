@@ -59,92 +59,87 @@ export const TKA_SD_LITERASI_CONFIG = {
   matriksAsesmen: [
     {
       kompetensi: 'Pemahaman Tekstual',
-      deskripsi: 'Kemampuan untuk memahami informasi yang dikemukakan secara eksplisit, mengelompokkan, menyusun ulang, dan menyajikan kembali informasi secara eksplisit dari teks.',
+      deskripsi: 'Kemampuan memahami informasi eksplisit, menyusun kerangka ikhtisar/bagan, menemukan informasi tersurat, dan mengidentifikasi objek kosakata.',
       subkompetensiList: [
         {
-          ringkasan: 'Kosakata Umum & Khusus',
-          subkompetensi: 'Mengidentifikasi penggunaan kosakata umum dan khusus dalam berbagai bidang.',
-          materiDefault: 'Penggunaan Kosakata Umum dan Khusus'
+          ringkasan: 'Ikhtisar & Bagan Informasi',
+          subkompetensi: 'Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan (menentukan bagian kerangka isi/informasi dalam teks).',
+          materiDefault: 'Penyusunan Kerangka Ikhtisar dan Bagan Informasi Teks'
+        },
+        {
+          ringkasan: 'Informasi Tersurat',
+          subkompetensi: 'Mengidentifikasi dan menentukan informasi tersurat dalam teks fiksi maupun nonfiksi.',
+          materiDefault: 'Identifikasi Informasi Tersurat Teks'
         },
         {
           ringkasan: 'Objek Berdasarkan Kosakata',
           subkompetensi: 'Mengidentifikasi objek berdasarkan kosakata yang digunakan dalam teks fiksi atau nonfiksi.',
-          materiDefault: 'Identifikasi Objek Teks Fiksi/Nonfiksi'
-        },
-        {
-          ringkasan: 'Ikhtisar & Bagan Informasi',
-          subkompetensi: 'Menyusun kembali informasi dari teks dalam bentuk ikhtisar/bagan.',
-          materiDefault: 'Penyusunan Ikhtisar dan Bagan Informasi'
-        },
-        {
-          ringkasan: 'Informasi Tersurat',
-          subkompetensi: 'Mengidentifikasi informasi tersurat dalam teks.',
-          materiDefault: 'Informasi Tersurat Teks'
+          materiDefault: 'Penentuan Kosakata Sesuai Objek Teks'
         }
       ]
     },
     {
       kompetensi: 'Pemahaman Inferensial',
-      deskripsi: 'Kemampuan untuk menarik kesimpulan berdasarkan informasi yang tersirat dalam teks.',
+      deskripsi: 'Kemampuan menarik kesimpulan makna ungkapan/idiom/peribahasa, ide pokok, unsur intrinsik, serta perubahan karakter/latar yang tersirat.',
       subkompetensiList: [
         {
-          ringkasan: 'Ide Pokok, Amanat & Nilai',
-          subkompetensi: 'Menyimpulkan ide pokok, gagasan pendukung, amanat, tokoh, peristiwa, dan/atau nilai-nilai dalam teks.',
-          materiDefault: 'Ide Pokok, Amanat, Tokoh, dan Nilai Teks'
+          ringkasan: 'Makna Ungkapan & Peribahasa',
+          subkompetensi: 'Menjelaskan makna ungkapan, idiom, atau peribahasa sederhana yang digunakan dalam teks.',
+          materiDefault: 'Makna Ungkapan, Idiom, dan Peribahasa Kontekstual'
         },
         {
-          ringkasan: 'Perubahan Objek/Latar',
-          subkompetensi: 'Menyimpulkan perubahan sederhana pada objek, karakter, dan/atau latar dalam teks fiksi atau nonfiksi.',
-          materiDefault: 'Perubahan Karakter dan Latar Teks'
+          ringkasan: 'Ide Pokok, Nilai & Unsur Intrinsik',
+          subkompetensi: 'Menyimpulkan ide pokok, gagasan pendukung, amanat, nilai-nilai, substansi isi, serta perasaan dan sifat tokoh dalam teks.',
+          materiDefault: 'Simpulan Ide Pokok, Nilai-nilai, dan Unsur Intrinsik Cerita'
         },
         {
-          ringkasan: 'Makna Ungkapan',
-          subkompetensi: 'Menjelaskan makna ungkapan yang digunakan dalam teks.',
-          materiDefault: 'Makna Ungkapan dan Konotasi Terbatas'
+          ringkasan: 'Perubahan Karakter & Latar',
+          subkompetensi: 'Menyimpulkan perubahan sederhana pada objek, watak/karakter tokoh, dan/atau latar dalam teks fiksi atau nonfiksi.',
+          materiDefault: 'Analisis Perubahan Karakter Tokoh dan Latar Cerita'
         }
       ]
     },
     {
       kompetensi: 'Evaluasi dan Apresiasi',
-      deskripsi: 'Kemampuan untuk membuat penilaian terhadap ide, menanggapi teks secara emosional dan estetis dengan mempertimbangkan dampaknya terhadap perasaan, imajinasi, serta penggunaan bahasa oleh penulis.',
+      deskripsi: 'Kemampuan menilai kesesuaian antarunsur teks, merefleksikan peristiwa ke kehidupan sehari-hari, dan menyimpulkan respons emosional.',
       subkompetensiList: [
         {
-          ringkasan: 'Relevansi Kehidupan Nyata',
-          subkompetensi: 'Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari berdasarkan pengalaman atau pengetahuan pribadi.',
-          materiDefault: 'Relevansi Peristiwa Teks dengan Kehidupan Sehari-hari'
+          ringkasan: 'Kesesuaian Antarunsur Teks',
+          subkompetensi: 'Menilai kesesuaian antarunsur dan antarinformasi dalam teks (kesesuaian judul dengan isi teks, kesesuaian ilustrasi gambar dengan teks).',
+          materiDefault: 'Penilaian Kesesuaian Judul, Ilustrasi, dan Isi Teks'
         },
         {
-          ringkasan: 'Kesesuaian Antarunsur',
-          subkompetensi: 'Menilai kesesuaian antarunsur dan/atau antarinformasi dalam teks.',
-          materiDefault: 'Kesesuaian Antarunsur dan Informasi Teks'
+          ringkasan: 'Refleksi Kehidupan Nyata & Keteladanan',
+          subkompetensi: 'Menilai relevansi peristiwa dalam teks dengan kehidupan sehari-hari serta merefleksikan pengetahuan baru dan nilai keteladanan.',
+          materiDefault: 'Refleksi Peristiwa dan Nilai Keteladanan Teks pada Kehidupan Nyata'
         },
         {
           ringkasan: 'Respons Emosional Teks Fiksi',
-          subkompetensi: 'Menyimpulkan respons emosional terhadap unsur teks fiksi.',
-          materiDefault: 'Apresiasi dan Respons Emosional Teks Fiksi'
+          subkompetensi: 'Menyimpulkan respons emosional terhadap peristiwa atau konflik yang dialami tokoh dalam teks fiksi.',
+          materiDefault: 'Apresiasi dan Respons Emosional terhadap Konflik Tokoh'
         }
       ]
     }
   ],
   promptRules: `STANDAR DAN KAIDAH KHUSUS TKA LITERASI (SD/MI):
-- JENIS TEKS STIMULUS:
-  1. Teks Informasi: Berisi fakta sederhana dari berbagai bidang/topik berskala lokal dan nasional.
-  2. Teks Fiksi: Cerita rekaan fantasi atau faktual (sejarah/biografi) dengan latar cerita konkret, tokoh berkarakter datar, konflik tunggal penyelesaian tertutup, alur maju, dan sudut pandang orang pertama.
-- KARAKTERISTIK TEKS:
-  * Kosakata: Gunakan kata dasar, kata berimbuhan, kata konkret, dominan makna denotatif, dan makna konotatif dalam konteks terbatas.
-  * Kalimat: Panjang kalimat WAJIB 3–7 kata per kalimat dengan pola dasar SPOK, struktur bahasa tulis bercampur bahasa lisan terbatas yang mudah dicerna peserta didik.
-  * Wacana: Menjaga kohesi pengacuan/referensi dan konjungsi antarparagraf penambahan/penjelasan.
-  * Panjang Teks Stimulus: WAJIB berkisar antara 150–200 kata (kecuali bentuk puisi). Cantumkan teks stimulus secara utuh sebelum butir soal!
-- DISTRIBUSI KOMPETENSI:
-  1. Pemahaman Tekstual (informasi tersurat, kosakata umum/khusus, objek kosakata, ikhtisar/bagan).
-  2. Pemahaman Inferensial (ide pokok, gagasan pendukung, amanat, tokoh, perubahan objek/karakter/latar, makna ungkapan).
-  3. Evaluasi dan Apresiasi (relevansi dengan kehidupan nyata, kesesuaian antarunsur/informasi, respons emosional).`
+- TIGA HIRARKI RESMI:
+  1. Pemahaman Tekstual: Informasi tersurat eksplisit, kerangka ikhtisar/bagan, dan kosakata objek fiksi/nonfiksi.
+  2. Pemahaman Inferensial: Makna ungkapan/idiom/peribahasa sederhana, simpulan ide pokok, amanat, nilai keteladanan, unsur intrinsik, serta perubahan watak/karakter tokoh dan latar cerita.
+  3. Evaluasi dan Apresiasi: Kesesuaian judul vs isi teks, ilustrasi gambar vs teks, refleksi peristiwa ke kehidupan nyata, serta respons emosional terhadap konflik tokoh.
+- KARAKTERISTIK TEKS & STIMULUS:
+  * Wacana Teks Informasi faktual atau Teks Fiksi (150–200 kata) dengan struktur kalimat 3–7 kata per kalimat yang ramah dicerna siswa SD.
+  * Kluster Berbasis Stimulus (65%–75%): Wajib menaungi kelompok soal dengan ragam format (Pilihan Ganda, Pilihan Ganda Kompleks, Pernyataan Benar/Salah, dan Menjodohkan).
+  * Soal Standalone / Mandiri (25%–35%): Soal mandiri to-the-point tanpa wacana panjang untuk materi konsep langsung (seperti makna ungkapan/idiom/peribahasa atau kosakata objek).
+- BENTUK SOAL LENGKAP:
+  Wajib mengintegrasikan 4 format resmi: Pilihan Ganda (A–D), Pilihan Ganda Kompleks (centang ganda), Pernyataan Benar/Salah (tabel), dan Menjodohkan.
+- LARANGAN KERAS:
+  DILARANG KERAS memunculkan nomor kurung indeks (seperti (1), (2), (25), dst.) pada teks soal, stimulus, maupun indikator.`
 };
 
 export const TKA_SD_NUMERASI_CONFIG = {
   nama: 'TKA Numerasi (Matematika SD/MI)',
   jenjang: 'sd',
-  elemen: ['Bilangan', 'Geometri dan Pengukuran', 'Data'],
+  elemen: ['Bilangan', 'Geometri dan Pengukuran', 'Data dan Ketidakpastian'],
   kemampuanMatematis: [
     'Pengetahuan matematika',
     'Representasi matematis',
@@ -159,64 +154,75 @@ export const TKA_SD_NUMERASI_CONFIG = {
       subElemen: 'Bilangan Rasional',
       kompetensi: 'Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait Bilangan Rasional.',
       cakupan: [
-        'Pecahan senilai menggunakan gambar dan simbol matematika',
-        'Perbandingan dan pengurutan bilangan pecahan',
-        'Relasi berbagai bentuk pecahan (pecahan sederhana, desimal, persen)',
-        'Operasi penjumlahan, pengurangan, perkalian, dan pembagian bilangan cacah',
-        'Operasi penjumlahan dan pengurangan bilangan pecahan, serta operasi perkalian dan pembagian bilangan pecahan dengan bilangan asli',
-        'Kelipatan, faktor, KPK, dan FPB bilangan asli'
+        'Pecahan senilai menggunakan gambar dan simbol matematika (menentukan representasi pecahan dari bagian suatu objek utuh)',
+        'Membandingkan dan mengurutkan beberapa bilangan dalam bentuk berbeda (bilangan cacah, pecahan, desimal, dan persentase)',
+        'Menentukan faktor suatu bilangan cacah dan mengenal bilangan prima',
+        'Menggunakan operasi aritmetika penjumlahan, pengurangan, perkalian, pembagian dua bilangan cacah (maksimal empat angka) dan estimasi hasil operasi',
+        'Memodelkan masalah kontekstual ke dalam bentuk kalimat matematika yang melibatkan bilangan cacah',
+        'Mengevaluasi kebenaran hasil operasi aritmetika bilangan cacah pada diagram alir',
+        'Menentukan hasil operasi hitung campuran yang melibatkan pecahan dan bilangan asli (penjumlahan, pengurangan, perkalian, dan pembagian)',
+        'Menyelesaikan persamaan sederhana menggunakan operasi penjumlahan atau pengurangan dalam bentuk sederhana',
+        'Menyelesaikan dan mengevaluasi persamaan sederhana menggunakan berbagai bentuk operasi bilangan (penjumlahan, pengurangan, perkalian, dan pembagian)',
+        'Menentukan KPK dan FPB dari informasi kontekstual'
       ],
-      catatan: 'Fokus pada pemecahan masalah kontekstual bilangan cacah dan pecahan.'
+      catatan: 'Fokus pada representasi pecahan, operasi 4 angka, diagram alir aritmetika, persamaan dasar, dan KPK/FPB.'
     },
     {
       elemen: 'Geometri dan Pengukuran',
       subElemen: 'Objek Geometri',
       kompetensi: 'Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait Objek Geometri.',
       cakupan: [
-        'Bentuk bangun datar (segitiga, segiempat, dan segi banyak)',
-        'Konstruksi bangun ruang dan visualisasi spasial (tampak depan, atas, dan samping) mencakup kubus, balok, dan gabungannya'
+        'Membedakan ciri-ciri berbagai jenis bangun datar',
+        'Mengidentifikasi berbagai bangun datar penyusun suatu bangun segi banyak',
+        'Menyelesaikan masalah terkait konstruksi bangun ruang dan visualisasi spasial (bagian depan, atas, dan samping)',
+        'Mengidentifikasi bentuk gambar benda berdasarkan ciri-ciri dari segiempat, segitiga, segibanyak, dan lingkaran'
       ],
-      catatan: 'Bangun datar mencakup segitiga, segiempat, dan segi banyak. Bangun ruang mencakup kubus, balok, dan gabungannya.'
+      catatan: 'Fokus pada ciri bangun datar, dekomposisi segi banyak, visualisasi spasial proyeksi depan/atas/samping, dan bangun ruang.'
     },
     {
       elemen: 'Geometri dan Pengukuran',
       subElemen: 'Pengukuran',
       kompetensi: 'Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait Pengukuran.',
       cakupan: [
-        'Panjang benda menggunakan satuan baku & hubungan antar-satuan baku panjang (mm, dm, cm, m, dam, hm, km)',
-        'Volume benda menggunakan satuan baku & hubungan antar-satuan baku volume (ml, dl, cl, l, dal, hl, kl)',
-        'Berat benda menggunakan satuan baku & hubungan antar-satuan baku berat (mg, dg, cg, g, dag, hg, kg)',
-        'Waktu & hubungan antar-satuan waktu (detik, menit, jam, hari, pekan, bulan, tahun)',
-        'Laju perubahan (kecepatan)',
-        'Keliling dan luas bangun datar (segitiga, segiempat, dan segi banyak)',
-        'Volume bangun ruang (kubus, balok, dan gabungannya)',
-        'Besar sudut',
-        'Penaksiran ukuran'
+        'Mengidentifikasi kelogisan penggunaan satuan baku panjang dalam masalah pengukuran',
+        'Menentukan representasi visual dari volume benda menggunakan satuan baku',
+        'Menentukan representasi kesetimbangan neraca berdasarkan perbandingan berat benda menggunakan satuan baku',
+        'Menentukan durasi suatu aktivitas berdasarkan keterangan waktu pada jam analog',
+        'Menghitung keliling bangun datar segi banyak tidak beraturan yang diketahui panjang semua sisinya',
+        'Menentukan luas bangun datar segi banyak yang terbentuk dari gabungan beberapa segitiga',
+        'Menggunakan konsep keliling atau luas persegi dan persegi panjang dalam menyelesaikan permasalahan',
+        'Menganalisis dan mengevaluasi pernyataan berdasarkan konsep pengukuran panjang dan berat benda menggunakan satuan baku',
+        'Menentukan besar sudut yang terbentuk dari ilustrasi masalah kontekstual berdasarkan jenis sudutnya'
       ],
-      catatan: 'Konversi satuan baku, pengukuran bangun datar & ruang, laju perubahan kecepatan.'
+      catatan: 'Meliputi satuan baku panjang/berat/volume, representasi neraca, jam analog, keliling/luas bangun gabungan, dan sudut.'
     },
     {
-      elemen: 'Data',
+      elemen: 'Data dan Ketidakpastian',
       subElemen: 'Penyajian dan Penggunaan Data',
       kompetensi: 'Memahami, mengaplikasikan, dan bernalar yang lebih tinggi untuk menyelesaikan permasalahan terkait Penyajian dan Penggunaan Data.',
       cakupan: [
-        'Penyajian data (gambar, piktogram, diagram batang, dan tabel frekuensi)',
-        'Pengambilan informasi dan penggunaan data'
+        'Mengidentifikasi kesalahan penyajian data dalam bentuk diagram batang',
+        'Menginterpretasi informasi diagram atau tabel frekuensi untuk menyelesaikan permasalahan yang disajikan',
+        'Menginterpretasi data berdasarkan kategori tertentu',
+        'Menyelesaikan permasalahan berkaitan dengan penyajian data dalam bentuk diagram batang atau tabel'
       ],
-      catatan: 'Membaca, menafsirkan, dan menganalisis sajian data piktogram/diagram/tabel.'
+      catatan: 'Membaca, mendeteksi kekeliruan diagram batang, menafsirkan, dan menganalisis penyajian data tabel/grafik.'
     }
   ],
   promptRules: `STANDAR DAN KAIDAH KHUSUS TKA NUMERASI (SD/MI):
-- MUATAN & ELEMEN: Merujuk kurikulum (K13 & Kurikulum Merdeka) yang mencakup 3 elemen utama:
-  1. Bilangan (Sub-elemen: Bilangan Rasional - pecahan senilai, urutan pecahan, desimal, persen, operasi cacah & pecahan, KPK & FPB).
+- TIGA ELEMEN DAN SUB-ELEMEN RESMI:
+  1. Bilangan (Sub-elemen: Bilangan Rasional - pecahan senilai, urutan bilangan pecahan/desimal/persen, faktor & prima, operasi 4 angka, kalimat matematika, evaluasi diagram alir, hitung campuran pecahan, persamaan sederhana, KPK & FPB).
   2. Geometri dan Pengukuran:
-     - Objek Geometri (segitiga, segiempat, segi banyak; bangun ruang kubus, balok, gabungannya & visualisasi spasial depan/atas/samping).
-     - Pengukuran (satuan baku panjang mm-km, volume ml-kl, berat mg-kg, waktu detik-tahun, kecepatan, keliling & luas, volume kubus/balok, besar sudut, penaksiran ukuran).
-  3. Data (Sub-elemen: Penyajian dan Penggunaan Data - gambar/piktogram, diagram batang, tabel frekuensi, pengambilan info & analisis data).
-- KONTEKS ASESMEN:
-  Soal WAJIB disajikan melalui permasalahan dalam konteks matematika dan konteks kehidupan nyata peserta didik (personal, keluarga, sekolah, atau lingkungan sekitar).
-- 5 KEMAMPUAN MATEMATIS YANG DIUKUR:
-  Pastikan setiap butir soal mengukur salah satu dari: Pengetahuan matematika, Representasi matematis, Penalaran, Pemecahan masalah matematis, atau Koneksi matematis.`
+     - Objek Geometri (ciri bangun datar, dekomposisi segi banyak, konstruksi ruang & visualisasi spasial tampak depan/atas/samping, ciri segiempat/segitiga/segibanyak/lingkaran).
+     - Pengukuran (satuan baku panjang & berat, representasi neraca kesetimbangan, visualisasi volume, durasi jam analog, keliling segi banyak tidak beraturan, luas gabungan segitiga, persegi & persegi panjang, besar sudut).
+  3. Data dan Ketidakpastian (Sub-elemen: Penyajian dan Penggunaan Data - deteksi kesalahan diagram batang, interpretasi tabel frekuensi & grafik batang, pemecahan masalah data).
+- DISTRIBUSI SOAL (STIMULUS VS STANDALONE):
+  * Kluster Soal Berbasis Stimulus (65%–75%): Sajikan infografis kontekstual, tabel angka otentik, skema neraca, diagram alir, atau denah yang menaungi 2 s.d. 4 butir soal berjenjang.
+  * Soal Standalone / Mandiri (25%–35%): Soal mandiri to-the-point tanpa wacana panjang untuk materi konsep langsung (misal: persamaan sederhana langsung, hitung pecahan campuran, KPK/FPB, atau durasi jam analog).
+- BENTUK SOAL LENGKAP:
+  Wajib mengintegrasikan 4 format resmi TKA: Pilihan Ganda (A–D), Pilihan Ganda Kompleks (centang ganda), Pernyataan Benar/Salah (tabel), dan Menjodohkan.
+- LARANGAN KERAS:
+  DILARANG KERAS memunculkan nomor kurung indeks (seperti (1), (2), (13), dst.) pada kalimat soal, stimulus, maupun indikator.`
 };
 
 

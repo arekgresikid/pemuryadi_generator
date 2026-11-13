@@ -2,6 +2,12 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.5] - 13 November 2026
+- Integrasi Kisi-Kisi Resmi Terbaru TKA SD (Numerasi & Literasi): Mengadopsi matriks kurikulum asesmen standar terbaru untuk Matematika (Bilangan Rasional, Objek Geometri & Pengukuran, Data dan Ketidakpastian) dan Bahasa Indonesia (Pemahaman Tekstual, Pemahaman Inferensial, Evaluasi dan Apresiasi).
+- Eliminasi Nomor Indeks (..) pada Hirarki & Prompt: Menghapus seluruh nomor kurung seperti (1), (2), (13), dst. dari indikator dan prompt sistem guna menghasilkan rumusan butir soal yang alami, bersih, dan profesional.
+- Racikan 4 Bentuk Soal Resmi TKA: Mengintegrasikan variasi proporsional Pilihan Ganda (PG), Pilihan Ganda Kompleks (PGK kotak centang), Pernyataan Benar/Salah (tabel verifikasi), dan Menjodohkan.
+- Arsitektur Hybrid Stimulus Cluster & Standalone: Menerapkan komposisi 65%–75% soal berbasis stimulus kontekstual berbobot dan 25%–35% soal standalone to-the-point tanpa wacana panjang untuk konsep langsung.
+
 ## [5.4.4] - 12 November 2026
 - Standarisasi Tahun Pelajaran 2026/2027: Menetapkan default tahun berjalan 2026/2027 pada database (schema.sql & backend), QuickProfile, serta mensinkronkan data profil pengguna ke seluruh modul di Tab Administrasi.
 - Input AIAssistedInput Teks Manual di Seluruh Modul: Menambahkan kolom input manual cerdas untuk Tahun Pelajaran pada modul Mengajar Harian, RPM (Deep Learning), Modul Ajar, Jurnal Harian, Modul P5, Supervisi Guru, Rubrik Penilaian, dan Laporan Kegiatan.
