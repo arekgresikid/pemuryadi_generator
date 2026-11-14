@@ -1,384 +1,643 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ModelSelector from './ModelSelector';
-import { GoogleGenAI } from '../lib/genai';
-import { Play, Loader2, Trophy, Users, BookOpen, Settings } from 'lucide-react';
+import { GoogleGenAI, Type } from '../lib/genai';
+import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
+import { useAuth } from '../AuthContext';
+import {
+  Play,
+  Loader2,
+  Trophy,
+  Users,
+  Settings,
+  Maximize2,
+  Minimize2,
+  Download,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Wrench,
+  AlertTriangle,
+  Cpu,
+} from 'lucide-react';
 import AIAssistedInput from './AIAssistedInput';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import {
+  buildIfpJsonPrompt,
+  isSandboxGenre,
+  renderIfpEngineHtml,
+  wrapSandboxWithGuard,
+  IfpGamePayload,
+} from '../lib/ifpGameEngines';
 
 const ai = new GoogleGenAI({});
 
 const GAME_TYPES = [
-  { id: 'action', name: 'Action & Shooter (FPS/TPS)', desc: 'Menekankan aksi cepat dan ketangkasan' },
-  { id: 'rpg', name: 'Role-Playing Game (RPG)', desc: 'Pemain memerankan karakter dan membangun cerita' },
-  { id: 'battleroyale', name: 'Battle Royale', desc: 'Bertahan hidup hingga menjadi yang terakhir' },
-  { id: 'strategy', name: 'Strategi (RTS/TBS)', desc: 'Memerlukan perencanaan dan manajemen sumber daya' },
-  { id: 'simulation', name: 'Simulasi', desc: 'Meniru aktivitas kehidupan nyata' },
-  { id: 'adventure', name: 'Adventure', desc: 'Berfokus pada cerita, eksplorasi, dan pemecahan teka-teki' },
-  { id: 'puzzle', name: 'Puzzle', desc: 'Mengasah otak dengan menyusun atau memecahkan masalah' },
-  { id: 'sandbox', name: 'Sandbox', desc: 'Memberikan kebebasan mutlak kepada pemain untuk berkreasi' },
-  { id: 'sports', name: 'Sports/Racing', desc: 'Simulasi olahraga atau balap' }
+  { id: 'rpg', name: 'Battle Arena RPG (Engine 60fps)', desc: 'Pertarungan monster/boss berbasis giliran & soal' },
+  { id: 'action', name: 'Turbo Dash Racing (Engine 60fps)', desc: 'Balapan Canvas 60fps — jawaban cepat memberi boost' },
+  { id: 'adventure', name: 'Quest Expedition (Engine 60fps)', desc: 'Eksplorasi peta misi bertahap untuk kelompok/kelas' },
+  { id: 'puzzle', name: 'Smart Match Puzzle (Engine 60fps)', desc: 'Mencocokkan & menyusun pasangan konsep secara sentuh' },
+  { id: 'simulation', name: 'Interactive Lab Simulasi (Engine 60fps)', desc: 'Simulasi keputusan skenario dengan indikator hidup' },
+  { id: 'strategy', name: 'Strategi Duel (Engine 60fps)', desc: 'Adu taktik & ketepatan menjawab antarpemain' },
+  { id: 'battleroyale', name: 'Survival Expedition (Engine 60fps)', desc: 'Bertahan hingga garis akhir dengan tantangan berjenjang' },
+  { id: 'sports', name: 'Arena Sprint (Engine 60fps)', desc: 'Kompetisi balap antar pemain di papan IFP' },
+  { id: 'sandbox', name: 'Sandbox / Kustom Bebas (AI Codegen + Guard)', desc: 'AI menulis HTML/JS kustom penuh + pelindung error otomatis' },
 ];
 
-const JENJANG = ['PAUD', 'SD', 'SMP', 'SMA'];
 const DIFFICULTY_LEVELS = [
-  { id: 'easy', name: 'Mudah', color: 'text-green-400' },
-  { id: 'medium', name: 'Sedang', color: 'text-yellow-400' },
-  { id: 'hard', name: 'Sulit', color: 'text-red-400' },
-  { id: 'expert', name: 'Ahli', color: 'text-purple-400' }
+  { id: 'easy', name: 'Mudah', color: 'text-emerald-700' },
+  { id: 'medium', name: 'Sedang', color: 'text-amber-700' },
+  { id: 'hard', name: 'Sulit', color: 'text-rose-700' },
+  { id: 'expert', name: 'Ahli', color: 'text-purple-700' },
 ];
 
 export default function GameIFP() {
+  const { profile } = useAuth();
   const [formData, setFormData] = useLocalStorage('GameIFPData', {
     topik: '',
-    jenjang: 'SD',
-    jenisGame: 'puzzle',
+    jenjang: 'sd',
+    fase: 'A',
+    kelas: '1',
+    mapel: 'bahasa-indonesia',
+    jenisGame: 'rpg',
     difficulty: 'medium',
     jumlahPemain: 2,
-    pemain1: 'Pemain 1',
-    pemain2: 'Pemain 2',
-    pemain3: 'Pemain 3',
-    pemain4: 'Pemain 4',
+    pemain1: 'Tim Merah',
+    pemain2: 'Tim Biru',
+    pemain3: 'Tim Hijau',
+    pemain4: 'Tim Kuning',
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFixingError, setIsFixingError] = useState(false);
   const [selectedModel, setSelectedModel] = useLocalStorage<string>('GameIFP_selectedModel', 'openai');
-  const [selectedImageModel, setSelectedImageModel] = useLocalStorage<string>('GameIFP_selectedImageModel', 'flux');
   const [gameHtml, setGameHtml] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sandboxRuntimeError, setSandboxRuntimeError] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const playerWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isGenerating) {
+    if (profile?.jenjang) {
+      const normalized = profile.jenjang.toLowerCase();
+      if (educationLevels.some(l => l.id === normalized)) {
+        setFormData(prev => ({ ...prev, jenjang: normalized }));
+      }
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    const phases = phaseClassMap[formData.jenjang]?.phases || [];
+    const validFase = phases.some(p => p.id === formData.fase) ? formData.fase : (phases[0]?.id || '');
+    const classes = phaseClassMap[formData.jenjang]?.classes?.[validFase] || [];
+    const validKelas = classes.some(c => c.id === formData.kelas) ? formData.kelas : (classes[0]?.id || '');
+    const subjects = subjectsByLevel[formData.jenjang] || [];
+    const validMapel = subjects.some(s => s.id === formData.mapel) ? formData.mapel : (subjects[0]?.id || '');
+    if (validFase !== formData.fase || validKelas !== formData.kelas || validMapel !== formData.mapel) {
+      setFormData(prev => ({ ...prev, fase: validFase, kelas: validKelas, mapel: validMapel }));
+    }
+  }, [formData.jenjang, formData.fase]);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isGenerating || isFixingError) {
       const startTime = Date.now();
       interval = setInterval(() => {
         setElapsedTime(Date.now() - startTime);
-      }, 43); // fast update
+      }, 43);
     } else {
       setElapsedTime(0);
     }
     return () => clearInterval(interval);
-  }, [isGenerating]);
+  }, [isGenerating, isFixingError]);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (isGenerating) {
-      const logs = [
-        "> Menginisialisasi AI Game Engine...",
-        "> Membaca parameter topik dan jenjang...",
-        "> Mengatur sistem multiplayer lokal...",
-        "> Menggenerate mekanik game...",
-        "> Mengkompilasi aset visual dan UI...",
-        "> Menambahkan leaderboard dinamis...",
-        "> Merakit kode HTML, CSS, dan JavaScript...",
-        "> Memvalidasi sintaks game...",
-        "> Menunggu respons final dari model AI..."
-      ];
-      
+    let timeout: ReturnType<typeof setTimeout>;
+    if (isGenerating || isFixingError) {
+      const isSandbox = isSandboxGenre(formData.jenisGame);
+      const logs = isFixingError
+        ? [
+            '> Mendeteksi runtime error dari sandbox iframe...',
+            '> Menganalisis baris penyebab kegagalan render...',
+            '> Memperbaiki sintaks & DOM binding...',
+            '> Mengompilasi ulang game...',
+          ]
+        : isSandbox
+        ? [
+            '> Menginisialisasi Sandbox AI Codegen + Runtime Guard...',
+            '> Merancang mekanik game kustom sesuai topik...',
+            '> Menyuntikkan IFP_SDK (Audio & Error Catcher)...',
+            '> Memvalidasi sintaks HTML5 & JavaScript...',
+          ]
+        : [
+            '> Menginisialisasi Hybrid IFP Game Engine (60fps)...',
+            '> Membaca parameter jenjang, fase, dan topik...',
+            '> Meminta AI menyusun skenario, soal, & aset JSON...',
+            '> Mengikat data ke Engine Canvas/DOM teruji...',
+            '> Mempersiapkan papan skor & mode layar sentuh IFP...',
+          ];
+
       let index = 0;
       setTerminalLines([]);
-      
       const addLog = () => {
         if (index < logs.length) {
           setTerminalLines(prev => [...prev, logs[index]]);
           index++;
-          timeout = setTimeout(addLog, Math.random() * 200 + 100);
+          timeout = setTimeout(addLog, Math.random() * 180 + 90);
         }
       };
-      
-      timeout = setTimeout(addLog, 200);
+      timeout = setTimeout(addLog, 150);
     } else {
       setTerminalLines([]);
     }
     return () => clearTimeout(timeout);
-  }, [isGenerating]);
+  }, [isGenerating, isFixingError, formData.jenisGame]);
+
+  useEffect(() => {
+    const handleMessage = (ev: MessageEvent) => {
+      if (ev.data && ev.data.type === 'IFP_GAME_ERROR') {
+        setSandboxRuntimeError(ev.data.message || 'Terjadi error JavaScript di dalam game.');
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const getActivePlayers = () =>
+    [formData.pemain1, formData.pemain2, formData.pemain3, formData.pemain4]
+      .slice(0, formData.jumlahPemain)
+      .map((p, i) => (p || '').trim() || `Pemain ${i + 1}`);
+
+  const cleanCodeFence = (raw: string) =>
+    raw.replace(/```(?:html|json)?\n?/gi, '').replace(/```/g, '').trim();
 
   const generateGame = async () => {
-    if (!formData.topik) {
+    if (!formData.topik.trim()) {
       setError('Silakan isi topik pembelajaran terlebih dahulu.');
       return;
     }
 
     setIsGenerating(true);
     setError(null);
+    setSandboxRuntimeError(null);
     setGameHtml(null);
 
     try {
-      const pemainList = [formData.pemain1, formData.pemain2, formData.pemain3, formData.pemain4]
-        .slice(0, formData.jumlahPemain)
-        .join(', ');
+      const players = getActivePlayers();
+      const jenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang.toUpperCase();
+      const mapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
+      const topikLengkap = `${formData.topik} (Mapel: ${mapelLabel}, Kelas ${formData.kelas})`;
 
-      const selectedGameType = GAME_TYPES.find(g => g.id === formData.jenisGame);
+      if (isSandboxGenre(formData.jenisGame)) {
+        const prompt = `Bertindaklah sebagai developer game edukasi HTML5 senior. Buatlah game edukatif interaktif 1 file HTML lengkap (HTML + CSS + JS inline) yang ringan, bebas error sintaks, dan ramah layar sentuh IFP.
 
-      const prompt = `Bertindaklah sebagai developer gamer terkemuka sesuai dengan jenis game. Buatlah sebuah game edukatif berbasis web (HTML, CSS, JS dalam satu file) yang interaktif dan dapat dimainkan langsung di browser.
-
-Spesifikasi Game:
-- Topik Pembelajaran: ${formData.topik}
-- Target Audiens: Anak sekolah jenjang ${formData.jenjang}
+Spesifikasi:
+- Topik: ${topikLengkap}
+- Target Audiens: ${jenjangLabel}
 - Tingkat Kesulitan: ${DIFFICULTY_LEVELS.find(d => d.id === formData.difficulty)?.name}
-- Genre Game: ${selectedGameType?.name} (${selectedGameType?.desc})
-- Mode: Multiplayer Lokal (Bergantian / Hotseat / Split-screen)
-- Jumlah Pemain: ${formData.jumlahPemain} orang
-- Nama Pemain: ${pemainList}
+- Pemain (${players.length} orang): ${players.join(', ')}
 
 Persyaratan Wajib:
-1. Game harus memiliki antarmuka pengguna (UI) yang menarik, berwarna, dan ramah anak (user-friendly).
-2. Gunakan elemen visual yang berkualitas. Jika game membutuhkan visualisasi bangun ruang 3D (seperti limas, prisma, tabung, kerucut, bola), grafik matematika, diagram kartesius, atau ilustrasi geometris lainnya, WAJIB digambar secara lokal secara dinamis menggunakan HTML5 Canvas API atau inline SVG menggunakan JavaScript. JANGAN menggunakan URL gambar eksternal untuk bangun ruang/matematika/diagram karena rentan pecah atau tidak akurat. Untuk gambar dekoratif/ilustrasi umum non-matematis, baru gunakan format URL: \`https://gen.pollinations.ai/image/[DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS]?model=${selectedImageModel}\`.
-3. Mekanik game harus menggabungkan genre yang dipilih dengan pertanyaan/tantangan edukatif terkait topik "${formData.topik}". (Misal: Jika RPG, pemain menyerang monster dengan menjawab soal. Jika Simulasi, buatlah simulasi sederhana yang interaktif di mana pemain membuat keputusan berbasis materi).
-4. Tingkat kesulitan "${DIFFICULTY_LEVELS.find(d => d.id === formData.difficulty)?.name}" harus tercermin dalam kompleksitas soal, kecepatan permainan, atau rintangan yang ada.
-5. WAJIB ada sistem Leaderboard (Papan Peringkat) yang terus diperbarui selama game berjalan dan ditampilkan di akhir permainan, menunjukkan skor masing-masing siswa.
-6. Kode harus lengkap dalam satu file HTML (menggunakan tag <style> dan <script>). Tidak boleh ada file eksternal selain font/gambar dari CDN publik. Pastikan kode JavaScript bebas dari error sintaks, terutama pada game Simulasi yang kompleks.
-7. Pastikan game responsif dan bisa dimainkan dengan mouse/touch.
-8. Pastikan kode dioptimalkan agar render game berjalan sangat cepat, efisien, ringan, dan pengunjung tidak terlalu lama menunggu. Game harus memiliki loading awal yang instan dan animasi yang sangat mulus (60fps).
+1. DILARANG menggunakan URL gambar/audio eksternal yang lambat. Gambar ilustrasi/ikon WAJIB dibuat memakai inline SVG atau HTML5 Canvas.
+2. Anda dapat memanggil \`window.IFP_SDK?.correct()\` dan \`window.IFP_SDK?.wrong()\` untuk efek suara.
+3. Wajib ada sistem Leaderboard/Papan Skor untuk seluruh pemain dan tombol Restart.
+4. Pastikan seluruh tag HTML & JS tertutup rapi tanpa error referensi variabel.
+5. Output HANYA kode HTML lengkap dimulai dari <!DOCTYPE html> hingga </html>.`;
 
-Output HANYA kode HTML lengkap (dimulai dengan <!DOCTYPE html> dan diakhiri dengan </html>). Jangan berikan penjelasan atau teks markdown lainnya.`;
+        const response = await ai.models.generateContent({
+          model: selectedModel,
+          contents: prompt,
+          config: { temperature: 0.6 },
+        });
 
-      const response = await ai.models.generateContent({
-        model: selectedModel,
-        contents: prompt,
-        config: {
-          temperature: 0.7,
+        const htmlContent = cleanCodeFence(response.text || '');
+        if (!htmlContent.toLowerCase().includes('<html')) {
+          throw new Error('Output HTML dari model tidak lengkap. Silakan coba generate ulang.');
         }
-      });
+        setGameHtml(wrapSandboxWithGuard(htmlContent));
+      } else {
+        const cfg = {
+          genre: formData.jenisGame,
+          topik: topikLengkap,
+          jenjang: jenjangLabel,
+          difficulty: formData.difficulty,
+          players,
+        };
+        const prompt = buildIfpJsonPrompt(cfg);
 
-      let htmlContent = response.text || '';
-      
-      // Bersihkan markdown jika ada
-      if (htmlContent.includes('\`\`\`html')) {
-        htmlContent = htmlContent.replace(/\`\`\`html/g, '').replace(/\`\`\`/g, '');
-      } else if (htmlContent.includes('\`\`\`')) {
-        htmlContent = htmlContent.replace(/\`\`\`/g, '');
+        const response = await ai.models.generateContent({
+          model: selectedModel,
+          contents: prompt,
+          config: {
+            temperature: 0.6,
+            responseMimeType: 'application/json',
+          },
+        });
+
+        const rawJson = cleanCodeFence(response.text || '');
+        const parsed: IfpGamePayload = JSON.parse(rawJson);
+        if (!parsed || (!Array.isArray(parsed.soal) && !Array.isArray(parsed.simulasi) && !Array.isArray(parsed.puzzlePairs))) {
+          throw new Error('Struktur konten game JSON tidak lengkap.');
+        }
+        const compiledHtml = renderIfpEngineHtml(parsed, cfg);
+        setGameHtml(compiledHtml);
       }
-      
-      setGameHtml(htmlContent.trim());
     } catch (err: any) {
       console.error(err);
-      setError('Terjadi kesalahan saat membuat game: ' + err.message);
+      setError('Terjadi kesalahan saat merakit game: ' + (err.message || 'Gagal memproses respons model.'));
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const fixSandboxError = async () => {
+    if (!gameHtml || !sandboxRuntimeError) return;
+    setIsFixingError(true);
+    setError(null);
+    try {
+      const prompt = `Perbaiki bug JavaScript pada kode game HTML5 berikut.
+Error yang dilaporkan browser: "${sandboxRuntimeError}"
+
+Kembalikan HANYA kode HTML lengkap yang sudah diperbaiki dari <!DOCTYPE html> hingga </html> tanpa markdown:
+${gameHtml}`;
+      const response = await ai.models.generateContent({
+        model: selectedModel,
+        contents: prompt,
+        config: { temperature: 0.2 },
+      });
+      const fixedHtml = cleanCodeFence(response.text || '');
+      if (fixedHtml.toLowerCase().includes('<html')) {
+        setSandboxRuntimeError(null);
+        setGameHtml(wrapSandboxWithGuard(fixedHtml));
+      } else {
+        throw new Error('Perbaikan kode tidak menghasilkan HTML yang valid.');
+      }
+    } catch (err: any) {
+      setError('Gagal memperbaiki bug otomatis: ' + err.message);
+    } finally {
+      setIsFixingError(false);
+    }
+  };
+
+  const toggleMute = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    iframeRef.current?.contentWindow?.postMessage({ type: 'SET_MUTE', muted: nextMuted }, '*');
+  };
+
+  const restartGame = () => {
+    setSandboxRuntimeError(null);
+    if (!isSandboxGenre(formData.jenisGame)) {
+      iframeRef.current?.contentWindow?.postMessage({ type: 'RESTART_GAME' }, '*');
+    } else if (gameHtml) {
+      const copy = gameHtml;
+      setGameHtml(null);
+      setTimeout(() => setGameHtml(copy), 30);
+    }
+  };
+
+  const toggleFullscreen = async () => {
+    if (!playerWrapperRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await playerWrapperRef.current.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.warn('Fullscreen tidak didukung browser ini:', err);
+    }
+  };
+
+  const downloadOfflineHtml = () => {
+    if (!gameHtml) return;
+    const blob = new Blob([gameHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeName = (formData.topik || 'game-ifp').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    a.href = url;
+    a.download = `IFP-${safeName}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="gen-card bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 rounded-3xl p-6 md:p-8 shadow-2xl /30 relative overflow-hidden">
-        {/* Background Decoration */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-red-100 border border-black rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-
-        <div className="relative z-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-lg shadow-red-500/20 mb-4">
-              <Play size={32} className="text-black" />
-            </div>
-            <h2 className="text-3xl font-bold text-black mb-2">Game IFP Generator</h2>
-            <p className="text-indigo-200 max-w-2xl mx-auto">
-              Buat game edukatif interaktif multiplayer dengan berbagai genre untuk Interactive Flat Panel (IFP) di kelas Anda.
-            </p>
+      <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-indigo-100">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg shadow-indigo-500/25 mb-4">
+            <Cpu size={32} className="text-white" />
           </div>
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Game IFP Hybrid Engine</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-sm">
+            Buat game edukatif layar sentuh 60fps untuk Interactive Flat Panel (IFP) kelas dengan engine lokal bebas error & dukungan unduh offline.
+          </p>
+        </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Form Section */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="gen-card bg-red-50  p-5 rounded-2xl">
-                <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-                  <Settings size={18} className="text-red-500" /> Pengaturan Game
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Topik Pembelajaran</label>
-                    <AIAssistedInput type="text" 
-                      placeholder="Contoh: Tata Surya, Pecahan, Sejarah Kemerdekaan..." 
-                      value={formData.topik}
-                      onChange={e => setFormData({...formData, topik: e.target.value})}
-                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
-                    />
-                  </div>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Form Section */}
+          <div className="lg:col-span-1 space-y-5">
+            <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
+              <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Settings size={18} className="text-indigo-600" /> Pengaturan Game & Kurikulum
+              </h3>
 
+              <div className="space-y-3.5">
+                <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Jenjang Sekolah</label>
-                    <select 
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Jenjang</label>
+                    <select
                       value={formData.jenjang}
-                      onChange={e => setFormData({...formData, jenjang: e.target.value})}
-                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
+                      onChange={e => setFormData({ ...formData, jenjang: e.target.value })}
+                      className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-gray-900 text-xs font-medium focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     >
-                      {JENJANG.map(j => <option key={j} value={j}>{j}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Jenis Game</label>
-                    <select 
-                      value={formData.jenisGame}
-                      onChange={e => setFormData({...formData, jenisGame: e.target.value})}
-                      className="w-full bg-white border border-gray-300 rounded-xl p-3 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
-                    >
-                      {GAME_TYPES.map(g => (
-                        <option key={g.id} value={g.id}>{g.name}</option>
+                      {educationLevels.map(j => (
+                        <option key={j.id} value={j.id}>{j.label}</option>
                       ))}
                     </select>
-                    <p className="text-[10px] text-indigo-300 mt-1">
-                      {GAME_TYPES.find(g => g.id === formData.jenisGame)?.desc}
-                    </p>
                   </div>
-
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Tingkat Kesulitan</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {DIFFICULTY_LEVELS.map(level => (
-                        <button
-                          key={level.id}
-                          onClick={() => setFormData({...formData, difficulty: level.id})}
-                          className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
-                            formData.difficulty === level.id 
-                              ? 'bg-red-500 border border-black/20 border-black text-black shadow-sm' 
-                              : 'bg-white border-black text-gray-600 hover:border-slate-500'
-                          }`}
-                        >
-                          <span className={level.color}>{level.name}</span>
-                        </button>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Kelas</label>
+                    <select
+                      value={formData.kelas}
+                      onChange={e => setFormData({ ...formData, kelas: e.target.value })}
+                      className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-gray-900 text-xs font-medium focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    >
+                      {(phaseClassMap[formData.jenjang]?.classes?.[formData.fase] || []).map(c => (
+                        <option key={c.id} value={c.id}>{c.label}</option>
                       ))}
-                    </div>
+                    </select>
                   </div>
                 </div>
-              </div>
 
-              <div className="gen-card bg-red-50  p-5 rounded-2xl">
-                <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
-                  <Users size={18} className="text-red-500" /> Pengaturan Pemain
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Jumlah Pemain (Maks 4)</label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4].map(num => (
-                        <button
-                          key={num}
-                          onClick={() => setFormData({...formData, jumlahPemain: num})}
-                          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                            formData.jumlahPemain === num 
-                              ? 'bg-red-500 border border-black text-black shadow-lg shadow-red-500/20' 
-                              : 'bg-white text-gray-600 hover:bg-red-100'
-                          }`}
-                        >
-                          {num}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Mata Pelajaran</label>
+                  <select
+                    value={formData.mapel}
+                    onChange={e => setFormData({ ...formData, mapel: e.target.value })}
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-gray-900 text-xs font-medium focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  >
+                    {(subjectsByLevel[formData.jenjang] || []).map(s => (
+                      <option key={s.id} value={s.id}>{s.label}</option>
+                    ))}
+                  </select>
+                </div>
 
-                  <div className="space-y-2">
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Nama Pemain</label>
-                    {Array.from({ length: formData.jumlahPemain }).map((_, i) => (
-                      <AIAssistedInput key={i}
-                        type="text" 
-                        placeholder={`Nama Pemain ${i + 1}`}
-                        value={(formData as any)[`pemain${i + 1}`]}
-                        onChange={e => setFormData({...formData, [`pemain${i + 1}`]: e.target.value})}
-                        className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-black text-sm focus:border-black focus:ring-1 focus:ring-indigo-500 transition-all"
-                      />
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Topik Pembelajaran</label>
+                  <AIAssistedInput
+                    type="text"
+                    placeholder="Contoh: Tata Surya, Pecahan Senilai, Ekosistem..."
+                    value={formData.topik}
+                    onChange={e => setFormData({ ...formData, topik: e.target.value })}
+                    className="w-full bg-white border border-gray-300 rounded-xl p-3 text-gray-900 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Engine / Genre Game</label>
+                  <select
+                    value={formData.jenisGame}
+                    onChange={e => setFormData({ ...formData, jenisGame: e.target.value })}
+                    className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-gray-900 text-sm font-medium focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                  >
+                    {GAME_TYPES.map(g => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-indigo-700 mt-1 font-medium">
+                    {GAME_TYPES.find(g => g.id === formData.jenisGame)?.desc}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Tingkat Kesulitan</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DIFFICULTY_LEVELS.map(level => (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, difficulty: level.id })}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
+                          formData.difficulty === level.id
+                            ? 'bg-indigo-50 border-indigo-600 shadow-sm ring-1 ring-indigo-600'
+                            : 'bg-white border-gray-200 hover:border-gray-400'
+                        }`}
+                      >
+                        <span className={level.color}>{level.name}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
               </div>
-
-              <div className="bg-red-100 border border-black border border-black rounded-xl p-3 text-center">
-                <p className="text-xs text-indigo-200">
-                  💡 Suka dengan fitur ini? Dukung pengembangan aplikasi ini melalui <a href="https://saweria.co/pemuryadi" target="_blank" rel="noopener noreferrer" className="text-amber-600 font-bold hover:underline">Saweria</a>
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <ModelSelector label="Model Teks AI" modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating} />
-                <ModelSelector label="Model Gambar AI" modality="image" value={selectedImageModel} onChange={setSelectedImageModel} disabled={isGenerating} />
-              </div>
-
-              <button 
-                onClick={generateGame}
-                disabled={isGenerating}
-                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-black rounded-xl font-bold text-lg shadow-xl shadow-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-generate-animated"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="animate-spin" size={24} />
-                    Merakit Game...
-                  </>
-                ) : (
-                  <>
-                    <Play size={24} />
-                    Generate Game
-                  </>
-                )}
-              </button>
-
-              {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
             </div>
 
-            {/* Preview Section */}
-            <div className="lg:col-span-2">
-              <div className="bg-gray-50 rounded-2xl border border-black h-full min-h-[600px] flex flex-col overflow-hidden relative shadow-inner">
-                {/* Browser Chrome */}
-                <div className="bg-white px-4 py-3 border-b border-black flex items-center gap-2">
-                  <div className="flex gap-1.5">
+            <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
+              <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Users size={18} className="text-indigo-600" /> Pengaturan Pemain / Kelompok
+              </h3>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Jumlah Pemain (Maks 4)</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4].map(num => (
+                      <button
+                        key={num}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, jumlahPemain: num })}
+                        className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all border ${
+                          formData.jumlahPemain === num
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50'
+                        }`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Nama Pemain / Tim</label>
+                  {Array.from({ length: formData.jumlahPemain }).map((_, i) => (
+                    <AIAssistedInput
+                      key={i}
+                      type="text"
+                      placeholder={`Nama Pemain ${i + 1}`}
+                      value={(formData as any)[`pemain${i + 1}`]}
+                      onChange={e => setFormData({ ...formData, [`pemain${i + 1}`]: e.target.value })}
+                      className="w-full bg-white border border-gray-300 rounded-xl p-2.5 text-gray-900 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <ModelSelector label="Model AI Konten" modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGenerating || isFixingError} />
+
+            <button
+              type="button"
+              onClick={generateGame}
+              disabled={isGenerating || isFixingError}
+              className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold text-base shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="animate-spin" size={20} />
+                  Merakit Game IFP...
+                </>
+              ) : (
+                <>
+                  <Play size={20} />
+                  Generate Game IFP
+                </>
+              )}
+            </button>
+
+            {error && (
+              <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-medium">
+                {error}
+              </div>
+            )}
+          </div>
+
+          {/* Preview & IFP Player Section */}
+          <div className="lg:col-span-2">
+            <div
+              ref={playerWrapperRef}
+              className="bg-slate-900 rounded-2xl border border-slate-700 h-full min-h-[620px] flex flex-col overflow-hidden relative shadow-xl"
+            >
+              {/* IFP Player Toolbar */}
+              <div className="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5 mr-2">
                     <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
                     <div className="w-3 h-3 rounded-full bg-amber-500/80"></div>
                     <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
                   </div>
-                  <div className="mx-auto bg-gray-50 px-4 py-1 rounded-md text-xs text-gray-500 font-mono flex items-center gap-2">
-                    <Trophy size={12} className="text-amber-600" />
-                    IFP EduGame Player
+                  <div className="bg-slate-900 px-3 py-1 rounded-md text-xs text-slate-200 font-semibold flex items-center gap-1.5 border border-slate-700">
+                    <Trophy size={13} className="text-amber-400" />
+                    IFP EduGame Player {isSandboxGenre(formData.jenisGame) ? '(Sandbox)' : '(60fps Engine)'}
                   </div>
                 </div>
 
-                {/* Game Container */}
-                <div className="flex-1 relative bg-black flex items-center justify-center">
-                  {isGenerating ? (
-                    <div className="w-full h-full bg-[#0a0a0a] text-green-400 font-mono p-6 flex flex-col justify-start text-left absolute inset-0 z-10">
-                      <div className="flex justify-between items-center border-b border-green-900/50 pb-2 mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <span className="text-sm font-bold text-green-500">AI GAME TERMINAL</span>
-                        </div>
-                        <div className="text-xs text-green-600 bg-green-950/30 px-2 py-1 rounded border border-green-900/50 tabular-nums">
-                          {elapsedTime} ms
-                        </div>
-                      </div>
-                      <div className="flex-1 overflow-y-auto flex flex-col">
-                        <p className="text-green-300 font-bold mb-4">{'>'} AI Sedang Memprogram Game Anda...</p>
-                        <div className="space-y-1.5 text-xs sm:text-sm text-green-500/80">
-                          {terminalLines.map((line, i) => (
-                            <p key={i}>{line}</p>
-                          ))}
-                          <p className="animate-pulse">_</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : gameHtml ? (
-                    <iframe 
-                      srcDoc={gameHtml} 
-                      className="w-full h-full border-0 bg-white"
-                      title="Generated Game"
-                      sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
-                    />
-                  ) : (
-                    <div className="text-center p-8">
-                      <div className="gen-card w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Play size={40} className="text-slate-600" />
-                      </div>
-                      <h4 className="text-xl font-bold text-gray-600 mb-2">Layar Game Kosong</h4>
-                      <p className="text-gray-500 max-w-sm mx-auto">
-                        Isi pengaturan di sebelah kiri dan klik "Generate Game" untuk membuat game edukatif kustom Anda.
-                      </p>
-                    </div>
-                  )}
+                {gameHtml && !isGenerating && (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={toggleMute}
+                      title={isMuted ? 'Nyalakan Suara' : 'Matikan Suara'}
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium flex items-center gap-1 transition-colors"
+                    >
+                      {isMuted ? <VolumeX size={14} className="text-red-400" /> : <Volume2 size={14} className="text-emerald-400" />}
+                      <span className="hidden sm:inline">{isMuted ? 'Mute' : 'Suara'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={restartGame}
+                      title="Ulangi Permainan"
+                      className="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <RotateCcw size={14} />
+                      <span className="hidden sm:inline">Restart</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={downloadOfflineHtml}
+                      title="Unduh File HTML Offline untuk IFP Sekolah"
+                      className="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <Download size={14} />
+                      <span className="hidden sm:inline">Unduh Offline</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={toggleFullscreen}
+                      title="Mode Layar Penuh IFP"
+                      className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 text-xs font-bold flex items-center gap-1 transition-colors"
+                    >
+                      {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                      <span className="hidden sm:inline">{isFullscreen ? 'Keluar' : 'Layar Penuh'}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Sandbox Runtime Error Guard Banner */}
+              {sandboxRuntimeError && !isFixingError && (
+                <div className="bg-rose-950 border-b border-rose-700 px-4 py-2.5 flex items-center justify-between gap-3 text-rose-100 text-xs">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle size={16} className="text-amber-400 shrink-0" />
+                    <span>Error di Sandbox Game: <strong className="font-mono">{sandboxRuntimeError}</strong></span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fixSandboxError}
+                    className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold rounded-lg flex items-center gap-1.5 shrink-0"
+                  >
+                    <Wrench size={13} /> Perbaiki Bug Otomatis
+                  </button>
                 </div>
+              )}
+
+              {/* Game Container */}
+              <div className="flex-1 relative bg-slate-950 flex items-center justify-center">
+                {isGenerating || isFixingError ? (
+                  <div className="w-full h-full bg-[#0a0a0a] text-green-400 font-mono p-6 flex flex-col justify-start text-left absolute inset-0 z-10">
+                    <div className="flex justify-between items-center border-b border-green-900/50 pb-2 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-bold text-green-500">IFP HYBRID ENGINE TERMINAL</span>
+                      </div>
+                      <div className="text-xs text-green-400 bg-green-950/50 px-2 py-1 rounded border border-green-900/50 tabular-nums">
+                        {elapsedTime} ms
+                      </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto flex flex-col">
+                      <p className="text-green-300 font-bold mb-4">
+                        {'>'} {isFixingError ? 'Memperbaiki skrip Sandbox...' : 'Menyiapkan Engine Game IFP...'}
+                      </p>
+                      <div className="space-y-1.5 text-xs sm:text-sm text-green-500/90">
+                        {terminalLines.map((line, i) => (
+                          <p key={i}>{line}</p>
+                        ))}
+                        <p className="animate-pulse">_</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : gameHtml ? (
+                  <iframe
+                    ref={iframeRef}
+                    srcDoc={gameHtml}
+                    className="w-full h-full min-h-[560px] border-0 bg-slate-900"
+                    title="Generated IFP Game"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups"
+                  />
+                ) : (
+                  <div className="text-center p-8">
+                    <div className="w-20 h-20 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Play size={36} className="text-indigo-400 ml-1" />
+                    </div>
+                    <h4 className="text-xl font-bold text-white mb-2">Layar Game IFP Siap</h4>
+                    <p className="text-slate-400 max-w-md mx-auto text-sm">
+                      Pilih genre engine 60fps di sebelah kiri, isi topik & pemain, lalu klik "Generate Game IFP" untuk langsung bermain atau unduh offline.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

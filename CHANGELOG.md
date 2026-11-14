@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.6] - 14 November 2026
+- Game IFP Hybrid Engine 60fps: Mengganti rendering HTML monolitik yang rawan error menjadi arsitektur Hybrid Engine (5 engine lokal 60fps berbasis payload JSON untuk RPG, Racing/Action, Adventure, Puzzle, & Simulasi) plus Sandbox Guard dengan tombol Perbaiki Bug Otomatis, Layar Penuh IFP, Unduh Offline (.html), dan efek suara WebAudio.
+- Upgrade Games Center Dual-Mode: Mengganti dropdown polos menjadi Galeri Kartu Game dengan efek suara WebAudio, menambahkan AI Word Generator dan Live Play interaktif pada Word Search serta Teka-Teki Silang (TTS), dan menyematkan Cetak Lembar Siswa & Kunci Jawaban (Letter) pada seluruh 6 mini-game.
+- Upgrade Worksheet / LKPD Terstruktur: Beralih dari HTML mentah ke Structured JSON-to-Template (5 gaya cetak aman, mode Tanpa Gambar/Hemat Tinta & Banner Edukatif bebas picsum.photos), Edit Cepat Teks, serta pemisahan tombol Cetak Lembar Siswa dan Cetak Pegangan Guru.
+
 ## [5.4.5] - 13 November 2026
 - Integrasi Kisi-Kisi Resmi Terbaru TKA SD (Numerasi & Literasi): Mengadopsi matriks kurikulum asesmen standar terbaru untuk Matematika (Bilangan Rasional, Objek Geometri & Pengukuran, Data dan Ketidakpastian) dan Bahasa Indonesia (Pemahaman Tekstual, Pemahaman Inferensial, Evaluasi dan Apresiasi).
 - Eliminasi Nomor Indeks (..) pada Hirarki & Prompt: Menghapus seluruh nomor kurung seperti (1), (2), (13), dst. dari indikator dan prompt sistem guna menghasilkan rumusan butir soal yang alami, bersih, dan profesional.

@@ -6,7 +6,8 @@ import { useAuth } from '../AuthContext';
 import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
-import { FileText, Bot, Loader2, Sparkles, Printer } from 'lucide-react';
+import { FileText, Bot, Loader2, Sparkles, Printer, CheckCircle2, Eye, RotateCcw } from 'lucide-react';
+import { gameAudio } from '../lib/gameAudio';
 
 type WordClue = {
   word: string;
@@ -46,6 +47,9 @@ export default function CrosswordGenerator() {
     maxCol: number;
   } | null>(null);
   const [error, setError] = useState('');
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [isChecked, setIsChecked] = useState(false);
+  const [showAllAnswers, setShowAllAnswers] = useState(false);
 
   // Update fase, kelas, and subject when eduLevel changes
   useEffect(() => {
@@ -286,6 +290,10 @@ PENTING:
       minCol: minC,
       maxCol: maxC
     });
+    setUserAnswers({});
+    setIsChecked(false);
+    setShowAllAnswers(false);
+    gameAudio.click();
   };
 
   const printPuzzle = () => {
@@ -602,41 +610,144 @@ PENTING:
           </div>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 shadow-sm rounded-xl p-4 min-h-[400px] flex items-center justify-center overflow-auto custom-scrollbar">
+        <div className="bg-gray-50 border border-gray-200 shadow-sm rounded-xl p-4 min-h-[400px] flex flex-col items-center justify-start overflow-auto custom-scrollbar">
           {puzzleData ? (
-            <div className="p-4 bg-white rounded-lg shadow-inner max-w-full overflow-auto">
-              <table className="border-collapse mx-auto">
-                <tbody>
-                  {Array.from({ length: puzzleData.maxRow - puzzleData.minRow + 1 }).map((_, rIdx) => {
-                    const r = puzzleData.minRow + rIdx;
-                    return (
-                      <tr key={r}>
-                        {Array.from({ length: puzzleData.maxCol - puzzleData.minCol + 1 }).map((_, cIdx) => {
-                          const c = puzzleData.minCol + cIdx;
+            <div className="w-full space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-3 rounded-xl border border-gray-200">
+                <span className="text-xs font-bold text-gray-700">Ketik huruf langsung di kotak TTS:</span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsChecked(true);
+                      let allCorrect = true;
+                      let filledCount = 0;
+                      for (let r = puzzleData.minRow; r <= puzzleData.maxRow; r++) {
+                        for (let c = puzzleData.minCol; c <= puzzleData.maxCol; c++) {
                           const cell = puzzleData.grid[r][c];
-                          return (
-                            <td 
-                              key={c} 
-                              className={`w-8 h-8 md:w-10 md:h-10 ${cell ? 'border-2 border-gray-300 bg-white' : 'border-0 border-transparent'} relative text-center font-bold text-gray-900`}
-                            >
-                              {cell && cell.number && (
-                                <span className="absolute top-0.5 left-0.5 text-[8px] md:text-[10px] font-normal leading-none text-gray-500">
-                                  {cell.number}
-                                </span>
-                              )}
-                              {cell && <span className="opacity-0 hover:opacity-100 transition-opacity cursor-help text-blue-600" title="Jawaban">{cell.char}</span>}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <p className="text-center text-xs text-gray-500 mt-4">Arahkan kursor ke kotak untuk melihat jawaban</p>
+                          if (cell) {
+                            const val = (userAnswers[`${r}-${c}`] || '').toUpperCase();
+                            if (val) filledCount++;
+                            if (val !== cell.char) allCorrect = false;
+                          }
+                        }
+                      }
+                      if (allCorrect && filledCount > 0) gameAudio.win();
+                      else gameAudio.wrong();
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1"
+                  >
+                    <CheckCircle2 size={14} /> Periksa
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllAnswers(!showAllAnswers)}
+                    className="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold flex items-center gap-1"
+                  >
+                    <Eye size={14} /> {showAllAnswers ? 'Tutup Kunci' : 'Kunci'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserAnswers({});
+                      setIsChecked(false);
+                      setShowAllAnswers(false);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold flex items-center gap-1"
+                    title="Bersihkan Isian"
+                  >
+                    <RotateCcw size={14} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white rounded-xl border border-gray-200 max-w-full overflow-auto">
+                <table className="border-collapse mx-auto">
+                  <tbody>
+                    {Array.from({ length: puzzleData.maxRow - puzzleData.minRow + 1 }).map((_, rIdx) => {
+                      const r = puzzleData.minRow + rIdx;
+                      return (
+                        <tr key={r}>
+                          {Array.from({ length: puzzleData.maxCol - puzzleData.minCol + 1 }).map((_, cIdx) => {
+                            const c = puzzleData.minCol + cIdx;
+                            const cell = puzzleData.grid[r][c];
+                            const key = `${r}-${c}`;
+                            const val = showAllAnswers ? cell?.char || '' : (userAnswers[key] || '');
+                            const isCorrect = isChecked && cell && val.toUpperCase() === cell.char;
+                            const isWrong = isChecked && cell && val && val.toUpperCase() !== cell.char;
+                            return (
+                              <td
+                                key={c}
+                                className={`w-8 h-8 md:w-9 md:h-9 ${
+                                  cell
+                                    ? isCorrect
+                                      ? 'border-2 border-emerald-600 bg-emerald-50'
+                                      : isWrong
+                                      ? 'border-2 border-rose-500 bg-rose-50'
+                                      : 'border-2 border-gray-700 bg-white'
+                                    : 'border-0 border-transparent'
+                                } relative text-center`}
+                              >
+                                {cell && cell.number && (
+                                  <span className="absolute top-0.5 left-0.5 text-[8px] font-bold leading-none text-indigo-700 pointer-events-none">
+                                    {cell.number}
+                                  </span>
+                                )}
+                                {cell && (
+                                  <input
+                                    type="text"
+                                    maxLength={1}
+                                    value={val}
+                                    onChange={(e) => {
+                                      const ch = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+                                      setIsChecked(false);
+                                      setUserAnswers(prev => ({ ...prev, [key]: ch }));
+                                    }}
+                                    className="w-full h-full text-center font-extrabold text-sm md:text-base uppercase bg-transparent text-gray-900 focus:outline-none focus:bg-indigo-50"
+                                  />
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Interactive Clues */}
+              <div className="grid sm:grid-cols-2 gap-3 bg-white p-4 rounded-xl border border-gray-200 text-xs">
+                <div>
+                  <h4 className="font-bold text-indigo-700 border-b border-gray-200 pb-1 mb-2 uppercase">Mendatar</h4>
+                  <ul className="space-y-1.5 text-gray-700">
+                    {puzzleData.placedWords
+                      .filter(w => w.direction === 'H')
+                      .sort((a, b) => a.number - b.number)
+                      .map(w => (
+                        <li key={`h-${w.number}`}>
+                          <strong className="text-gray-900">{w.number}.</strong> {w.clue}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-indigo-700 border-b border-gray-200 pb-1 mb-2 uppercase">Menurun</h4>
+                  <ul className="space-y-1.5 text-gray-700">
+                    {puzzleData.placedWords
+                      .filter(w => w.direction === 'V')
+                      .sort((a, b) => a.number - b.number)
+                      .map(w => (
+                        <li key={`v-${w.number}`}>
+                          <strong className="text-gray-900">{w.number}.</strong> {w.clue}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-500 my-auto">
               <div className="mb-4 opacity-50 flex justify-center text-gray-400">
                 <FileText size={64} />
               </div>

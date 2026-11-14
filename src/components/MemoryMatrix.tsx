@@ -5,7 +5,9 @@ import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
-import { Bot, Loader2, Sparkles, Gamepad2 } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Gamepad2, Printer } from 'lucide-react';
+import { printMiniGameWorksheet } from '../lib/gamePrintHelper';
+import { gameAudio } from '../lib/gameAudio';
 import './ZeroGStyles.css';
 
 type Card = {
@@ -322,13 +324,37 @@ PENTING:
             </div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2">
             <button 
-              onClick={startGame}
-              className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm "
+              onClick={() => { gameAudio.click(); startGame(); }}
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm"
             >
               Generate Game
             </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!printMiniGameWorksheet('memory', title, inputText, profile, false)) {
+                    setError('Masukkan daftar kata dengan format KATA - PASANGAN terlebih dahulu.');
+                  }
+                }}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={14} /> Cetak Kartu Siswa
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!printMiniGameWorksheet('memory', title, inputText, profile, true)) {
+                    setError('Masukkan daftar kata dengan format KATA - PASANGAN terlebih dahulu.');
+                  }
+                }}
+                className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={14} /> Cetak Kunci
+              </button>
+            </div>
           </div>
         </div>
 

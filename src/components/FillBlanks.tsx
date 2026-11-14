@@ -5,7 +5,9 @@ import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
 import { useAuth } from '../AuthContext';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
-import { Bot, Loader2, Sparkles, PenTool } from 'lucide-react';
+import { Bot, Loader2, Sparkles, PenTool, Printer } from 'lucide-react';
+import { printMiniGameWorksheet } from '../lib/gamePrintHelper';
+import { gameAudio } from '../lib/gameAudio';
 import './ZeroGStyles.css';
 
 type BlankItem = {
@@ -253,9 +255,35 @@ PENTING:
 
           {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
 
-          <button onClick={startGame} className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm">
-            Generate Game
-          </button>
+          <div className="flex flex-col gap-2">
+            <button onClick={() => { gameAudio.click(); startGame(); }} className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all shadow-sm">
+              Generate Game
+            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!printMiniGameWorksheet('fill-blanks', title, inputText, profile, false)) {
+                    setError('Masukkan daftar soal terlebih dahulu.');
+                  }
+                }}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={14} /> Cetak Lembar Siswa
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!printMiniGameWorksheet('fill-blanks', title, inputText, profile, true)) {
+                    setError('Masukkan daftar soal terlebih dahulu.');
+                  }
+                }}
+                className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={14} /> Cetak Kunci
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="bg-gray-50 border border-gray-200 shadow-sm rounded-xl p-4 min-h-[400px] flex items-center justify-center overflow-auto custom-scrollbar">

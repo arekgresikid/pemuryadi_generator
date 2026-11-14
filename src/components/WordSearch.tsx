@@ -1,27 +1,129 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
-import { getWatermarkHtml, createPrintWindow } from '../utils/print';
+import { universalPrint, getWatermarkHtml } from '../utils/print';
+import { educationLevels, phaseClassMap, subjectsByLevel } from '../constants';
+import { GoogleGenAI, Type } from '../lib/genai';
+import ModelSelector from './ModelSelector';
 import AIAssistedInput from './AIAssistedInput';
 import AIAssistedTextarea from './AIAssistedTextarea';
-import { Type, Puzzle, Printer } from 'lucide-react';
+import { gameAudio } from '../lib/gameAudio';
+import { Type as TypeIcon, Puzzle, Printer, Sparkles, Loader2, Bot, Clock, Trophy, CheckCircle2 } from 'lucide-react';
+
+type WordPlacement = {
+  word: string;
+  cells: [number, number][];
+};
 
 export default function WordSearch() {
   const { profile } = useAuth();
+  const [eduLevel, setEduLevel] = useState('sd');
+  const [fase, setFase] = useState('A');
+  const [kelas, setKelas] = useState('1');
+  const [subject, setSubject] = useState('bahasa-indonesia');
+  const [selectedModel, setSelectedModel] = useState<string>('openai');
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+
   const [title, setTitle] = useState('');
   const [wordsText, setWordsText] = useState('');
-  const [gridSize, setGridSize] = useState(20);
+  const [gridSize, setGridSize] = useState(15);
   const [difficulty, setDifficulty] = useState('easy');
-  const [puzzleData, setPuzzleData] = useState<{title: string, grid: string[][], words: string[], gridSize: number} | null>(null);
+  const [puzzleData, setPuzzleData] = useState<{
+    title: string;
+    grid: string[][];
+    words: string[];
+    placements: WordPlacement[];
+    gridSize: number;
+  } | null>(null);
   const [error, setError] = useState('');
+
+  // Interactive Play State
+  const [startCell, setStartCell] = useState<[number, number] | null>(null);
+  const [foundWords, setFoundWords] = useState<string[]>([]);
+  const [foundCellKeys, setFoundCellKeys] = useState<Set<string>>(new Set());
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (profile?.jenjang) {
+      const lvl = profile.jenjang.toLowerCase();
+      if (educationLevels.some(e => e.id === lvl)) setEduLevel(lvl);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    const phases = phaseClassMap[eduLevel]?.phases || [];
+    setFase(phases[0]?.id || '');
+    const subjects = subjectsByLevel[eduLevel] || [];
+    setSubject(subjects[0]?.id || '');
+  }, [eduLevel]);
+
+  useEffect(() => {
+    const classes = phaseClassMap[eduLevel]?.classes?.[fase] || [];
+    setKelas(classes[0]?.id || '');
+  }, [fase, eduLevel]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (isPlaying && puzzleData && foundWords.length < puzzleData.words.length) {
+      timer = setInterval(() => setElapsedSec(s => s + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isPlaying, puzzleData, foundWords.length]);
 
   const wordCount = wordsText.trim().split('\n').filter(w => w.trim()).length;
 
+  const generateWordsWithAI = async () => {
+    setIsGeneratingAI(true);
+    setError('');
+    try {
+      const ai = new GoogleGenAI({});
+      const subjectLabel = subjectsByLevel[eduLevel]?.find(s => s.id === subject)?.label || subject;
+      const jenjangLabel = educationLevels.find(l => l.id === eduLevel)?.label || eduLevel;
+
+      const prompt = `Buatkan 12 sampai 15 kata kunci edukatif (kata tunggal tanpa spasi, huruf A-Z saja, panjang 4-12 huruf) untuk permainan Word Search (Cari Kata) bagi siswa:
+- Jenjang: ${jenjangLabel} (Kelas ${kelas})
+- Mata Pelajaran: ${subjectLabel}
+- Topik/Judul: ${title || 'Materi Pokok ' + subjectLabel}
+
+Kembalikan dalam JSON: { "judul": "Judul Menarik", "words": ["KATA1", "KATA2", ...] }`;
+
+      const response = await ai.models.generateContent({
+        model: selectedModel,
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              judul: { type: Type.STRING },
+              words: { type: Type.ARRAY, items: { type: Type.STRING } },
+            },
+            required: ['judul', 'words'],
+          },
+        },
+      });
+
+      const data = JSON.parse(response.text || '{}');
+      if (Array.isArray(data.words) && data.words.length > 0) {
+        if (!title && data.judul) setTitle(data.judul);
+        const cleaned = data.words
+          .map((w: string) => w.toUpperCase().replace(/[^A-Z]/g, ''))
+          .filter((w: string) => w.length >= 3 && w.length <= gridSize);
+        setWordsText(cleaned.join('\n'));
+      }
+    } catch (err: any) {
+      setError('Gagal menghasilkan kata dari AI: ' + err.message);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
   const getDirections = (diff: string) => {
-    switch(diff) {
-      case 'easy': return [[0,1], [1,0]]; // H, V
-      case 'medium': return [[0,1], [1,0], [1,1], [-1,1]]; // + Diagonal
-      case 'hard': return [[0,1], [1,0], [1,1], [-1,1], [0,-1], [-1,0], [-1,-1], [1,-1]]; // + Reverse
-      default: return [[0,1], [1,0]];
+    switch (diff) {
+      case 'easy': return [[0, 1], [1, 0]];
+      case 'medium': return [[0, 1], [1, 0], [1, 1], [-1, 1]];
+      case 'hard': return [[0, 1], [1, 0], [1, 1], [-1, 1], [0, -1], [-1, 0], [-1, -1], [1, -1]];
+      default: return [[0, 1], [1, 0]];
     }
   };
 
@@ -35,246 +137,363 @@ export default function WordSearch() {
     return true;
   };
 
-  const placeWord = (grid: string[][], word: string, directions: number[][], size: number) => {
-    const attempts = 100;
-    for (let a = 0; a < attempts; a++) {
+  const placeWord = (grid: string[][], word: string, directions: number[][], size: number): [number, number][] | null => {
+    for (let a = 0; a < 120; a++) {
       const dir = directions[Math.floor(Math.random() * directions.length)];
       const startRow = Math.floor(Math.random() * size);
       const startCol = Math.floor(Math.random() * size);
-
       if (canPlace(grid, word, startRow, startCol, dir, size)) {
+        const cells: [number, number][] = [];
         for (let i = 0; i < word.length; i++) {
-          grid[startRow + i * dir[0]][startCol + i * dir[1]] = word[i];
+          const r = startRow + i * dir[0];
+          const c = startCol + i * dir[1];
+          grid[r][c] = word[i];
+          cells.push([r, c]);
         }
-        return true;
+        return cells;
       }
     }
-    return false;
+    return null;
   };
 
   const generatePuzzle = () => {
     setError('');
     const puzzleTitle = title || 'Word Search Puzzle';
-    
     if (!wordsText.trim()) {
-      setError('Masukkan kata-kata untuk puzzle!');
+      setError('Masukkan kata-kata atau klik "Buat Kata Otomatis" terlebih dahulu!');
       return;
     }
 
-    let words = wordsText.toUpperCase().split('\n').map(w => w.trim().replace(/\s/g, '')).filter(w => w && w.length <= gridSize);
-    words = words.slice(0, 40); // Max 40 words
+    let words = wordsText
+      .toUpperCase()
+      .split('\n')
+      .map(w => w.trim().replace(/[^A-Z]/g, ''))
+      .filter(w => w.length >= 2 && w.length <= gridSize);
+    words = Array.from(new Set(words)).slice(0, 40);
 
-    // Create grid
     const grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
     const placedWords: string[] = [];
+    const placements: WordPlacement[] = [];
     const directions = getDirections(difficulty);
 
-    // Place words
     words.forEach(word => {
-      const placed = placeWord(grid, word, directions, gridSize);
-      if (placed) placedWords.push(word);
+      const cells = placeWord(grid, word, directions, gridSize);
+      if (cells) {
+        placedWords.push(word);
+        placements.push({ word, cells });
+      }
     });
 
-    // Fill empty cells
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     for (let i = 0; i < gridSize; i++) {
       for (let j = 0; j < gridSize; j++) {
-        if (!grid[i][j]) {
-          grid[i][j] = letters[Math.floor(Math.random() * 26)];
-        }
+        if (!grid[i][j]) grid[i][j] = letters[Math.floor(Math.random() * 26)];
       }
     }
 
-    setPuzzleData({ title: puzzleTitle, grid, words: placedWords, gridSize });
+    gameAudio.click();
+    setPuzzleData({ title: puzzleTitle, grid, words: placedWords, placements, gridSize });
+    setStartCell(null);
+    setFoundWords([]);
+    setFoundCellKeys(new Set());
+    setElapsedSec(0);
+    setIsPlaying(true);
   };
 
-  const printPuzzle = () => {
+  const handleCellClick = (r: number, c: number) => {
+    if (!puzzleData) return;
+    if (!startCell) {
+      gameAudio.click();
+      setStartCell([r, c]);
+      return;
+    }
+
+    const [sr, sc] = startCell;
+    const dr = r - sr;
+    const dc = c - sc;
+    const steps = Math.max(Math.abs(dr), Math.abs(dc));
+
+    const isStraight = dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc);
+    if (!isStraight || steps === 0) {
+      setStartCell([r, c]);
+      return;
+    }
+
+    const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+    const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+
+    let selectedStr = '';
+    const coords: [number, number][] = [];
+    for (let i = 0; i <= steps; i++) {
+      const cr = sr + i * stepR;
+      const cc = sc + i * stepC;
+      selectedStr += puzzleData.grid[cr][cc];
+      coords.push([cr, cc]);
+    }
+
+    const reversedStr = selectedStr.split('').reverse().join('');
+    const matched = puzzleData.words.find(w => (w === selectedStr || w === reversedStr) && !foundWords.includes(w));
+
+    if (matched) {
+      const nextFound = [...foundWords, matched];
+      const nextKeys = new Set(foundCellKeys);
+      coords.forEach(([cr, cc]) => nextKeys.add(`${cr}-${cc}`));
+      setFoundWords(nextFound);
+      setFoundCellKeys(nextKeys);
+      setStartCell(null);
+      if (nextFound.length === puzzleData.words.length) {
+        gameAudio.win();
+        setIsPlaying(false);
+      } else {
+        gameAudio.correct();
+      }
+    } else {
+      gameAudio.wrong();
+      setStartCell(null);
+    }
+  };
+
+  const printPuzzle = (withKey: boolean = false) => {
     if (!puzzleData) {
       setError('Generate puzzle terlebih dahulu!');
       return;
     }
 
-    const { title, grid, words, gridSize } = puzzleData;
-    const printWindow = createPrintWindow();
-    if (!printWindow) return;
-    
-    let gridHtml = '<table style="border-collapse:collapse;margin:20px auto;">';
-    for (let i = 0; i < gridSize; i++) {
+    const { title: pTitle, grid, words, placements, gridSize: gSize } = puzzleData;
+    const keySet = new Set<string>();
+    if (withKey) {
+      placements.forEach(p => p.cells.forEach(([r, c]) => keySet.add(`${r}-${c}`)));
+    }
+
+    let gridHtml = '<table style="border-collapse:collapse;margin:16px auto;">';
+    for (let i = 0; i < gSize; i++) {
       gridHtml += '<tr>';
-      for (let j = 0; j < gridSize; j++) {
-        gridHtml += `<td style="width:25px;height:25px;text-align:center;border:1px solid #333;font-family:monospace;font-weight:bold;">${grid[i][j]}</td>`;
+      for (let j = 0; j < gSize; j++) {
+        const isKey = keySet.has(`${i}-${j}`);
+        gridHtml += `<td style="width:${gSize > 18 ? 22 : 26}px;height:${gSize > 18 ? 22 : 26}px;text-align:center;border:1px solid #334155;font-family:monospace;font-weight:bold;font-size:13px;background:${isKey ? '#bbf7d0' : '#ffffff'};color:${isKey ? '#14532d' : '#000000'};">${grid[i][j]}</td>`;
       }
       gridHtml += '</tr>';
     }
     gridHtml += '</table>';
 
-    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).map(el => el.outerHTML).join('\n');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>${title}</title>
-          ${styles}
-          <style>
-            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td p, .content-wrapper p { margin-bottom: 8px !important; }
-            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
-            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
-            .html-content th { background-color: #f1f5f9; font-weight: bold; }
-          </style></head>
-      <body style="font-family:Arial,sans-serif;padding:20px;">
-        <h1 style="text-align:center;">${title}</h1>
-        <p style="text-align:center;">Temukan ${words.length} kata tersembunyi!</p>
-        ${gridHtml}
-        <div style="margin-top:20px;">
-          <h3>Kata yang dicari:</h3>
-          <p>${words.join(', ')}</p>
+    const html = `
+      <div style="font-family:Arial,sans-serif;color:#000;">
+        <div style="border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div>
+            <h1 style="margin:0;font-size:20px;">${pTitle} ${withKey ? '(KUNCI JAWABAN)' : ''}</h1>
+            <p style="margin:4px 0 0;font-size:12px;color:#334155;">Temukan ${words.length} kata tersembunyi (mendatar, menurun, atau diagonal).</p>
+          </div>
+          ${!withKey ? `<div style="font-size:12px;text-align:right;">Nama: .................................<br/>Kelas: ...................</div>` : ''}
         </div>
-        <p style="text-align:center;margin-top:30px;font-size:12px;color:#666;">©2026 pemuryadi - Maju Pendidikan Indonesia</p>
-        ${getWatermarkHtml(profile?.role)}
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+        ${gridHtml}
+        <div style="margin-top:16px;padding:12px;border:1px solid #94a3b8;border-radius:8px;background:#f8fafc;">
+          <h3 style="margin:0 0 8px;font-size:13px;">Daftar Kata yang Dicari:</h3>
+          <p style="margin:0;font-size:12px;line-height:1.7;font-weight:600;">${words.join(' &nbsp;•&nbsp; ')}</p>
+        </div>
+        ${getWatermarkHtml(profile)}
+      </div>
+    `;
+
+    universalPrint(html, `${pTitle}${withKey ? ' - Kunci' : ''}`);
   };
 
   return (
-    <div className="gen-card rounded-2xl p-6 md:p-8  shadow-xl">
+    <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-200">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg">
-          <Type size={28} />
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md">
+          <TypeIcon size={24} />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-black">Generator Word Search Puzzle</h3>
-          <p className="text-gray-600">Buat puzzle mencari kata untuk pembelajaran (maks. 40 kata)</p>
+          <h3 className="text-xl font-bold text-gray-900">Word Search (Cari Kata Interaktif & Cetak)</h3>
+          <p className="text-sm text-gray-600">Buat daftar kata otomatis dengan AI, mainkan langsung dengan klik huruf awal-akhir, atau cetak LKPD.</p>
         </div>
       </div>
-      
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="space-y-4">
+
+      <div className="grid lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-5 space-y-4">
+          {/* AI Word Helper */}
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-4 space-y-3">
+            <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+              <Bot size={15} /> Generator Kata Otomatis
+            </h4>
+            <div className="grid grid-cols-3 gap-2">
+              <select value={eduLevel} onChange={e => setEduLevel(e.target.value)} className="bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900">
+                {educationLevels.map(l => <option key={l.id} value={l.id}>{l.label}</option>)}
+              </select>
+              <select value={kelas} onChange={e => setKelas(e.target.value)} className="bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900">
+                {(phaseClassMap[eduLevel]?.classes?.[fase] || []).map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+              <select value={subject} onChange={e => setSubject(e.target.value)} className="bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900">
+                {(subjectsByLevel[eduLevel] || []).map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+            </div>
+            <ModelSelector label="Model AI" modality="text" value={selectedModel} onChange={setSelectedModel} disabled={isGeneratingAI} />
+            <button
+              type="button"
+              onClick={generateWordsWithAI}
+              disabled={isGeneratingAI}
+              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            >
+              {isGeneratingAI ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+              {isGeneratingAI ? 'Menyusun Daftar Kata...' : 'Buat Kata Otomatis dari Topik'}
+            </button>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Judul Puzzle</label>
-            <AIAssistedInput type="text" 
+            <label className="block text-xs font-bold text-gray-700 mb-1">Judul / Topik Puzzle</label>
+            <AIAssistedInput
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black focus:border-green-500 transition-all" 
-              placeholder="Contoh: Mencari Kata Sains"
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-sm text-gray-900 focus:border-emerald-500"
+              placeholder="Contoh: Sistem Tata Surya"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Daftar Kata (satu kata per baris, maks 40)</label>
-            <AIAssistedTextarea value={wordsText}
+            <label className="block text-xs font-bold text-gray-700 mb-1">Daftar Kata (1 kata per baris, maks 40)</label>
+            <AIAssistedTextarea
+              value={wordsText}
               onChange={(e) => setWordsText(e.target.value)}
-              contextPrompt={`Buatkan daftar kata (satu kata per baris, maksimal 40 kata) untuk game Word Search Puzzle (Mencari Kata) dengan tema/judul: "${title || 'Pendidikan'}". Jawab HANYA dengan kata-katanya saja, tanpa penomoran atau simbol lain.`}
-              rows={6} 
-              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-4 text-black focus:border-green-500 transition-all" 
-              placeholder="MATAHARI&#10;BULAN&#10;BINTANG&#10;PLANET&#10;..." />
-            <p className="text-xs text-gray-500 mt-1">Jumlah kata: <span>{Math.min(wordCount, 40)}</span>/40</p>
+              rows={5}
+              className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-sm text-gray-900 font-mono focus:border-emerald-500"
+              placeholder="MATAHARI&#10;MERKURIUS&#10;VENUS&#10;BUMI&#10;MARS"
+            />
+            <p className="text-[11px] text-gray-500 mt-1">Jumlah kata: {Math.min(wordCount, 40)}/40</p>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ukuran Grid</label>
-              <select 
-                value={gridSize}
-                onChange={(e) => setGridSize(parseInt(e.target.value))}
-                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black"
-              >
-                <option value="15">15 x 15</option>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Ukuran Grid</label>
+              <select value={gridSize} onChange={(e) => setGridSize(parseInt(e.target.value))} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm text-gray-900">
+                <option value="12">12 x 12 (SD Awal)</option>
+                <option value="15">15 x 15 (Standar)</option>
                 <option value="18">18 x 18</option>
                 <option value="20">20 x 20</option>
-                <option value="25">25 x 25</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tingkat Kesulitan</label>
-              <select 
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-300 rounded-xl p-3 text-black"
-              >
-                <option value="easy">Mudah (H/V)</option>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Arah Kata</label>
+              <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full bg-gray-50 border border-gray-300 rounded-xl p-2.5 text-sm text-gray-900">
+                <option value="easy">Mudah (Mendatar/Menurun)</option>
                 <option value="medium">Sedang (+Diagonal)</option>
                 <option value="hard">Sulit (+Terbalik)</option>
               </select>
             </div>
           </div>
-          
-          {error && <p className="text-red-400 text-sm">{error}</p>}
-          
-          <button 
-            onClick={generatePuzzle} 
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 font-bold text-lg text-black hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/25 btn-generate-animated"
+
+          {error && <p className="text-red-600 text-xs font-medium bg-red-50 p-2.5 rounded-lg border border-red-200">{error}</p>}
+
+          <button
+            type="button"
+            onClick={generatePuzzle}
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 font-bold text-white flex items-center justify-center gap-2 shadow-md"
           >
-            <Puzzle size={24} /> Generate Puzzle
+            <Puzzle size={20} /> Generate & Mainkan Puzzle
           </button>
-          
-          <div className="flex gap-2">
-            <button 
-              onClick={printPuzzle} 
-              className="flex-1 py-3 rounded-xl bg-red-100 hover:bg-slate-600 text-black font-medium transition-all flex items-center justify-center gap-2"
-            >
-              <Printer size={20} /> Print / Download PDF
-            </button>
-          </div>
+
+          {puzzleData && (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => printPuzzle(false)}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={15} /> Cetak Lembar Siswa
+              </button>
+              <button
+                type="button"
+                onClick={() => printPuzzle(true)}
+                className="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Printer size={15} /> Cetak Kunci Jawaban
+              </button>
+            </div>
+          )}
         </div>
-        
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm min-h-[400px] overflow-auto flex flex-col items-center">
+
+        <div className="lg:col-span-7 bg-slate-50 p-5 rounded-2xl border border-gray-200 min-h-[450px] flex flex-col items-center">
           {puzzleData ? (
             <>
-              <div className="text-center mb-4">
-                <h3 className="text-xl font-bold text-black">{puzzleData.title}</h3>
-                <p className="text-sm text-gray-600">Temukan {puzzleData.words.length} kata tersembunyi!</p>
+              <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b border-gray-200">
+                <div>
+                  <h3 className="text-lg font-extrabold text-gray-900">{puzzleData.title}</h3>
+                  <p className="text-xs text-gray-600">Klik <strong>huruf pertama</strong> lalu klik <strong>huruf terakhir</strong> kata untuk mencoret!</p>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-bold">
+                  <span className="px-2.5 py-1 rounded-lg bg-white border border-gray-300 flex items-center gap-1 text-gray-700">
+                    <Clock size={14} className="text-indigo-600" /> {elapsedSec}s
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-100 border border-emerald-300 flex items-center gap-1 text-emerald-800">
+                    <Trophy size={14} /> {foundWords.length}/{puzzleData.words.length}
+                  </span>
+                </div>
               </div>
-              <div 
-                className="grid gap-[2px] font-mono mx-auto" 
-                style={{ gridTemplateColumns: `repeat(${puzzleData.gridSize}, ${puzzleData.gridSize > 20 ? 24 : 28}px)` }}
+
+              {foundWords.length === puzzleData.words.length && (
+                <div className="w-full mb-4 p-3 rounded-xl bg-emerald-600 text-white text-center font-bold text-sm flex items-center justify-center gap-2 shadow">
+                  <CheckCircle2 size={18} /> Hebat! Semua {puzzleData.words.length} kata ditemukan dalam {elapsedSec} detik!
+                </div>
+              )}
+
+              <div
+                className="grid gap-1 font-mono mx-auto select-none"
+                style={{ gridTemplateColumns: `repeat(${puzzleData.gridSize}, minmax(0, ${puzzleData.gridSize > 16 ? 26 : 32}px))` }}
               >
-                {puzzleData.grid.map((row, i) => 
-                  row.map((cell, j) => (
-                    <div 
-                      key={`${i}-${j}`} 
-                      className="flex items-center justify-center font-bold bg-white text-black rounded-[4px] transition-all cursor-default border-2 border-black"
-                      style={{ 
-                        width: puzzleData.gridSize > 20 ? 24 : 28, 
-                        height: puzzleData.gridSize > 20 ? 24 : 28, 
-                        fontSize: puzzleData.gridSize > 24 ? 12 : 14,
-                        boxShadow: '3px 3px 0px #000',
-                        transform: 'translate(-2px, -2px)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translate(1px, 1px)';
-                        e.currentTarget.style.boxShadow = '0px 0px 0px #000';
-                        e.currentTarget.style.backgroundColor = '#3b82f6';
-                        e.currentTarget.style.color = 'white';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translate(-2px, -2px)';
-                        e.currentTarget.style.boxShadow = '3px 3px 0px #000';
-                        e.currentTarget.style.backgroundColor = 'white';
-                        e.currentTarget.style.color = 'black';
-                      }}
-                    >
-                      {cell}
-                    </div>
-                  ))
+                {puzzleData.grid.map((row, i) =>
+                  row.map((cell, j) => {
+                    const key = `${i}-${j}`;
+                    const isStart = startCell && startCell[0] === i && startCell[1] === j;
+                    const isFound = foundCellKeys.has(key);
+                    return (
+                      <button
+                        type="button"
+                        key={key}
+                        onClick={() => handleCellClick(i, j)}
+                        className={`flex items-center justify-center font-bold rounded-md border transition-all text-xs sm:text-sm ${
+                          isStart
+                            ? 'bg-amber-400 border-amber-700 text-black scale-110 shadow-md z-10'
+                            : isFound
+                            ? 'bg-emerald-500 border-emerald-700 text-white'
+                            : 'bg-white border-gray-300 text-gray-900 hover:bg-indigo-100 hover:border-indigo-400'
+                        }`}
+                        style={{
+                          width: puzzleData.gridSize > 16 ? 26 : 32,
+                          height: puzzleData.gridSize > 16 ? 26 : 32,
+                        }}
+                      >
+                        {cell}
+                      </button>
+                    );
+                  })
                 )}
               </div>
-              <div className="gen-card mt-6 w-full p-4 bg-red-50 rounded-lg">
-                <h4 className="font-semibold text-sm mb-3 text-black">Kata yang dicari:</h4>
+
+              <div className="mt-5 w-full p-4 bg-white rounded-xl border border-gray-200">
+                <h4 className="font-bold text-xs text-gray-700 uppercase tracking-wider mb-2.5">Kata yang dicari:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {puzzleData.words.map((w, i) => (
-                    <span key={i} className="px-3 py-1 bg-red-100 text-black rounded-md text-xs font-medium border border-black">{w}</span>
-                  ))}
+                  {puzzleData.words.map((w, i) => {
+                    const done = foundWords.includes(w);
+                    return (
+                      <span
+                        key={i}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold border transition-all ${
+                          done
+                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300 line-through opacity-70'
+                            : 'bg-slate-100 text-gray-800 border-gray-300'
+                        }`}
+                      >
+                        {w}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </>
           ) : (
-            <div className="text-center text-gray-500 py-16 h-full flex flex-col items-center justify-center">
-              <div className="mb-4 opacity-50 flex justify-center text-gray-400">
-                <Type size={64} />
-              </div>
-              <p>Puzzle akan muncul di sini</p>
+            <div className="text-center text-gray-400 py-20 flex flex-col items-center justify-center">
+              <TypeIcon size={56} className="mb-3 opacity-40" />
+              <p className="text-sm font-medium text-gray-500">Puzzle Word Search interaktif akan tampil di sini</p>
             </div>
           )}
         </div>
