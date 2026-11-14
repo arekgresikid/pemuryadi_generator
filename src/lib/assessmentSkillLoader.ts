@@ -239,9 +239,9 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
         `  * Sisanya sekitar 25%–35% butir soal WAJIB berupa SOAL MANDIRI / STANDALONE ("stimulusId": "") yang to-the-point langsung menguji konsep operasional tanpa wacana pengantar panjang.`
     );
   } else if (isAKM) {
-    const estimatedClusters = Math.max(1, Math.ceil(ctx.totalSoal / 4));
+    const estimatedClusters = Math.max(1, Math.ceil((ctx.totalSoal * 0.7) / 2));
     sections.push(
-      `- KEBIJAKAN STIMULUS BERSAMA (AKM CLUSTER): Kelompokkan soal ke dalam sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana setiap 1 stimulus dipakai bersama oleh 3–5 soal berurutan. Setiap butir soal mengukur kompetensi yang berbeda dan mengisi "stimulusId" sesuai id stimulus.`
+      `- KEBIJAKAN STIMULUS BERSAMA & STANDALONE (AKM): Kelompokkan sebagian besar soal ke dalam sekitar ${estimatedClusters} Stimulus Induk di "stimulusList" (S1, S2, ...), di mana 1 teks wacana/infografis bersama menaungi 1–3 butir soal berurutan dengan variasi bentuk soal resmi Pusmendik (Pilihan Ganda, Pilihan Ganda Kompleks, Benar/Salah tabel, dan Menjodohkan). Sebagian soal lainnya dapat berupa soal mandiri/standalone ("stimulusId": "").`
     );
   } else if (isOlimpiade) {
     sections.push(

@@ -68,6 +68,7 @@ export default function BuatSoal() {
     levelKognitif: string[];
     jumlahSoalTotal: number;
     jumlahSoalPerBentuk: Record<string, number>;
+    jumlahGambarPerBentuk?: Record<string, number>;
     hasInklusi: boolean;
     jumlahInklusi: number;
     abkKategori: string;
@@ -90,6 +91,7 @@ export default function BuatSoal() {
     levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan'],
     jumlahSoalTotal: 10,
     jumlahSoalPerBentuk: { 'Pilihan Ganda': 10 },
+    jumlahGambarPerBentuk: { 'Pilihan Ganda': 0 },
     hasInklusi: false,
     jumlahInklusi: 0,
     abkKategori: '',
@@ -102,14 +104,35 @@ export default function BuatSoal() {
 
   const handleBentukSoalChange = (bentuk: string) => {
     let current = [...formData.bentukSoal];
+    const nextJumlahPerBentuk = { ...formData.jumlahSoalPerBentuk };
+    const nextGambarPerBentuk = { ...(formData.jumlahGambarPerBentuk || {}) };
     if (bentuk === 'Kombinasi') { current = ['Kombinasi']; }
     else {
       current = current.filter(c => c !== 'Kombinasi');
-      if (current.includes(bentuk)) current = current.filter(c => c !== bentuk);
-      else current.push(bentuk);
+      if (current.includes(bentuk)) {
+        current = current.filter(c => c !== bentuk);
+      } else {
+        current.push(bentuk);
+        if (!nextJumlahPerBentuk[bentuk] || nextJumlahPerBentuk[bentuk] <= 0) {
+          nextJumlahPerBentuk[bentuk] = 5;
+        }
+        if (nextGambarPerBentuk[bentuk] === undefined) {
+          nextGambarPerBentuk[bentuk] = 0;
+        }
+      }
     }
     if (current.length === 0) current = ['Pilihan Ganda'];
-    setFormData({ ...formData, bentukSoal: current });
+    const totalImg = current.includes('Kombinasi')
+      ? (formData.jumlahSoalBergambar || 0)
+      : current.reduce((acc, b) => acc + Math.min(nextJumlahPerBentuk[b] || 0, nextGambarPerBentuk[b] || 0), 0);
+    setFormData({
+      ...formData,
+      bentukSoal: current,
+      jumlahSoalPerBentuk: nextJumlahPerBentuk,
+      jumlahGambarPerBentuk: nextGambarPerBentuk,
+      terdapatSoalBergambar: totalImg > 0,
+      jumlahSoalBergambar: totalImg
+    });
   };
 
   const handleLevelKognitifChange = (lvl: string) => {
@@ -267,6 +290,89 @@ export default function BuatSoal() {
     }
   };
 
+  const renderQuestionImageControl = (s: any, index: number, isABK: boolean, wrapperClass = 'pl-8 mb-4 max-w-md') => {
+    const isThisGenerating = generatingImageIndex?.index === index && generatingImageIndex?.isABK === isABK;
+    if (!s.gambarDeskripsi && !s.gambarUrl) {
+      return (
+        <div className={wrapperClass}>
+          <button
+            type="button"
+            onClick={() => {
+              const contextTopic = s?.materi || formData.materi || 'education';
+              const shortQ = String(s?.pertanyaan || '').replace(/\s+/g, ' ').slice(0, 120);
+              updateQuestionDeskripsi(index, `Educational diagram or visual illustration for ${contextTopic}: ${shortQ}, clean textbook style without text labels`, isABK);
+            }}
+            className="text-[11px] text-indigo-600 hover:text-indigo-800 bg-indigo-50/70 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg font-medium inline-flex items-center gap-1.5 transition-all"
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>+ Tambah Ilustrasi Gambar</span>
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className={wrapperClass}>
+        {s.gambarUrl ? (
+          <div className="relative group max-w-xs">
+            <img src={s.gambarUrl} alt={`Soal ${isABK ? 'ABK ' : ''}${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
+            <button
+              type="button"
+              onClick={() => handleGenerateImageForQuestion(index, s.gambarDeskripsi || s.pertanyaan || '', isABK)}
+              disabled={isThisGenerating}
+              className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
+              title="Regenerate Gambar (1 Token)"
+            >
+              {isThisGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : <span>🔄</span>}
+            </button>
+          </div>
+        ) : (
+          <div className={`p-3 bg-white border ${isABK ? 'border-blue-200' : 'border-gray-200'} rounded-lg shadow-sm space-y-2`}>
+            <div className={`flex items-center justify-between text-xs font-semibold ${isABK ? 'text-blue-900' : 'text-gray-700'}`}>
+              <span>🎨 Deskripsi Gambar Soal {isABK ? 'ABK ' : ''}No. {s.no}</span>
+              <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
+            </div>
+            <textarea
+              rows={2}
+              value={s.gambarDeskripsi || ''}
+              onChange={(e) => updateQuestionDeskripsi(index, e.target.value, isABK)}
+              placeholder="Sunting deskripsi visual soal sebelum generate..."
+              className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-slate-50 text-gray-800"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleGenerateImageForQuestion(index, s.gambarDeskripsi, isABK)}
+                disabled={isThisGenerating || !s.gambarDeskripsi?.trim()}
+                className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                {isThisGenerating ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Memproses...</span>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>Buat Gambar (1 Token)</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => updateQuestionDeskripsi(index, '', isABK)}
+                className="py-1.5 px-2.5 text-xs text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                title="Batal / Hapus deskripsi gambar"
+              >
+                Hapus
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const [resultKisiKisi, setResultKisiKisi] = useState<any>(null);
   const [resultSoal, setResultSoal] = useState<any>(null);
 
@@ -362,13 +468,25 @@ export default function BuatSoal() {
       let responseSchema: any = {};
 
       let totalSoal = 0;
+      let totalGambarDiminta = 0;
       let breakdownSoal = '';
-      if (formData.bentukSoal.includes('Kombinasi')) {
+      const gambarPerBentukTarget: Record<string, number> = {};
+      const isKombinasiBentuk = formData.bentukSoal.includes('Kombinasi');
+
+      if (isKombinasiBentuk) {
          totalSoal = formData.jumlahSoalTotal;
-         breakdownSoal = `Jumlah Soal: ${totalSoal} Soal.`;
+         totalGambarDiminta = formData.terdapatSoalBergambar ? Math.min(totalSoal, formData.jumlahSoalBergambar || 0) : (formData.jumlahSoalBergambar || 0);
+         breakdownSoal = `Jumlah Soal: ${totalSoal} Soal${totalGambarDiminta > 0 ? ` (Wajib menyertakan tepat ${totalGambarDiminta} soal bergambar yang tersebar merata dari nomor awal)` : ''}.`;
       } else {
          totalSoal = formData.bentukSoal.reduce((acc, b) => acc + (formData.jumlahSoalPerBentuk[b] || 0), 0);
-         breakdownSoal = `Jumlah Soal: ${formData.bentukSoal.map(b => `${b} (${formData.jumlahSoalPerBentuk[b] || 0})`).join(', ')}. Total: ${totalSoal} Soal.`;
+         const detailParts = formData.bentukSoal.map(b => {
+           const jmlSoal = formData.jumlahSoalPerBentuk[b] || 0;
+           const jmlGambar = Math.min(jmlSoal, formData.jumlahGambarPerBentuk?.[b] || 0);
+           gambarPerBentukTarget[b] = jmlGambar;
+           totalGambarDiminta += jmlGambar;
+           return jmlGambar > 0 ? `${b} (${jmlSoal} soal, WAJIB ${jmlGambar} soal bergambar)` : `${b} (${jmlSoal} soal)`;
+         });
+         breakdownSoal = `Jumlah Soal: ${detailParts.join(', ')}. Total: ${totalSoal} Soal${totalGambarDiminta > 0 ? `, Total Soal Bergambar: ${totalGambarDiminta} soal` : ''}.`;
       }
 
       const tkaCfgForStimulus = formData.tipeUjian === 'Other' ? getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang) : null;
@@ -383,8 +501,8 @@ export default function BuatSoal() {
         kerangkaTaksonomi: formData.kerangkaTaksonomi,
         levelKognitif: formData.levelKognitif,
         totalSoal,
-        terdapatSoalBergambar: formData.terdapatSoalBergambar,
-        jumlahSoalBergambar: formData.jumlahSoalBergambar,
+        terdapatSoalBergambar: totalGambarDiminta > 0 || formData.terdapatSoalBergambar,
+        jumlahSoalBergambar: totalGambarDiminta,
         hasInklusi: formData.hasInklusi,
       });
 
@@ -482,15 +600,42 @@ Berikan output dalam format JSON murni:
           extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat. Pembahasan harus to the point.`;
         }
 
-        if (formData.terdapatSoalBergambar && formData.jumlahSoalBergambar > 0) {
-          extraInstructions += `\n- SOAL BERGAMBAR (SANGAT PENTING): Terdapat kebutuhan soal bergambar sebanyak ${formData.jumlahSoalBergambar} soal. Anda WAJIB membuat tepat ${formData.jumlahSoalBergambar} soal yang membutuhkan gambar/diagram ilustrasi visual. Untuk soal bergambar ini, Anda MUTLAK harus mengisi field "gambarDeskripsi" di format JSON dengan prompt gambar (bahasa Inggris) yang sangat detail. JANGAN KOSONGKAN "gambarDeskripsi" untuk soal bergambar! Contoh: "A detailed map of Indonesia showing major islands", "A diagram of human digestive system". Untuk soal reguler yang tidak butuh gambar, biarkan kosong.`;
+        if (totalGambarDiminta > 0) {
+          const jenisVisualPanduan =
+            formData.tipeUjian === 'Olimpiade'
+              ? 'rekayasa geometri & fenomena sains (konfigurasi garis singgung, rangkaian listrik, lintasan gerak, pembelahan sel, atau grafik fisis)'
+              : formData.tipeUjian === 'Live Quiz'
+              ? 'pemantik visual cepat / fast visual clue (tebak objek/tokoh, identifikasi organ, membaca rambu/diagram ringkas, atau tebak kurva)'
+              : formData.tipeUjian === 'Asesmen Nasional'
+              ? '2 lapis visual: (1) Gambar utama infografis/wacana pada stimulusList, dan (2) Diagram/grafik/ilustrasi spesifik pada butir soal yang menuntut siswa membandingkan data gambar butir soal dengan teks stimulus'
+              : formData.tipeUjian === 'Other'
+              ? 'visual kontekstual standar asesmen (neraca kesetimbangan, jam analog, bangun gabungan, diagram batang data, atau pola figural/spasial)'
+              : 'diagram anatomi/sains, siklus rantai makanan, denah/sudut geometri, grafik koordinat kartesius, atau bagan peristiwa';
+
+          const rincianTargetGambar = isKombinasiBentuk
+            ? `tepat ${totalGambarDiminta} soal bergambar yang tersebar merata mulai dari nomor awal`
+            : Object.entries(gambarPerBentukTarget)
+                .filter(([, count]) => count > 0)
+                .map(([bentuk, count]) => `${bentuk}: ${count} soal bergambar`)
+                .join('; ');
+
+          extraInstructions += `\n- SOAL BERGAMBAR (WAJIB TERPENUHI & MERATA): Target soal bergambar yang WAJIB dibuat adalah (${rincianTargetGambar}).\n` +
+            `  * ATURAN SEBARAN: Sebarkan soal bergambar mulai dari nomor awal masing-masing kelompok bentuk soal (JANGAN menumpuk di nomor terakhir saja!).\n` +
+            `  * KONSEP VISUAL: Gunakan ${jenisVisualPanduan}.\n` +
+            `  * FORMAT FIELD: Untuk setiap soal bergambar, WAJIB isi field "gambarDeskripsi" dengan prompt gambar berbahasa Inggris yang detail & bebas teks di dalam gambar (no text/labels inside image). Untuk soal lain yang tidak butuh gambar, isi "gambarDeskripsi": "".`;
+        } else {
+          extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "".' : 'Karena tidak ada soal bergambar yang diminta, biarkan field "gambarDeskripsi": "" kosong pada butir soal.'}`;
         }
 
-        extraInstructions += `\n- ATURAN GAMBAR & VISUAL: Isi field "gambarDeskripsi" HANYA jika visual benar-benar diperlukan untuk menjawab soal atau memahami stimulus. Jika teks sudah cukup, biarkan kosong (""). Untuk TKA/AKM, utamakan visual pada stimulus bersama ("stimulusList"). Jangan membuat deskripsi gambar individual yang berulang jika satu stimulus sudah mencukupi.`;
+        extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
 
         extraInstructions += runtimeSkillPrompt;
         if (useStimulus) {
-          extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama. Setiap stimulus dipakai oleh 3–5 soal berurutan (Model AI menentukan jumlah yang paling sesuai). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap sesuai batasan jumlah kata standar jenjang; untuk numerasi boleh berupa konteks cerita beserta data), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang sangat detail tentang adegan utama stimulus, tanpa teks di dalam gambar), dan "rentangSoal" (contoh "1-5"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong. Pertanyaan soal TIDAK perlu mengulang teks stimulus.`;
+          if (formData.tipeUjian === 'Asesmen Nasional') {
+            extraInstructions += `\n- STIMULUS BERSAMA + STANDALONE (AKM RESMI): Sebagian besar soal dikelompokkan ke dalam stimulus bersama di "stimulusList" (1 teks wacana/infografis menaungi 1–3 soal berurutan dengan variasi bentuk soal). Sebagian soal lainnya boleh berupa soal mandiri/standalone ("stimulusId": ""). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul", "teks", "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris tanpa teks di dalam gambar), dan "rentangSoal". Pertanyaan soal yang memakai stimulus TIDAK perlu mengulang teks stimulus.`;
+          } else {
+            extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama di "stimulusList". Setiap stimulus dipakai oleh 2–4 soal berurutan. Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang detail tanpa teks di dalam gambar), dan "rentangSoal" (contoh "1-3"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong.`;
+          }
         } else {
           extraInstructions += `\n- ATURAN MUTLAK SOAL MANDIRI (STANDALONE): Tipe ujian ini TIDAK MENGGUNAKAN wacana bersama ("stimulusList"). DILARANG KERAS membuat wacana/stimulus bersama! Anda WAJIB membiarkan array "stimulusList": [] KOSONG! Seluruh deskripsi masalah, data, atau skenario kasus WAJIB ditulis langsung di dalam field "pertanyaan" pada masing-masing nomor. Seluruh butir soal WAJIB mengisi "stimulusId": "".`;
         }
@@ -652,21 +797,94 @@ Berikan output dalam format JSON murni:
       }
 
       if (type === 'soal') {
-        const processSoalImages = (soalList: any[]) => {
-          if (!soalList) return [];
-          return soalList.map(s => ({
+        const matchesBentuk = (jenisSoal: string, bentuk: string) => {
+          const j = (jenisSoal || '').toLowerCase();
+          const b = bentuk.toLowerCase();
+          if (b === 'pilihan ganda') return j.includes('pilihan ganda') && !j.includes('kompleks');
+          if (b === 'pilihan ganda kompleks') return j.includes('kompleks');
+          if (b === 'benar salah') return j.includes('benar') && j.includes('salah');
+          if (b === 'menjodohkan') return j.includes('jodoh');
+          if (b === 'isian singkat') return j.includes('isian');
+          if (b === 'uraian') return j.includes('uraian');
+          if (b === 'essay') return j.includes('essay') || j.includes('esai');
+          return j.includes(b);
+        };
+
+        const buildFallbackImageDesc = (s: any) => {
+          const contextTopic = s?.materi || formData.materi || mapelLabel || 'education';
+          const shortQ = String(s?.pertanyaan || '').replace(/\s+/g, ' ').slice(0, 120);
+          return `Educational diagram or clear visual illustration representing ${contextTopic}, context: ${shortQ}, clean textbook style without text labels`;
+        };
+
+        const processSoalImages = (soalList: any[], isABK = false) => {
+          if (!Array.isArray(soalList)) return [];
+          const normalized = soalList.map(s => ({
             ...s,
+            gambarDeskripsi: (s.gambarDeskripsi || '').trim(),
             // P0-2: Jangan buat gambar otomatis. Biarkan gambarUrl kosong jika belum dibuat,
             // namun pertahankan gambarUrl lama jika sudah ada dari data tersimpan.
             gambarUrl: s.gambarUrl || ''
           }));
+
+          if (totalGambarDiminta > 0 && normalized.length > 0 && !isABK) {
+            if (isKombinasiBentuk) {
+              const targetCount = Math.min(totalGambarDiminta, normalized.length);
+              const currentCount = normalized.filter(s => s.gambarDeskripsi).length;
+              if (currentCount < targetCount) {
+                let needed = targetCount - currentCount;
+                const step = Math.max(1, Math.floor(normalized.length / targetCount));
+                for (let idx = 0; idx < normalized.length && needed > 0; idx += step) {
+                  if (!normalized[idx].gambarDeskripsi) {
+                    normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
+                    needed--;
+                  }
+                }
+                for (let idx = 0; idx < normalized.length && needed > 0; idx++) {
+                  if (!normalized[idx].gambarDeskripsi) {
+                    normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
+                    needed--;
+                  }
+                }
+              }
+            } else {
+              for (const [bentuk, targetCountRaw] of Object.entries(gambarPerBentukTarget)) {
+                if (!targetCountRaw || targetCountRaw <= 0) continue;
+                const groupIndices = normalized
+                  .map((s, idx) => (matchesBentuk(s.jenisSoal, bentuk) ? idx : -1))
+                  .filter(idx => idx !== -1);
+                if (groupIndices.length === 0) continue;
+                const targetCount = Math.min(targetCountRaw, groupIndices.length);
+                const currentCount = groupIndices.filter(idx => normalized[idx].gambarDeskripsi).length;
+                if (currentCount < targetCount) {
+                  let needed = targetCount - currentCount;
+                  const step = Math.max(1, Math.floor(groupIndices.length / targetCount));
+                  for (let k = 0; k < groupIndices.length && needed > 0; k += step) {
+                    const idx = groupIndices[k];
+                    if (!normalized[idx].gambarDeskripsi) {
+                      normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
+                      needed--;
+                    }
+                  }
+                  for (const idx of groupIndices) {
+                    if (needed <= 0) break;
+                    if (!normalized[idx].gambarDeskripsi) {
+                      normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
+                      needed--;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          return normalized;
         };
 
         if (generatedData.soalList) {
-          generatedData.soalList = processSoalImages(generatedData.soalList);
+          generatedData.soalList = processSoalImages(generatedData.soalList, false);
         }
         if (generatedData.soalABKList) {
-          generatedData.soalABKList = processSoalImages(generatedData.soalABKList);
+          generatedData.soalABKList = processSoalImages(generatedData.soalABKList, true);
         }
         if (Array.isArray(generatedData.stimulusList)) {
           generatedData.stimulusList = generatedData.stimulusList.map((st: any) => ({
@@ -903,7 +1121,6 @@ Berikan output dalam format JSON murni:
                    ${stimulusKartuPrint(s)}
                    <strong>Rumusan Soal / Pertanyaan:</strong><br/>
                    <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
-                   ${benarSalahPrint(s)}
                    
                    ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
 
@@ -1566,7 +1783,10 @@ Berikan output dalam format JSON murni:
                     {/* Kolom Kiri: Bentuk Soal */}
                     <div className="flex flex-col gap-5">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Bentuk Soal</label>
+                        <div className="flex items-center justify-between mb-3">
+                          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Bentuk Soal & Kuota Gambar</label>
+                          <span className="text-[10px] text-gray-500">Isi Jml Soal & 🖼️ Jml Gambar</span>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian', 'Essay', 'Kombinasi'].map(bentuk => (
                           <div key={bentuk} className="flex flex-col gap-2">
@@ -1580,14 +1800,60 @@ Berikan output dalam format JSON murni:
                               <span className="text-[11px] text-gray-700 leading-tight">{bentuk}</span>
                             </label>
                             {formData.bentukSoal.includes(bentuk) && bentuk !== 'Kombinasi' && (
-                              <input 
-                                type="number" 
-                                min="1" 
-                                value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
-                                onChange={e => setFormData({...formData, jumlahSoalPerBentuk: {...formData.jumlahSoalPerBentuk, [bentuk]: parseInt(e.target.value) || 0}})} 
-                                placeholder="Jumlah Soal"
-                                className="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
-                              />
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <span className="block text-[9px] font-semibold text-gray-500 mb-0.5">Jml Soal</span>
+                                  <input 
+                                    type="number" 
+                                    min="1" 
+                                    value={formData.jumlahSoalPerBentuk[bentuk] || ''} 
+                                    onChange={e => {
+                                      const newSoalVal = parseInt(e.target.value) || 0;
+                                      const nextSoalMap = { ...formData.jumlahSoalPerBentuk, [bentuk]: newSoalVal };
+                                      const currentImgVal = formData.jumlahGambarPerBentuk?.[bentuk] || 0;
+                                      const nextImgMap = {
+                                        ...(formData.jumlahGambarPerBentuk || {}),
+                                        [bentuk]: Math.min(currentImgVal, newSoalVal)
+                                      };
+                                      const totalImg = formData.bentukSoal.reduce((acc, b) => acc + Math.min(nextSoalMap[b] || 0, nextImgMap[b] || 0), 0);
+                                      setFormData({
+                                        ...formData,
+                                        jumlahSoalPerBentuk: nextSoalMap,
+                                        jumlahGambarPerBentuk: nextImgMap,
+                                        terdapatSoalBergambar: totalImg > 0,
+                                        jumlahSoalBergambar: totalImg
+                                      });
+                                    }}
+                                    placeholder="Soal"
+                                    className="w-full p-2 text-xs border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
+                                  />
+                                </div>
+                                <div>
+                                  <span className="block text-[9px] font-semibold text-indigo-600 mb-0.5">🖼️ Jml Gambar</span>
+                                  <input 
+                                    type="number" 
+                                    min="0" 
+                                    max={formData.jumlahSoalPerBentuk[bentuk] || 0}
+                                    value={formData.jumlahGambarPerBentuk?.[bentuk] ?? 0} 
+                                    onChange={e => {
+                                      const maxSoal = formData.jumlahSoalPerBentuk[bentuk] || 0;
+                                      const rawVal = parseInt(e.target.value) || 0;
+                                      const clampedVal = Math.max(0, Math.min(rawVal, maxSoal));
+                                      const nextImgMap = { ...(formData.jumlahGambarPerBentuk || {}), [bentuk]: clampedVal };
+                                      const totalImg = formData.bentukSoal.reduce((acc, b) => acc + Math.min(formData.jumlahSoalPerBentuk[b] || 0, nextImgMap[b] || 0), 0);
+                                      setFormData({
+                                        ...formData,
+                                        jumlahGambarPerBentuk: nextImgMap,
+                                        terdapatSoalBergambar: totalImg > 0,
+                                        jumlahSoalBergambar: totalImg
+                                      });
+                                    }} 
+                                    placeholder="Gambar"
+                                    title="Jumlah soal bergambar untuk bentuk soal ini"
+                                    className="w-full p-2 text-xs border border-indigo-200 rounded-lg bg-indigo-50/40 text-gray-900 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all" 
+                                  />
+                                </div>
+                              </div>
                             )}
                           </div>
                         ))}
@@ -1595,9 +1861,45 @@ Berikan output dalam format JSON murni:
                       </div>
 
                       {formData.bentukSoal.includes('Kombinasi') && (
-                        <div>
-                          <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
-                          <input type="number" min="1" max="100" value={formData.jumlahSoalTotal} onChange={e => setFormData({...formData, jumlahSoalTotal: parseInt(e.target.value) || 1})} className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Total Jumlah Soal (Kombinasi)</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={formData.jumlahSoalTotal}
+                              onChange={e => {
+                                const val = parseInt(e.target.value) || 1;
+                                const clampedImg = Math.min(formData.jumlahSoalBergambar || 0, val);
+                                setFormData({
+                                  ...formData,
+                                  jumlahSoalTotal: val,
+                                  jumlahSoalBergambar: clampedImg,
+                                  terdapatSoalBergambar: clampedImg > 0
+                                });
+                              }}
+                              className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-indigo-600 mb-1 uppercase tracking-wider">🖼️ Total Soal Bergambar</label>
+                            <input
+                              type="number"
+                              min="0"
+                              max={formData.jumlahSoalTotal}
+                              value={formData.jumlahSoalBergambar || 0}
+                              onChange={e => {
+                                const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, formData.jumlahSoalTotal));
+                                setFormData({
+                                  ...formData,
+                                  jumlahSoalBergambar: val,
+                                  terdapatSoalBergambar: val > 0
+                                });
+                              }}
+                              className="w-full p-2.5 border border-indigo-200 rounded-lg text-sm bg-indigo-50/40 text-gray-900 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1738,7 +2040,45 @@ Berikan output dalam format JSON murni:
                         <input 
                           type="checkbox" 
                           checked={formData.terdapatSoalBergambar}
-                          onChange={(e) => setFormData({...formData, terdapatSoalBergambar: e.target.checked})}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (!checked) {
+                              const resetImgMap: Record<string, number> = {};
+                              formData.bentukSoal.forEach(b => { resetImgMap[b] = 0; });
+                              setFormData({
+                                ...formData,
+                                terdapatSoalBergambar: false,
+                                jumlahSoalBergambar: 0,
+                                jumlahGambarPerBentuk: resetImgMap
+                              });
+                            } else {
+                              if (formData.bentukSoal.includes('Kombinasi')) {
+                                const defImg = formData.jumlahSoalBergambar > 0 ? formData.jumlahSoalBergambar : Math.min(2, formData.jumlahSoalTotal || 1);
+                                setFormData({
+                                  ...formData,
+                                  terdapatSoalBergambar: true,
+                                  jumlahSoalBergambar: defImg
+                                });
+                              } else {
+                                const nextImgMap = { ...(formData.jumlahGambarPerBentuk || {}) };
+                                let totalImg = formData.bentukSoal.reduce((acc, b) => acc + (nextImgMap[b] || 0), 0);
+                                if (totalImg === 0) {
+                                  formData.bentukSoal.forEach(b => {
+                                    if ((formData.jumlahSoalPerBentuk[b] || 0) > 0) {
+                                      nextImgMap[b] = 1;
+                                    }
+                                  });
+                                  totalImg = formData.bentukSoal.reduce((acc, b) => acc + (nextImgMap[b] || 0), 0);
+                                }
+                                setFormData({
+                                  ...formData,
+                                  terdapatSoalBergambar: true,
+                                  jumlahGambarPerBentuk: nextImgMap,
+                                  jumlahSoalBergambar: totalImg
+                                });
+                              }
+                            }
+                          }}
                           className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-white bg-white"
                         />
                         <span className="text-sm font-medium text-gray-700">Terdapat Soal Bergambar</span>
@@ -1746,16 +2086,28 @@ Berikan output dalam format JSON murni:
                       
                       {formData.terdapatSoalBergambar && (
                         <div className="pl-7 animate-in fade-in duration-200">
-                          <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Jumlah Soal Bergambar</label>
-                          <input 
-                            type="number" 
-                            min="1" 
-                            max="20" 
-                            className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
-                            placeholder="Masukkan jumlah soal bergambar..."
-                            value={formData.jumlahSoalBergambar === 0 ? "" : formData.jumlahSoalBergambar}
-                            onChange={(e) => setFormData({...formData, jumlahSoalBergambar: parseInt(e.target.value) || 0})}
-                          />
+                          {formData.bentukSoal.includes('Kombinasi') ? (
+                            <>
+                              <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Total Soal Bergambar (Kombinasi)</label>
+                              <input 
+                                type="number" 
+                                min="1" 
+                                max={formData.jumlahSoalTotal || 50} 
+                                className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-900 placeholder-slate-400 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" 
+                                placeholder="Masukkan jumlah soal bergambar..."
+                                value={formData.jumlahSoalBergambar === 0 ? "" : formData.jumlahSoalBergambar}
+                                onChange={(e) => {
+                                  const val = Math.max(0, Math.min(parseInt(e.target.value) || 0, formData.jumlahSoalTotal || 50));
+                                  setFormData({...formData, jumlahSoalBergambar: val, terdapatSoalBergambar: val > 0});
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <div className="p-2.5 bg-indigo-50/70 border border-indigo-200 rounded-lg text-xs text-indigo-900">
+                              <span className="font-bold">Total Akumulasi: {formData.jumlahSoalBergambar} soal bergambar</span>
+                              <span className="block text-[11px] text-indigo-700 mt-0.5">Jumlah gambar per bentuk soal diatur langsung di bagian <b>3. Bentuk Soal</b> di atas.</span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -2031,58 +2383,7 @@ Berikan output dalam format JSON murni:
                           <span className="whitespace-pre-wrap">{s.pertanyaan}</span>
                         </p>
 
-                        {s.gambarDeskripsi && (
-                          <div className="pl-8 mb-4 max-w-md">
-                            {s.gambarUrl ? (
-                              <div className="relative group max-w-xs">
-                                <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
-                                <button 
-                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
-                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                  title="Regenerate Gambar (1 Token)"
-                                >
-                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                  ) : (
-                                    <span>🔄</span>
-                                  )}
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="p-3 bg-white border border-gray-200 rounded-lg shadow-sm space-y-2">
-                                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
-                                  <span>🎨 Deskripsi Gambar Soal No. {s.no}</span>
-                                  <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
-                                </div>
-                                <textarea
-                                  rows={2}
-                                  value={s.gambarDeskripsi || ''}
-                                  onChange={(e) => updateQuestionDeskripsi(i, e.target.value, false)}
-                                  placeholder="Sunting deskripsi visual soal sebelum generate..."
-                                  className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-slate-50 text-gray-800"
-                                />
-                                <button
-                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
-                                  className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
-                                >
-                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
-                                    <>
-                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                      <span>Memproses...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ImageIcon className="w-3.5 h-3.5" />
-                                      <span>Buat Gambar (1 Token)</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        {renderQuestionImageControl(s, i, false, 'pl-8 mb-4 max-w-md')}
                         
                         {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                           <div className="pl-8 mb-3 overflow-x-auto">
@@ -2147,58 +2448,7 @@ Berikan output dalam format JSON murni:
                               <span className="whitespace-pre-wrap">{s.pertanyaan}</span>
                             </p>
 
-                            {s.gambarDeskripsi && (
-                              <div className="pl-8 mb-4 max-w-md">
-                                {s.gambarUrl ? (
-                                  <div className="relative group max-w-xs">
-                                    <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
-                                    <button 
-                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                      title="Regenerate Gambar (1 Token)"
-                                    >
-                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                      ) : (
-                                        <span>🔄</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="p-3 bg-white border border-blue-200 rounded-lg shadow-sm space-y-2">
-                                    <div className="flex items-center justify-between text-xs font-semibold text-blue-900">
-                                      <span>🎨 Deskripsi Gambar Soal ABK No. {s.no}</span>
-                                      <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium">1 Token</span>
-                                    </div>
-                                    <textarea
-                                      rows={2}
-                                      value={s.gambarDeskripsi || ''}
-                                      onChange={(e) => updateQuestionDeskripsi(i, e.target.value, true)}
-                                      placeholder="Sunting deskripsi visual soal sebelum generate..."
-                                      className="w-full text-xs p-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 bg-slate-50 text-gray-800"
-                                    />
-                                    <button
-                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                      className="py-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
-                                    >
-                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                        <>
-                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                          <span>Memproses...</span>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <ImageIcon className="w-3.5 h-3.5" />
-                                          <span>Buat Gambar (1 Token)</span>
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                            {renderQuestionImageControl(s, i, true, 'pl-8 mb-4 max-w-md')}
                             
                             {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                               <div className="pl-8 mb-3 overflow-x-auto">
@@ -2303,44 +2553,7 @@ Berikan output dalam format JSON murni:
                           </div>
                         )}
                         
-                        {s.gambarDeskripsi && (
-                          <div className="pl-4 mb-4">
-                            {s.gambarUrl ? (
-                              <div className="relative group max-w-[200px]">
-                                <img src={s.gambarUrl} alt={`Soal ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
-                                <button 
-                                  onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                  disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
-                                  className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                  title="Regenerate Gambar"
-                                >
-                                  {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                  ) : (
-                                    <span>🔄</span>
-                                  )}
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, false)}
-                                disabled={generatingImageIndex?.index === i && !generatingImageIndex?.isABK}
-                                className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                              >
-                                {generatingImageIndex?.index === i && !generatingImageIndex?.isABK ? (
-                                  <>
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                    <span>Memproses...</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>🎨 Generate Gambar Ilustrasi</span>
-                                  </>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        )}
+                        {renderQuestionImageControl(s, i, false, 'pl-4 mb-4 max-w-md')}
                         
                         <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
                           <div className="flex gap-2">
@@ -2400,44 +2613,7 @@ Berikan output dalam format JSON murni:
                               </div>
                             )}
                             
-                            {s.gambarDeskripsi && (
-                              <div className="pl-4 mb-4">
-                                {s.gambarUrl ? (
-                                  <div className="relative group max-w-[200px]">
-                                    <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
-                                    <button 
-                                      onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                      disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                      className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                      title="Regenerate Gambar"
-                                    >
-                                      {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                      ) : (
-                                        <span>🔄</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                    disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                    className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                                  >
-                                    {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                      <>
-                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                        <span>Memproses...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span>🎨 Generate Gambar Ilustrasi</span>
-                                      </>
-                                    )}
-                                  </button>
-                                )}
-                              </div>
-                            )}
+                            {renderQuestionImageControl(s, i, true, 'pl-4 mb-4 max-w-md')}
                             
                             <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-lg">
                               <div className="flex gap-2">
@@ -2505,6 +2681,7 @@ Berikan output dalam format JSON murni:
                            <div className="p-4 md:col-span-2 flex flex-col">
                              <div className="text-[10px] text-gray-500 font-bold uppercase mb-2">Buku Sumber / Rumusan Soal:</div>
                              <div className="text-gray-900 mb-4 flex-1 whitespace-pre-wrap">{s.pertanyaan}</div>
+                             {renderQuestionImageControl(s, i, false, 'mb-4 max-w-md')}
                              
                              {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                                <div className="mb-4 overflow-x-auto">
@@ -2602,44 +2779,7 @@ Berikan output dalam format JSON murni:
                                  <div className="text-[10px] text-gray-500 font-bold uppercase mb-2">Buku Sumber / Rumusan Soal:</div>
                                  <div className="text-gray-900 mb-4 flex-1 whitespace-pre-wrap">{s.pertanyaan}</div>
                                  
-                                 {s.gambarDeskripsi && (
-                                   <div className="mb-4">
-                                     {s.gambarUrl ? (
-                                       <div className="relative group max-w-xs">
-                                         <img src={s.gambarUrl} alt={`Soal ABK ${s.no}`} className="w-full h-auto rounded-lg border border-gray-300 shadow-sm bg-white" />
-                                         <button 
-                                           onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                           disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                           className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white p-1.5 rounded-full text-xs font-bold transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center min-w-[28px] min-h-[28px]"
-                                           title="Regenerate Gambar"
-                                         >
-                                           {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                             <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
-                                           ) : (
-                                             <span>🔄</span>
-                                           )}
-                                         </button>
-                                       </div>
-                                     ) : (
-                                       <button
-                                         onClick={() => handleGenerateImageForQuestion(i, s.gambarDeskripsi, true)}
-                                         disabled={generatingImageIndex?.index === i && generatingImageIndex?.isABK}
-                                         className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm"
-                                       >
-                                         {generatingImageIndex?.index === i && generatingImageIndex?.isABK ? (
-                                           <>
-                                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                             <span>Memproses...</span>
-                                           </>
-                                         ) : (
-                                           <>
-                                             <span>🎨 Generate Gambar Ilustrasi</span>
-                                           </>
-                                         )}
-                                       </button>
-                                     )}
-                                   </div>
-                                 )}
+                                 {renderQuestionImageControl(s, i, true, 'mb-4 max-w-md')}
                                  
                                  {Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 && (
                                    <div className="mb-4 overflow-x-auto">
