@@ -19,10 +19,25 @@ import { buildRuntimeAssessmentSkillPrompt } from '../lib/assessmentSkillLoader'
 
 export default function BuatSoal() {
   const { profile } = useAuth();
+  const userRole = String(profile?.role || '').toLowerCase();
+  const isPrivileged = userRole === 'owner' || userRole === 'admin';
+  const userTier = String(profile?.tier || 'Free');
+
+  const tierLimits = (() => {
+    if (isPrivileged) return { maxSoal: Infinity, maxGambar: Infinity, label: 'Admin (Unlimited)' };
+    const t = userTier.toLowerCase();
+    if (t === 'essential' || t === 'guru pertama') return { maxSoal: 25, maxGambar: 5, label: userTier };
+    if (t === 'premium' || t === 'guru muda') return { maxSoal: 40, maxGambar: 10, label: userTier };
+    if (['ultimate', 'supreme', 'titan', 'guru madya', 'guru utama'].includes(t)) return { maxSoal: 50, maxGambar: 20, label: userTier };
+    return { maxSoal: 10, maxGambar: 2, label: userTier || 'Free' };
+  })();
+
   const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | 'live-quiz'>('kisi-kisi');
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
   const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingSubTab, setIsGeneratingSubTab] = useState<'kunci' | 'kartu' | null>(null);
+  const [batchProgress, setBatchProgress] = useState<string>('');
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [printTypeToProceed, setPrintTypeToProceed] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | null>(null);
   
@@ -412,13 +427,83 @@ export default function BuatSoal() {
     return cpData[key] || 'Capaian Pembelajaran belum tersedia untuk kombinasi ini.';
   };
 
+  const parseAIJson = (rawText: string) => {
+    const cleaned = (rawText || '{}').replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      throw new Error('Gagal memproses format JSON dari respon AI. Silakan coba generate ulang.');
+    }
+  };
+
+  const buildBatches = (total: number, batchSize = 25) => {
+    const safeTotal = Math.max(1, total);
+    const batches: Array<{ start: number; end: number; count: number }> = [];
+    for (let start = 1; start <= safeTotal; start += batchSize) {
+      const end = Math.min(safeTotal, start + batchSize - 1);
+      batches.push({ start, end, count: end - start + 1 });
+    }
+    return batches;
+  };
+
   const generateContent = async (type: 'kisi-kisi' | 'soal') => {
-    setIsGenerating(true);
     setError('');
-    
+    setBatchProgress('');
+
+    let totalSoal = 0;
+    let totalGambarDiminta = 0;
+    const gambarPerBentukTarget: Record<string, number> = {};
+    const isKombinasiBentuk = formData.bentukSoal.includes('Kombinasi');
+
+    if (isKombinasiBentuk) {
+      totalSoal = formData.jumlahSoalTotal || 1;
+      totalGambarDiminta = formData.terdapatSoalBergambar ? Math.min(totalSoal, formData.jumlahSoalBergambar || 0) : (formData.jumlahSoalBergambar || 0);
+    } else {
+      totalSoal = formData.bentukSoal.reduce((acc, b) => acc + (formData.jumlahSoalPerBentuk[b] || 0), 0);
+      formData.bentukSoal.forEach(b => {
+        const jmlSoal = formData.jumlahSoalPerBentuk[b] || 0;
+        const jmlGambar = Math.min(jmlSoal, formData.jumlahGambarPerBentuk?.[b] || 0);
+        gambarPerBentukTarget[b] = jmlGambar;
+        totalGambarDiminta += jmlGambar;
+      });
+    }
+
+    if (totalSoal <= 0) {
+      setError('Jumlah soal harus minimal 1.');
+      return;
+    }
+
+    if (!isPrivileged) {
+      if (totalSoal > tierLimits.maxSoal) {
+        setError(`Paket ${tierLimits.label} dibatasi maksimal ${tierLimits.maxSoal} soal per generate (Anda meminta ${totalSoal} soal). Kurangi jumlah soal atau tingkatkan paket Anda.`);
+        return;
+      }
+      if (type === 'soal' && totalGambarDiminta > tierLimits.maxGambar) {
+        setError(`Paket ${tierLimits.label} dibatasi maksimal ${tierLimits.maxGambar} soal bergambar (Anda meminta ${totalGambarDiminta} gambar). Kurangi jumlah gambar atau tingkatkan paket Anda.`);
+        return;
+      }
+    }
+
+    const BATCH_SIZE = 25;
+    const batches = buildBatches(totalSoal, BATCH_SIZE);
+
+    if (!isPrivileged && batches.length > 1) {
+      const labelDoc = type === 'kisi-kisi' ? 'Kisi-kisi' : 'Naskah Soal';
+      const ok = window.confirm(
+        `Anda meminta ${totalSoal} nomor untuk ${labelDoc}.\n\nAgar seluruh nomor 1–${totalSoal} ter-generate lengkap tanpa terpotong, proses akan dibagi menjadi ${batches.length} batch (${batches.length} token).\n\nLanjutkan?`
+      );
+      if (!ok) return;
+    }
+
+    setIsGenerating(true);
+
     try {
       const ai = new GoogleGenAI({});
-      
+
       const rawJenjangLabel = educationLevels.find(l => l.id === formData.jenjang)?.label || formData.jenjang;
       const jenjangLabel = rawJenjangLabel;
       const baseMapelLabel = subjectsByLevel[formData.jenjang]?.find(s => s.id === formData.mapel)?.label || formData.mapel;
@@ -452,7 +537,6 @@ export default function BuatSoal() {
         ? 'Standar Resmi TKA (Level 1 Pemahaman, Level 2 Aplikasi, Level 3 Penalaran)'
         : 'Taksonomi SOLO';
 
-      // Matriks Asesmen resmi TKA diterapkan di belakang layar oleh Model AI
       const tkaMatriksInstruction = (cfg: any) => {
         const matriksText = buildTKAMatriksText(cfg);
         if (!matriksText) return '';
@@ -462,49 +546,8 @@ export default function BuatSoal() {
           : 'Fokuskan soal pada Materi/Indikator yang diisi guru, lalu petakan setiap butir ke elemen/subkompetensi yang paling sesuai dalam matriks di atas.'}`;
       };
 
-      // Token limit is now securely enforced centrally in lib/genai.ts
-
-      let prompt = '';
-      let responseSchema: any = {};
-
-      let totalSoal = 0;
-      let totalGambarDiminta = 0;
-      let breakdownSoal = '';
-      const gambarPerBentukTarget: Record<string, number> = {};
-      const isKombinasiBentuk = formData.bentukSoal.includes('Kombinasi');
-
-      if (isKombinasiBentuk) {
-         totalSoal = formData.jumlahSoalTotal;
-         totalGambarDiminta = formData.terdapatSoalBergambar ? Math.min(totalSoal, formData.jumlahSoalBergambar || 0) : (formData.jumlahSoalBergambar || 0);
-         breakdownSoal = `Jumlah Soal: ${totalSoal} Soal${totalGambarDiminta > 0 ? ` (Wajib menyertakan tepat ${totalGambarDiminta} soal bergambar yang tersebar merata dari nomor awal)` : ''}.`;
-      } else {
-         totalSoal = formData.bentukSoal.reduce((acc, b) => acc + (formData.jumlahSoalPerBentuk[b] || 0), 0);
-         const detailParts = formData.bentukSoal.map(b => {
-           const jmlSoal = formData.jumlahSoalPerBentuk[b] || 0;
-           const jmlGambar = Math.min(jmlSoal, formData.jumlahGambarPerBentuk?.[b] || 0);
-           gambarPerBentukTarget[b] = jmlGambar;
-           totalGambarDiminta += jmlGambar;
-           return jmlGambar > 0 ? `${b} (${jmlSoal} soal, WAJIB ${jmlGambar} soal bergambar)` : `${b} (${jmlSoal} soal)`;
-         });
-         breakdownSoal = `Jumlah Soal: ${detailParts.join(', ')}. Total: ${totalSoal} Soal${totalGambarDiminta > 0 ? `, Total Soal Bergambar: ${totalGambarDiminta} soal` : ''}.`;
-      }
-
       const tkaCfgForStimulus = formData.tipeUjian === 'Other' ? getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang) : null;
       const useStimulus = !!tkaCfgForStimulus || formData.tipeUjian === 'Asesmen Nasional';
-
-      const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
-        jenjang: formData.jenjang,
-        mapel: formData.mapel,
-        tipeUjian: formData.tipeUjian,
-        subTipeUjian: formData.subTipeUjian,
-        tarafOlimpiade: formData.tarafOlimpiade,
-        kerangkaTaksonomi: formData.kerangkaTaksonomi,
-        levelKognitif: formData.levelKognitif,
-        totalSoal,
-        terdapatSoalBergambar: totalGambarDiminta > 0 || formData.terdapatSoalBergambar,
-        jumlahSoalBergambar: totalGambarDiminta,
-        hasInklusi: formData.hasInklusi,
-      });
 
       if (type === 'kisi-kisi') {
         let tkaSpecificPrompt = '';
@@ -516,44 +559,7 @@ export default function BuatSoal() {
           }
         }
 
-        prompt = `${headerStandardPrompt}
-
-Buatkan Kisi-kisi Soal untuk:
-Mata Pelajaran: ${mapelLabel}
-Jenjang / Sasaran: ${jenjangLabel}
-Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
-Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
-Capaian Pembelajaran: ${cp}
-Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
-Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
-Bentuk Soal: ${formData.bentukSoal.join(', ')}
-Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
-${breakdownSoal}
-${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
-${tkaSpecificPrompt}
-
-PENTING:
-- Selaraskan dengan CP. Tujuan Pembelajaran (TP) diturunkan dari CP.
-- Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS) jika dipilih.
-- Kaitkan soal dengan konteks nyata (meaningful learning).
-- Jika Asesmen Nasional/Olimpiade/TKA, pastikan kisi-kisi memuat indikator stimulus (literasi/numerasi) dan soal menantang HOTS.${runtimeSkillPrompt}
-
-Berikan output dalam format JSON murni:
-{
-  "tujuanPembelajaran": "...",
-  "kisiKisi": [
-    {
-      "elemen": "...",
-      "tujuanPembelajaran": "...",
-      "materi": "...",
-      "levelKognitif": "...",
-      "indikatorSoal": "...",
-      "jenisSoal": "...",
-      "noSoal": "..."
-    }
-  ]
-}   `;
-        responseSchema = {
+        const responseSchema = {
           type: Type.OBJECT,
           properties: {
             tujuanPembelajaran: { type: Type.STRING },
@@ -574,93 +580,43 @@ Berikan output dalam format JSON murni:
             }
           }
         };
-      } else {
-        let extraInstructions = '';
-        if (formData.tipeUjian === 'Other' && formData.subTipeUjian) {
-          const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
-          if (tkaCfg) {
-            extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI ${tkaCfg.nama.toUpperCase()}:\n${tkaCfg.promptRules}\n- PENTING KHUSUS ${formData.subTipeUjian.toUpperCase()}: Setiap butir soal WAJIB memenuhi standar stimulus, batasan jumlah kata bacaan/soal, karakteristik kebahasaan/matematika, level kognitif resmi (knowing/understanding, applying, reasoning), dan matriks subkompetensi resmi TKA jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
-            extraInstructions += tkaMatriksInstruction(tkaCfg);
-          } else {
-            extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Sesuaikan dengan standar kurikulum dan panduan asesmen resmi ${formData.subTipeUjian}.`;
+
+        let accumulatedTP = '';
+        const accumulatedKisi: any[] = [];
+
+        for (let bIdx = 0; bIdx < batches.length; bIdx++) {
+          const batch = batches[bIdx];
+          if (batches.length > 1) {
+            setBatchProgress(`Membuat kisi-kisi batch ${bIdx + 1}/${batches.length} (No. ${batch.start}–${batch.end})...`);
           }
-        } else if (formData.tipeUjian === 'Olimpiade') {
-          const taraf = formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)';
-          extraInstructions += `\n- STANDAR RESMI OLIMPIADE SAINS & MATEMATIKA BERTARAF INTERNASIONAL (TARAF: ${taraf.toUpperCase()}):\n` +
-            `  1) PEDOMAN BOBOT KOMPETISI: Sesuaikan cakupan materi, kedalaman abstraksi, dan kompleksitas masalah dengan standar resmi:\n` +
-            `     * SD/MI: OSN SD Puspresnas (Matematika & IPA Sains), SASMO (Grades 1-6), AMC 8, Kangaroo Math, VANDA Science.\n` +
-            `     * SMP/MTs: OSN SMP Puspresnas (Matematika, IPA Terpadu, IPS), IJSO (Fisika-Kimia-Biologi terpadu), SASMO Junior, AMC 8/10.\n` +
-            `     * SMA/MA: OSN SMA Puspresnas & Tingkat Dunia (Matematika/IMO, Fisika/IPhO, Kimia/IChO, Biologi/IBO, Informatika/IOI, Astronomi/IOAA, Kebumian/IESO, Ekonomi/IEO, Geografi/IGeO).\n` +
-            `  2) ANTI PLUG-AND-CHUG MANDATE: DILARANG KERAS membuat soal rutin atau substitusi 1 rumus baku. Soal WAJIB menuntut minimal 3 tahapan penalaran (eksplorasi invarian/struktur tersembunyi, pemodelan matematis/ilmiah, dan perhitungan presisi).\n` +
-            `  3) FORMAT ISIAN SINGKAT INTEGER (AIME / SASMO SECTION B): Jika bentuk soal berupa "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa bilangan bulat non-negatif pasti (0–999 atau p+q pecahan paling sederhana) tanpa opsi tebakan.\n` +
-            `  4) REKAYASA PENGECOH: Pilihan salah pada pilihan ganda WAJIB mencerminkan jebakan miskonsepsi khas kompetisi (off-by-one, boundary case error, tanda/arah vektor terbalik, solusi parsial).\n` +
-            `  5) PEMBAHASAN NATURAL & JELAS: Tulis langkah penyelesaian secara runtut, logis, dan to-the-point menuju jawaban akhir tanpa berbelit-belit atau memecah pembahasan menjadi sub-paragraf kaku yang memicu halusinasi.\n` +
-            `  6) NOTASI MATEMATIKA BERSIH & RAMAH BACA (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b = 11/12, a ≤ b ≤ c, x², √x, ±, ≥, ≤). DILARANG KERAS menggunakan kode pemrograman LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, \\qquad, atau tanda dolar $ matematika yang merusak tampilan cetak.`;
-        } else if (formData.tipeUjian === 'Live Quiz') {
-          extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat. Pembahasan harus to the point.`;
-        }
 
-        if (totalGambarDiminta > 0) {
-          const jenisVisualPanduan =
-            formData.tipeUjian === 'Olimpiade'
-              ? 'rekayasa geometri & fenomena sains (konfigurasi garis singgung, rangkaian listrik, lintasan gerak, pembelahan sel, atau grafik fisis)'
-              : formData.tipeUjian === 'Live Quiz'
-              ? 'pemantik visual cepat / fast visual clue (tebak objek/tokoh, identifikasi organ, membaca rambu/diagram ringkas, atau tebak kurva)'
-              : formData.tipeUjian === 'Asesmen Nasional'
-              ? '2 lapis visual: (1) Gambar utama infografis/wacana pada stimulusList, dan (2) Diagram/grafik/ilustrasi spesifik pada butir soal yang menuntut siswa membandingkan data gambar butir soal dengan teks stimulus'
-              : formData.tipeUjian === 'Other'
-              ? 'visual kontekstual standar asesmen (neraca kesetimbangan, jam analog, bangun gabungan, diagram batang data, atau pola figural/spasial)'
-              : 'diagram anatomi/sains, siklus rantai makanan, denah/sudut geometri, grafik koordinat kartesius, atau bagan peristiwa';
+          const batchBreakdown = isKombinasiBentuk
+            ? `Jumlah Baris Kisi-kisi pada batch ini: ${batch.count} baris (untuk nomor soal ${batch.start} sampai ${batch.end} dari total ${totalSoal} soal).`
+            : `Target total keseluruhan: ${formData.bentukSoal.map(b => `${b} (${formData.jumlahSoalPerBentuk[b] || 0})`).join(', ')}. Pada batch ini, buat tepat ${batch.count} baris kisi-kisi berurutan untuk Nomor Soal ${batch.start} sampai ${batch.end}.`;
 
-          const rincianTargetGambar = isKombinasiBentuk
-            ? `tepat ${totalGambarDiminta} soal bergambar yang tersebar merata mulai dari nomor awal`
-            : Object.entries(gambarPerBentukTarget)
-                .filter(([, count]) => count > 0)
-                .map(([bentuk, count]) => `${bentuk}: ${count} soal bergambar`)
-                .join('; ');
+          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
+            jenjang: formData.jenjang,
+            mapel: formData.mapel,
+            tipeUjian: formData.tipeUjian,
+            subTipeUjian: formData.subTipeUjian,
+            tarafOlimpiade: formData.tarafOlimpiade,
+            kerangkaTaksonomi: formData.kerangkaTaksonomi,
+            levelKognitif: formData.levelKognitif,
+            totalSoal: batch.count,
+            terdapatSoalBergambar: formData.terdapatSoalBergambar,
+            jumlahSoalBergambar: totalGambarDiminta,
+            hasInklusi: formData.hasInklusi,
+          });
 
-          extraInstructions += `\n- SOAL BERGAMBAR (WAJIB TERPENUHI & MERATA): Target soal bergambar yang WAJIB dibuat adalah (${rincianTargetGambar}).\n` +
-            `  * ATURAN SEBARAN: Sebarkan soal bergambar mulai dari nomor awal masing-masing kelompok bentuk soal (JANGAN menumpuk di nomor terakhir saja!).\n` +
-            `  * KONSEP VISUAL: Gunakan ${jenisVisualPanduan}.\n` +
-            `  * FORMAT FIELD: Untuk setiap soal bergambar, WAJIB isi field "gambarDeskripsi" dengan prompt gambar berbahasa Inggris yang detail & bebas teks di dalam gambar (no text/labels inside image). Untuk soal lain yang tidak butuh gambar, isi "gambarDeskripsi": "".`;
-        } else {
-          extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "".' : 'Karena tidak ada soal bergambar yang diminta, biarkan field "gambarDeskripsi": "" kosong pada butir soal.'}`;
-        }
+          const prevIndikators = accumulatedKisi.length > 0
+            ? `\n- CATATAN BATCH LANJUTAN: Nomor 1–${batch.start - 1} sudah dibuat sebelumnya (indikator terakhir: "${accumulatedKisi[accumulatedKisi.length - 1]?.indikatorSoal || ''}"). Lanjutkan tepat dari nomor ${batch.start} hingga ${batch.end} dengan variasi indikator baru yang tidak duplikat.`
+            : '';
 
-        extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
+          const prompt = `${headerStandardPrompt}
 
-        extraInstructions += runtimeSkillPrompt;
-        if (useStimulus) {
-          if (formData.tipeUjian === 'Asesmen Nasional') {
-            extraInstructions += `\n- STIMULUS BERSAMA + STANDALONE (AKM RESMI): Sebagian besar soal dikelompokkan ke dalam stimulus bersama di "stimulusList" (1 teks wacana/infografis menaungi 1–3 soal berurutan dengan variasi bentuk soal). Sebagian soal lainnya boleh berupa soal mandiri/standalone ("stimulusId": ""). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul", "teks", "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris tanpa teks di dalam gambar), dan "rentangSoal". Pertanyaan soal yang memakai stimulus TIDAK perlu mengulang teks stimulus.`;
-          } else {
-            extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama di "stimulusList". Setiap stimulus dipakai oleh 2–4 soal berurutan. Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang detail tanpa teks di dalam gambar), dan "rentangSoal" (contoh "1-3"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong.`;
-          }
-        } else {
-          extraInstructions += `\n- ATURAN MUTLAK SOAL MANDIRI (STANDALONE): Tipe ujian ini TIDAK MENGGUNAKAN wacana bersama ("stimulusList"). DILARANG KERAS membuat wacana/stimulus bersama! Anda WAJIB membiarkan array "stimulusList": [] KOSONG! Seluruh deskripsi masalah, data, atau skenario kasus WAJIB ditulis langsung di dalam field "pertanyaan" pada masing-masing nomor. Seluruh butir soal WAJIB mengisi "stimulusId": "".`;
-        }
-
-        const hasBenarSalah = formData.bentukSoal.some(b => /benar\s*salah/i.test(b));
-        const hasKompleks = formData.bentukSoal.some(b => /kompleks/i.test(b));
-        const hasKombinasi = formData.bentukSoal.includes('Kombinasi');
-
-        if (hasBenarSalah || hasKompleks || hasKombinasi || useStimulus) {
-          extraInstructions += `\n- FORMAT KHUSUS BENTUK SOAL:
-  1) BENAR / SALAH: Untuk butir soal Benar/Salah, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}, {"pernyataan": "...", "kunci": "Salah"}]. Berikan 2–4 pernyataan bermakna. Field "kunci" berisi rangkuman (contoh: "A. Benar, B. Salah, C. Benar").
-  2) PILIHAN GANDA KOMPLEKS (LEBIH DARI 1 JAWABAN BENAR): Tulis opsi lengkap di "opsiTambahan" (contoh: ["A. ...", "B. ...", "C. ...", "D. ..."]). Field "kunci" memuat seluruh huruf jawaban yang benar (contoh: "A dan C" atau "A, C, D").
-  3) MENJODOHKAN: Isi array "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}].
-  4) PILIHAN GANDA: Isi 4-5 pilihan di "opsiTambahan" ("A. ...", "B. ...", dst), kunci berupa satu huruf kapital.`;
-        }
-
-        if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
-          extraInstructions += `\n- BAHASA ARAB: Karena mata pelajaran ini berbasis PAI/Bahasa Arab, WAJIB gunakan teks Arab asli (Arabic script) berharakat untuk setiap ayat, hadis, kosakata, atau naskah Arab yang diperlukan. Jangan hanya menggunakan transliterasi latin.`;
-        }
-
-        prompt = `${headerStandardPrompt}
-
-Buatkan Soal beserta Kunci Jawabannya untuk:
+Buatkan Kisi-kisi Soal untuk:
 Mata Pelajaran: ${mapelLabel}
-Jenjang: ${jenjangLabel}
+Jenjang / Sasaran: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
 Capaian Pembelajaran: ${cp}
@@ -668,135 +624,117 @@ Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai
 Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
-Rincian Target Reguler: ${breakdownSoal}
-${extraInstructions}
+${batchBreakdown}
+${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahInklusi} siswa. Pastikan hasil generate menyediakan adaptasi atau modifikasi untuk anak inklusi.` : ''}
+${tkaSpecificPrompt}${prevIndikators}
 
 PENTING:
-- PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi ${formData.hasInklusi ? '2 bagian' : '1 bagian'} dalam JSON:
-  1. "soalList": Berisi soal Reguler sesuai jumlah target pengunjung.
-${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (misal: bahasanya disederhanakan, lebih banyak butir visual langsung) MAKSIMAL 20 soal. Semua soal ABK ini dimasukkan ke array "soalABKList".\n` : ''}- Tipe Ujian Asesmen Nasional/Olimpiade wajib pakai stimulus konteks spesifik dan relevan.
-- JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" atau "Projek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
+- Selaraskan dengan CP. Tujuan Pembelajaran (TP) diturunkan dari CP.
+- Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS) jika dipilih.
+- Kaitkan soal dengan konteks nyata (meaningful learning).
+- WAJIB isi "noSoal" satu per satu secara berurutan dari "${batch.start}" sampai "${batch.end}" (total tepat ${batch.count} baris).
+- Jika Asesmen Nasional/Olimpiade/TKA, pastikan kisi-kisi memuat indikator stimulus (literasi/numerasi) dan soal menantang HOTS.${runtimeSkillPrompt}
 
 Berikan output dalam format JSON murni:
 {
-  "stimulusList": ${useStimulus ? `[
-    { "id": "S1", "judul": "...", "teks": "...", "gambarDeskripsi": "...", "gambarUrl": "", "rentangSoal": "1-5" }
-  ]` : '[]'},
-  "soalList": [
-    { 
-      "no": "...", 
-      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Menjodohkan / Isian Singkat / Uraian", 
-      "stimulusId": "${useStimulus ? 'S1 atau kosong' : ''}", 
-      "pertanyaan": "...", 
-      "opsiTambahan": ["A. ...", "B. ..."], 
-      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
-      "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],
-      "kunci": "...", 
-      "pembahasan": "...",
-      "skor": "...",
+  "tujuanPembelajaran": "...",
+  "kisiKisi": [
+    {
+      "elemen": "...",
+      "tujuanPembelajaran": "...",
+      "materi": "...",
       "levelKognitif": "...",
       "indikatorSoal": "...",
-      "materi": "...",
-      "gambarDeskripsi": "...",
-      "gambarUrl": ""
+      "jenisSoal": "...",
+      "noSoal": "${batch.start}"
     }
-  ]${formData.hasInklusi ? `,
-  "soalABKList": [
-    {
-      "no": "...", "jenisSoal": "...", "pertanyaan": "...", "opsiTambahan": [], "pernyataanBenarSalah": [], "pasanganMenjodohkan": [], "kunci": "...", "pembahasan": "...", "skor": "...", "levelKognitif": "...", "indikatorSoal": "...", "materi": "...", "gambarDeskripsi": "...", "gambarUrl": ""
-    }
-  ]` : ''}
+  ]
 }`;
-        const itemProperties: any = {
-          no: { type: Type.STRING },
-          jenisSoal: { type: Type.STRING },
-          stimulusId: { type: Type.STRING },
-          pertanyaan: { type: Type.STRING },
-          opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
-          pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
-          pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
-          kunci: { type: Type.STRING },
-          pembahasan: { type: Type.STRING },
-          skor: { type: Type.STRING },
-          levelKognitif: { type: Type.STRING },
-          indikatorSoal: { type: Type.STRING },
-          materi: { type: Type.STRING },
-          gambarDeskripsi: { type: Type.STRING },
-          gambarUrl: { type: Type.STRING }
-        };
 
-        let propertiesObj: any = {
-          soalList: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: itemProperties,
-              required: ["no", "jenisSoal", "pertanyaan", "kunci", "pembahasan"]
+          const response = await ai.models.generateContent({
+            model: selectedModel,
+            contents: buildContentsWithReferences(prompt, referenceFiles),
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: responseSchema,
             }
-          },
-          stimulusList: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                id: { type: Type.STRING },
-                judul: { type: Type.STRING },
-                teks: { type: Type.STRING },
-                gambarDeskripsi: { type: Type.STRING },
-                gambarUrl: { type: Type.STRING },
-                rentangSoal: { type: Type.STRING }
-              },
-              required: ["id", "judul", "teks"]
-            }
+          });
+
+          const parsed = parseAIJson(response.text || '{}');
+          if (!accumulatedTP && parsed.tujuanPembelajaran) {
+            accumulatedTP = parsed.tujuanPembelajaran;
           }
+          if (Array.isArray(parsed.kisiKisi)) {
+            accumulatedKisi.push(...parsed.kisiKisi);
+          }
+
+          setResultKisiKisi({
+            tujuanPembelajaran: accumulatedTP,
+            kisiKisi: [...accumulatedKisi],
+            meta: { mapelLabel, jenjangLabel, ...formData }
+          });
+        }
+      } else {
+        // MODE SOAL: Pengunjung hanya Naskah Soal (ringan), Admin All-in-One (lengkap)
+        const generateFullAllInOne = isPrivileged;
+
+        // Siapkan alokasi per batch untuk bentuk soal & gambar agar akurat
+        type BatchAlloc = {
+          start: number;
+          end: number;
+          count: number;
+          bentukCounts: Record<string, number>;
+          gambarCounts: Record<string, number>;
+          totalBatchGambar: number;
         };
 
-        if (formData.hasInklusi) {
-          propertiesObj.soalABKList = {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: itemProperties,
-              required: ["no", "jenisSoal", "pertanyaan", "kunci", "pembahasan"]
-            }
-          };
-        }
-
-        responseSchema = {
-          type: Type.OBJECT,
-          properties: propertiesObj
-        };
-      }
-
-      let systemInstruction = '';
-
-      const response = await ai.models.generateContent({
-        model: selectedModel,
-        contents: buildContentsWithReferences(prompt, referenceFiles),
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: responseSchema,
-          systemInstruction: systemInstruction || undefined
-        }
-      });
-
-      let responseText = response.text || '{}';
-      // Clean up markdown formatting if present
-      responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-      let generatedData: any = {};
-      try {
-        generatedData = JSON.parse(responseText);
-      } catch (parseErr) {
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          generatedData = JSON.parse(jsonMatch[0]);
+        const batchAllocs: BatchAlloc[] = [];
+        if (isKombinasiBentuk) {
+          let remainingImg = totalGambarDiminta;
+          batches.forEach((b, idx) => {
+            const imgForBatch = idx === batches.length - 1
+              ? remainingImg
+              : Math.min(remainingImg, Math.round((totalGambarDiminta * b.count) / totalSoal));
+            remainingImg -= imgForBatch;
+            batchAllocs.push({
+              ...b,
+              bentukCounts: { Kombinasi: b.count },
+              gambarCounts: { Kombinasi: imgForBatch },
+              totalBatchGambar: imgForBatch
+            });
+          });
         } else {
-          throw new Error('Gagal memproses format JSON dari respon AI. Silakan coba generate ulang.');
-        }
-      }
+          // Bangun antrean per item bentuk soal lalu potong per BATCH_SIZE
+          const soalQueue: Array<{ bentuk: string; hasImg: boolean }> = [];
+          formData.bentukSoal.forEach(b => {
+            const jml = formData.jumlahSoalPerBentuk[b] || 0;
+            const jmlImg = Math.min(jml, gambarPerBentukTarget[b] || 0);
+            for (let k = 0; k < jml; k++) {
+              soalQueue.push({ bentuk: b, hasImg: k < jmlImg });
+            }
+          });
 
-      if (type === 'soal') {
+          batches.forEach((b) => {
+            const slice = soalQueue.slice(b.start - 1, b.end);
+            const bentukCounts: Record<string, number> = {};
+            const gambarCounts: Record<string, number> = {};
+            let totalBatchGambar = 0;
+            slice.forEach(item => {
+              bentukCounts[item.bentuk] = (bentukCounts[item.bentuk] || 0) + 1;
+              if (item.hasImg) {
+                gambarCounts[item.bentuk] = (gambarCounts[item.bentuk] || 0) + 1;
+                totalBatchGambar++;
+              }
+            });
+            batchAllocs.push({
+              ...b,
+              bentukCounts,
+              gambarCounts,
+              totalBatchGambar
+            });
+          });
+        }
+
         const matchesBentuk = (jenisSoal: string, bentuk: string) => {
           const j = (jenisSoal || '').toLowerCase();
           const b = bentuk.toLowerCase();
@@ -816,19 +754,17 @@ Berikan output dalam format JSON murni:
           return `Educational diagram or clear visual illustration representing ${contextTopic}, context: ${shortQ}, clean textbook style without text labels`;
         };
 
-        const processSoalImages = (soalList: any[], isABK = false) => {
-          if (!Array.isArray(soalList)) return [];
-          const normalized = soalList.map(s => ({
+        const processBatchImages = (list: any[], alloc: BatchAlloc, isABK = false) => {
+          if (!Array.isArray(list)) return [];
+          const normalized = list.map(s => ({
             ...s,
             gambarDeskripsi: (s.gambarDeskripsi || '').trim(),
-            // P0-2: Jangan buat gambar otomatis. Biarkan gambarUrl kosong jika belum dibuat,
-            // namun pertahankan gambarUrl lama jika sudah ada dari data tersimpan.
             gambarUrl: s.gambarUrl || ''
           }));
 
-          if (totalGambarDiminta > 0 && normalized.length > 0 && !isABK) {
+          if (alloc.totalBatchGambar > 0 && normalized.length > 0 && !isABK) {
             if (isKombinasiBentuk) {
-              const targetCount = Math.min(totalGambarDiminta, normalized.length);
+              const targetCount = Math.min(alloc.totalBatchGambar, normalized.length);
               const currentCount = normalized.filter(s => s.gambarDeskripsi).length;
               if (currentCount < targetCount) {
                 let needed = targetCount - currentCount;
@@ -847,7 +783,7 @@ Berikan output dalam format JSON murni:
                 }
               }
             } else {
-              for (const [bentuk, targetCountRaw] of Object.entries(gambarPerBentukTarget)) {
+              for (const [bentuk, targetCountRaw] of Object.entries(alloc.gambarCounts)) {
                 if (!targetCountRaw || targetCountRaw <= 0) continue;
                 const groupIndices = normalized
                   .map((s, idx) => (matchesBentuk(s.jenisSoal, bentuk) ? idx : -1))
@@ -876,46 +812,590 @@ Berikan output dalam format JSON murni:
               }
             }
           }
-
           return normalized;
         };
 
-        if (generatedData.soalList) {
-          generatedData.soalList = processSoalImages(generatedData.soalList, false);
-        }
-        if (generatedData.soalABKList) {
-          generatedData.soalABKList = processSoalImages(generatedData.soalABKList, true);
-        }
-        if (Array.isArray(generatedData.stimulusList)) {
-          generatedData.stimulusList = generatedData.stimulusList.map((st: any) => ({
-            ...st,
-            // P0-2: Pertahankan gambarUrl stimulus jika sudah ada, jangan buat otomatis
-            gambarUrl: st.gambarUrl || ''
-          }));
+        const itemProperties: any = {
+          no: { type: Type.STRING },
+          jenisSoal: { type: Type.STRING },
+          stimulusId: { type: Type.STRING },
+          pertanyaan: { type: Type.STRING },
+          opsiTambahan: { type: Type.ARRAY, items: { type: Type.STRING } },
+          pernyataanBenarSalah: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { pernyataan: { type: Type.STRING }, kunci: { type: Type.STRING } } } },
+          pasanganMenjodohkan: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { kiri: { type: Type.STRING }, kanan: { type: Type.STRING } } } },
+          gambarDeskripsi: { type: Type.STRING },
+          gambarUrl: { type: Type.STRING }
+        };
+
+        if (generateFullAllInOne) {
+          itemProperties.kunci = { type: Type.STRING };
+          itemProperties.pembahasan = { type: Type.STRING };
+          itemProperties.skor = { type: Type.STRING };
+          itemProperties.levelKognitif = { type: Type.STRING };
+          itemProperties.indikatorSoal = { type: Type.STRING };
+          itemProperties.materi = { type: Type.STRING };
         }
 
-        if (!useStimulus) {
-          generatedData.stimulusList = [];
-          if (Array.isArray(generatedData.soalList)) {
-            generatedData.soalList.forEach((s: any) => { s.stimulusId = ''; });
+        const requiredFields = generateFullAllInOne
+          ? ["no", "jenisSoal", "pertanyaan", "kunci", "pembahasan"]
+          : ["no", "jenisSoal", "pertanyaan"];
+
+        let propertiesObj: any = {
+          soalList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: itemProperties,
+              required: requiredFields
+            }
+          },
+          stimulusList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                id: { type: Type.STRING },
+                judul: { type: Type.STRING },
+                teks: { type: Type.STRING },
+                gambarDeskripsi: { type: Type.STRING },
+                gambarUrl: { type: Type.STRING },
+                rentangSoal: { type: Type.STRING }
+              },
+              required: ["id", "judul", "teks"]
+            }
           }
-          if (Array.isArray(generatedData.soalABKList)) {
-            generatedData.soalABKList.forEach((s: any) => { s.stimulusId = ''; });
+        };
+
+        if (formData.hasInklusi) {
+          propertiesObj.soalABKList = {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: itemProperties,
+              required: requiredFields
+            }
+          };
+        }
+
+        const responseSchema = {
+          type: Type.OBJECT,
+          properties: propertiesObj
+        };
+
+        const accumulatedStimulus: any[] = [];
+        const accumulatedSoal: any[] = [];
+        const accumulatedABK: any[] = [];
+
+        for (let bIdx = 0; bIdx < batchAllocs.length; bIdx++) {
+          const alloc = batchAllocs[bIdx];
+          if (batchAllocs.length > 1) {
+            setBatchProgress(`Membuat naskah soal batch ${bIdx + 1}/${batchAllocs.length} (No. ${alloc.start}–${alloc.end})...`);
           }
+
+          const batchBreakdownText = isKombinasiBentuk
+            ? `Jumlah Soal pada batch ini: ${alloc.count} Soal (WAJIB bernomor ${alloc.start} sampai ${alloc.end})${alloc.totalBatchGambar > 0 ? `, dengan tepat ${alloc.totalBatchGambar} soal bergambar tersebar dari nomor awal` : ''}.`
+            : `Jumlah Soal pada batch ini (WAJIB bernomor ${alloc.start} sampai ${alloc.end}): ${Object.entries(alloc.bentukCounts).map(([b, cnt]) => {
+                const gCnt = alloc.gambarCounts[b] || 0;
+                return gCnt > 0 ? `${b} (${cnt} soal, WAJIB ${gCnt} soal bergambar)` : `${b} (${cnt} soal)`;
+              }).join(', ')}. Total batch: ${alloc.count} Soal.`;
+
+          let extraInstructions = '';
+          if (formData.tipeUjian === 'Other' && formData.subTipeUjian) {
+            const tkaCfg = getTKAConfigBySubtype(formData.subTipeUjian, formData.jenjang);
+            if (tkaCfg) {
+              extraInstructions += `\n- PANDUAN DAN MATRIKS RESMI ${tkaCfg.nama.toUpperCase()}:\n${tkaCfg.promptRules}\n- PENTING KHUSUS ${formData.subTipeUjian.toUpperCase()}: Setiap butir soal WAJIB memenuhi standar stimulus, batasan jumlah kata bacaan/soal, karakteristik kebahasaan/matematika, level kognitif resmi (knowing/understanding, applying, reasoning), dan matriks subkompetensi resmi TKA jenjang ${(formData.jenjang || 'SD').toUpperCase()}.`;
+              extraInstructions += tkaMatriksInstruction(tkaCfg);
+            } else {
+              extraInstructions += `\n- Tipe Ujian Sub-kategori: ${formData.subTipeUjian}. Sesuaikan dengan standar kurikulum dan panduan asesmen resmi ${formData.subTipeUjian}.`;
+            }
+          } else if (formData.tipeUjian === 'Olimpiade') {
+            const taraf = formData.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)';
+            extraInstructions += `\n- STANDAR RESMI OLIMPIADE SAINS & MATEMATIKA BERTARAF INTERNASIONAL (TARAF: ${taraf.toUpperCase()}):\n` +
+              `  1) PEDOMAN BOBOT KOMPETISI: Sesuaikan cakupan materi, kedalaman abstraksi, dan kompleksitas masalah dengan standar resmi:\n` +
+              `     * SD/MI: OSN SD Puspresnas (Matematika & IPA Sains), SASMO (Grades 1-6), AMC 8, Kangaroo Math, VANDA Science.\n` +
+              `     * SMP/MTs: OSN SMP Puspresnas (Matematika, IPA Terpadu, IPS), IJSO (Fisika-Kimia-Biologi terpadu), SASMO Junior, AMC 8/10.\n` +
+              `     * SMA/MA: OSN SMA Puspresnas & Tingkat Dunia (Matematika/IMO, Fisika/IPhO, Kimia/IChO, Biologi/IBO, Informatika/IOI, Astronomi/IOAA, Kebumian/IESO, Ekonomi/IEO, Geografi/IGeO).\n` +
+              `  2) ANTI PLUG-AND-CHUG MANDATE: DILARANG KERAS membuat soal rutin atau substitusi 1 rumus baku. Soal WAJIB menuntut minimal 3 tahapan penalaran (eksplorasi invarian/struktur tersembunyi, pemodelan matematis/ilmiah, dan perhitungan presisi).\n` +
+              `  3) FORMAT ISIAN SINGKAT INTEGER (AIME / SASMO SECTION B): Jika bentuk soal berupa "Isian Singkat" atau terdapat petunjuk angka bulat, jawaban akhir WAJIB berupa bilangan bulat non-negatif pasti (0–999 atau p+q pecahan paling sederhana) tanpa opsi tebakan.\n` +
+              `  4) REKAYASA PENGECOH: Pilihan salah pada pilihan ganda WAJIB mencerminkan jebakan miskonsepsi khas kompetisi (off-by-one, boundary case error, tanda/arah vektor terbalik, solusi parsial).\n` +
+              `  5) PEMBAHASAN NATURAL & JELAS: Tulis langkah penyelesaian secara runtut, logis, dan to-the-point menuju jawaban akhir tanpa berbelit-belit.\n` +
+              `  6) NOTASI MATEMATIKA BERSIH & RAMAH BACA (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b = 11/12, a ≤ b ≤ c, x², √x, ±, ≥, ≤). DILARANG KERAS menggunakan kode LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $.`;
+          } else if (formData.tipeUjian === 'Live Quiz') {
+            extraInstructions += `\n- Standar Live Quiz: Susun soal dengan format yang cocok untuk platform kuis interaktif (seperti Kahoot, Quizizz). Pertanyaan harus ringkas, jelas, dan menarik. Opsi jawaban maksimal 4 pilihan singkat.`;
+          }
+
+          if (alloc.totalBatchGambar > 0) {
+            const jenisVisualPanduan =
+              formData.tipeUjian === 'Olimpiade'
+                ? 'rekayasa geometri & fenomena sains (konfigurasi garis singgung, rangkaian listrik, lintasan gerak, pembelahan sel, atau grafik fisis)'
+                : formData.tipeUjian === 'Live Quiz'
+                ? 'pemantik visual cepat / fast visual clue (tebak objek/tokoh, identifikasi organ, membaca rambu/diagram ringkas, atau tebak kurva)'
+                : formData.tipeUjian === 'Asesmen Nasional'
+                ? '2 lapis visual: (1) Gambar utama infografis/wacana pada stimulusList, dan (2) Diagram/grafik/ilustrasi spesifik pada butir soal yang menuntut siswa membandingkan data gambar butir soal dengan teks stimulus'
+                : formData.tipeUjian === 'Other'
+                ? 'visual kontekstual standar asesmen (neraca kesetimbangan, jam analog, bangun gabungan, diagram batang data, atau pola figural/spasial)'
+                : 'diagram anatomi/sains, siklus rantai makanan, denah/sudut geometri, grafik koordinat kartesius, atau bagan peristiwa';
+
+            const rincianTargetGambar = isKombinasiBentuk
+              ? `tepat ${alloc.totalBatchGambar} soal bergambar yang tersebar merata mulai dari nomor awal batch ini`
+              : Object.entries(alloc.gambarCounts)
+                  .filter(([, count]) => count > 0)
+                  .map(([bentuk, count]) => `${bentuk}: ${count} soal bergambar`)
+                  .join('; ');
+
+            extraInstructions += `\n- SOAL BERGAMBAR (WAJIB TERPENUHI & MERATA): Target soal bergambar pada batch ini adalah (${rincianTargetGambar}).\n` +
+              `  * ATURAN SEBARAN: Sebarkan soal bergambar mulai dari nomor awal masing-masing kelompok bentuk soal (JANGAN menumpuk di nomor terakhir saja!).\n` +
+              `  * KONSEP VISUAL: Gunakan ${jenisVisualPanduan}.\n` +
+              `  * FORMAT FIELD: Untuk setiap soal bergambar, WAJIB isi field "gambarDeskripsi" dengan prompt gambar berbahasa Inggris yang detail & bebas teks di dalam gambar (no text/labels inside image). Untuk soal lain yang tidak butuh gambar, isi "gambarDeskripsi": "".`;
+          } else {
+            extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "".' : 'Karena tidak ada soal bergambar yang diminta pada batch ini, biarkan field "gambarDeskripsi": "" kosong pada butir soal.'}`;
+          }
+
+          extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
+
+          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
+            jenjang: formData.jenjang,
+            mapel: formData.mapel,
+            tipeUjian: formData.tipeUjian,
+            subTipeUjian: formData.subTipeUjian,
+            tarafOlimpiade: formData.tarafOlimpiade,
+            kerangkaTaksonomi: formData.kerangkaTaksonomi,
+            levelKognitif: formData.levelKognitif,
+            totalSoal: alloc.count,
+            terdapatSoalBergambar: alloc.totalBatchGambar > 0,
+            jumlahSoalBergambar: alloc.totalBatchGambar,
+            hasInklusi: formData.hasInklusi,
+          });
+          extraInstructions += runtimeSkillPrompt;
+
+          if (useStimulus) {
+            if (formData.tipeUjian === 'Asesmen Nasional') {
+              extraInstructions += `\n- STIMULUS BERSAMA + STANDALONE (AKM RESMI): Sebagian besar soal dikelompokkan ke dalam stimulus bersama di "stimulusList" (1 teks wacana/infografis menaungi 1–3 soal berurutan dengan variasi bentuk soal). Sebagian soal lainnya boleh berupa soal mandiri/standalone ("stimulusId": ""). Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul", "teks", "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris tanpa teks di dalam gambar), dan "rentangSoal". Pertanyaan soal yang memakai stimulus TIDAK perlu mengulang teks stimulus.`;
+            } else {
+              extraInstructions += `\n- STIMULUS BERSAMA + ILUSTRASI (WAJIB): Kelompokkan soal ke dalam beberapa stimulus bersama di "stimulusList". Setiap stimulus dipakai oleh 2–4 soal berurutan. Isi array "stimulusList" dengan: "id" (S1, S2, ...), "judul" (judul bacaan/infografis), "teks" (teks bacaan/konteks lengkap), "gambarDeskripsi" (prompt ilustrasi berbahasa Inggris yang detail tanpa teks di dalam gambar), dan "rentangSoal" (contoh "${alloc.start}-${Math.min(alloc.end, alloc.start + 2)}"). Setiap soal yang memakai stimulus WAJIB mengisi "stimulusId" sesuai id stimulus; soal mandiri biarkan "stimulusId" kosong.`;
+            }
+          } else {
+            extraInstructions += `\n- ATURAN MUTLAK SOAL MANDIRI (STANDALONE): Tipe ujian ini TIDAK MENGGUNAKAN wacana bersama ("stimulusList"). DILARANG KERAS membuat wacana/stimulus bersama! Anda WAJIB membiarkan array "stimulusList": [] KOSONG! Seluruh deskripsi masalah, data, atau skenario kasus WAJIB ditulis langsung di dalam field "pertanyaan" pada masing-masing nomor. Seluruh butir soal WAJIB mengisi "stimulusId": "".`;
+          }
+
+          const hasBenarSalah = Object.keys(alloc.bentukCounts).some(b => /benar\s*salah/i.test(b)) || isKombinasiBentuk;
+          const hasKompleks = Object.keys(alloc.bentukCounts).some(b => /kompleks/i.test(b)) || isKombinasiBentuk;
+
+          if (hasBenarSalah || hasKompleks || useStimulus) {
+            extraInstructions += `\n- FORMAT KHUSUS BENTUK SOAL:
+  1) BENAR / SALAH: Untuk butir soal Benar/Salah, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}, {"pernyataan": "...", "kunci": "Salah"}]. Berikan 2–4 pernyataan bermakna.
+  2) PILIHAN GANDA KOMPLEKS (LEBIH DARI 1 JAWABAN BENAR): Tulis opsi lengkap di "opsiTambahan" (contoh: ["A. ...", "B. ...", "C. ...", "D. ..."]).
+  3) MENJODOHKAN: Isi array "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}].
+  4) PILIHAN GANDA: Isi 4-5 pilihan di "opsiTambahan" ("A. ...", "B. ...", dst).`;
+          }
+
+          if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
+            extraInstructions += `\n- BAHASA ARAB: Karena mata pelajaran ini berbasis PAI/Bahasa Arab, WAJIB gunakan teks Arab asli (Arabic script) berharakat untuk setiap ayat, hadis, kosakata, atau naskah Arab yang diperlukan.`;
+          }
+
+          if (!generateFullAllInOne) {
+            extraInstructions += `\n- MODE RINGAN (FOKUS NASKAH SOAL SAJA): Buat HANYA Naskah Soal (pertanyaan, opsiTambahan, pernyataanBenarSalah, pasanganMenjodohkan, dan gambarDeskripsi). JANGAN membuat kunci jawaban, pembahasan panjang, skor, materi, atau indikatorSoal pada tahap ini agar soal tajam dan tidak terpotong.`;
+          }
+
+          const kisiRefSlice = Array.isArray(resultKisiKisi?.kisiKisi)
+            ? resultKisiKisi.kisiKisi.slice(alloc.start - 1, alloc.end)
+            : [];
+          const kisiRefPrompt = kisiRefSlice.length > 0
+            ? `\n- REFERENSI KISI-KISI NO. ${alloc.start}–${alloc.end} (IKUTI INDIKATOR & MATERI INI):\n${kisiRefSlice.map((k: any) => `  No.${k.noSoal}: [${k.jenisSoal} | ${k.levelKognitif}] ${k.materi} -> ${k.indikatorSoal}`).join('\n')}`
+            : '';
+
+          const batchContinuationPrompt = bIdx > 0
+            ? `\n- BATCH LANJUTAN: Ini adalah batch ke-${bIdx + 1} dari ${batchAllocs.length}. Lanjutkan penomoran TEPAT dari nomor ${alloc.start} hingga ${alloc.end} tanpa mengulang soal nomor 1–${alloc.start - 1}.`
+            : '';
+
+          const prompt = `${headerStandardPrompt}
+
+Buatkan ${generateFullAllInOne ? 'Soal beserta Kunci Jawaban & Kartu Soalnya' : 'Naskah Soal'} untuk:
+Mata Pelajaran: ${mapelLabel}
+Jenjang: ${jenjangLabel}
+Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
+Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
+Capaian Pembelajaran: ${cp}
+Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+Bentuk Soal: ${formData.bentukSoal.join(', ')}
+Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
+Rincian Target Batch Ini: ${batchBreakdownText}${kisiRefPrompt}${batchContinuationPrompt}
+${extraInstructions}
+
+PENTING:
+- PEMBAGIAN SOAL: Kamu WAJIB memisahkan soal menjadi ${formData.hasInklusi ? '2 bagian' : '1 bagian'} dalam JSON:
+  1. "soalList": Berisi tepat ${alloc.count} soal Reguler bernomor ${alloc.start} sampai ${alloc.end}.
+${formData.hasInklusi ? `  2. "soalABKList": Berisi anak inklusi / ABK (Anak Berkebutuhan Khusus). Buatkan modifikasi dari soal reguler (bahasanya disederhanakan) untuk batch ini (maksimal ${Math.min(alloc.count, 10)} soal per batch).\n` : ''}- JANGAN memuat singkatan "P5" atau istilah "Proyek Penguatan Profil Pelajar Pancasila" atau "Projek Penguatan Profil Pelajar Pancasila". Gantilah semua dengan istilah "Kokurikuler" atau "Kegiatan Kokurikuler" atau "Modul Kokurikuler".
+
+Berikan output dalam format JSON murni:
+{
+  "stimulusList": ${useStimulus ? `[
+    { "id": "S1", "judul": "...", "teks": "...", "gambarDeskripsi": "...", "gambarUrl": "", "rentangSoal": "${alloc.start}-${Math.min(alloc.end, alloc.start + 2)}" }
+  ]` : '[]'},
+  "soalList": [
+    { 
+      "no": "${alloc.start}", 
+      "jenisSoal": "Pilihan Ganda / Pilihan Ganda Kompleks / Benar/Salah / Menjodohkan / Isian Singkat / Uraian", 
+      "stimulusId": "${useStimulus ? 'S1 atau kosong' : ''}", 
+      "pertanyaan": "...", 
+      "opsiTambahan": ["A. ...", "B. ..."], 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
+      "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],${generateFullAllInOne ? `
+      "kunci": "...", 
+      "pembahasan": "...",
+      "skor": "...",
+      "levelKognitif": "...",
+      "indikatorSoal": "...",
+      "materi": "...",` : ''}
+      "gambarDeskripsi": "...",
+      "gambarUrl": ""
+    }
+  ]${formData.hasInklusi ? `,
+  "soalABKList": [
+    {
+      "no": "${alloc.start}", "jenisSoal": "...", "pertanyaan": "...", "opsiTambahan": [], "pernyataanBenarSalah": [], "pasanganMenjodohkan": []${generateFullAllInOne ? ', "kunci": "...", "pembahasan": "...", "skor": "...", "levelKognitif": "...", "indikatorSoal": "...", "materi": "..."' : ''}, "gambarDeskripsi": "...", "gambarUrl": ""
+    }
+  ]` : ''}
+}`;
+
+          const response = await ai.models.generateContent({
+            model: selectedModel,
+            contents: buildContentsWithReferences(prompt, referenceFiles),
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: responseSchema,
+            }
+          });
+
+          const parsed = parseAIJson(response.text || '{}');
+          const idPrefix = batchAllocs.length > 1 ? `B${bIdx + 1}_` : '';
+
+          let batchStimulus = Array.isArray(parsed.stimulusList) ? parsed.stimulusList : [];
+          let batchSoal = Array.isArray(parsed.soalList) ? parsed.soalList : [];
+          let batchABK = Array.isArray(parsed.soalABKList) ? parsed.soalABKList : [];
+
+          if (!useStimulus) {
+            batchStimulus = [];
+            batchSoal.forEach((s: any) => { s.stimulusId = ''; });
+            batchABK.forEach((s: any) => { s.stimulusId = ''; });
+          } else if (idPrefix) {
+            batchStimulus = batchStimulus.map((st: any) => ({ ...st, id: `${idPrefix}${st.id}`, gambarUrl: st.gambarUrl || '' }));
+            batchSoal = batchSoal.map((s: any) => ({ ...s, stimulusId: s.stimulusId ? `${idPrefix}${s.stimulusId}` : '' }));
+            batchABK = batchABK.map((s: any) => ({ ...s, stimulusId: s.stimulusId ? `${idPrefix}${s.stimulusId}` : '' }));
+          } else {
+            batchStimulus = batchStimulus.map((st: any) => ({ ...st, gambarUrl: st.gambarUrl || '' }));
+          }
+
+          batchSoal = processBatchImages(batchSoal, alloc, false);
+          batchABK = processBatchImages(batchABK, alloc, true);
+
+          accumulatedStimulus.push(...batchStimulus);
+          accumulatedSoal.push(...batchSoal);
+          accumulatedABK.push(...batchABK);
+
+          setResultSoal({
+            stimulusList: [...accumulatedStimulus],
+            soalList: [...accumulatedSoal],
+            ...(formData.hasInklusi ? { soalABKList: [...accumulatedABK] } : {}),
+            meta: { mapelLabel, jenjangLabel, ...formData }
+          });
         }
       }
-
-      if (type === 'kisi-kisi') {
-        setResultKisiKisi({ ...generatedData, meta: { mapelLabel, jenjangLabel, ...formData } });
-      } else {
-        setResultSoal({ ...generatedData, meta: { mapelLabel, jenjangLabel, ...formData } });
-      }
-
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Terjadi kesalahan saat menghasilkan konten.');
     } finally {
       setIsGenerating(false);
+      setBatchProgress('');
+    }
+  };
+
+  const generateKunciBahas = async () => {
+    if (!resultSoal || !Array.isArray(resultSoal.soalList) || resultSoal.soalList.length === 0) {
+      setError('Silakan generate Naskah Soal terlebih dahulu sebelum membuat Kunci & Pembahasan.');
+      return;
+    }
+
+    const total = resultSoal.soalList.length;
+    const batches = buildBatches(total, 25);
+    if (!isPrivileged && batches.length > 1) {
+      const ok = window.confirm(
+        `Naskah soal berjumlah ${total} nomor. Pembuatan Kunci & Pembahasan akan dibagi menjadi ${batches.length} batch (${batches.length} token) agar pembahasan akurat dan tidak terpotong.\n\nLanjutkan?`
+      );
+      if (!ok) return;
+    }
+
+    setError('');
+    setIsGeneratingSubTab('kunci');
+    setBatchProgress('');
+
+    try {
+      const ai = new GoogleGenAI({});
+      const stimulusMap = new Map<string, any>(
+        (resultSoal.stimulusList || []).map((st: any) => [st.id, st])
+      );
+
+      const updatedSoalList = [...resultSoal.soalList];
+      const updatedABKList = Array.isArray(resultSoal.soalABKList) ? [...resultSoal.soalABKList] : [];
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          kunciList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                no: { type: Type.STRING },
+                kunci: { type: Type.STRING },
+                pembahasan: { type: Type.STRING },
+                skor: { type: Type.STRING }
+              },
+              required: ['no', 'kunci', 'pembahasan']
+            }
+          },
+          ...(updatedABKList.length > 0 ? {
+            kunciABKList: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  no: { type: Type.STRING },
+                  kunci: { type: Type.STRING },
+                  pembahasan: { type: Type.STRING },
+                  skor: { type: Type.STRING }
+                },
+                required: ['no', 'kunci', 'pembahasan']
+              }
+            }
+          } : {})
+        }
+      };
+
+      for (let bIdx = 0; bIdx < batches.length; bIdx++) {
+        const b = batches[bIdx];
+        if (batches.length > 1) {
+          setBatchProgress(`Membuat kunci & bahas batch ${bIdx + 1}/${batches.length} (No. ${b.start}–${b.end})...`);
+        }
+
+        const sliceSoal = updatedSoalList.slice(b.start - 1, b.end);
+        const sliceABK = bIdx === 0 ? updatedABKList : [];
+
+        const soalPayload = sliceSoal.map((s: any) => {
+          const st = s.stimulusId ? stimulusMap.get(s.stimulusId) : null;
+          return {
+            no: s.no,
+            jenisSoal: s.jenisSoal,
+            ...(st ? { konteksStimulus: `${st.judul}: ${String(st.teks || '').slice(0, 600)}` } : {}),
+            pertanyaan: s.pertanyaan,
+            ...(Array.isArray(s.opsiTambahan) && s.opsiTambahan.length > 0 ? { opsiTambahan: s.opsiTambahan } : {}),
+            ...(Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 ? { pernyataanBenarSalah: s.pernyataanBenarSalah } : {}),
+            ...(Array.isArray(s.pasanganMenjodohkan) && s.pasanganMenjodohkan.length > 0 ? { pasanganMenjodohkan: s.pasanganMenjodohkan } : {})
+          };
+        });
+
+        const prompt = `Buatkan Kunci Jawaban, Pembahasan ringkas & logis, serta Skor untuk daftar soal ${resultSoal.meta?.mapelLabel || ''} (${resultSoal.meta?.jenjangLabel || ''}, ${resultSoal.meta?.tipeUjian || ''}) berikut.
+Gunakan notasi matematika standar Indonesia dan simbol Unicode bersih (x², √, ≤, ≥, ÷) tanpa sintaks LaTeX mentah.
+
+DAFTAR SOAL REGULER:
+${JSON.stringify(soalPayload)}
+${sliceABK.length > 0 ? `\nDAFTAR SOAL ABK:\n${JSON.stringify(sliceABK.map((s: any) => ({ no: s.no, jenisSoal: s.jenisSoal, pertanyaan: s.pertanyaan, opsiTambahan: s.opsiTambahan })))}` : ''}
+
+Berikan output JSON murni sesuai skema.`;
+
+        const response = await ai.models.generateContent({
+          model: selectedModel,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            responseSchema
+          }
+        });
+
+        const parsed = parseAIJson(response.text || '{}');
+        if (Array.isArray(parsed.kunciList)) {
+          parsed.kunciList.forEach((kItem: any, idxOffset: number) => {
+            const targetIdx = updatedSoalList.findIndex(s => String(s.no) === String(kItem.no));
+            const idx = targetIdx !== -1 ? targetIdx : (b.start - 1 + idxOffset);
+            if (updatedSoalList[idx]) {
+              updatedSoalList[idx] = {
+                ...updatedSoalList[idx],
+                kunci: kItem.kunci || updatedSoalList[idx].kunci || '',
+                pembahasan: kItem.pembahasan || updatedSoalList[idx].pembahasan || '',
+                skor: kItem.skor || updatedSoalList[idx].skor || '10'
+              };
+            }
+          });
+        }
+
+        if (Array.isArray(parsed.kunciABKList)) {
+          parsed.kunciABKList.forEach((kItem: any, idxOffset: number) => {
+            const targetIdx = updatedABKList.findIndex(s => String(s.no) === String(kItem.no));
+            const idx = targetIdx !== -1 ? targetIdx : idxOffset;
+            if (updatedABKList[idx]) {
+              updatedABKList[idx] = {
+                ...updatedABKList[idx],
+                kunci: kItem.kunci || updatedABKList[idx].kunci || '',
+                pembahasan: kItem.pembahasan || updatedABKList[idx].pembahasan || '',
+                skor: kItem.skor || updatedABKList[idx].skor || '10'
+              };
+            }
+          });
+        }
+
+        setResultSoal((prev: any) => ({
+          ...prev,
+          soalList: [...updatedSoalList],
+          ...(updatedABKList.length > 0 ? { soalABKList: [...updatedABKList] } : {})
+        }));
+      }
+      toast.success('Kunci Jawaban & Pembahasan berhasil dibuat!');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal membuat Kunci Jawaban & Pembahasan.');
+    } finally {
+      setIsGeneratingSubTab(null);
+      setBatchProgress('');
+    }
+  };
+
+  const generateKartuSoal = async () => {
+    if (!resultSoal || !Array.isArray(resultSoal.soalList) || resultSoal.soalList.length === 0) {
+      setError('Silakan generate Naskah Soal terlebih dahulu sebelum membuat Kartu Soal.');
+      return;
+    }
+
+    const total = resultSoal.soalList.length;
+    const batches = buildBatches(total, 25);
+    if (!isPrivileged && batches.length > 1) {
+      const ok = window.confirm(
+        `Naskah soal berjumlah ${total} nomor. Pembuatan Kartu Soal akan dibagi menjadi ${batches.length} batch (${batches.length} token) agar seluruh kartu soal lengkap.\n\nLanjutkan?`
+      );
+      if (!ok) return;
+    }
+
+    setError('');
+    setIsGeneratingSubTab('kartu');
+    setBatchProgress('');
+
+    try {
+      const ai = new GoogleGenAI({});
+      const updatedSoalList = [...resultSoal.soalList];
+      const updatedABKList = Array.isArray(resultSoal.soalABKList) ? [...resultSoal.soalABKList] : [];
+
+      const responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          kartuList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                no: { type: Type.STRING },
+                materi: { type: Type.STRING },
+                indikatorSoal: { type: Type.STRING },
+                levelKognitif: { type: Type.STRING },
+                skor: { type: Type.STRING }
+              },
+              required: ['no', 'materi', 'indikatorSoal', 'levelKognitif']
+            }
+          },
+          ...(updatedABKList.length > 0 ? {
+            kartuABKList: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  no: { type: Type.STRING },
+                  materi: { type: Type.STRING },
+                  indikatorSoal: { type: Type.STRING },
+                  levelKognitif: { type: Type.STRING },
+                  skor: { type: Type.STRING }
+                },
+                required: ['no', 'materi', 'indikatorSoal', 'levelKognitif']
+              }
+            }
+          } : {})
+        }
+      };
+
+      for (let bIdx = 0; bIdx < batches.length; bIdx++) {
+        const b = batches[bIdx];
+        if (batches.length > 1) {
+          setBatchProgress(`Membuat kartu soal batch ${bIdx + 1}/${batches.length} (No. ${b.start}–${b.end})...`);
+        }
+
+        const sliceSoal = updatedSoalList.slice(b.start - 1, b.end);
+        const sliceABK = bIdx === 0 ? updatedABKList : [];
+        const kisiRefSlice = Array.isArray(resultKisiKisi?.kisiKisi)
+          ? resultKisiKisi.kisiKisi.slice(b.start - 1, b.end)
+          : [];
+
+        const prompt = `Lengkapi metadata Kartu Soal (materi, indikatorSoal, levelKognitif sesuai kerangka ${resultSoal.meta?.kerangkaTaksonomi || 'Bloom'}, dan skor) untuk daftar soal ${resultSoal.meta?.mapelLabel || ''} (${resultSoal.meta?.jenjangLabel || ''}) berikut:
+
+DAFTAR SOAL REGULER:
+${JSON.stringify(sliceSoal.map((s: any) => ({ no: s.no, jenisSoal: s.jenisSoal, pertanyaan: String(s.pertanyaan || '').slice(0, 220) })))}
+${kisiRefSlice.length > 0 ? `\nREFERENSI KISI-KISI:\n${JSON.stringify(kisiRefSlice)}` : ''}
+${sliceABK.length > 0 ? `\nDAFTAR SOAL ABK:\n${JSON.stringify(sliceABK.map((s: any) => ({ no: s.no, jenisSoal: s.jenisSoal, pertanyaan: String(s.pertanyaan || '').slice(0, 180) })))}` : ''}
+
+Berikan output JSON murni sesuai skema.`;
+
+        const response = await ai.models.generateContent({
+          model: selectedModel,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            responseSchema
+          }
+        });
+
+        const parsed = parseAIJson(response.text || '{}');
+        if (Array.isArray(parsed.kartuList)) {
+          parsed.kartuList.forEach((cItem: any, idxOffset: number) => {
+            const targetIdx = updatedSoalList.findIndex(s => String(s.no) === String(cItem.no));
+            const idx = targetIdx !== -1 ? targetIdx : (b.start - 1 + idxOffset);
+            if (updatedSoalList[idx]) {
+              updatedSoalList[idx] = {
+                ...updatedSoalList[idx],
+                materi: cItem.materi || updatedSoalList[idx].materi || '',
+                indikatorSoal: cItem.indikatorSoal || updatedSoalList[idx].indikatorSoal || '',
+                levelKognitif: cItem.levelKognitif || updatedSoalList[idx].levelKognitif || '',
+                skor: cItem.skor || updatedSoalList[idx].skor || '10'
+              };
+            }
+          });
+        }
+
+        if (Array.isArray(parsed.kartuABKList)) {
+          parsed.kartuABKList.forEach((cItem: any, idxOffset: number) => {
+            const targetIdx = updatedABKList.findIndex(s => String(s.no) === String(cItem.no));
+            const idx = targetIdx !== -1 ? targetIdx : idxOffset;
+            if (updatedABKList[idx]) {
+              updatedABKList[idx] = {
+                ...updatedABKList[idx],
+                materi: cItem.materi || updatedABKList[idx].materi || '',
+                indikatorSoal: cItem.indikatorSoal || updatedABKList[idx].indikatorSoal || '',
+                levelKognitif: cItem.levelKognitif || updatedABKList[idx].levelKognitif || '',
+                skor: cItem.skor || updatedABKList[idx].skor || '10'
+              };
+            }
+          });
+        }
+
+        setResultSoal((prev: any) => ({
+          ...prev,
+          soalList: [...updatedSoalList],
+          ...(updatedABKList.length > 0 ? { soalABKList: [...updatedABKList] } : {})
+        }));
+      }
+      toast.success('Kartu Soal berhasil dibuat!');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Gagal membuat Kartu Soal.');
+    } finally {
+      setIsGeneratingSubTab(null);
+      setBatchProgress('');
     }
   };
 
@@ -1777,7 +2257,14 @@ Berikan output dalam format JSON murni:
 
                 {/* Section 3: Struktur & Level Kognitif */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-5">
-                  <h3 className="font-bold text-gray-800 text-sm border-b border-gray-100 pb-2">3. Struktur & Level Kognitif</h3>
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                    <h3 className="font-bold text-gray-800 text-sm">3. Struktur & Level Kognitif</h3>
+                    <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${isPrivileged ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-50 text-slate-700 border-slate-200'}`}>
+                      {isPrivileged
+                        ? 'Mode Admin: Jumlah Soal & Gambar Bebas (All-in-One)'
+                        : `Paket ${tierLimits.label}: Maks. ${tierLimits.maxSoal} Soal & ${tierLimits.maxGambar} Gambar`}
+                    </span>
+                  </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     
                     {/* Kolom Kiri: Bentuk Soal */}
@@ -2191,13 +2678,15 @@ Berikan output dalam format JSON murni:
             </button>
             <button
               onClick={() => generateContent(activeSubTab === 'kisi-kisi' ? 'kisi-kisi' : 'soal')}
-              disabled={isGenerating}
+              disabled={isGenerating || !!isGeneratingSubTab}
               className={`flex-1 py-4 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50 ${
                 isGenerating ? 'bg-slate-400' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90'
               }`}
             >
               {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
-              Generate {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : 'Soal'}
+              {isGenerating && batchProgress
+                ? batchProgress
+                : `Generate ${activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : (isPrivileged ? 'Soal Lengkap' : 'Naskah Soal')}`}
             </button>
           </div>
 
@@ -2516,9 +3005,55 @@ Berikan output dalam format JSON murni:
 
               {activeSubTab === 'kunci' && (
                 resultSoal && resultSoal.soalList ? (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h3 className="font-bold text-emerald-600 text-lg border-b border-emerald-500/30 pb-2 mb-4 mt-8">B. KUNCI JAWABAN & PEMBAHASAN (REGULER)</h3>
-                    {resultSoal.soalList.map((s: any, i: number) => (
+                  (() => {
+                    const hasKunciData = resultSoal.soalList.some((s: any) => Boolean(String(s.kunci || '').trim() || String(s.pembahasan || '').trim()));
+                    const neededTokens = Math.max(1, Math.ceil(resultSoal.soalList.length / 25));
+                    if (!hasKunciData) {
+                      return (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-6 animate-in fade-in">
+                          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 border border-emerald-200">
+                            <CheckCircle size={28} className="text-emerald-600" />
+                          </div>
+                          <h3 className="text-base font-bold text-gray-900 mb-1">Naskah Soal Siap ({resultSoal.soalList.length} Nomor)</h3>
+                          <p className="text-xs text-gray-600 max-w-md mb-5">
+                            Kunci jawaban & pembahasan belum dibuat untuk naskah ini. Klik tombol di bawah untuk men-generate Kunci & Pembahasan{!isPrivileged ? ` (${neededTokens} token${neededTokens > 1 ? ` · ${neededTokens} batch` : ''})` : ''}.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={generateKunciBahas}
+                            disabled={isGeneratingSubTab === 'kunci' || isGenerating}
+                            className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-md"
+                          >
+                            {isGeneratingSubTab === 'kunci' ? (
+                              <>
+                                <Loader2 size={18} className="animate-spin" />
+                                <span>{batchProgress || 'Membuat Kunci & Pembahasan...'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={18} />
+                                <span>Generate Kunci & Pembahasan</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/30 pb-2 mb-4 mt-4">
+                          <h3 className="font-bold text-emerald-600 text-lg">B. KUNCI JAWABAN & PEMBAHASAN (REGULER)</h3>
+                          <button
+                            type="button"
+                            onClick={generateKunciBahas}
+                            disabled={isGeneratingSubTab === 'kunci' || isGenerating}
+                            className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
+                          >
+                            {isGeneratingSubTab === 'kunci' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                            <span>{isGeneratingSubTab === 'kunci' ? (batchProgress || 'Memproses...') : 'Generate Ulang Kunci & Bahas'}</span>
+                          </button>
+                        </div>
+                        {resultSoal.soalList.map((s: any, i: number) => (
                       <div key={i} className="p-5 border border-gray-200 bg-gray-100/30 rounded-xl mb-6">
                         <div className="mb-3 text-sm text-gray-600"><strong>Soal No. {s.no}</strong> ({s.jenisSoal})</div>
                         <p className="text-gray-700 mb-3 italic pl-4 border-l-2 border-gray-300 whitespace-pre-wrap">{s.pertanyaan}</p>
@@ -2637,6 +3172,8 @@ Berikan output dalam format JSON murni:
                       </div>
                     )}
                   </div>
+                    );
+                  })()
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 border border-gray-300">
@@ -2649,9 +3186,55 @@ Berikan output dalam format JSON murni:
 
               {activeSubTab === 'kartu' && (
                 resultSoal && resultSoal.soalList ? (
-                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <h3 className="font-bold text-amber-600 text-lg border-b border-amber-500/30 pb-2 mb-4 mt-8">C. KARTU SOAL (REGULER)</h3>
-                    {resultSoal.soalList.map((s: any, i: number) => (
+                  (() => {
+                    const hasKartuData = resultSoal.soalList.some((s: any) => Boolean(String(s.indikatorSoal || '').trim() || String(s.materi || '').trim()));
+                    const neededTokens = Math.max(1, Math.ceil(resultSoal.soalList.length / 25));
+                    if (!hasKartuData) {
+                      return (
+                        <div className="h-full flex flex-col items-center justify-center text-center p-6 animate-in fade-in">
+                          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4 border border-amber-200">
+                            <FileText size={28} className="text-amber-600" />
+                          </div>
+                          <h3 className="text-base font-bold text-gray-900 mb-1">Naskah Soal Siap ({resultSoal.soalList.length} Nomor)</h3>
+                          <p className="text-xs text-gray-600 max-w-md mb-5">
+                            Metadata Kartu Soal (Materi, Indikator Soal, & Level Kognitif) belum dibuat untuk naskah ini. Klik tombol di bawah untuk men-generate Kartu Soal{!isPrivileged ? ` (${neededTokens} token${neededTokens > 1 ? ` · ${neededTokens} batch` : ''})` : ''}.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={generateKartuSoal}
+                            disabled={isGeneratingSubTab === 'kartu' || isGenerating}
+                            className="px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-md"
+                          >
+                            {isGeneratingSubTab === 'kartu' ? (
+                              <>
+                                <Loader2 size={18} className="animate-spin" />
+                                <span>{batchProgress || 'Membuat Kartu Soal...'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={18} />
+                                <span>Generate Kartu Soal</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/30 pb-2 mb-4 mt-4">
+                          <h3 className="font-bold text-amber-600 text-lg">C. KARTU SOAL (REGULER)</h3>
+                          <button
+                            type="button"
+                            onClick={generateKartuSoal}
+                            disabled={isGeneratingSubTab === 'kartu' || isGenerating}
+                            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
+                          >
+                            {isGeneratingSubTab === 'kartu' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                            <span>{isGeneratingSubTab === 'kartu' ? (batchProgress || 'Memproses...') : 'Generate Ulang Kartu Soal'}</span>
+                          </button>
+                        </div>
+                        {resultSoal.soalList.map((s: any, i: number) => (
                       <details key={i} className="p-0 border border-gray-300 bg-gray-50 rounded-xl overflow-hidden mb-8 shadow-lg group" open>
                          <summary className="bg-gray-100 border-b border-gray-300 p-4 text-center font-bold text-gray-900 tracking-wider flex justify-between items-center cursor-pointer list-none">
                            <span>KARTU SOAL NOMOR {s.no}</span>
@@ -2845,6 +3428,8 @@ Berikan output dalam format JSON murni:
                       </div>
                     )}
                   </div>
+                    );
+                  })()
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500">
                      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 border border-gray-300">
