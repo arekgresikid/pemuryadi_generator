@@ -411,6 +411,9 @@ export default function App() {
     }
   };
 
+  const userRole = (profile?.role || 'siswa').toLowerCase();
+  const isAdminOrOwner = userRole === 'owner' || userRole === 'admin';
+
   const menuItems: MenuItem[] = [
     { id: 'beranda', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { id: 'kelompok', icon: <Users size={20} />, label: 'Kelompok' },
@@ -444,7 +447,7 @@ export default function App() {
         { id: 'rubrik-penilaian', icon: <ClipboardCheck size={16} />, label: 'Rubrik Penilaian', isBeta: true },
         { id: 'modul-kokurikuler', icon: <Tent size={16} />, label: 'Modul Kokurikuler', premiumOnly: true },
         { id: 'buat-soal', icon: <FileQuestion size={16} />, label: 'Buat Soal', premiumOnly: true },
-        { id: 'cpns-generator', icon: <Award size={16} />, label: 'SKD CPNS / PPPK', premiumOnly: true },
+        ...(isAdminOrOwner ? [{ id: 'cpns-generator', icon: <Award size={16} />, label: 'SKD CPNS / PPPK', premiumOnly: true }] : []),
         { id: 'laporan-kegiatan', icon: <FileText size={16} />, label: 'Laporan Kegiatan', premiumOnly: true }
       ]
     },
@@ -480,8 +483,7 @@ export default function App() {
     { id: 'pricing', icon: <Coins size={20} className="text-amber-400" />, label: 'Langganan' }
   ];
 
-  const userRole = (profile?.role || 'siswa').toLowerCase();
-  if (userRole === 'owner' || userRole === 'admin') {
+  if (isAdminOrOwner) {
     menuItems.push({ id: 'admin-panel', icon: <Shield size={20} className="text-blue-600" />, label: 'Admin Dashboard' });
   }
 
@@ -509,6 +511,11 @@ export default function App() {
           }
         }
       }
+    }
+
+    if (tabId === 'cpns-generator' && !isAdminOrOwner) {
+      alert('Fitur SKD CPNS / PPPK hanya dapat diakses oleh Admin.');
+      return;
     }
 
     if (isTitanTab) {
@@ -780,7 +787,27 @@ export default function App() {
             {activeTab === 'modul-p5' && <ModulP5 />}
             {activeTab === 'rubrik-penilaian' && <RubrikPenilaian />}
             {activeTab === 'buat-soal' && <BuatSoal />}
-            {activeTab === 'cpns-generator' && <CPNSGenerator />}
+            {activeTab === 'cpns-generator' && (
+              isAdminOrOwner ? (
+                <CPNSGenerator />
+              ) : (
+                <div className="max-w-2xl mx-auto my-12 p-8 bg-white border border-red-200 rounded-2xl shadow-sm text-center">
+                  <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+                    <Shield size={32} />
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Akses Terbatas (Khusus Admin)</h2>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-6">
+                    Fitur Generator Soal SKD CPNS / PPPK saat ini hanya dapat diakses oleh Administrator & Pengelola Sistem.
+                  </p>
+                  <button
+                    onClick={() => handleTabChange('beranda')}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+                  >
+                    Kembali ke Beranda
+                  </button>
+                </div>
+              )
+            )}
             {activeTab === 'laporan-kegiatan' && <LaporanKegiatan />}
             {activeTab === 'evaluasi-mutu' && <EvaluasiMutu />}
             {activeTab === 'reports' && <Reports />}

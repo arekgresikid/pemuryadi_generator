@@ -30,13 +30,13 @@ const SUB_TOPIK_MAP: Record<CPNSMode, string[]> = {
     'Figural: Analogi, Ketidaksamaan & Serial Pola'
   ],
   TKP: [
-    'Semua 6 Aspek TKP',
-    'Pelayanan Publik (Keramahan & Kepuasan Pengguna)',
-    'Jejaring Kerja (Kolaborasi & Kemitraan Tim)',
-    'Sosial Budaya (Adaptasi Keberagaman Multikultural)',
-    'Teknologi Informasi & Komunikasi Digital',
-    'Profesionalisme (Tanggung Jawab Kedinasan & Disiplin)',
-    'Anti-Radikalisme (Moderasi Beragama & Loyalitas NKRI)'
+    'Semua 6 Aspek BerAKHLAK',
+    'Pelayanan Publik: Pemenuhan kebutuhan masyarakat ramah, tanggap & profesional',
+    'Sosial Budaya: Adaptasi kerja efektif dalam masyarakat majemuk multikultural',
+    'Jejaring Kerja: Membangun hubungan, kerjasama & kolaborasi tim',
+    'Teknologi Informasi dan Komunikasi (TIK): Pemanfaatan efektif untuk kinerja & layanan',
+    'Anti Radikalisme: Toleransi, anti-kekerasan & penangkalan radikalisme',
+    'Profesionalisme: Tanggung jawab tugas sesuai nilai & kode etik instansi'
   ],
   FULL_SKD: ['Standar Lengkap CAT BKN (TWK + TIU + TKP)']
 };
@@ -51,6 +51,9 @@ const normalizeKunci = (raw: string): string => {
 
 export default function CPNSGenerator() {
   const { profile } = useAuth();
+  const userRole = (profile?.role || 'siswa').toLowerCase();
+  const isAdminOrOwner = userRole === 'owner' || userRole === 'admin';
+
   const [selectedModel, setSelectedModel] = useState('openai');
   const [mode, setMode] = useState<CPNSMode>('TWK');
   const [subTopik, setSubTopik] = useState(SUB_TOPIK_MAP.TWK[0]);
@@ -59,6 +62,23 @@ export default function CPNSGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [questions, setQuestions] = useState<CPNSQuestionItem[]>([]);
+
+  if (!isAdminOrOwner) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 p-8 bg-white border border-red-200 rounded-2xl shadow-sm text-center">
+        <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-inner">
+          <AlertCircle size={32} />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Akses Terbatas: Khusus Administrator</h2>
+        <p className="text-sm text-gray-600 leading-relaxed mb-6">
+          Fitur Generator Soal SKD CPNS / PPPK saat ini hanya dapat diakses oleh Administrator & Pengelola Sistem.
+        </p>
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg">
+          Peran Akun Anda: <span className="font-bold text-red-600 uppercase">{userRole}</span>
+        </div>
+      </div>
+    );
+  }
 
   const handleModeChange = (newMode: CPNSMode) => {
     setMode(newMode);
@@ -236,9 +256,12 @@ export default function CPNSGenerator() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Award size={18} className="text-blue-600" />
               <h1 className="text-xl font-bold text-slate-900">Generator Soal SKD CPNS / PPPK</h1>
+              <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full border border-red-200">
+                KHUSUS ADMIN
+              </span>
             </div>
             <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
               Bank soal latihan mengacu KepmenPANRB No. 321/2024. Seluruh soal pilihan ganda 5 opsi (A–E). TWK & TIU: satu jawaban benar (5 poin), salah 0. TKP: setiap opsi berbobot 1–5.
