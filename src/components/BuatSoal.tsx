@@ -15,7 +15,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
 import LiveQuizOrchestrator from './LiveQuizOrchestrator';
 import { ReferenceFile, REF_MAX_FILES, REF_ACCEPT, processReferenceFile, buildContentsWithReferences } from '../utils/referenceFiles';
-import { buildRuntimeAssessmentSkillPrompt } from '../lib/assessmentSkillLoader';
+import { buildRuntimeAssessmentSkillPrompt, buildAssessmentSystemInstruction } from '../lib/assessmentSkillLoader';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -34,7 +34,17 @@ export default function BuatSoal() {
 
   const [activeSubTab, setActiveSubTab] = useState<'kisi-kisi' | 'naskah' | 'kunci' | 'kartu' | 'live-quiz'>('kisi-kisi');
   const [selectedModel, setSelectedModel] = React.useState<string>('openai');
+  const hasAutoSelectedModelRef = React.useRef(false);
   const [selectedImageModel, setSelectedImageModel] = React.useState<string>('flux');
+
+  useEffect(() => {
+    if (hasAutoSelectedModelRef.current || !profile) return;
+    const isFree = String(profile.tier || 'Free').toLowerCase() === 'free' && !isPrivileged;
+    if (!isFree && selectedModel === 'openai') {
+      setSelectedModel('openai-large');
+    }
+    hasAutoSelectedModelRef.current = true;
+  }, [profile, isPrivileged, selectedModel]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingSubTab, setIsGeneratingSubTab] = useState<'kunci' | 'kartu' | null>(null);
   const [batchProgress, setBatchProgress] = useState<string>('');
@@ -103,7 +113,7 @@ export default function BuatSoal() {
     tarafOlimpiade: 'Kabupaten (OSN-K / SASMO)',
     bentukSoal: ['Pilihan Ganda'],
     kerangkaTaksonomi: 'Bloom',
-    levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan'],
+    levelKognitif: ['C2 - Memahami', 'C3 - Mengaplikasikan', 'C4 - Menganalisis'],
     jumlahSoalTotal: 10,
     jumlahSoalPerBentuk: { 'Pilihan Ganda': 10 },
     jumlahGambarPerBentuk: { 'Pilihan Ganda': 0 },
@@ -537,11 +547,15 @@ export default function BuatSoal() {
         ? 'Standar Resmi TKA (Level 1 Pemahaman, Level 2 Aplikasi, Level 3 Penalaran)'
         : 'Taksonomi SOLO';
 
+      const hasRefs = referenceFiles.length > 0;
+
       const tkaMatriksInstruction = (cfg: any) => {
         const matriksText = buildTKAMatriksText(cfg);
         if (!matriksText) return '';
-        const autoPick = !formData.materi?.trim() && !formData.indikator?.trim();
-        return `\n\nMATRIKS ASESMEN RESMI ${String(cfg.nama || '').toUpperCase()} (ACUAN UTAMA):\n${matriksText}\n\n${autoPick
+        const autoPick = !formData.materi?.trim() && !formData.indikator?.trim() && !hasRefs;
+        return `\n\nMATRIKS ASESMEN RESMI ${String(cfg.nama || '').toUpperCase()} (ACUAN STANDAR):\n${matriksText}\n\n${hasRefs
+          ? 'DOKUMEN LAMPIRAN GURU AKTIF: Utamakan sepenuhnya materi, bacaan, angka, dan cakupan dari dokumen lampiran guru; gunakan matriks di atas hanya untuk menyelaraskan pemetaan level kognitif dan bentuk soal.'
+          : autoPick
           ? 'Materi dan Indikator TIDAK diisi guru: Model AI WAJIB memilih sendiri elemen/subkompetensi dari matriks di atas dan menyebarkan soal secara proporsional ke seluruh elemen/subkompetensi yang relevan untuk jenjang ini, dengan proporsi level kognitif (Pemahaman, Aplikasi, Penalaran) sesuai standar TKA.'
           : 'Fokuskan soal pada Materi/Indikator yang diisi guru, lalu petakan setiap butir ke elemen/subkompetensi yang paling sesuai dalam matriks di atas.'}`;
       };
@@ -594,7 +608,7 @@ export default function BuatSoal() {
             ? `Jumlah Baris Kisi-kisi pada batch ini: ${batch.count} baris (untuk nomor soal ${batch.start} sampai ${batch.end} dari total ${totalSoal} soal).`
             : `Target total keseluruhan: ${formData.bentukSoal.map(b => `${b} (${formData.jumlahSoalPerBentuk[b] || 0})`).join(', ')}. Pada batch ini, buat tepat ${batch.count} baris kisi-kisi berurutan untuk Nomor Soal ${batch.start} sampai ${batch.end}.`;
 
-          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
+          const skillCtx = {
             jenjang: formData.jenjang,
             mapel: formData.mapel,
             tipeUjian: formData.tipeUjian,
@@ -606,11 +620,28 @@ export default function BuatSoal() {
             terdapatSoalBergambar: formData.terdapatSoalBergambar,
             jumlahSoalBergambar: totalGambarDiminta,
             hasInklusi: formData.hasInklusi,
-          });
+            hasReferenceFiles: hasRefs,
+          };
+          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt(skillCtx);
+          const systemInstruction = buildAssessmentSystemInstruction(skillCtx);
 
           const prevIndikators = accumulatedKisi.length > 0
             ? `\n- CATATAN BATCH LANJUTAN: Nomor 1–${batch.start - 1} sudah dibuat sebelumnya (indikator terakhir: "${accumulatedKisi[accumulatedKisi.length - 1]?.indikatorSoal || ''}"). Lanjutkan tepat dari nomor ${batch.start} hingga ${batch.end} dengan variasi indikator baru yang tidak duplikat.`
             : '';
+
+          const cpLine = hasRefs
+            ? 'Sumber Utama (Override CP Bawaan): WAJIB mengikuti seluruh isi, struktur, materi, dan cakupan dokumen lampiran pengguna di atas. Abaikan CP bawaan jika berbeda dengan isi dokumen lampiran.'
+            : `Capaian Pembelajaran: ${cp}`;
+          const materiLine = formData.materi
+            ? formData.materi
+            : hasRefs
+            ? '(Ambil langsung dari isi dokumen lampiran pengguna)'
+            : '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)';
+          const indikatorLine = formData.indikator
+            ? formData.indikator
+            : hasRefs
+            ? '(Turunkan langsung dari materi & struktur dokumen lampiran pengguna)'
+            : '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)';
 
           const prompt = `${headerStandardPrompt}
 
@@ -619,9 +650,9 @@ Mata Pelajaran: ${mapelLabel}
 Jenjang / Sasaran: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
-Capaian Pembelajaran: ${cp}
-Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
-Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+${cpLine}
+Materi Esensial: ${materiLine}
+Indikator Asesmen: ${indikatorLine}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
 ${batchBreakdown}
@@ -629,8 +660,8 @@ ${formData.hasInklusi ? `Terdapat Anak Inklusi: Ya, berjumlah ${formData.jumlahI
 ${tkaSpecificPrompt}${prevIndikators}
 
 PENTING:
-- Selaraskan dengan CP. Tujuan Pembelajaran (TP) diturunkan dari CP.
-- Gunakan indikator yang mencerminkan proses berpikir tingkat tinggi (HOTS) jika dipilih.
+- ${hasRefs ? 'Turunkan Tujuan Pembelajaran (TP), materi, dan indikator soal langsung dari dokumen lampiran pengguna.' : 'Selaraskan dengan CP. Tujuan Pembelajaran (TP) diturunkan dari CP.'}
+- Gunakan indikator yang mencerminkan proses berpikir bermakna/HOTS (hindari indikator hafalan dangkal).
 - Kaitkan soal dengan konteks nyata (meaningful learning).
 - WAJIB isi "noSoal" satu per satu secara berurutan dari "${batch.start}" sampai "${batch.end}" (total tepat ${batch.count} baris).
 - Jika Asesmen Nasional/Olimpiade/TKA, pastikan kisi-kisi memuat indikator stimulus (literasi/numerasi) dan soal menantang HOTS.${runtimeSkillPrompt}
@@ -657,6 +688,7 @@ Berikan output dalam format JSON murni:
             config: {
               responseMimeType: "application/json",
               responseSchema: responseSchema,
+              systemInstruction,
             }
           });
 
@@ -953,7 +985,7 @@ Berikan output dalam format JSON murni:
 
           extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
 
-          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt({
+          const skillCtx = {
             jenjang: formData.jenjang,
             mapel: formData.mapel,
             tipeUjian: formData.tipeUjian,
@@ -965,7 +997,10 @@ Berikan output dalam format JSON murni:
             terdapatSoalBergambar: alloc.totalBatchGambar > 0,
             jumlahSoalBergambar: alloc.totalBatchGambar,
             hasInklusi: formData.hasInklusi,
-          });
+            hasReferenceFiles: hasRefs,
+          };
+          const runtimeSkillPrompt = buildRuntimeAssessmentSkillPrompt(skillCtx);
+          const systemInstruction = buildAssessmentSystemInstruction(skillCtx);
           extraInstructions += runtimeSkillPrompt;
 
           if (useStimulus) {
@@ -1008,6 +1043,20 @@ Berikan output dalam format JSON murni:
             ? `\n- BATCH LANJUTAN: Ini adalah batch ke-${bIdx + 1} dari ${batchAllocs.length}. Lanjutkan penomoran TEPAT dari nomor ${alloc.start} hingga ${alloc.end} tanpa mengulang soal nomor 1–${alloc.start - 1}.`
             : '';
 
+          const cpSoalLine = hasRefs
+            ? 'Sumber Utama (Override CP Bawaan): WAJIB mengikuti seluruh materi, konsep, data, angka, istilah, serta cakupan dokumen lampiran pengguna di atas. Abaikan CP bawaan jika berbeda dari dokumen lampiran.'
+            : `Capaian Pembelajaran: ${cp}`;
+          const materiSoalLine = formData.materi
+            ? formData.materi
+            : hasRefs
+            ? '(Ambil langsung dari isi dokumen lampiran pengguna)'
+            : '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)';
+          const indikatorSoalLine = formData.indikator
+            ? formData.indikator
+            : hasRefs
+            ? '(Turunkan langsung dari materi & struktur dokumen lampiran pengguna)'
+            : '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)';
+
           const prompt = `${headerStandardPrompt}
 
 Buatkan ${generateFullAllInOne ? 'Soal beserta Kunci Jawaban & Kartu Soalnya' : 'Naskah Soal'} untuk:
@@ -1015,9 +1064,9 @@ Mata Pelajaran: ${mapelLabel}
 Jenjang: ${jenjangLabel}
 Fase/Kelas/Semester: ${formData.fase} / ${formData.kelas} / ${formData.semester}
 Tipe Ujian: ${formData.tipeUjian}${formData.tipeUjian === 'Other' ? ` (${formData.subTipeUjian})` : ''}
-Capaian Pembelajaran: ${cp}
-Materi Esensial: ${formData.materi || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
-Indikator Asesmen: ${formData.indikator || '(Tidak diisi — tentukan otomatis sesuai CP / Matriks Asesmen resmi)'}
+${cpSoalLine}
+Materi Esensial: ${materiSoalLine}
+Indikator Asesmen: ${indikatorSoalLine}
 Bentuk Soal: ${formData.bentukSoal.join(', ')}
 Level Kognitif (${kerangkaTaksonomiLabel}): ${formData.levelKognitif.join(', ')}
 Rincian Target Batch Ini: ${batchBreakdownText}${kisiRefPrompt}${batchContinuationPrompt}
@@ -1065,6 +1114,7 @@ Berikan output dalam format JSON murni:
             config: {
               responseMimeType: "application/json",
               responseSchema: responseSchema,
+              systemInstruction,
             }
           });
 
@@ -1206,7 +1256,7 @@ Berikan output JSON murni sesuai skema.`;
 
         const response = await ai.models.generateContent({
           model: selectedModel,
-          contents: prompt,
+          contents: buildContentsWithReferences(prompt, referenceFiles),
           config: {
             responseMimeType: 'application/json',
             responseSchema
@@ -1343,7 +1393,7 @@ Berikan output JSON murni sesuai skema.`;
 
         const response = await ai.models.generateContent({
           model: selectedModel,
-          contents: prompt,
+          contents: buildContentsWithReferences(prompt, referenceFiles),
           config: {
             responseMimeType: 'application/json',
             responseSchema
@@ -2470,20 +2520,30 @@ Berikan output JSON murni sesuai skema.`;
                       />
                       {isReadingRef ? <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" /> : <FileText className="w-5 h-5 text-indigo-500" />}
                       <span className="text-xs font-semibold text-slate-700">{isReadingRef ? 'Membaca file...' : 'Klik atau seret file ke sini'}</span>
-                      <span className="text-[10px] text-slate-500">JPG, PDF, Word (.docx), Excel (.xlsx) · maks {REF_MAX_FILES} file · 5 MB/file</span>
+                      <span className="text-[10px] text-slate-500">JPG, PNG, PDF, Word (.docx), Excel (.xlsx), TXT · maks {REF_MAX_FILES} file · 5 MB/file</span>
                     </label>
                     {refError && <p className="text-[11px] text-red-600 mt-2">{refError}</p>}
                     {referenceFiles.length > 0 && (
-                      <ul className="mt-3 flex flex-col gap-2">
-                        {referenceFiles.map(f => (
-                          <li key={f.id} className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700">
-                            <span className="truncate">{f.name}</span>
-                            <button type="button" onClick={() => setReferenceFiles(prev => prev.filter(x => x.id !== f.id))} className="text-slate-400 hover:text-red-500 flex-shrink-0" aria-label={`Hapus ${f.name}`}>
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="mt-3 space-y-2">
+                        <p className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 font-medium">
+                          Mode Prioritas Lampiran aktif: CP bawaan dilewati dan soal diturunkan langsung dari isi dokumen lampiran.
+                        </p>
+                        <ul className="flex flex-col gap-2">
+                          {referenceFiles.map(f => (
+                            <li key={f.id} className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-700">
+                              <div className="min-w-0 flex items-center gap-2">
+                                <span className="truncate font-medium">{f.name}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 flex-shrink-0">
+                                  {f.kind === 'image' ? 'Gambar' : `${(f.text?.length || 0).toLocaleString('id-ID')} kar.${f.truncated ? ' (potong)' : ''}`}
+                                </span>
+                              </div>
+                              <button type="button" onClick={() => setReferenceFiles(prev => prev.filter(x => x.id !== f.id))} className="text-slate-400 hover:text-red-500 flex-shrink-0" aria-label={`Hapus ${f.name}`}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 </div>

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Award, Sparkles, BookOpen, CheckCircle2, AlertCircle, Printer, Copy, Check } from 'lucide-react';
+import { Award, Sparkles, BookOpen, CheckCircle2, AlertCircle, Printer, Copy, Check, FileText, Loader2, Trash2 } from 'lucide-react';
 import ModelSelector from './ModelSelector';
 import { GoogleGenAI, Type } from '../lib/genai';
 import { getWatermarkHtml, createPrintWindow } from '../utils/print';
 import { useAuth } from '../AuthContext';
 import { CPNSMode, CPNSQuestionItem, buildCPNSSystemInstruction, buildCPNSPrompt } from '../lib/cpnsSkillLoader';
+import { ReferenceFile, REF_MAX_FILES, REF_ACCEPT, processReferenceFile, buildContentsWithReferences } from '../utils/referenceFiles';
 
 const SUB_TOPIK_MAP: Record<CPNSMode, string[]> = {
   TWK: [
@@ -20,14 +21,14 @@ const SUB_TOPIK_MAP: Record<CPNSMode, string[]> = {
   ],
   TIU: [
     'Semua Topik TIU',
-    'Verbal: Analogi Kata (A : B = C : D)',
-    'Verbal: Silogisme (Penarikan Kesimpulan Logis)',
-    'Verbal: Penalaran Analitis (Urutan Posisi & Antrean)',
-    'Numerik: Berhitung Cepat (Aljabar & Pecahan)',
-    'Numerik: Deret Angka & Pola Bilangan',
-    'Numerik: Perbandingan Kuantitatif (x vs y)',
-    'Numerik: Soal Cerita (Aritmetika Sosial & Kecepatan)',
-    'Figural: Analogi, Ketidaksamaan & Serial Pola'
+    'Verbal: Analogi Kalimat & Relasi Kompleks',
+    'Verbal: Silogisme Berantai & Kontraposisi',
+    'Verbal: Penalaran Analitis (5–6 Entitas & Kendala)',
+    'Numerik: Berhitung Cepat (Aljabar & Pecahan Bertingkat)',
+    'Numerik: Deret Angka (2 Larik & Bertingkat)',
+    'Numerik: Perbandingan Kuantitatif (Uji Domain x vs y)',
+    'Numerik: Soal Cerita Multi-Tahap (Aritmetika & Kecepatan)',
+    'Figural: Penalaran Spasial & Matriks Pola Unicode'
   ],
   TKP: [
     'Semua 6 Aspek BerAKHLAK',
@@ -54,7 +55,7 @@ export default function CPNSGenerator() {
   const userRole = (profile?.role || 'siswa').toLowerCase();
   const isAdminOrOwner = userRole === 'owner' || userRole === 'admin';
 
-  const [selectedModel, setSelectedModel] = useState('openai');
+  const [selectedModel, setSelectedModel] = useState('openai-large');
   const [mode, setMode] = useState<CPNSMode>('TWK');
   const [subTopik, setSubTopik] = useState(SUB_TOPIK_MAP.TWK[0]);
   const [jumlahSoal, setJumlahSoal] = useState<number>(10);
@@ -62,6 +63,29 @@ export default function CPNSGenerator() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [questions, setQuestions] = useState<CPNSQuestionItem[]>([]);
+  const [referenceFiles, setReferenceFiles] = useState<ReferenceFile[]>([]);
+  const [isReadingRef, setIsReadingRef] = useState(false);
+  const [refError, setRefError] = useState('');
+
+  const handleReferenceFiles = async (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+    setRefError('');
+    setIsReadingRef(true);
+    const added: ReferenceFile[] = [];
+    for (const file of Array.from(fileList)) {
+      if (referenceFiles.length + added.length >= REF_MAX_FILES) {
+        setRefError(`Maksimal ${REF_MAX_FILES} file referensi.`);
+        break;
+      }
+      try {
+        added.push(await processReferenceFile(file));
+      } catch (e: any) {
+        setRefError(e?.message || 'Gagal memproses file.');
+      }
+    }
+    if (added.length) setReferenceFiles(prev => [...prev, ...added]);
+    setIsReadingRef(false);
+  };
 
   if (!isAdminOrOwner) {
     return (
@@ -91,10 +115,12 @@ export default function CPNSGenerator() {
     setError(null);
     try {
       const ai = new GoogleGenAI({ apiKey: '' });
+      const hasRefs = referenceFiles.length > 0;
       const prompt = buildCPNSPrompt({
         mode,
         subTopik: subTopik.startsWith('Semua') || mode === 'FULL_SKD' ? '' : subTopik,
-        totalSoal: jumlahSoal
+        totalSoal: jumlahSoal,
+        hasReferenceFiles: hasRefs
       });
 
       const responseSchema = {
@@ -137,11 +163,11 @@ export default function CPNSGenerator() {
 
       const response = await ai.models.generateContent({
         model: selectedModel,
-        contents: prompt,
+        contents: buildContentsWithReferences(prompt, referenceFiles),
         config: {
           responseMimeType: 'application/json',
           responseSchema,
-          systemInstruction: buildCPNSSystemInstruction(mode)
+          systemInstruction: buildCPNSSystemInstruction(mode, hasRefs)
         }
       });
 
@@ -318,6 +344,52 @@ export default function CPNSGenerator() {
             </div>
           </div>
         )}
+
+        {/* Referensi Materi / Kisi-kisi Opsional */}
+        <div className="pt-4 border-t border-slate-100">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Dokumen Referensi / Kisi-kisi (Opsional)
+          </label>
+          <label
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); handleReferenceFiles(e.dataTransfer.files); }}
+            className="flex flex-col items-center justify-center gap-1 p-3.5 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 hover:border-blue-400 hover:bg-blue-50/40 cursor-pointer transition-all text-center"
+          >
+            <input
+              type="file"
+              multiple
+              accept={REF_ACCEPT}
+              className="hidden"
+              onChange={e => { handleReferenceFiles(e.target.files); e.target.value = ''; }}
+            />
+            {isReadingRef ? <Loader2 className="w-5 h-5 text-blue-500 animate-spin" /> : <FileText className="w-5 h-5 text-blue-500" />}
+            <span className="text-xs font-semibold text-slate-700">{isReadingRef ? 'Membaca file...' : 'Klik atau seret file kisi-kisi/materi ke sini'}</span>
+            <span className="text-[10px] text-slate-500">JPG, PNG, PDF, Word (.docx), Excel (.xlsx), TXT · maks {REF_MAX_FILES} file · 5 MB/file</span>
+          </label>
+          {refError && <p className="text-[11px] text-red-600 mt-1.5">{refError}</p>}
+          {referenceFiles.length > 0 && (
+            <ul className="mt-2.5 flex flex-col gap-1.5">
+              {referenceFiles.map(f => (
+                <li key={f.id} className="flex items-center justify-between gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700">
+                  <div className="min-w-0 flex items-center gap-2">
+                    <span className="truncate font-medium">{f.name}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 flex-shrink-0">
+                      {f.kind === 'image' ? 'Gambar' : `${(f.text?.length || 0).toLocaleString('id-ID')} kar.${f.truncated ? ' (potong)' : ''}`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setReferenceFiles(prev => prev.filter(x => x.id !== f.id))}
+                    className="text-slate-400 hover:text-red-500 flex-shrink-0"
+                    aria-label={`Hapus ${f.name}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-4 border-t border-slate-100">
           <div>

@@ -137,37 +137,35 @@ export class GoogleGenAI {
         }
         
         // Handle array of parts or string
+        const mapPartToOpenAi = (part: any) => {
+          if (typeof part === 'string') return { type: "text", text: part };
+          if (part.text) return { type: "text", text: part.text };
+          if (part.inlineData) {
+            const mime = String(part.inlineData.mimeType || '').toLowerCase();
+            if (mime.startsWith('image/') && part.inlineData.data) {
+              return {
+                type: "image_url",
+                image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
+              };
+            }
+            return {
+              type: "text",
+              text: `[Lampiran non-gambar (${mime || 'unknown'}) dilewati — gunakan teks hasil ekstraksi dokumen.]`
+            };
+          }
+          return { type: "text", text: JSON.stringify(part) };
+        };
+
         if (Array.isArray(contents)) {
           if (contents.length > 0 && typeof contents[0] === 'object' && 'role' in contents[0]) {
             // It's a list of conversation messages: { role: string, parts: any[] }
             for (const msg of contents) {
-               const openAiContent = (msg.parts || []).map((part: any) => {
-                 if (typeof part === 'string') return { type: "text", text: part };
-                 if (part.text) return { type: "text", text: part.text };
-                 if (part.inlineData) {
-                   return {
-                     type: "image_url",
-                     image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
-                   };
-                 }
-                 return { type: "text", text: JSON.stringify(part) };
-               });
-               messages.push({ role: msg.role === 'model' ? 'assistant' : 'user', content: openAiContent });
+              const openAiContent = (msg.parts || []).map(mapPartToOpenAi);
+              messages.push({ role: msg.role === 'model' ? 'assistant' : 'user', content: openAiContent });
             }
           } else {
             // Flatten Google GenAI parts format to OpenAI format
-            const openAiContent = contents.map(part => {
-               if (typeof part === 'string') return { type: "text", text: part };
-               if (part.text) return { type: "text", text: part.text };
-               if (part.inlineData) {
-                 return {
-                   type: "image_url",
-                   image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` }
-                 };
-               }
-               // Minimal support for other types if needed, but mostly it's text
-               return { type: "text", text: JSON.stringify(part) };
-            });
+            const openAiContent = contents.map(mapPartToOpenAi);
             messages.push({ role: "user", content: openAiContent });
           }
         } else {

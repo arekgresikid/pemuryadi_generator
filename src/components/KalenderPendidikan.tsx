@@ -76,11 +76,20 @@ export default function KalenderPendidikan() {
     setError(null);
 
     try {
-      const prompt = `Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
+      const attachmentTextBlock = uploadedFile?.extractedText
+        ? `=== ISI DOKUMEN KALENDER REFERENSI (${uploadedFile.name}) — SUMBER OTORITATIF UTAMA ===
+Gunakan tanggal, jumlah hari efektif, agenda libur, serta struktur dari dokumen lampiran ini sebagai acuan utama kalender pendidikan:
+${uploadedFile.extractedText}
+=== AKHIR DOKUMEN REFERENSI ===
+
+`
+        : '';
+
+      const prompt = `${attachmentTextBlock}Pastikan dokumen ini disusun sesuai standar terbaru Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek) serta Kementerian Agama (Kemenag) Republik Indonesia, mengikuti panduan Kurikulum Merdeka yang mengikat.
 
 Buatlah Kalender Pendidikan resmi untuk tahun ajaran ${formData.tahunAjaran} jenjang ${formData.jenjang} di Provinsi ${formData.provinsi}.
 Gunakan sumber yang kredibel dari Dinas Pendidikan Provinsi terkait atau pedoman Kemendikbudristek terbaru untuk tahun 2026.
-${uploadedFile ? '\nPerhatikan dokumen referensi yang dilampirkan untuk menyesuaikan dengan kalender pendidikan yang dikeluarkan kementerian, pemerintah provinsi, atau pemerintah kota.' : ''}
+${uploadedFile ? '\nPerhatikan dokumen referensi yang dilampirkan sebagai acuan utama untuk menyesuaikan tanggal, agenda, dan struktur kalender pendidikan.' : ''}
 
 Buat dalam format HTML lengkap yang siap dicetak (A4).
 Gunakan styling CSS inline yang rapi, profesional, dan mudah dibaca.
@@ -106,7 +115,7 @@ OUTPUT HANYA KODE HTML (tanpa tag markdown \`\`\`html). Pastikan menggunakan tag
         }
       ];
 
-      if (uploadedFile) {
+      if (uploadedFile && uploadedFile.data && uploadedFile.mimeType.startsWith('image/')) {
         contents[0].parts.push({
           inlineData: {
             data: uploadedFile.data,

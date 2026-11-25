@@ -136,7 +136,16 @@ const SNP: React.FC<SNPProps> = ({ subTab }) => {
     try {
       const ai = new GoogleGenAI({});
 
-      const prompt = `Anda adalah ${config.agentName}.
+      const attachmentTextBlock = uploadedFile?.extractedText
+        ? `=== ISI DOKUMEN LAMPIRAN (${uploadedFile.name}) — SUMBER OTORITATIF UTAMA ===
+Perhatikan dan gunakan data, angka, struktur, serta rincian dari dokumen lampiran berikut secara akurat tanpa mengarang data fiktif yang bertentangan:
+${uploadedFile.extractedText}
+=== AKHIR DOKUMEN LAMPIRAN ===
+
+`
+        : '';
+
+      const prompt = `${attachmentTextBlock}Anda adalah ${config.agentName}.
 Fokus Anda: ${config.focus}
 Peran Anda: ${config.role}
 
@@ -165,7 +174,7 @@ Berikan hasilnya dalam format Markdown yang elegan, profesional, dan siap dijadi
         }
       ];
 
-      if (uploadedFile) {
+      if (uploadedFile && uploadedFile.data && uploadedFile.mimeType.startsWith('image/')) {
         contents[0].parts.push({
           inlineData: {
             data: uploadedFile.data,

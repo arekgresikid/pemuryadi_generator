@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.7] - 25 November 2026
+- Perbaikan Menyeluruh Ekstraksi & Prioritas Lampiran Dokumen: Memperbaiki worker PDF lokal pdfjs-dist v5 (.min.mjs) dengan preservasi struktur baris/tabel, mempertahankan heading & tabel Markdown pada DOCX/XLSX, mendukung PNG & TXT, menghentikan pengiriman binary PDF/Office sebagai image_url pada DocumentUpload/genai.ts (SNP & Kalender Pendidikan), serta menaruh dokumen lampiran di awal prompt sebagai sumber utama yang menimpa CP bawaan pada Buat Soal (termasuk Kunci & Bahas serta Kartu Soal).
+- Upgrade Skill Ujian Biasa (Anti Soal Terlalu Mudah & Anti Pseudo-HOTS): Menambahkan arsitektur khusus Ujian Biasa di assessmentSkillLoader.ts dengan System Instruction terdedikasi, operasionalisasi nyata Bloom C1–C6/SOLO/TKA (No-Lookup Rule), rekayasa pengecoh berbasis miskonsepsi, Key Balancing merata, dan default level C2–C4.
+- Upgrade Skill SKD CPNS / PPPK Taraf FR CAT BKN: Memasang batas minimum kesulitan (larangan soal klise SD–SMP pada TWK & larangan pola 1 langkah trivial pada TIU), near-miss distractors, dilema benturan 2 nilai anti-buzzword pada 6 Aspek BerAKHLAK TKP, default model flagship (openai-large) untuk Admin/Pro, serta upload dokumen referensi opsional pada CPNSGenerator.
+
 ## [5.4.6] - 14 November 2026
 - Game IFP Hybrid Engine 60fps: Mengganti rendering HTML monolitik yang rawan error menjadi arsitektur Hybrid Engine (5 engine lokal 60fps berbasis payload JSON untuk RPG, Racing/Action, Adventure, Puzzle, & Simulasi) plus Sandbox Guard dengan tombol Perbaiki Bug Otomatis, Layar Penuh IFP, Unduh Offline (.html), dan efek suara WebAudio.
 - Upgrade Games Center Dual-Mode: Mengganti dropdown polos menjadi Galeri Kartu Game dengan efek suara WebAudio, menambahkan AI Word Generator dan Live Play interaktif pada Word Search serta Teka-Teki Silang (TTS), dan menyematkan Cetak Lembar Siswa & Kunci Jawaban (Letter) pada seluruh 6 mini-game.

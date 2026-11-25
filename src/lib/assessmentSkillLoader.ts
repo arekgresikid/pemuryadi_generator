@@ -1,12 +1,11 @@
 /**
- * Digen.id Runtime Assessment Skill Loader (v1.1.0)
+ * Digen.id Runtime Assessment Skill Loader (v2.0.0)
  * Dynamically composes modular pedagogical instructions, stimulus budgeting policies,
- * Strict HOTS Enforcement (Anti-Pseudo-HOTS & Pre-Reasoning Contract), Official TKA Subtype
- * Architectures (Literasi, Numerasi, Bahasa Inggris, Sulingjar, Survei Karakter, Try Out),
- * and Distractor Engineering rules based on the active Assessment Contract.
+ * Strict HOTS Enforcement (Anti-Pseudo-HOTS & Operational Cognitive Repertoire),
+ * Official TKA/AKM/Olimpiade/Ujian Biasa Architectures, Misconception-Driven Distractors,
+ * Key Balancing, and Document Attachment Priority rules.
  *
- * Invariant: Does NOT modify Subscription Tiers (Free, Guru Pertama, Guru Muda, Guru Madya, Guru Utama)
- * or alter any database/API contracts.
+ * Invariant: Does NOT modify Subscription Tiers or alter any database/API contracts.
  */
 
 export interface AssessmentSkillContext {
@@ -21,6 +20,7 @@ export interface AssessmentSkillContext {
   jumlahSoalBergambar?: number;
   hasInklusi?: boolean;
   tarafOlimpiade?: string;
+  hasReferenceFiles?: boolean;
 }
 
 export function isHOTSSelectionOnly(levels: string[]): boolean {
@@ -39,35 +39,70 @@ export function hasAnyHOTSSelection(levels: string[]): boolean {
   );
 }
 
+/**
+ * Membangun System Instruction terdedikasi agar model AI memprioritaskan
+ * ketajaman kognitif, akurasi pengecoh, keseimbangan kunci, serta kepatuhan pada lampiran.
+ */
+export function buildAssessmentSystemInstruction(ctx: AssessmentSkillContext): string {
+  const jenjangUpper = (ctx.jenjang || 'SD').toUpperCase();
+  const tipe = ctx.tipeUjian === 'Other' && ctx.subTipeUjian ? `${ctx.tipeUjian} (${ctx.subTipeUjian})` : ctx.tipeUjian;
+
+  return `PERAN & OTORITAS:
+Anda adalah Tim Pakar Pengembang Instrumen Asesmen Pendidikan Nasional (Pusmendik Kemendikbudristek & Standar Evaluasi Kurikulum Merdeka) untuk jenjang ${jenjangUpper}, tipe asesmen ${tipe}.
+
+PRINSIP MUTLAK KUALITAS BUTIR SOAL (TIDAK BOLEH DILANGGAR):
+1. ANTI SOAL RECEH & ANTI PSEUDO-HOTS:
+   - Setiap butir soal WAJIB menguji pemahaman konseptual, aplikasi terukur, atau penalaran analitis yang sepadan dengan jenjang ${jenjangUpper}.
+   - DILARANG membuat soal hafalan dangkal yang bisa dijawab tanpa berpikir, menyalin definisi buku mentah, atau sekadar menempel kata "Analisislah/Evaluasilah" pada pertanyaan ingatan sederhana (Pseudo-HOTS).
+   - Untuk soal C4–C6 / Level 3 / Relasional-Abstrak, terapkan NO-LOOKUP RULE (Anti-Ctrl+F): jawaban tidak boleh tertulis secara literal di stimulus/pertanyaan; siswa wajib mengolah, membandingkan, atau menarik inferensi.
+2. REKAYASA PENGECOH BERBASIS MISKONSEPSI (MISCONCEPTION-DRIVEN DISTRACTORS):
+   - Pilihan jawaban salah (pengecoh) WAJIB masuk akal dan merepresentasikan miskonsepsi umum siswa, kesalahan konversi satuan, kekeliruan langkah hitung separuh jalan, atau generalisasi parsial.
+   - DILARANG membuat opsi konyol, opsi terlalu mencolok salahnya, atau opsi "Semua jawaban benar/salah".
+   - Panjang kalimat dan gaya bahasa seluruh opsi A–D / A–E WAJIB homogen (Anti Longest-Key Bias: jangan membuat kunci selalu paling panjang).
+3. PROTOKOL KESEIMBANGAN KUNCI (KEY BALANCING):
+   - Pada soal Pilihan Ganda, distribusikan kunci jawaban secara acak dan merata di seluruh huruf opsi (A, B, C, D — dan E bila 5 opsi). DILARANG menumpuk mayoritas kunci di huruf A atau B.
+4. VERIFIKASI MANDIRI:
+   - Pastikan secara objektif hanya ada TEPAT 1 kunci benar pada Pilihan Ganda reguler, semua hitungan matematika/sains 100% presisi, dan gunakan notasi Unicode bersih (x², √, ≤, ≥, ×, ÷) tanpa sintaks LaTeX mentah.
+${ctx.hasReferenceFiles ? `5. PRIORITAS MUTLAK DOKUMEN LAMPIRAN:
+   - Pengguna telah melampirkan dokumen referensi. Jadikan dokumen lampiran sebagai SUMBER OTORITATIF UTAMA untuk materi, konteks, data, istilah, dan struktur. JANGAN menimpa isi dokumen lampiran dengan materi umum di luar lampiran.` : ''}`;
+}
+
 export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): string {
   const sections: string[] = [];
   const sub = (ctx.subTipeUjian || '').trim();
   const jenjangUpper = (ctx.jenjang || 'SD').toUpperCase();
 
   // Detect exact exam family
+  const isUjianBiasa = ctx.tipeUjian === 'Ujian Biasa';
   const isTKALiterasi = ctx.tipeUjian === 'Other' && sub === 'TKA Literasi';
   const isTKANumerasi = ctx.tipeUjian === 'Other' && sub === 'TKA Numerasi';
   const isTKAInggris = ctx.tipeUjian === 'Other' && sub === 'TKA Literasi Bahasa Inggris';
   const isSulingjar = ctx.tipeUjian === 'Other' && sub.includes('Survei Lingkungan Belajar');
   const isSurveiKarakter = ctx.tipeUjian === 'Other' && sub.includes('Survei Karakter');
   const isTryOut = ctx.tipeUjian === 'Other' && sub === 'Try Out';
-  const isCPNSTWK = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TWK');
-  const isCPNSTIU = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TIU');
-  const isCPNSTKP = ctx.tipeUjian === 'Other' && sub.includes('CPNS SKD - TKP');
-  const isCPNS = isCPNSTWK || isCPNSTIU || isCPNSTKP;
-  const isSurvey = isSulingjar || isSurveiKarakter || isCPNSTKP;
+  const isSurvey = isSulingjar || isSurveiKarakter;
   const isAKM = ctx.tipeUjian === 'Asesmen Nasional';
   const isTKAAcademic = isTKALiterasi || isTKANumerasi || isTKAInggris;
   const isLiveQuiz = ctx.tipeUjian === 'Live Quiz';
   const isOlimpiade = ctx.tipeUjian === 'Olimpiade';
 
-  // 0. Panduan Konstruksi Soal yang Bersih & Fokus
+  // 0. Panduan Konstruksi Soal yang Bersih, Berbobot & Fokus
   sections.push(
-    `- PANDUAN KONSTRUKSI BUTIR SOAL: Rumuskan pertanyaan yang jelas, terukur, dan bermakna edukatif. Pastikan kalimat pertanyaan langsung menguji capaian pembelajaran tanpa bertele-tele.`
+    `- PANDUAN KONSTRUKSI BUTIR SOAL: Rumuskan pertanyaan yang tajam, terukur, menantang secara intelektual sesuai jenjang ${jenjangUpper}, dan langsung menguji kompetensi operasional tanpa basa-basi yang tidak berfungsi.`
   );
 
-  // 1. Dedicated Sub-Type Architecture for Tab "Other (TKA / Try Out)"
-  if (isTKALiterasi) {
+  // 1. Dedicated Sub-Type Architecture
+  if (isUjianBiasa) {
+    sections.push(
+      `- ARSITEKTUR KHUSUS UJIAN BIASA (FORMATIF / STS / SAS / UJIAN SEKOLAH — STANDAR MUTU TINGGI ${jenjangUpper}):\n` +
+        `  1) BATAS MINIMUM KUALITAS (ANTI SOAL TERLALU MUDAH):\n` +
+        `     * DILARANG membuat soal tebak-tebakan definisi mentah ("Apa pengertian dari...", "Yang termasuk contoh X adalah..." dengan 3 pengecoh konyol) atau substitusi 1 angka langsung ke 1 rumus dasar.\n` +
+        `     * Setiap butir soal WAJIB menghadirkan konteks mini bermakna (1–3 kalimat kasus nyata, data angka/tabel singkat, potongan fenomena, atau pernyataan eksperimen/kejadian) yang benar-benar harus diolah siswa untuk menemukan jawaban.\n` +
+        `  2) KEBERAGAMAN OPERASI BERPIKIR (ANTI-REPETISI):\n` +
+        `     * Dilarang mengulang pola kalimat tanya identik lebih dari 2 kali berturut-turut. Variasikan tugas mental antar-nomor: tafsir data/fenomena, perbandingan konsep berdekatan, analisis sebab-akibat (What-If), deteksi kesalahan langkah/klaim (Error Analysis), dan pemecahan masalah multi-langkah.\n` +
+        `  3) STANDAR OPSI JAWABAN: Gunakan 4 opsi (A–D) untuk SD/SMP atau 5 opsi (A–E) untuk SMA/SMK pada Pilihan Ganda, dengan panjang kalimat seimbang dan pengecoh berbasis miskonsepsi nyata siswa.`
+    );
+  } else if (isTKALiterasi) {
     const wordRange =
       jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK')
         ? '250–300 kata'
@@ -136,12 +171,12 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   } else if (isTryOut) {
     sections.push(
       `- ARSITEKTUR KHUSUS TRY OUT KOMPREHENSIF:\n` +
-        `  * Susun paket simulasi ujian standar yang mencakup lintas topik/materi esensial pada mata pelajaran ini secara menyeluruh, dengan tingkat kesulitan berjenjang menyerupai ujian akhir sesungguhnya.`
+        `  * Susun paket simulasi ujian standar yang mencakup lintas topik/materi esensial pada mata pelajaran ini secara menyeluruh, dengan tingkat kesulitan berjenjang (aplikasi hingga penalaran HOTS) menyerupai ujian akhir sesungguhnya.`
     );
   } else if (isOlimpiade) {
     const taraf = ctx.tarafOlimpiade || 'Kabupaten (OSN-K / SASMO)';
     sections.push(
-      `- ARSITEKTUR KHUSUS OLIMPIADE SAINS & MATEMATIKA BERTAARAF NASIONAL & INTERNASIONAL:\n` +
+      `- ARSITEKTUR KHUSUS OLIMPIADE SAINS & MATEMATIKA BERTARAF NASIONAL & INTERNASIONAL:\n` +
         `  1) TARAF KOMPETISI: "${taraf.toUpperCase()}" (${jenjangUpper}).\n` +
         `     * Bobot soal, kedalaman abstraksi, dan kompleksitas analisis WAJIB disesuaikan ketat dengan taraf kompetisi ini.\n` +
         `     * Kabupaten (OSN-K / SASMO Foundation): Fondasi penalaran kompetisi, pemecahan masalah non-rutin awal, teka-teki logika, dan sifat-sifat dasar matematika/sains analitis.\n` +
@@ -158,78 +193,12 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
         `  5) PEMBAHASAN NATURAL & JELAS: Tulis langkah penyelesaian secara runtut, logis, dan to-the-point menuju jawaban akhir tanpa berbelit-belit atau memecah pembahasan menjadi sub-paragraf kaku yang memicu halusinasi.\n` +
         `  6) NOTASI MATEMATIKA BERSIH & RAMAH BACA (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b = 11/12, a ≤ b ≤ c, x², √x, ±, ≥, ≤). DILARANG KERAS menggunakan kode pemrograman LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, \\qquad, atau tanda dolar $ matematika yang merusak tampilan cetak.`
     );
-  } else if (isCPNSTWK) {
-    sections.push(
-      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES WAWASAN KEBANGSAAN (TWK):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Nilai Ambang Batas / Passing Grade: 65, Skor Benar = 5 poin, Salah = 0 poin, Pilihan Ganda 5 Opsi A–E).\n` +
-        `  2) RUANG LINGKUP 5 PILAR UTAMA RESMI TWK (KEPMENPANRB NO. 321/2024):\n` +
-        `     a) Nasionalisme: Mampu mewujudkan kepentingan nasional melalui cita-cita dan tujuan yang sama dengan tetap mempertahankan identitas nasional. Mencakup: sejarah pergerakan nasional (Boedi Oetomo, Sarekat Islam, Indische Partij, Sumpah Pemuda 1928, BPUPKI/PPKI), wawasan kebangsaan, kedaulatan bangsa di era globalisasi, patriotisme, dan menjaga integrasi dari ancaman disintegrasi bangsa.\n` +
-        `     b) Integritas: Menjunjung tinggi kejujuran, ketangguhan moral, komitmen, dan konsistensi sikap bernegara. Mencakup: nilai integritas antikorupsi, ketentuan delik pidana UU Tipikor, sejarah kelembagaan pemberantasan korupsi, etika ketatanegaraan, transparansi birokrasi, serta keteladanan integritas tokoh bangsa (Bung Hatta, Baharuddin Lopa, Agus Salim, Hoegeng). CATATAN PENTING: Soal Integritas TWK menguji pengetahuan/analisis ketentuan hukum, sejarah, dan nilai moral tokoh bangsa, BUKAN menanyakan "Apa yang Anda lakukan jika diajak korupsi" (itu adalah ranah TKP)!\n` +
-        `     c) Bela Negara: Berperan aktif mempertahankan eksistensi bangsa dan kedaulatan negara berdasarkan 5 Nilai Dasar Bela Negara (UU No. 23/2019): 1. Cinta Tanah Air, 2. Sadar Berbangsa & Bernegara, 3. Setia pada Pancasila sebagai Ideologi Negara, 4. Rela Berkorban untuk Bangsa & Negara, 5. Memiliki Kemampuan Awal Bela Negara. Menguji identifikasi wujud bela negara menghadapi ancaman militer, non-militer (ideologi, politik, ekonomi, sosial budaya, teknologi/siber), dan ancaman hibrida.\n` +
-        `     d) Pilar Negara: Karakter positif melalui pemahaman & analisis mendalam:\n` +
-        `        - Pancasila: Kedudukan & fungsi Pancasila (dasar negara, ideologi terbuka, pandangan hidup), butir-butir pengamalan Sila 1 s.d. Sila 5, perbandingan ideologi Pancasila vs Liberalisme vs Komunisme/Sosialisme.\n` +
-        `        - UUD NRI 1945: Pembukaan UUD 1945 (makna alinea I-IV & pokok pikiran), Batang Tubuh Amandemen I–IV (sistem ketatanegaraan, kewenangan & tugas lembaga negara MPR, DPR, DPD, Presiden, MK, MA, KY, BPK, pemilu, HAM pasal 28A–J, pendidikan pasal 31, perekonomian pasal 33).\n` +
-        `        - NKRI: Bentuk negara kesatuan (Pasal 1 ayat 1), Deklarasi Djuanda 13 Desember 1957, wawasan nusantara, otonomi daerah, sejarah perjuangan fisik & diplomasi kemerdekaan (Perjanjian Linggarjati, Renville, Roem-Royen, KMB 1949, Agresi Militer Belanda I & II).\n` +
-        `        - Bhinneka Tunggal Ika: Asal-usul semboyan dari Kitab Kakawin Sutasoma karya Mpu Tantular, integrasi nasional, harmoni kemajemukan suku/agama/ras, dan resolusi konflik sosial multikultural.\n` +
-        `     e) Bahasa Negara: Bahasa Indonesia sebagai bahasa resmi negara (Pasal 36 UUD 1945, UU No. 24/2009). Menguji: kaidah Ejaan Bahasa Indonesia yang Disempurnakan (EYD Edisi V / PUEBI: huruf kapital, tanda baca koma/titik dua/titik koma/hubung, penulisan kata baku/serapan/gabungan), kalimat efektif (kesepadanan, keparalelan, kehematan, kelogisan), ide pokok & simpulan paragraf teks kedinasan, serta pilihan kata (diksi) resmi.\n` +
-        `  3) LARANGAN KERAS TWK BERUBAH MENJADI TKP (ANTI-SJT MANDATE):\n` +
-        `     * PERINGATAN MUTLAK: TWK BUKAN TES KARAKTERISTIK PRIBADI (TKP) DAN BUKAN SITUATIONAL JUDGEMENT TEST (SJT)!\n` +
-        `     * DILARANG KERAS menggunakan sudut pandang orang pertama atau orang kedua ('Anda', 'sikap Anda', 'tindakan Anda', 'sebagai seorang ASN apa yang Anda lakukan', 'bagaimana reaksi Anda').\n` +
-        `     * DILARANG membuat soal yang menguji respon perilaku, preferensi kepribadian, atau dilema moral pribadi calon pegawai!\n` +
-        `     * WAJIB MENGGUNAKAN SUDUT PANDANG OBJEKTIF / ORANG KETIGA: Pertanyaan menguji pemahaman konsep, pasal konstitusi, peristiwa sejarah, analisis wacana, atau kaidah bahasa.\n` +
-        `     * CONTOH POLA PERTANYAAN TWK RESMI CAT BKN YANG BENAR:\n` +
-        `       - 'Peristiwa pengibaran bendera Merah Putih di Hotel Yamato Surabaya pada tanggal 19 September 1945 merupakan cerminan dari semangat...'\n` +
-        `       - 'Berdasarkan UUD NRI Tahun 1945 Pasal 23E, lembaga yang berwenang memeriksa pengelolaan dan tanggung jawab tentang keuangan negara adalah...'\n` +
-        `       - 'Wacana aksi gotong royong pemuda membersihkan sampah sungai pada bacaan di atas mencerminkan pengamalan Pancasila, khususnya Sila...'\n` +
-        `       - 'Pernyataan berikut yang paling tepat menggambarkan kedudukan Deklarasi Djuanda bagi kedaulatan wilayah perairan Republik Indonesia adalah...'\n` +
-        `       - 'Penggunaan tanda baca yang TIDAK sesuai dengan ketentuan EYD Edisi V terdapat pada kalimat...'\n` +
-        `  4) SISTEM SKOR & KUNCI: Tepat HANYA 1 OPSI BENAR (skor 5 poin), dan 4 opsi lainnya salah (skor 0 poin). Kunci jawaban HANYA berupa 1 huruf kapital (misal: 'B' atau 'B. Pasal 24C UUD 1945'). DILARANG membuat bobot bertingkat 1-5 pada TWK!`
-    );
-  } else if (isCPNSTIU) {
-    sections.push(
-      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES INTELIGENSI UMUM (TIU):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Nilai Ambang Batas / Passing Grade: 80, Skor Benar = 5 poin, Salah = 0 poin, Pilihan Ganda 5 Opsi A–E).\n` +
-        `  2) RUANG LINGKUP 3 DOMAIN RESMI TIU:\n` +
-        `     a) Kemampuan Verbal:\n` +
-        `        - Analogi Kata: Mengukur penalaran melalui perbandingan dua konsep kata yang memiliki hubungan setara (Format standar: KATA 1 : KATA 2 = KATA 3 : KATA 4).\n` +
-        `        - Silogisme: Penarikan kesimpulan logis dan mutlak dari premis-premis (premis mayor dan minor, modus ponens/tollens/silogisme hipotesis atau kategoris dengan kuantor: semua, sebagian/beberapa, tidak ada).\n` +
-        `        - Penalaran Analitis: Menganalisis kondisi batasan untuk menarik kesimpulan urutan posisi, antrean, jadwal kegiatan, atau perbandingan ranking bertingkat.\n` +
-        `     b) Kemampuan Numerik:\n` +
-        `        - Berhitung Cepat: Operasi hitung bilangan pecahan, desimal, persentase, aljabar sederhana yang menuntut trik hitung efisien.\n` +
-        `        - Deret Angka: Menemukan pola barisan angka logis (aritmetika, geometri, lompat selang-seling, Fibonacci, bertingkat).\n` +
-        `        - Perbandingan Kuantitatif: Menentukan hubungan matematis antara dua besaran nilai x dan y (Opsi: A. x > y, B. x < y, C. x = y, D. 2x = y, E. Hubungan x dan y tidak dapat ditentukan).\n` +
-        `        - Soal Cerita: Memodelkan situasi nyata matematis (kecepatan-jarak-waktu menyusul/berpapasan, perbandingan senilai/berbalik nilai, usia, aritmetika sosial untung-rugi-diskon, dan kerja bersama 1/t = 1/t1 + 1/t2).\n` +
-        `     c) Kemampuan Figural: Analogi gambar (A:B = C:D), Ketidaksamaan gambar (mencari 1 gambar yang berbeda pola dari 5 gambar), dan Serial pola gambar (kelanjutan transformasi visual).\n` +
-        `  3) FORMAT SOAL: Seluruh butir soal WAJIB memiliki tepat 1 jawaban pasti benar (skor 5) dan 4 opsi salah yang terukur (skor 0). Rumusan soal to the point, padat informasi, bebas narasi basa-basi.\n` +
-        `  4) PROTOKOL PEMBAHASAN: Pada field 'pembahasan', jabarkan langkah pembuktian logika formal/matematis bertahap (premis silogisme, rumus hitung, pola deret angka, atau analisis aturan posisi) secara rinci.`
-    );
-  } else if (isCPNSTKP) {
-    sections.push(
-      `- ARSITEKTUR KHUSUS SELEKSI CPNS SKD - TES KARAKTERISTIK PRIBADI (TKP):\n` +
-        `  1) STANDAR REGULASI RESMI: Disusun mengacu pada KepmenPANRB No. 321/2024 (Nilai Ambang Batas / Passing Grade: 166, Pilihan Ganda 5 Opsi A–E dengan Skala Bobot Bertingkat 1 sampai 5 poin, TIDAK ADA nilai 0).\n` +
-        `  2) RUANG LINGKUP 6 ASPEK PERILAKU ASN BERAKHLAK:\n` +
-        `     a) Pelayanan Publik: Keramahan, empati, responsif terhadap kebutuhan masyarakat/pengguna layanan, mengutamakan kepuasan publik sesuai tupoksi wewenang, tidak emosional saat dikritik.\n` +
-        `     b) Jejaring Kerja: Membangun hubungan kemitraan, kolaborasi tim kerja, bersedia berbagi informasi, dan menjaga hubungan profesional yang sehat antarpegawai/instansi.\n` +
-        `     c) Sosial Budaya: Beradaptasi dan bekerja efektif di lingkungan kerja yang majemuk (beragam suku, agama, ras, dan budaya), menghormati perbedaan tanpa prasangka, inklusif terhadap rekan kerja.\n` +
-        `     d) Teknologi Informasi & Komunikasi (TIK): Mampu memanfaatkan teknologi digital secara efektif untuk mempercepat kerja, antusias mempelajari sistem/aplikasi baru kedinasan, menjaga keamanan data kantor.\n` +
-        `     e) Profesionalisme: Melaksanakan tugas dan fungsi sesuai standar jabatan, tuntas tugas tepat waktu, disiplin, mengutamakan tanggung jawab kedinasan di atas urusan pribadi, tidak mudah teralihkan.\n` +
-        `     f) Anti-Radikalisme: Peka dan tanggap menjaring informasi terkait bahaya radikalisme, memegang teguh moderasi beragama, setia pada ideologi Pancasila dan kedaulatan NKRI, tidak mentolerir bibit intoleransi.\n` +
-        `  3) FORMAT MURNI SITUATIONAL JUDGEMENT TEST (SJT):\n` +
-        `     * Kalimat soal menyajikan skenario dilema kedinasan orang kedua ('Anda') yang dihadapi calon ASN di tempat kerja/pelayanan.\n` +
-        `     * Pertanyaan berupa: 'Tindakan yang paling tepat Anda lakukan adalah...' atau 'Sikap Anda dalam menghadapi situasi tersebut adalah...'\n` +
-        `     * Seluruh 5 pilihan jawaban merefleksikan gradasi kedewasaan perilaku dari bobot 1 (paling pasif/reaktif) hingga bobot 5 (paling proaktif, solutif, matang, dan berintegritas tinggi).\n` +
-        `  4) ATURAN MUTLAK SKALA BOBOT 1–5 (NON-SEKUENSIAL):\n` +
-        `     * DILARANG membuat urutan bobot berurutan (seperti A=5, B=4, C=3, D=2, E=1). Sebar bobot secara alami dan acak pada setiap nomor (misal No 1: A=3, B=5, C=2, D=4, E=1; No 2: A=4, B=1, C=5, D=3, E=2).\n` +
-        `     * WAJIB mengisi field 'skorOpsi' dengan bobot integer { 'A': x, 'B': y, 'C': z, 'D': w, 'E': v } di mana nilai 1 s.d. 5 terdistribusi lengkap.\n` +
-        `     * Field 'kunci' WAJIB memuat rekapitulasi bobot (contoh: 'A=3 | B=5 | C=2 | D=4 | E=1'). Field 'skor' diisi 'Skala 1 - 5'.\n` +
-        `  5) PEMBAHASAN: Uraikan analisis rubrik gradasi respon mengapa opsi berbobot 5 merupakan tindakan paling tepat dan sesuai dengan prinsip Core Values ASN BerAKHLAK.`
-    );
   }
 
   // 2. Stimulus Policy (Tegas & Tanpa Kontradiksi)
-  if (isLiveQuiz || ctx.tipeUjian === 'Ujian Biasa') {
+  if (isLiveQuiz || isUjianBiasa) {
     sections.push(
-      `- KEBIJAKAN SOAL MANDIRI (STANDALONE): Seluruh butir soal WAJIB berupa SOAL MANDIRI yang to the point dan kontekstual tanpa wacana bacaan bersama ("stimulusList": [] KOSONG, dan "stimulusId": ""). Deskripsi, data, atau skenario masalah ditulis langsung di dalam field "pertanyaan" masing-masing nomor.`
+      `- KEBIJAKAN SOAL MANDIRI (STANDALONE): Seluruh butir soal WAJIB berupa SOAL MANDIRI yang padat dan kontekstual tanpa wacana bacaan bersama ("stimulusList": [] KOSONG, dan "stimulusId": ""). Deskripsi kasus, data angka, atau skenario masalah (1–3 kalimat) ditulis langsung di dalam field "pertanyaan" masing-masing nomor.`
     );
   } else if (isTKAAcademic) {
     const estimatedClusters = Math.max(1, Math.ceil((ctx.totalSoal * 0.7) / 3));
@@ -247,97 +216,69 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
     sections.push(
       `- KEBIJAKAN STIMULUS (OLIMPIADE SAINS): Fokus pada skenario masalah non-rutin, kepadatan data matematis/ilmiah presisi, kondisi batas, dan struktur invarian tanpa basa-basi naratif.`
     );
-  } else if (isCPNS) {
-    if (isCPNSTWK) {
-      sections.push(
-        `- KEBIJAKAN STIMULUS TWK CPNS (STANDAR CAT BKN - SOAL KOGNITIF MANDIRI):\n` +
-          `  * DILARANG KERAS MEMBUAT WACANA BERSAMA ("stimulusList")! Biarkan array "stimulusList": [] KOSONG!\n` +
-          `  * 100% butir soal WAJIB berupa SOAL KOGNITIF MANDIRI OBJEKTIF: Teks wacana peristiwa sejarah/hukum konstitusi/fakta kebangsaan/teks kedinasan 1–3 kalimat ditulis LANGSUNG di dalam field "pertanyaan" dengan sudut pandang orang ketiga. DILARANG menggunakan kata 'Anda' atau menanyakan respon perilaku pribadi!\n` +
-          `  * Opsi jawaban tepat 5 pilihan (A, B, C, D, E) dengan 1 KUNCI BENAR (5 POIN) dan 4 OPSI SALAH (0 POIN).`
-      );
-    } else if (isCPNSTIU) {
-      sections.push(
-        `- KEBIJAKAN STIMULUS TIU CPNS (STANDAR CAT BKN - SOAL LOGIKA/NUMERIK MANDIRI):\n` +
-          `  * DILARANG KERAS MEMBUAT WACANA BERSAMA ("stimulusList")! Biarkan array "stimulusList": [] KOSONG!\n` +
-          `  * 100% butir soal ditulis to the point langsung di dalam field "pertanyaan" (analogi kata, premis silogisme, batasan kondisi analitis, deret angka, soal cerita matematis, atau pola figural).\n` +
-          `  * Opsi jawaban tepat 5 pilihan (A, B, C, D, E) dengan 1 KUNCI BENAR (5 POIN) dan 4 OPSI SALAH (0 POIN).`
-      );
-    } else if (isCPNSTKP) {
-      sections.push(
-        `- KEBIJAKAN STIMULUS TKP CPNS (STANDAR CAT BKN - SKENARIO DILEMA SJT MANDIRI):\n` +
-          `  * DILARANG MEMBUAT WACANA BERSAMA ("stimulusList")! Biarkan array "stimulusList": [] KOSONG!\n` +
-          `  * 100% butir soal berupa SKENARIO DILEMA PELAYANAN/KERJA BIROKRASI yang ditulis LANGSUNG di dalam field "pertanyaan" dengan sudut pandang orang kedua ('Anda') dan menanyakan tindakan/sikap terbaik yang Anda ambil.\n` +
-          `  * Opsi jawaban tepat 5 pilihan (A, B, C, D, E) dengan SKALA BOBOT 1 SAMPAI 5 POIN (TIDAK ADA NILAI 0).`
-      );
-    }
   }
 
-  // 3. HOTS Guidance & Cognitive Task Design (Proporsional Sesuai Jenjang)
+  // 3. Operational Cognitive Task Design (Selalu Aktif — Anti-Pseudo-HOTS)
   const pureHOTS = isHOTSSelectionOnly(ctx.levelKognitif);
   const anyHOTS = hasAnyHOTSSelection(ctx.levelKognitif) || isOlimpiade;
 
-  if (!isSurvey && !isCPNS) {
-    if (pureHOTS) {
+  if (!isSurvey) {
+    if (ctx.kerangkaTaksonomi === 'Bloom') {
       sections.push(
-        `- PANDUAN SOAL HOTS (PENALARAN TINGKAT TINGGI):\n` +
-          `  * Fokuskan butir soal pada level penalaran/analisis (C4–C6 / Level 3 TKA / SOLO Relasional-Abstrak) sesuai usia dan jenjang ${jenjangUpper}.\n` +
-          `  * Terapkan konteks nyata pemecahan masalah: analisis hubungan sebab-akibat, evaluasi klaim/kondisi, atau penyelesaian multi-langkah.\n` +
-          `  * Berikan pembahasan yang menjelaskan alur pemikiran dan justifikasi jawaban yang benar.`
+        `- OPERASIONALISASI TAKSONOMI BLOOM REVISI (WAJIB DIPATUHI — ANTI PSEUDO-HOTS):\n` +
+          `  * Target level aktif: ${ctx.levelKognitif.join(', ')}.\n` +
+          `  * C1 (Mengingat): Identifikasi istilah/fakta esensial secara presisi tanpa pengantar tidak perlu.\n` +
+          `  * C2 (Memahami): WAJIB parafrasa konsep, mengklasifikasi contoh/non-contoh baru, atau menafsirkan satu data/fenomena. DILARANG menyalin kalimat definisi buku teks mentah!\n` +
+          `  * C3 (Mengaplikasikan): WAJIB menerapkan konsep/rumus/prosedur pada situasi konkret minimal 2 langkah pengerjaan atau konversi. DILARANG substitusi 1 angka langsung yang terlalu mudah!\n` +
+          `  * C4 (Menganalisis): WAJIB menggunakan operasi mental nyata — (a) manipulasi variabel What-If ("jika X diubah, dampak terhadap Y..."), (b) sintesis lintas ≥2 informasi/data, atau (c) diagnosis penyebab anomali. Terapkan NO-LOOKUP RULE (jawaban tidak tertulis literal di teks)!\n` +
+          `  * C5 (Mengevaluasi): WAJIB menyajikan klaim/langkah penyelesaian/solusi lalu menilai letak kekeliruan (Error Analysis) atau mengevaluasi keputusan (trade-off) berdasarkan kriteria terukur.\n` +
+          `  * C6 (Mencipta): Pada Uraian: merancang prosedur/solusi baru; pada PG: memilih desain/strategi optimal yang memenuhi beberapa batasan syarat secara simultan.\n` +
+          (pureHOTS
+            ? `  * MODE PURE HOTS AKTIF: 100% butir soal WAJIB berada pada level C4–C6 (penalaran tinggi). TOLAK seluruh butir hafalan C1–C2 atau hitungan rutin 1 langkah!`
+            : anyHOTS
+            ? `  * DISTRIBUSI BERJENJANG: Sebarkan proporsi soal secara seimbang pada level yang dipilih (${ctx.levelKognitif.join(', ')}) dengan minimal 35%–50% butir menuntut penalaran analitis (C4–C6).`
+            : `  * PENJAGAAN KEDALAMAN C2–C3: Meskipun fokus pada C2–C3, pastikan soal tetap berbobot aplikasi kontekstual multi-langkah dan pemahaman mendalam — BUKAN soal hafalan klise!`)
       );
-    } else if (anyHOTS) {
+    } else if (ctx.kerangkaTaksonomi === 'SOLO') {
       sections.push(
-        `- PANDUAN LEVEL KOGNITIF:\n` +
-          `  * Sebarkan tingkat kesulitan secara seimbang (${ctx.levelKognitif.join(', ')}). Sertakan variasi soal pemahaman konsep, aplikasi kontekstual, dan penalaran analitis yang sesuai jenjang ${jenjangUpper}.`
-      );
-    }
-
-    if (ctx.kerangkaTaksonomi === 'SOLO') {
-      sections.push(
-        `- OPERASIONALISASI TAKSONOMI SOLO:\n` +
-          `  * Uni-struktural: Mengidentifikasi 1 aspek tunggal yang relevan.\n` +
-          `  * Multi-struktural: Mengidentifikasi >= 2 aspek terpisah yang relevan.\n` +
-          `  * Relasional: Mengintegrasikan hubungan sebab-akibat/struktural antar-beberapa aspek menjadi kesimpulan utuh.\n` +
-          `  * Abstrak Diperluas: Menggeneralisasi prinsip ke situasi/konteks baru atau mengevaluasi hipotesis.`
+        `- OPERASIONALISASI TAKSONOMI SOLO (ANTI SOAL DANGKAL):\n` +
+          `  * Uni-struktural: Mengidentifikasi 1 aspek tunggal yang relevan pada konteks konkret.\n` +
+          `  * Multi-struktural: Mengolah ≥2 aspek relevan secara terpisah dari data/kasus.\n` +
+          `  * Relasional: WAJIB mengintegrasikan hubungan sebab-akibat/struktural antar-beberapa aspek menjadi kesimpulan baru yang tidak tertulis eksplisit (No-Lookup Rule).\n` +
+          `  * Abstrak Diperluas: WAJIB menarik prinsip umum (generalisasi) dan mentransfernya ke situasi/konteks baru atau mengevaluasi hipotesis.`
       );
     } else if (ctx.kerangkaTaksonomi === 'TKA') {
       sections.push(
         `- OPERASIONALISASI 3 LEVEL KOGNITIF STANDAR TKA:\n` +
-          `  * Level 1 - Pengetahuan & Pemahaman (Knowing & Understanding): Mengidentifikasi informasi tersurat, mengenali konsep/fakta dasar, atau membaca nilai langsung dari tabel/grafik.\n` +
-          `  * Level 2 - Aplikasi (Applying): Menyimpulkan informasi tersirat (inferensial), menerapkan konsep/rumus ke masalah kontekstual, atau memodelkan situasi nyata.\n` +
-          `  * Level 3 - Penalaran (Reasoning / HOTS): Mengevaluasi kevalidan klaim/argumen, menganalisis hubungan multi-konsep pada situasi baru, melakukan generalisasi, dan memberikan justifikasi berbasis bukti.`
+          `  * Level 1 - Pengetahuan & Pemahaman (Knowing & Understanding): Mengidentifikasi informasi tersurat, mengenali konsep esensial, atau membaca nilai akurat dari tabel/grafik.\n` +
+          `  * Level 2 - Aplikasi (Applying): Menyimpulkan informasi tersirat (inferensial), menerapkan konsep/rumus multi-langkah ke masalah kontekstual, atau memodelkan situasi nyata.\n` +
+          `  * Level 3 - Penalaran (Reasoning / HOTS): Mengevaluasi kevalidan klaim/argumen, menganalisis hubungan multi-konsep pada situasi baru (No-Lookup Rule), melakukan generalisasi, dan memberikan justifikasi berbasis bukti.`
       );
     }
   }
 
-  // 4. Distractor Engineering & Cognitive Diversity
+  // 4. Distractor Engineering & Key Balancing
   sections.push(
-    `- REKAYASA PENGECOH (DISTRACTOR ENGINEERING):\n` +
-      `  * Setiap pilihan salah dirancang masuk akal (miskonsepsi umum atau kekeliruan perhitungan lazim).\n` +
-      `  * Panjang kalimat dan tata bahasa opsi A–D / A–E dibuat proporsional dan homogen.`
+    `- REKAYASA PENGECOH & KESEIMBANGAN KUNCI (DISTRACTOR ENGINEERING & KEY BALANCING):\n` +
+      `  * Misconception-Driven: Setiap pengecoh salah WAJIB lahir dari kesalahan konsep/hitung nyata (lupa konversi satuan, berhenti di langkah pertama, terbalik konsep berdekatan, atau salah baca data). DILARANG membuat opsi konyol atau "Semua benar/salah".\n` +
+      `  * Anti Longest-Key Bias: Panjang kalimat dan tata bahasa opsi A–D / A–E wajib setara; DILARANG membuat opsi kunci selalu paling panjang atau paling lengkap sendirian.\n` +
+      `  * Key Balancing: Distribusikan huruf kunci jawaban Pilihan Ganda secara acak dan merata di semua huruf (A, B, C, D/E) agar tidak menumpuk di A atau B.`
   );
 
-  // 5. Level-Specific Safeguards (PAUD to CPNS)
-  if (isCPNS) {
-    if (isCPNSTWK) {
-      sections.push(
-        `- STANDAR SASARAN TWK CPNS: Target audiens adalah Calon ASN yang diuji wawasan kebangsaan, pemahaman konstitusi, dan penalaran materi 5 Pilar Kebangsaan secara akademis, objektif, dan terstandar CAT BKN.`
-      );
-    } else if (isCPNSTIU) {
-      sections.push(
-        `- STANDAR SASARAN TIU CPNS: Target audiens adalah Calon ASN yang diuji kecerdasan logika deduktif-induktif, kecepatan numerik, dan ketelitian spasial-figural secara objektif.`
-      );
-    } else if (isCPNSTKP) {
-      sections.push(
-        `- STANDAR SASARAN TKP CPNS: Target audiens adalah Calon ASN yang dinilai kematangan kepribadian, integritas moral, orientasi pelayanan publik, dan keselarasan dengan Core Values ASN BerAKHLAK melalui Situational Judgement Test.`
-      );
-    }
-  } else if (jenjangUpper === 'PAUD' || jenjangUpper === 'TK') {
+  // 5. Level-Specific Safeguards & Attachment Priority
+  if (jenjangUpper === 'PAUD' || jenjangUpper === 'TK') {
     sections.push(
       `- PENGAMANAN KHUSUS PAUD (FASE FONDASI): Fokus pada asesmen perkembangan autentik melalui aktivitas bermain konkret, pengenalan pola/warna/bentuk, pemantik lisan guru, dan indikator perilaku teramati.`
     );
   } else if (jenjangUpper === 'SMK' && !isSurvey) {
     sections.push(
       `- KONTEKS KEJURUAN SMK (DUDI): Kaitkan studi kasus soal dengan dunia kerja/industri, penerapan SOP, analisis keselamatan kerja (K3), atau troubleshooting praktis sesuai konteks mata pelajaran.`
+    );
+  }
+
+  if (ctx.hasReferenceFiles) {
+    sections.push(
+      `- PRIORITAS DOKUMEN LAMPIRAN AKTIF: Seluruh materi, konteks, angka, istilah, dan ruang lingkup soal WAJIB bersumber langsung dari dokumen lampiran yang diunggah guru di bagian awal prompt. Jangan memaksakan materi CP/topik bawaan apabila tidak tercantum dalam dokumen lampiran.`
     );
   }
 
