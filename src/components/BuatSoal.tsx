@@ -99,6 +99,8 @@ export default function BuatSoal() {
     abkKategori: string;
     terdapatSoalBergambar: boolean;
     jumlahSoalBergambar: number;
+    gayaGambar?: 'berwarna' | 'hitam-putih';
+    layoutCetak?: '1-kolom' | '2-kolom';
   }>('BuatSoalData', {
     jenjang: '',
     fase: '',
@@ -121,7 +123,9 @@ export default function BuatSoal() {
     jumlahInklusi: 0,
     abkKategori: '',
     terdapatSoalBergambar: false,
-    jumlahSoalBergambar: 0
+    jumlahSoalBergambar: 0,
+    gayaGambar: 'berwarna',
+    layoutCetak: '1-kolom'
   });
 
   const [useLogo, setUseLogo] = useLocalStorage<boolean>('BuatSoal_useLogo', false);
@@ -239,11 +243,38 @@ export default function BuatSoal() {
     });
   };
 
+  const COLOR_DETECT_REGEX = /\b(merah|biru|hijau|kuning|ungu|jingga|oranye|cokelat|pink|merah muda|abu-abu|nila|toska|emas|perak|red|blue|green|yellow|purple|orange|brown|pink|cyan|magenta)\b/i;
+
+  const buildQuestionImagePrompt = (description: string, soalItem?: any) => {
+    const combinedContext = [
+      description || '',
+      soalItem?.pertanyaan || '',
+      ...(Array.isArray(soalItem?.opsiTambahan) ? soalItem.opsiTambahan : []),
+      ...(Array.isArray(soalItem?.pernyataanBenarSalah) ? soalItem.pernyataanBenarSalah.map((p: any) => p?.pernyataan || '') : []),
+      ...(Array.isArray(soalItem?.pasanganMenjodohkan) ? soalItem.pasanganMenjodohkan.map((p: any) => `${p?.kiri || ''} ${p?.kanan || ''}`) : []),
+    ].join(' ');
+
+    const hasColorContext = COLOR_DETECT_REGEX.test(combinedContext);
+    const useColorStyle = (formData.gayaGambar || 'berwarna') === 'berwarna' || hasColorContext;
+    const matchedColors = Array.from(
+      new Set((combinedContext.match(new RegExp(COLOR_DETECT_REGEX.source, 'gi')) || []).map((c) => c.trim()))
+    );
+    const colorHint = hasColorContext && matchedColors.length > 0
+      ? `, strictly render accurate distinct colors matching (${matchedColors.join(', ')}) and include clear short color text labels where helpful (e.g. "${matchedColors[0]}")`
+      : '';
+
+    if (useColorStyle) {
+      return `${description}${colorHint}, colorful flat vector educational textbook illustration, Indonesian school workbook cartoon style, bright clear colors, clean crisp outlines, accurate visual details, plain white background`;
+    }
+    return `${description}, clean black and white line-art educational textbook diagram, vector ink outlines with light gray shading, ink-saving printable worksheet style, plain white background`;
+  };
+
   const handleGenerateImageForQuestion = async (index: number, description: string, isABK: boolean) => {
     if (generatingImageIndex) return;
     setGeneratingImageIndex({ index, isABK });
     try {
-      const cleanDescription = encodeURIComponent(`${description}, educational outline coloring page line-art, vector black and white line drawing, high quality diagram line art, no shading, no colors, plain white background`);
+      const targetItem = isABK ? resultSoal?.soalABKList?.[index] : resultSoal?.soalList?.[index];
+      const cleanDescription = encodeURIComponent(buildQuestionImagePrompt(description, targetItem));
       const seed = Math.floor(Math.random() * 1000000);
       const url = `/api/generate-image?prompt=${cleanDescription}&model=${selectedImageModel}&seed=${seed}`;
       
@@ -277,9 +308,15 @@ export default function BuatSoal() {
     }
   };
 
-  // Ilustrasi stimulus bersama (gaya buku sekolah grayscale)
+  // Ilustrasi stimulus bersama (mengikuti pilihan gaya gambar berwarna / hitam-putih)
   const buildStimulusImageUrl = (description: string) => {
-    const styled = encodeURIComponent(`${description}, black and white grayscale educational textbook illustration, Indonesian school workbook cartoon style, clean ink outlines with soft gray shading, friendly characters, no text, no letters, plain white background`);
+    const hasColorContext = COLOR_DETECT_REGEX.test(description || '');
+    const useColorStyle = (formData.gayaGambar || 'berwarna') === 'berwarna' || hasColorContext;
+    const styled = encodeURIComponent(
+      useColorStyle
+        ? `${description}, colorful flat vector educational textbook illustration, Indonesian school workbook cartoon style, bright clear colors, clean ink outlines, friendly characters, plain white background`
+        : `${description}, black and white grayscale educational textbook illustration, Indonesian school workbook cartoon style, clean ink outlines with soft gray shading, friendly characters, plain white background`
+    );
     const seed = Math.floor(Math.random() * 1000000);
     return `/api/generate-image?prompt=${styled}&model=${selectedImageModel}&seed=${seed}`;
   };
@@ -710,7 +747,28 @@ Berikan output dalam format JSON murni:
         // MODE SOAL: Pengunjung hanya Naskah Soal (ringan), Admin All-in-One (lengkap)
         const generateFullAllInOne = isPrivileged;
 
-        // Siapkan alokasi per batch untuk bentuk soal & gambar agar akurat
+        // Fungsi pemilih posisi acak-terstratifikasi agar gambar tersebar merata & bervariasi (tidak selalu jatuh di nomor yang sama)
+        const pickStratifiedRandomIndices = (totalCount: number, pickCount: number): Set<number> => {
+          const chosen = new Set<number>();
+          const target = Math.max(0, Math.min(totalCount, pickCount));
+          if (target === 0 || totalCount <= 0) return chosen;
+          if (target >= totalCount) {
+            for (let i = 0; i < totalCount; i++) chosen.add(i);
+            return chosen;
+          }
+          for (let s = 0; s < target; s++) {
+            const segStart = Math.floor((s * totalCount) / target);
+            const segEnd = Math.max(segStart, Math.floor(((s + 1) * totalCount) / target) - 1);
+            const randIdx = segStart + Math.floor(Math.random() * (segEnd - segStart + 1));
+            chosen.add(randIdx);
+          }
+          while (chosen.size < target) {
+            chosen.add(Math.floor(Math.random() * totalCount));
+          }
+          return chosen;
+        };
+
+        // Siapkan alokasi per batch untuk bentuk soal & nomor soal bergambar yang tersebar acak-proporsional
         type BatchAlloc = {
           start: number;
           end: number;
@@ -718,31 +776,39 @@ Berikan output dalam format JSON murni:
           bentukCounts: Record<string, number>;
           gambarCounts: Record<string, number>;
           totalBatchGambar: number;
+          targetImageNumbers: Array<{ no: number; bentuk: string }>;
         };
 
         const batchAllocs: BatchAlloc[] = [];
         if (isKombinasiBentuk) {
-          let remainingImg = totalGambarDiminta;
-          batches.forEach((b, idx) => {
-            const imgForBatch = idx === batches.length - 1
-              ? remainingImg
-              : Math.min(remainingImg, Math.round((totalGambarDiminta * b.count) / totalSoal));
-            remainingImg -= imgForBatch;
+          const globalImgSet = pickStratifiedRandomIndices(totalSoal, totalGambarDiminta);
+          const kombinasiTypes = ['Pilihan Ganda', 'Pilihan Ganda Kompleks', 'Benar Salah', 'Menjodohkan', 'Isian Singkat', 'Uraian'];
+          batches.forEach((b) => {
+            const targetImageNumbers: Array<{ no: number; bentuk: string }> = [];
+            for (let globalIdx = b.start - 1; globalIdx < b.end; globalIdx++) {
+              if (globalImgSet.has(globalIdx)) {
+                const suggestedType = kombinasiTypes[targetImageNumbers.length % kombinasiTypes.length];
+                targetImageNumbers.push({ no: globalIdx + 1, bentuk: `Kombinasi (utamakan variasi seperti ${suggestedType})` });
+              }
+            }
+            const imgForBatch = targetImageNumbers.length;
             batchAllocs.push({
               ...b,
               bentukCounts: { Kombinasi: b.count },
               gambarCounts: { Kombinasi: imgForBatch },
-              totalBatchGambar: imgForBatch
+              totalBatchGambar: imgForBatch,
+              targetImageNumbers
             });
           });
         } else {
-          // Bangun antrean per item bentuk soal lalu potong per BATCH_SIZE
-          const soalQueue: Array<{ bentuk: string; hasImg: boolean }> = [];
+          // Bangun antrean per item bentuk soal dengan posisi gambar tersebar acak di dalam setiap jenis soal
+          const soalQueue: Array<{ no: number; bentuk: string; hasImg: boolean }> = [];
           formData.bentukSoal.forEach(b => {
             const jml = formData.jumlahSoalPerBentuk[b] || 0;
             const jmlImg = Math.min(jml, gambarPerBentukTarget[b] || 0);
+            const chosenInBentuk = pickStratifiedRandomIndices(jml, jmlImg);
             for (let k = 0; k < jml; k++) {
-              soalQueue.push({ bentuk: b, hasImg: k < jmlImg });
+              soalQueue.push({ no: soalQueue.length + 1, bentuk: b, hasImg: chosenInBentuk.has(k) });
             }
           });
 
@@ -750,19 +816,22 @@ Berikan output dalam format JSON murni:
             const slice = soalQueue.slice(b.start - 1, b.end);
             const bentukCounts: Record<string, number> = {};
             const gambarCounts: Record<string, number> = {};
+            const targetImageNumbers: Array<{ no: number; bentuk: string }> = [];
             let totalBatchGambar = 0;
             slice.forEach(item => {
               bentukCounts[item.bentuk] = (bentukCounts[item.bentuk] || 0) + 1;
               if (item.hasImg) {
                 gambarCounts[item.bentuk] = (gambarCounts[item.bentuk] || 0) + 1;
                 totalBatchGambar++;
+                targetImageNumbers.push({ no: item.no, bentuk: item.bentuk });
               }
             });
             batchAllocs.push({
               ...b,
               bentukCounts,
               gambarCounts,
-              totalBatchGambar
+              totalBatchGambar,
+              targetImageNumbers
             });
           });
         }
@@ -781,9 +850,14 @@ Berikan output dalam format JSON murni:
         };
 
         const buildFallbackImageDesc = (s: any) => {
-          const contextTopic = s?.materi || formData.materi || mapelLabel || 'education';
-          const shortQ = String(s?.pertanyaan || '').replace(/\s+/g, ' ').slice(0, 120);
-          return `Educational diagram or clear visual illustration representing ${contextTopic}, context: ${shortQ}, clean textbook style without text labels`;
+          const contextTopic = s?.materi || formData.materi || mapelLabel || 'pembelajaran';
+          const shortQ = String(s?.pertanyaan || '').replace(/\s+/g, ' ').slice(0, 140);
+          const allText = [shortQ, ...(Array.isArray(s?.opsiTambahan) ? s.opsiTambahan : [])].join(' ');
+          const foundColors = Array.from(new Set((allText.match(new RegExp(COLOR_DETECT_REGEX.source, 'gi')) || []).map((c) => c.trim())));
+          const colorClause = foundColors.length > 0
+            ? `, clearly showing colors (${foundColors.join(', ')}) with matching color text label (e.g. "${foundColors[0]}")`
+            : ', avoid unnecessary text labels';
+          return `Educational textbook illustration specifically for ${mapelLabel} (${contextTopic}), depicting: ${shortQ}${colorClause}`;
         };
 
         const processBatchImages = (list: any[], alloc: BatchAlloc, isABK = false) => {
@@ -795,24 +869,26 @@ Berikan output dalam format JSON murni:
           }));
 
           if (alloc.totalBatchGambar > 0 && normalized.length > 0 && !isABK) {
+            const plannedNos = new Set(alloc.targetImageNumbers.map(t => String(t.no)));
+
             if (isKombinasiBentuk) {
               const targetCount = Math.min(alloc.totalBatchGambar, normalized.length);
-              const currentCount = normalized.filter(s => s.gambarDeskripsi).length;
+              let currentCount = normalized.filter(s => s.gambarDeskripsi).length;
               if (currentCount < targetCount) {
-                let needed = targetCount - currentCount;
-                const step = Math.max(1, Math.floor(normalized.length / targetCount));
-                for (let idx = 0; idx < normalized.length && needed > 0; idx += step) {
-                  if (!normalized[idx].gambarDeskripsi) {
+                for (let idx = 0; idx < normalized.length && currentCount < targetCount; idx++) {
+                  if (!normalized[idx].gambarDeskripsi && plannedNos.has(String(normalized[idx].no))) {
                     normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
-                    needed--;
+                    currentCount++;
                   }
                 }
-                for (let idx = 0; idx < normalized.length && needed > 0; idx++) {
-                  if (!normalized[idx].gambarDeskripsi) {
-                    normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
-                    needed--;
+                const emptyIndices = normalized.map((s, idx) => (!s.gambarDeskripsi ? idx : -1)).filter(idx => idx !== -1);
+                const extraPick = pickStratifiedRandomIndices(emptyIndices.length, targetCount - currentCount);
+                extraPick.forEach(pos => {
+                  const targetIdx = emptyIndices[pos];
+                  if (targetIdx !== undefined) {
+                    normalized[targetIdx].gambarDeskripsi = buildFallbackImageDesc(normalized[targetIdx]);
                   }
-                }
+                });
               }
             } else {
               for (const [bentuk, targetCountRaw] of Object.entries(alloc.gambarCounts)) {
@@ -822,24 +898,23 @@ Berikan output dalam format JSON murni:
                   .filter(idx => idx !== -1);
                 if (groupIndices.length === 0) continue;
                 const targetCount = Math.min(targetCountRaw, groupIndices.length);
-                const currentCount = groupIndices.filter(idx => normalized[idx].gambarDeskripsi).length;
+                let currentCount = groupIndices.filter(idx => normalized[idx].gambarDeskripsi).length;
                 if (currentCount < targetCount) {
-                  let needed = targetCount - currentCount;
-                  const step = Math.max(1, Math.floor(groupIndices.length / targetCount));
-                  for (let k = 0; k < groupIndices.length && needed > 0; k += step) {
-                    const idx = groupIndices[k];
-                    if (!normalized[idx].gambarDeskripsi) {
-                      normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
-                      needed--;
-                    }
-                  }
                   for (const idx of groupIndices) {
-                    if (needed <= 0) break;
-                    if (!normalized[idx].gambarDeskripsi) {
+                    if (currentCount >= targetCount) break;
+                    if (!normalized[idx].gambarDeskripsi && plannedNos.has(String(normalized[idx].no))) {
                       normalized[idx].gambarDeskripsi = buildFallbackImageDesc(normalized[idx]);
-                      needed--;
+                      currentCount++;
                     }
                   }
+                  const emptyGroup = groupIndices.filter(idx => !normalized[idx].gambarDeskripsi);
+                  const extraPick = pickStratifiedRandomIndices(emptyGroup.length, targetCount - currentCount);
+                  extraPick.forEach(pos => {
+                    const targetIdx = emptyGroup[pos];
+                    if (targetIdx !== undefined) {
+                      normalized[targetIdx].gambarDeskripsi = buildFallbackImageDesc(normalized[targetIdx]);
+                    }
+                  });
                 }
               }
             }
@@ -957,30 +1032,46 @@ Berikan output dalam format JSON murni:
           }
 
           if (alloc.totalBatchGambar > 0) {
+            const mLower = `${formData.mapel} ${mapelLabel}`.toLowerCase();
+            const mapelVisualContext =
+              /matematika|numerasi/.test(mLower)
+                ? 'bangun datar/ruang berlabel ukuran, denah berskala, diagram batang/lingkaran data kontekstual, pecahan visual, atau jam/pengukuran yang sesuai langsung dengan materi Matematika yang diujikan'
+                : /ipa|sains|fisika|kimia|biologi/.test(mLower)
+                ? 'ilustrasi percobaan sains, struktur organ/tumbuhan/sel, rangkaian alat, perubahan wujud, atau fenomena alam yang sesuai langsung dengan topik IPA/Sains yang diujikan'
+                : /ips|sejarah|geografi|ekonomi|sosiologi/.test(mLower)
+                ? 'peta wilayah/geografis, kenampakan alam & aktivitas ekonomi penduduk, grafik data sosial-ekonomi, atau ilustrasi peninggalan sejarah sesuai materi IPS yang diujikan'
+                : /indonesia|inggris|arab|daerah|sastra/.test(mLower)
+                ? 'ilustrasi adegan cerita/situasi kontekstual, poster informasi/infografis visual, urutan gambar peristiwa, atau latar aktivitas tokoh sesuai materi Bahasa yang diujikan'
+                : /pancasila|ppkn|kewarganegaraan/.test(mLower)
+                ? 'ilustrasi kegiatan musyawarah, gotong royong, keberagaman budaya daerah, atau penerapan aturan ketertiban umum sesuai materi Pendidikan Pancasila'
+                : /agama|pai|quran|hadis|akidah|akhlak|fikih|ski/.test(mLower)
+                ? 'ilustrasi perilaku akhlak terpuji sehari-hari, tata urutan ibadah/thaharah yang santun, atau bagan/arsitektur sejarah peradaban sesuai materi keagamaan'
+                : /pjok|olahraga|penjas/.test(mLower)
+                ? 'ilustrasi ukuran/area lapangan permainan, sikap gerakan senam/atletik, atau aktivitas kebugaran jasmani sesuai materi PJOK'
+                : /seni|prakarya|informatika|tik|produktif|kejuruan/.test(mLower)
+                ? 'ilustrasi alat/karya seni-kerajinan, skema alur kerja/perangkat teknologi, atau simbol keselamatan kerja sesuai materi pelajaran'
+                : `ilustrasi objek, situasi nyata, denah, atau diagram data yang 100% spesifik mewakili materi "${formData.materi || mapelLabel}"`;
+
             const jenisVisualPanduan =
               formData.tipeUjian === 'Olimpiade'
-                ? 'rekayasa geometri & fenomena sains (konfigurasi garis singgung, rangkaian listrik, lintasan gerak, pembelahan sel, atau grafik fisis)'
+                ? `visualisasi masalah kompetisi sesuai ${mapelLabel} (${mapelVisualContext})`
                 : formData.tipeUjian === 'Live Quiz'
-                ? 'pemantik visual cepat / fast visual clue (tebak objek/tokoh, identifikasi organ, membaca rambu/diagram ringkas, atau tebak kurva)'
+                ? `pemantik visual cepat sesuai ${mapelLabel} (${mapelVisualContext})`
                 : formData.tipeUjian === 'Asesmen Nasional'
-                ? '2 lapis visual: (1) Gambar utama infografis/wacana pada stimulusList, dan (2) Diagram/grafik/ilustrasi spesifik pada butir soal yang menuntut siswa membandingkan data gambar butir soal dengan teks stimulus'
-                : formData.tipeUjian === 'Other'
-                ? 'visual kontekstual standar asesmen (neraca kesetimbangan, jam analog, bangun gabungan, diagram batang data, atau pola figural/spasial)'
-                : 'diagram anatomi/sains, siklus rantai makanan, denah/sudut geometri, grafik koordinat kartesius, atau bagan peristiwa';
+                ? `2 lapis visual sesuai ${mapelLabel}: (1) ilustrasi konteks pada stimulusList, dan (2) visual spesifik pada butir soal (${mapelVisualContext})`
+                : mapelVisualContext;
 
-            const rincianTargetGambar = isKombinasiBentuk
-              ? `tepat ${alloc.totalBatchGambar} soal bergambar yang tersebar merata mulai dari nomor awal batch ini`
-              : Object.entries(alloc.gambarCounts)
-                  .filter(([, count]) => count > 0)
-                  .map(([bentuk, count]) => `${bentuk}: ${count} soal bergambar`)
-                  .join('; ');
+            const daftarNomorTarget = alloc.targetImageNumbers
+              .map(item => `No. ${item.no} (${item.bentuk})`)
+              .join(', ');
 
-            extraInstructions += `\n- SOAL BERGAMBAR (WAJIB TERPENUHI & MERATA): Target soal bergambar pada batch ini adalah (${rincianTargetGambar}).\n` +
-              `  * ATURAN SEBARAN: Sebarkan soal bergambar mulai dari nomor awal masing-masing kelompok bentuk soal (JANGAN menumpuk di nomor terakhir saja!).\n` +
-              `  * KONSEP VISUAL: Gunakan ${jenisVisualPanduan}.\n` +
-              `  * FORMAT FIELD: Untuk setiap soal bergambar, WAJIB isi field "gambarDeskripsi" dengan prompt gambar berbahasa Inggris yang detail & bebas teks di dalam gambar (no text/labels inside image). Untuk soal lain yang tidak butuh gambar, isi "gambarDeskripsi": "".`;
+            extraInstructions += `\n- SOAL BERGAMBAR TERSEBAR LINTAS JENIS SOAL (WAJIB PATUH 100%):\n` +
+              `  * NOMOR TARGET BERGAMBAR PADA BATCH INI: Tepat ${alloc.totalBatchGambar} soal yaitu [${daftarNomorTarget}].\n` +
+              `  * SEBARAN WAJIB: Isi field "gambarDeskripsi" HANYA dan WAJIB pada nomor-nomor target di atas sehingga soal bergambar tersebar merata di setiap bentuk/jenis soal yang dipilih! Untuk nomor selain daftar tersebut, WAJIB biarkan "gambarDeskripsi": "" kosong dan DILARANG menulis kalimat "Perhatikan gambar/bagan/grafik berikut" pada soal yang tidak bergambar!\n` +
+              `  * RELEVANSI MAPEL & LARANGAN CONTOH STATIS: Konsep visual WAJIB khusus untuk ${mapelLabel} (${jenisVisualPanduan}). DILARANG KERAS membuat soal rantai makanan (padi-belalang-katak-ular) atau grafik titik koordinat kartesius generik apabila tidak relevan langsung dengan mata pelajaran ${mapelLabel} dan materi "${formData.materi || 'yang dipilih'}"! Variasikan jenis ilustrasi antar-nomor.\n` +
+              `  * SINKRONISASI DATA & ATURAN WARNA PADA GAMBAR: Tulis "gambarDeskripsi" (dalam bahasa Inggris yang konkret & lengkap) memuat seluruh objek dan angka/ukuran yang dirujuk soal (misal ukuran sisi "25 m", "16 m", atau nilai diagram batang). JANGAN memaksakan atribut warna jika soal tidak menanyakan warna; NAMUN SAAT butir soal atau pilihan jawaban memuat/menanyakan warna tertentu, WAJIB tuliskan warna spesifik tersebut secara tegas di "gambarDeskripsi" beserta label teks warna yang sesuai (contoh: label teks "Biru") agar gambar hasil generate 100% menampilkan warna yang sinkron dengan pilihan jawaban.`;
           } else {
-            extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "".' : 'Karena tidak ada soal bergambar yang diminta pada batch ini, biarkan field "gambarDeskripsi": "" kosong pada butir soal.'}`;
+            extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "" dan jangan merujuk gambar butir yang tidak ada.' : 'Karena tidak ada soal bergambar yang diminta pada batch ini, biarkan field "gambarDeskripsi": "" kosong pada seluruh butir soal dan DILARANG menulis "Perhatikan gambar/bagan berikut".'}`;
           }
 
           extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
@@ -1453,34 +1544,15 @@ Berikan output JSON murni sesuai skema.`;
     const printWindow = createPrintWindow();
     if (!printWindow) return;
 
+    const isTwoColNaskah = type === 'naskah' && (formData.layoutCetak || '1-kolom') === '2-kolom';
     let content = '';
     if (type === 'kisi-kisi') content = renderKisiKisiPrint();
     else content = renderSoalPrint(type);
 
     const docFooter = `
-      ${'' /* (profile?.kepalaSekolah || profile?.nama || profile?.displayName) ? `<div style="margin-top: 40px; display: flex; justify-content: space-between; text-align: center; font-size: 12px; page-break-inside: avoid;">
-          <div style="width: 45%;">
-              <p>Mengetahui,</p>
-              <p>Kepala Sekolah</p>
-              <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">${profile?.kepalaSekolah || '................................'}</p>
-              <p>${profile?.jenisNipKepalaSekolah || 'NIP'}. ${profile?.nipKepalaSekolah || '................................'}</p>
-          </div>
-          <div style="width: 45%;">
-              <p>Dibuat pada, ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              <p>Guru Pengampu</p>
-              <br><br><br><br>
-              <p style="font-weight: bold; text-decoration: underline;">${profile?.nama || profile?.displayName || '................................'}</p>
-              <p>${profile?.jenisNipGuru || 'NIP'}. ${profile?.nip || '................................'}</p>
-          </div>
-      </div>` : '' */}
-      
-      <div style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; text-align: center; font-size: 11px; color: #666; page-break-inside: avoid;">
-        <p>Dokumen ini dihasilkan secara otomatis oleh <b>Generator Soal - Pemuryadi</b></p>
-        <p>Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</p>
-        <br>
-        <p><i>"Dukungan Anda sangat berarti bagi kami untuk terus mengembangkan platform ini secara gratis."</i></p>
-        <p style="margin-top: 5px;"><b>Saweria: saweria.co/pemuryadi FB/IG/TikTok: @p.e.muryadi</b></p>
+      <div class="exam-footer" style="margin-top: 10px; border-top: 1px solid #bbb; padding-top: 5px; text-align: center; font-size: 8.5pt; line-height: 1.25; color: #555; page-break-inside: avoid; break-inside: avoid;">
+        <div>Dokumen dihasilkan oleh <b>Generator Soal - Pemuryadi</b> · Maju Pendidikan Indonesia &copy; ${new Date().getFullYear()}</div>
+        <div>Saweria: <b>saweria.co/pemuryadi</b> · FB/IG/TikTok: <b>@p.e.muryadi</b></div>
       </div>
     `;
 
@@ -1489,49 +1561,169 @@ Berikan output JSON murni sesuai skema.`;
       <html>
         <head>
           <title>Cetak ${type.toUpperCase()}</title>
-          <style>
-            body { font-family: 'Times New Roman', Times, serif; line-height: 1.5; padding: 2cm; color: black; }
-            h1, h2, h3 { text-align: center; margin-bottom: 5px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; vertical-align: top; }
-            th { background-color: #f2f2f2; text-align: center; }
-            .header-info { margin-bottom: 20px; }
-            .header-info table { border: none; margin-top: 0; }
-            .header-info td { border: none; padding: 4px; }
-            .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 100px; color: rgba(0,0,0,0.05); z-index: -1; white-space: nowrap; pointer-events: none; }
-            .kartu-soal-box { border: 1px solid black; margin-bottom: 30px; page-break-inside: avoid; }
-            .kartu-header { text-align: center; font-weight: bold; border-bottom: 1px solid black; padding: 5px; }
-            .kartu-body { display: flex; }
-            .kartu-left { width: 30%; border-right: 1px solid black; padding: 10px; font-size: 12px; }
-            .kartu-right { width: 70%; padding: 10px; font-size: 14px; }
-            @media print {
-              @page { margin: 1cm; }
-              body { padding: 0; }
-            }
-          
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; page-break-inside: auto; }
-              tr { page-break-inside: avoid; page-break-after: auto; }
-              thead { display: table-header-group; }
-              tfoot { display: table-footer-group; }
-            </style>
-        
           ${styles}
           <style>
-            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 20px !important; margin-bottom: 8px !important; }
-            td p, .content-wrapper p { margin-bottom: 8px !important; }
-            .html-content table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 10px; }
-            .html-content th, .html-content td { border: 1px solid #cbd5e1; padding: 8px; }
-            .html-content th { background-color: #f1f5f9; font-weight: bold; }
-          </style></head>
+            @page {
+              size: A4 portrait;
+              margin: 1cm 1cm 1cm 1.4cm;
+            }
+            html, body {
+              font-family: 'Times New Roman', Times, serif !important;
+              font-size: ${isTwoColNaskah ? '10pt' : '10.5pt'} !important;
+              line-height: 1.25 !important;
+              color: #000 !important;
+              background: #fff !important;
+              margin: 0;
+              padding: 0.8cm;
+            }
+            @media print {
+              html, body { padding: 0 !important; }
+            }
+            .exam-print-root h1, .exam-print-root h2, .exam-print-root h3 {
+              text-align: center;
+              margin: 0 0 4px 0 !important;
+              font-weight: bold !important;
+              line-height: 1.2 !important;
+            }
+            .exam-print-root h2 { font-size: 12.5pt !important; letter-spacing: 0.3px; }
+            .exam-print-root h3 { font-size: 11pt !important; }
+            .exam-print-root table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 6px;
+              margin-bottom: 8px;
+              font-size: 9.8pt;
+              line-height: 1.22;
+              page-break-inside: auto;
+            }
+            .exam-print-root tr {
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              page-break-after: auto;
+            }
+            .exam-print-root thead { display: table-header-group; }
+            .exam-print-root tfoot { display: table-footer-group; }
+            .exam-print-root th, .exam-print-root td {
+              border: 1px solid #000;
+              padding: 4px 6px;
+              text-align: left;
+              vertical-align: top;
+            }
+            .exam-print-root th {
+              background-color: #f2f2f2;
+              text-align: center;
+              font-weight: bold;
+            }
+            .exam-print-root .header-info {
+              margin-bottom: 8px;
+              padding-bottom: 5px;
+              border-bottom: 1.5px solid #000;
+            }
+            .exam-print-root .header-info table {
+              border: none;
+              margin: 2px 0 0 0;
+              font-size: 10pt;
+            }
+            .exam-print-root .header-info td {
+              border: none;
+              padding: 1px 4px;
+            }
+            .watermark {
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%) rotate(-45deg);
+              font-size: 90px;
+              color: rgba(0,0,0,0.045);
+              z-index: -1;
+              white-space: nowrap;
+              pointer-events: none;
+            }
+            .exam-print-root .naskah-two-col {
+              column-count: 2;
+              column-gap: 0.65cm;
+              column-rule: 0.5px solid #cbd5e1;
+            }
+            .exam-print-root .soal-item-print {
+              margin-bottom: 7px;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              -webkit-column-break-inside: avoid !important;
+            }
+            .exam-print-root .stimulus-box-print {
+              margin: 7px 0;
+              padding: 6px 8px;
+              border: 1px solid #94a3b8;
+              background: #fafafa;
+              font-size: 9.8pt;
+              line-height: 1.24;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              -webkit-column-break-inside: avoid !important;
+            }
+            .exam-print-root .opsi-grid-4 {
+              display: grid;
+              grid-template-columns: repeat(4, minmax(0, 1fr));
+              column-gap: 8px;
+              row-gap: 1px;
+              margin-top: 2px;
+            }
+            .exam-print-root .opsi-grid-2 {
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              column-gap: 10px;
+              row-gap: 1.5px;
+              margin-top: 2px;
+            }
+            .exam-print-root .opsi-grid-1 {
+              display: flex;
+              flex-direction: column;
+              gap: 1.5px;
+              margin-top: 2px;
+            }
+            .exam-print-root .kartu-soal-box {
+              border: 1px solid #000;
+              margin-bottom: 10px;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
+            .exam-print-root .kartu-header {
+              text-align: center;
+              font-weight: bold;
+              font-size: 10pt;
+              background: #f2f2f2;
+              border-bottom: 1px solid #000;
+              padding: 3px 6px;
+            }
+            .exam-print-root .kartu-body { display: flex; }
+            .exam-print-root .kartu-left {
+              width: 30%;
+              border-right: 1px solid #000;
+              padding: 6px 8px;
+              font-size: 9.5pt;
+              line-height: 1.22;
+            }
+            .exam-print-root .kartu-right {
+              width: 70%;
+              padding: 6px 8px;
+              font-size: 10pt;
+              line-height: 1.24;
+            }
+            td ul, .content-wrapper ul { list-style-type: disc !important; padding-left: 16px !important; margin-bottom: 4px !important; }
+            td ol, .content-wrapper ol { list-style-type: decimal !important; padding-left: 16px !important; margin-bottom: 4px !important; }
+            td p, .content-wrapper p { margin-bottom: 4px !important; }
+          </style>
+        </head>
         <body>
           ${getWatermarkHtml()}
-          ${content}
-          ${docFooter}
+          <div class="exam-print-root">
+            ${content}
+            ${docFooter}
+          </div>
           <script>
             setTimeout(() => {
               window.print();
-            }, 1000);
+            }, 800);
           </script>
         </body>
       </html>
@@ -1548,26 +1740,29 @@ Berikan output JSON murni sesuai skema.`;
     if (!resultKisiKisi) return '';
     const { meta, kisiKisi } = resultKisiKisi;
     return `
-      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
-      <h2>KISI-KISI ${meta.tipeUjian ? meta.tipeUjian.toUpperCase() : 'SOAL'}</h2>
       <div class="header-info">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 3px;">
+          ${useLogo && logoUrl ? `<img src="${logoUrl}" style="height: 44px; width: auto;" alt="Logo"/>` : ''}
+          <h2 style="margin: 0 !important;">KISI-KISI ${meta.tipeUjian ? meta.tipeUjian.toUpperCase() : 'SOAL'}</h2>
+        </div>
         <table>
-          <tr><td width="150">Mata Pelajaran</td><td>: ${meta.mapelLabel}</td></tr>
-          <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
-          <tr><td>Fase</td><td>: ${meta.fase}</td></tr>
+          <tr>
+            <td width="18%"><b>Mata Pelajaran</b></td><td width="34%">: ${meta.mapelLabel}</td>
+            <td width="16%"><b>Kelas / Sem.</b></td><td width="32%">: ${meta.kelas} / ${meta.semester} (Fase ${meta.fase})</td>
+          </tr>
         </table>
       </div>
       <table>
         <thead>
           <tr>
-            <th>No</th>
+            <th style="width: 28px;">No</th>
             <th>Elemen</th>
             <th>Tujuan Pembelajaran</th>
             <th>Materi</th>
-            <th>Level Kognitif</th>
+            <th style="width: 85px;">Level</th>
             <th>Indikator Soal</th>
-            <th>Jenis Soal</th>
-            <th>No Soal</th>
+            <th style="width: 80px;">Bentuk</th>
+            <th style="width: 45px;">No Soal</th>
           </tr>
         </thead>
         <tbody>
@@ -1591,6 +1786,7 @@ Berikan output JSON murni sesuai skema.`;
   const renderSoalPrint = (type: 'naskah' | 'kunci' | 'kartu') => {
     if (!resultSoal || (!resultSoal.soalList && !resultSoal.soalABKList)) return '';
     const { meta, soalList = [], soalABKList = [] } = resultSoal;
+    const isTwoCol = type === 'naskah' && (formData.layoutCetak || meta?.layoutCetak || '1-kolom') === '2-kolom';
     const stimulusList: any[] = Array.isArray(resultSoal.stimulusList) ? resultSoal.stimulusList : [];
     const isKompleks = (s: any) => /kompleks/i.test(s?.jenisSoal || '');
     const getStimulus = (s: any) => s?.stimulusId ? stimulusList.find((x: any) => x.id === s.stimulusId) : null;
@@ -1603,10 +1799,10 @@ Berikan output JSON murni sesuai skema.`;
       if (!st) return '';
       if (i > 0 && soalList[i - 1]?.stimulusId === s.stimulusId) return '';
       return `
-        <div style="margin: 20px 0;">
-          <p style="font-weight: bold; margin-bottom: 6px;">Bacalah teks berikut untuk menjawab soal nomor ${stimulusRentang(s.stimulusId)}.</p>
-          <h3 style="text-align: center; margin: 6px 0 12px;">${st.judul || ''}</h3>
-          ${st.gambarUrl ? `<img src="${st.gambarUrl}" style="float: right; width: 45%; max-height: 9cm; object-fit: contain; margin: 0 0 10px 15px; border: 1px solid #ccc;" />` : ''}
+        <div class="stimulus-box-print">
+          <div style="font-weight: bold; margin-bottom: 3px;">Bacalah informasi berikut untuk menjawab soal nomor ${stimulusRentang(s.stimulusId)}.</div>
+          ${st.judul ? `<div style="text-align: center; font-weight: bold; margin-bottom: 4px;">${st.judul}</div>` : ''}
+          ${st.gambarUrl ? `<img src="${st.gambarUrl}" style="float: right; max-width: ${isTwoCol ? '3.4cm' : '4.6cm'}; max-height: ${isTwoCol ? '3.4cm' : '4.2cm'}; object-fit: contain; margin: 0 0 4px 8px; border: 1px solid #ccc; background: #fff;" />` : ''}
           <div style="white-space: pre-wrap; text-align: justify;">${st.teks || ''}</div>
           <div style="clear: both;"></div>
         </div>
@@ -1615,63 +1811,79 @@ Berikan output JSON murni sesuai skema.`;
     const stimulusKartuPrint = (s: any) => {
       const st = getStimulus(s);
       if (!st) return '';
-      return `<div style="margin-bottom: 10px; padding: 8px; border: 1px dashed #999; font-size: 12px;"><strong>Stimulus: ${st.judul || ''}</strong><div style="white-space: pre-wrap; margin-top: 4px;">${st.teks || ''}</div>${st.gambarUrl ? `<img src="${st.gambarUrl}" style="max-width: 6cm; max-height: 6cm; margin-top: 6px; border: 1px solid #ccc; display: block;" />` : ''}</div>`;
+      return `<div style="margin-bottom: 5px; padding: 5px; border: 1px dashed #999; font-size: 9.2pt;"><strong>Stimulus: ${st.judul || ''}</strong><div style="white-space: pre-wrap; margin-top: 2px;">${st.teks || ''}</div>${st.gambarUrl ? `<img src="${st.gambarUrl}" style="max-width: 4.5cm; max-height: 3.8cm; margin-top: 4px; border: 1px solid #ccc; display: block;" />` : ''}</div>`;
     };
     const benarSalahPrint = (s: any) => (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
-      <table style="width: 90%; margin: 8px 0 10px;">
-        <thead><tr><th>Pernyataan</th><th style="width: 60px;">Benar</th><th style="width: 60px;">Salah</th></tr></thead>
-        <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center;">○</td><td style="text-align: center;">○</td></tr>`).join('')}</tbody>
+      <table style="width: 100%; margin: 3px 0 4px; font-size: 9.5pt;">
+        <thead><tr><th>Pernyataan</th><th style="width: 44px;">Benar</th><th style="width: 44px;">Salah</th></tr></thead>
+        <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td style="padding: 2px 5px;">${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center; padding: 2px;">○</td><td style="text-align: center; padding: 2px;">○</td></tr>`).join('')}</tbody>
       </table>` : '';
-    const printHeader = `
-      ${useLogo && logoUrl ? `<div style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" style="height: 80px; width: auto;" alt="Logo"/></div>` : ''}
+
+    const renderOptionsCompactPrint = (s: any, hasSideImage = false) => {
+      if (!Array.isArray(s?.opsiTambahan) || s.opsiTambahan.length === 0) return '';
+      const kompleks = isKompleks(s);
+      const maxOptLen = Math.max(...s.opsiTambahan.map((o: string) => String(o || '').trim().length));
+      let gridClass = 'opsi-grid-1';
+      if (!kompleks) {
+        if (!isTwoCol && !hasSideImage && maxOptLen <= 18 && s.opsiTambahan.length === 4) {
+          gridClass = 'opsi-grid-4';
+        } else if (isTwoCol ? maxOptLen <= 26 : maxOptLen <= (hasSideImage ? 34 : 46)) {
+          gridClass = 'opsi-grid-2';
+        }
+      }
+      return `
+        <div class="${gridClass}">
+          ${s.opsiTambahan.map((o: string) => `<div>${kompleks ? '☐ ' : ''}${o}</div>`).join('')}
+        </div>
+      `;
+    };
+
+    const renderMenjodohkanCompactPrint = (s: any) => {
+      if (!Array.isArray(s?.pasanganMenjodohkan) || s.pasanganMenjodohkan.length === 0) return '';
+      return `
+        <table style="width: ${isTwoCol ? '100%' : '75%'}; border: none; margin: 3px 0 4px; font-size: 9.5pt;">
+          ${s.pasanganMenjodohkan.map((p: any) => `<tr><td style="border:none; padding: 1px 4px;">• ${p.kiri}</td><td style="border:none; width:24px; text-align:center; padding: 1px;">↔</td><td style="border:none; padding: 1px 4px;">${p.kanan}</td></tr>`).join('')}
+        </table>
+      `;
+    };
+
+    const buildHeaderTitle = (headingText: string) => `
       <div class="header-info">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 3px;">
+          ${useLogo && logoUrl ? `<img src="${logoUrl}" style="height: 44px; width: auto;" alt="Logo"/>` : ''}
+          <h2 style="margin: 0 !important;">${headingText}</h2>
+        </div>
         <table>
-          <tr><td width="150">Mata Pelajaran</td><td>: ${meta.mapelLabel}</td></tr>
-          <tr><td>Kelas/Semester</td><td>: ${meta.kelas} / ${meta.semester}</td></tr>
-          <tr><td>Tipe Ujian</td><td>: ${meta.tipeUjian}</td></tr>
+          <tr>
+            <td width="17%"><b>Mata Pelajaran</b></td><td width="35%">: ${meta.mapelLabel}</td>
+            <td width="16%"><b>Kelas / Sem.</b></td><td width="32%">: ${meta.kelas} / ${meta.semester} (${meta.tipeUjian})</td>
+          </tr>
         </table>
       </div>
     `;
 
     if (type === 'kartu') {
       return `
-        <h2>KARTU SOAL</h2>
-        ${printHeader}
+        ${buildHeaderTitle('KARTU SOAL')}
         ${soalList.map((s: any) => `
           <div class="kartu-soal-box">
              <div class="kartu-header">KARTU SOAL NOMOR ${s.no} (REGULER)</div>
              <div class="kartu-body">
                 <div class="kartu-left">
-                   <strong>Materi:</strong><br/>${s.materi}<br/><br/>
-                   <strong>Indikator:</strong><br/>${s.indikatorSoal}<br/><br/>
-                   <strong>Level Kognitif:</strong> ${s.levelKognitif}<br/>
-                   <strong>Bentuk Soal:</strong> ${s.jenisSoal}
+                   <strong>Materi:</strong> ${s.materi || '-'}<br/>
+                   <strong>Indikator:</strong> ${s.indikatorSoal || '-'}<br/>
+                   <strong>Level:</strong> ${s.levelKognitif || '-'}<br/>
+                   <strong>Bentuk:</strong> ${s.jenisSoal || '-'} · <strong>Skor:</strong> ${s.skor || '-'}
                 </div>
                 <div class="kartu-right">
                    ${stimulusKartuPrint(s)}
-                   <strong>Rumusan Soal / Pertanyaan:</strong><br/>
-                   <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
-                   
-                   ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
-
+                   <div style="white-space: pre-wrap; margin-bottom: 4px;"><strong>Soal:</strong> ${s.pertanyaan}</div>
+                   ${s.gambarUrl ? `<div style="margin: 4px 0;"><img src="${s.gambarUrl}" style="max-width: 4.5cm; max-height: 3.6cm; object-fit: contain; border: 1px solid #ccc; display: block; background: #fff;" /></div>` : ''}
                    ${benarSalahPrint(s)}
-
-                   ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                     <div style="margin-left: 15px; margin-bottom: 10px;">
-                       ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
-                     </div>
-                   ` : ''}
-
-                   ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
-                     <table style="width: 80%; border: none; margin-bottom: 10px;">
-                        ${s.pasanganMenjodohkan.map((p: any) => `<tr><td style="border:none;">${p.kiri}</td><td style="border:none;width:30px;text-align:center;">---</td><td style="border:none;">${p.kanan}</td></tr>`).join('')}
-                     </table>
-                   ` : ''}
-
-                   <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
-                      <strong>Kunci Jawaban:</strong> <br/>
-                      <span style="white-space: pre-wrap;">${s.kunci}</span><br/><br/>
-                      <strong>Skor:</strong> ${s.skor}
+                   ${renderOptionsCompactPrint(s, false)}
+                   ${renderMenjodohkanCompactPrint(s)}
+                   <div style="margin-top: 5px; border-top: 1px solid #ccc; padding-top: 3px; font-size: 9.5pt;">
+                      <strong>Kunci:</strong> <span style="white-space: pre-wrap;">${s.kunci || '-'}</span>
                    </div>
                 </div>
              </div>
@@ -1680,42 +1892,25 @@ Berikan output JSON murni sesuai skema.`;
         
         ${soalABKList.length > 0 ? `
           <div style="page-break-before: always;"></div>
-          <h2>KARTU SOAL - ADAPTASI ABK (INKLUSI)</h2>
-          ${printHeader}
+          ${buildHeaderTitle('KARTU SOAL - ADAPTASI ABK (INKLUSI)')}
           ${soalABKList.map((s: any) => `
           <div class="kartu-soal-box">
              <div class="kartu-header">KARTU SOAL NOMOR ${s.no} (ABK)</div>
              <div class="kartu-body">
                 <div class="kartu-left">
-                   <strong>Materi:</strong><br/>${s.materi}<br/><br/>
-                   <strong>Indikator:</strong><br/>${s.indikatorSoal}<br/><br/>
-                   <strong>Level Kognitif:</strong> ${s.levelKognitif}<br/>
-                   <strong>Bentuk Soal:</strong> ${s.jenisSoal}
+                   <strong>Materi:</strong> ${s.materi || '-'}<br/>
+                   <strong>Indikator:</strong> ${s.indikatorSoal || '-'}<br/>
+                   <strong>Level:</strong> ${s.levelKognitif || '-'}<br/>
+                   <strong>Bentuk:</strong> ${s.jenisSoal || '-'} · <strong>Skor:</strong> ${s.skor || '-'}
                 </div>
                 <div class="kartu-right">
-                   <strong>Rumusan Soal / Pertanyaan:</strong><br/>
-                   <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
-                   
-                   ${s.gambarUrl ? `<div style="margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 6cm; max-height: 6cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
-
+                   <div style="white-space: pre-wrap; margin-bottom: 4px;"><strong>Soal:</strong> ${s.pertanyaan}</div>
+                   ${s.gambarUrl ? `<div style="margin: 4px 0;"><img src="${s.gambarUrl}" style="max-width: 4.5cm; max-height: 3.6cm; object-fit: contain; border: 1px solid #ccc; display: block; background: #fff;" /></div>` : ''}
                    ${benarSalahPrint(s)}
-
-                   ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                     <div style="margin-left: 15px; margin-bottom: 10px;">
-                       ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
-                     </div>
-                   ` : ''}
-
-                   ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
-                     <table style="width: 80%; border: none; margin-bottom: 10px;">
-                        ${s.pasanganMenjodohkan.map((p: any) => `<tr><td style="border:none;">${p.kiri}</td><td style="border:none;width:30px;text-align:center;">---</td><td style="border:none;">${p.kanan}</td></tr>`).join('')}
-                     </table>
-                   ` : ''}
-
-                   <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
-                      <strong>Kunci Jawaban:</strong> <br/>
-                      <span style="white-space: pre-wrap;">${s.kunci}</span><br/><br/>
-                      <strong>Skor:</strong> ${s.skor}
+                   ${renderOptionsCompactPrint(s, false)}
+                   ${renderMenjodohkanCompactPrint(s)}
+                   <div style="margin-top: 5px; border-top: 1px solid #ccc; padding-top: 3px; font-size: 9.5pt;">
+                      <strong>Kunci:</strong> <span style="white-space: pre-wrap;">${s.kunci || '-'}</span>
                    </div>
                 </div>
              </div>
@@ -1727,134 +1922,129 @@ Berikan output JSON murni sesuai skema.`;
 
     if (type === 'kunci') {
       return `
-        <h2>KUNCI JAWABAN & PEMBAHASAN</h2>
-        ${printHeader}
+        ${buildHeaderTitle('KUNCI JAWABAN & PEMBAHASAN')}
         <table style="width: 100%;">
-          <tr><th style="width: 50px;">No</th><th>Kunci & Pembahasan</th><th style="width: 60px;">Skor</th></tr>
+          <thead>
+            <tr><th style="width: 36px;">No</th><th>Kunci & Pembahasan</th><th style="width: 50px;">Skor</th></tr>
+          </thead>
+          <tbody>
           ${soalList.map((s: any) => `
             <tr>
               <td style="text-align:center;">${s.no}</td>
               <td>
                 ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                  <div style="font-size: 11px; margin-bottom: 8px; color: #444; background: #fafafa; padding: 6px; border: 1px solid #eee;">
-                    <strong>Pilihan Jawaban:</strong><br/>
-                    ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
+                  <div style="font-size: 9pt; margin-bottom: 4px; color: #333; background: #fafafa; padding: 3px 5px; border: 1px solid #e5e7eb;">
+                    <strong>Pilihan Jawaban:</strong>
+                    ${renderOptionsCompactPrint(s, false)}
                   </div>
                 ` : ''}
                 ${Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 ? `
-                  <div style="font-size: 11px; margin-bottom: 8px;">
-                    <strong>Kunci Pernyataan Benar/Salah:</strong><br/>
-                    <table style="width: 100%; border: 1px solid #ccc; font-size: 11px; margin-top: 4px;">
-                      <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 80px;">Kunci</th></tr></thead>
+                  <div style="font-size: 9pt; margin-bottom: 4px;">
+                    <table style="width: 100%; border: 1px solid #ccc; font-size: 9pt; margin: 2px 0;">
+                      <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 65px;">Kunci</th></tr></thead>
                       <tbody>
-                        ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold;">${p.kunci}</td></tr>`).join('')}
+                        ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td style="padding: 2px 4px;">${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold; padding: 2px 4px;">${p.kunci}</td></tr>`).join('')}
                       </tbody>
                     </table>
                   </div>
                 ` : ''}
-                <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci}</span><br/><br/>
-                ${s.pembahasan ? `<strong>Pembahasan:</strong><br/><span style="white-space:pre-wrap;">${s.pembahasan}</span>` : ''}
+                <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci || '-'}</span>
+                ${s.pembahasan ? `<div style="margin-top: 2px;"><strong>Pembahasan:</strong> <span style="white-space:pre-wrap;">${s.pembahasan}</span></div>` : ''}
               </td>
-              <td style="text-align:center;">${s.skor}</td>
+              <td style="text-align:center;">${s.skor || '-'}</td>
             </tr>
           `).join('')}
+          </tbody>
         </table>
         
         ${soalABKList.length > 0 ? `
-          <h3 style="margin-top: 30px;">KUNCI JAWABAN & PEMBAHASAN - SOAL INKLUSI (ABK)</h3>
+          <h3 style="margin-top: 14px !important;">KUNCI JAWABAN & PEMBAHASAN - SOAL INKLUSI (ABK)</h3>
           <table style="width: 100%;">
-            <tr><th style="width: 50px;">No</th><th>Kunci & Pembahasan</th><th style="width: 60px;">Skor</th></tr>
+            <thead>
+              <tr><th style="width: 36px;">No</th><th>Kunci & Pembahasan</th><th style="width: 50px;">Skor</th></tr>
+            </thead>
+            <tbody>
             ${soalABKList.map((s: any) => `
               <tr>
                 <td style="text-align:center;">${s.no}</td>
                 <td>
                   ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                    <div style="font-size: 11px; margin-bottom: 8px; color: #444; background: #fafafa; padding: 6px; border: 1px solid #eee;">
-                      <strong>Pilihan Jawaban:</strong><br/>
-                      ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
+                    <div style="font-size: 9pt; margin-bottom: 4px; color: #333; background: #fafafa; padding: 3px 5px; border: 1px solid #e5e7eb;">
+                      <strong>Pilihan Jawaban:</strong>
+                      ${renderOptionsCompactPrint(s, false)}
                     </div>
                   ` : ''}
                   ${Array.isArray(s.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0 ? `
-                    <div style="font-size: 11px; margin-bottom: 8px;">
-                      <strong>Kunci Pernyataan Benar/Salah:</strong><br/>
-                      <table style="width: 100%; border: 1px solid #ccc; font-size: 11px; margin-top: 4px;">
-                        <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 80px;">Kunci</th></tr></thead>
+                    <div style="font-size: 9pt; margin-bottom: 4px;">
+                      <table style="width: 100%; border: 1px solid #ccc; font-size: 9pt; margin: 2px 0;">
+                        <thead><tr style="background: #f0f0f0;"><th>Pernyataan</th><th style="width: 65px;">Kunci</th></tr></thead>
                         <tbody>
-                          ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td>${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold;">${p.kunci}</td></tr>`).join('')}
+                          ${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td style="padding: 2px 4px;">${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align:center; font-weight:bold; padding: 2px 4px;">${p.kunci}</td></tr>`).join('')}
                         </tbody>
                       </table>
                     </div>
                   ` : ''}
-                  <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci}</span><br/><br/>
-                  ${s.pembahasan ? `<strong>Pembahasan:</strong><br/><span style="white-space:pre-wrap;">${s.pembahasan}</span>` : ''}
+                  <strong>Kunci:</strong> <span style="white-space:pre-wrap;">${s.kunci || '-'}</span>
+                  ${s.pembahasan ? `<div style="margin-top: 2px;"><strong>Pembahasan:</strong> <span style="white-space:pre-wrap;">${s.pembahasan}</span></div>` : ''}
                 </td>
-                <td style="text-align:center;">${s.skor}</td>
+                <td style="text-align:center;">${s.skor || '-'}</td>
               </tr>
             `).join('')}
+            </tbody>
           </table>
         ` : ''}
       `;
     }
 
-    return `
-      <h2>NASKAH SOAL</h2>
-      ${printHeader}
-      ${soalList.map((s: any, i: number) => `
-        ${stimulusHeaderPrint(s, i)}
-        <div style="margin-bottom: 20px; page-break-inside: avoid;">
-          <div style="display: flex;">
-            <div style="width: 30px; font-weight: bold;">${s.no}.</div>
-            <div style="flex: 1;">
-              <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
-              
-              ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
+    const renderSingleNaskahItem = (s: any, i: number, includeStimulus: boolean) => {
+      const hasImg = Boolean(s.gambarUrl);
+      const hasWideTable = (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) || (Array.isArray(s?.pasanganMenjodohkan) && s.pasanganMenjodohkan.length > 0);
+      const useSideBySideImg = hasImg && !isTwoCol && !hasWideTable;
+      const useFloatInTwoCol = hasImg && isTwoCol && !hasWideTable && String(s.pertanyaan || '').length >= 65;
 
-              ${benarSalahPrint(s)}
-
-              ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                <div style="margin-left: 10px;">
-                  ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
+      return `
+        ${includeStimulus ? stimulusHeaderPrint(s, i) : ''}
+        <div class="soal-item-print">
+          <div style="display: flex; align-items: flex-start; gap: 4px;">
+            <div style="min-width: 20px; font-weight: bold;">${s.no}.</div>
+            <div style="flex: 1; min-width: 0;">
+              ${useSideBySideImg ? `
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="white-space: pre-wrap; margin-bottom: 3px; text-align: justify;">${s.pertanyaan}</div>
+                    ${renderOptionsCompactPrint(s, true)}
+                  </div>
+                  <img src="${s.gambarUrl}" style="width: 4.3cm; max-height: 3.6cm; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 3px; background: #fff; flex-shrink: 0;" />
                 </div>
-              ` : ''}
-              ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
-                <table style="width: 60%; border: none; margin-bottom: 10px;">
-                  ${s.pasanganMenjodohkan.map((p: any) => `<tr><td style="border:none;">${p.kiri}</td><td style="border:none;width:30px;text-align:center;">.........</td><td style="border:none;">${p.kanan}</td></tr>`).join('')}
-                </table>
-              ` : ''}
+              ` : `
+                <div style="overflow: hidden;">
+                  ${useFloatInTwoCol ? `<img src="${s.gambarUrl}" style="float: left; width: 3.1cm; max-height: 2.9cm; object-fit: contain; margin: 1px 7px 3px 0; border: 1px solid #cbd5e1; background: #fff;" />` : ''}
+                  <div style="white-space: pre-wrap; margin-bottom: 3px; text-align: justify;">${s.pertanyaan}</div>
+                  ${hasImg && !useFloatInTwoCol ? `<div style="margin: 3px 0 4px;"><img src="${s.gambarUrl}" style="max-width: ${isTwoCol ? '4.2cm' : '4.8cm'}; max-height: ${isTwoCol ? '3.1cm' : '3.6cm'}; object-fit: contain; border: 1px solid #cbd5e1; display: block; background: #fff;" /></div>` : ''}
+                  <div style="clear: both;"></div>
+                  ${benarSalahPrint(s)}
+                  ${renderOptionsCompactPrint(s, false)}
+                  ${renderMenjodohkanCompactPrint(s)}
+                </div>
+              `}
             </div>
           </div>
         </div>
-      `).join('')}
+      `;
+    };
+
+    return `
+      ${buildHeaderTitle('NASKAH SOAL')}
+      <div class="${isTwoCol ? 'naskah-two-col' : ''}">
+        ${soalList.map((s: any, i: number) => renderSingleNaskahItem(s, i, true)).join('')}
+      </div>
       
       ${soalABKList.length > 0 ? `
         <div style="page-break-before: always;"></div>
-        <h2>NASKAH SOAL - ADAPTASI ABK (INKLUSI)</h2>
-        ${printHeader}
-        ${soalABKList.map((s: any) => `
-        <div style="margin-bottom: 20px; page-break-inside: avoid;">
-          <div style="display: flex;">
-            <div style="width: 30px; font-weight: bold;">${s.no}.</div>
-            <div style="flex: 1;">
-              <div style="white-space: pre-wrap; margin-bottom: 10px;">${s.pertanyaan}</div>
-
-              ${s.gambarUrl ? `<div style="margin-top: 10px; margin-bottom: 10px;"><img src="${s.gambarUrl}" style="max-width: 8cm; max-height: 8cm; border: 1px solid #ccc; display: block;" /></div>` : ''}
-
-              ${benarSalahPrint(s)}
-
-              ${s.opsiTambahan && s.opsiTambahan.length > 0 ? `
-                <div style="margin-left: 10px;">
-                  ${s.opsiTambahan.map((o: string) => `<div>${isKompleks(s) ? '☐ ' : ''}${o}</div>`).join('')}
-                </div>
-              ` : ''}
-              ${s.pasanganMenjodohkan && s.pasanganMenjodohkan.length > 0 ? `
-                <table style="width: 60%; border: none; margin-bottom: 10px;">
-                  ${s.pasanganMenjodohkan.map((p: any) => `<tr><td style="border:none;">${p.kiri}</td><td style="border:none;width:30px;text-align:center;">.........</td><td style="border:none;">${p.kanan}</td></tr>`).join('')}
-                </table>
-              ` : ''}
-            </div>
-          </div>
+        ${buildHeaderTitle('NASKAH SOAL - ADAPTASI ABK (INKLUSI)')}
+        <div class="${isTwoCol ? 'naskah-two-col' : ''}">
+          ${soalABKList.map((s: any, i: number) => renderSingleNaskahItem(s, i, false)).join('')}
         </div>
-        `).join('')}
       ` : ''}
     `;
   };
@@ -2632,7 +2822,7 @@ Berikan output JSON murni sesuai skema.`;
                       </label>
                       
                       {formData.terdapatSoalBergambar && (
-                        <div className="pl-7 animate-in fade-in duration-200">
+                        <div className="pl-7 space-y-3 animate-in fade-in duration-200">
                           {formData.bentukSoal.includes('Kombinasi') ? (
                             <>
                               <label className="block text-[10px] font-semibold text-gray-500 mb-1 uppercase tracking-wider">Total Soal Bergambar (Kombinasi)</label>
@@ -2652,11 +2842,51 @@ Berikan output JSON murni sesuai skema.`;
                           ) : (
                             <div className="p-2.5 bg-indigo-50/70 border border-indigo-200 rounded-lg text-xs text-indigo-900">
                               <span className="font-bold">Total Akumulasi: {formData.jumlahSoalBergambar} soal bergambar</span>
-                              <span className="block text-[11px] text-indigo-700 mt-0.5">Jumlah gambar per bentuk soal diatur langsung di bagian <b>3. Bentuk Soal</b> di atas.</span>
+                              <span className="block text-[11px] text-indigo-700 mt-0.5">Gambar disebar acak-proporsional pada masing-masing bentuk soal yang diatur di bagian <b>3. Bentuk Soal</b>.</span>
                             </div>
                           )}
+
+                          <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Gaya Ilustrasi Gambar</label>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, gayaGambar: 'berwarna' })}
+                                className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${(formData.gayaGambar || 'berwarna') === 'berwarna' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                              >
+                                🎨 Berwarna
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, gayaGambar: 'hitam-putih' })}
+                                className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${formData.gayaGambar === 'hitam-putih' ? 'bg-slate-800 text-white border-slate-800 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                              >
+                                ⚫ Hitam-Putih (Hemat Tinta)
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       )}
+
+                      <div className="pt-2 border-t border-gray-100">
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Tata Letak Cetak Naskah (Hemat Kertas)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, layoutCetak: '1-kolom' })}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${(formData.layoutCetak || '1-kolom') === '1-kolom' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                          >
+                            📄 1 Kolom Padat
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, layoutCetak: '2-kolom' })}
+                            className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${formData.layoutCetak === '2-kolom' ? 'bg-blue-600 text-white border-blue-600 shadow-sm' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}
+                          >
+                            📰 2 Kolom (Hemat Kertas)
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2798,6 +3028,26 @@ Berikan output JSON murni sesuai skema.`;
                   Pratinjau {activeSubTab === 'kisi-kisi' ? 'Kisi-kisi' : activeSubTab === 'naskah' ? 'Naskah Soal' : activeSubTab === 'kunci' ? 'Kunci Jawaban' : 'Kartu Soal'}
                 </h2>
                 <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full xl:w-auto">
+                  {activeSubTab === 'naskah' && resultSoal && (
+                    <div className="inline-flex rounded-lg border border-gray-300 bg-gray-50 p-0.5 text-xs font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, layoutCetak: '1-kolom' })}
+                        className={`px-2.5 py-1.5 rounded-md transition-all ${(formData.layoutCetak || '1-kolom') === '1-kolom' ? 'bg-white text-blue-700 shadow-sm font-bold' : 'text-gray-600 hover:text-gray-900'}`}
+                        title="Cetak 1 Kolom Padat"
+                      >
+                        1 Kolom Padat
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, layoutCetak: '2-kolom' })}
+                        className={`px-2.5 py-1.5 rounded-md transition-all ${formData.layoutCetak === '2-kolom' ? 'bg-white text-blue-700 shadow-sm font-bold' : 'text-gray-600 hover:text-gray-900'}`}
+                        title="Cetak 2 Kolom Hemat Kertas"
+                      >
+                        2 Kolom Hemat
+                      </button>
+                    </div>
+                  )}
                   {((activeSubTab === 'kisi-kisi' && resultKisiKisi) || (activeSubTab !== 'kisi-kisi' && resultSoal)) && (
                     <button
                       onClick={() => handlePrintClick(activeSubTab as 'kisi-kisi' | 'naskah' | 'kunci' | 'kartu')}

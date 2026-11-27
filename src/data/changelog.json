@@ -1,8 +1,19 @@
 [
   {
+    "version": "5.4.8",
+    "date": "27 November 2026",
+    "badge": "Terbaru",
+    "icon": "Image",
+    "commits": [
+      "Perbaikan Sebaran Soal Bergambar & Eliminasi Contoh Statis (No. 7 & 12): Menghapus contoh hardcoded (rantai makanan & grafik koordinat kartesius) yang sebelumnya terjiplak ke seluruh mata pelajaran, menggantinya dengan panduan visual dinamis sesuai mapel/materi, melarang rujukan gambar pada nomor tak bergambar, serta menerapkan algoritma sebaran acak-terstratifikasi lintas seluruh bentuk soal yang dipilih.",
+      "Ilustrasi Soal Berwarna & Sinkronisasi Label Warna: Mengubah gaya ilustrasi default dari hitam-putih paksa menjadi berwarna cerah ala buku teks sekolah (dengan opsi Hitam-Putih / Hemat Tinta tetap tersedia), serta otomatis menyematkan warna akurat dan label teks warna (contoh: 'Biru') apabila soal atau pilihan jawaban memuat warna.",
+      "Pemadatan Tata Letak Cetak Naskah (15, 30, 50+ Soal): Memadatkan margin halaman, tipografi, header 2-baris, footer ringkas, grid opsi jawaban otomatis (2/4 kolom untuk opsi pendek), tata letak gambar fleksibel di samping/bawah teks, serta menambahkan mode Cetak 1 Kolom Padat & 2 Kolom Hemat Kertas dengan tetap mempertahankan proteksi page-break-inside: avoid."
+    ]
+  },
+  {
     "version": "5.4.7",
     "date": "25 November 2026",
-    "badge": "Terbaru",
+    "badge": null,
     "icon": "Sparkles",
     "commits": [
       "Perbaikan Menyeluruh Ekstraksi & Prioritas Lampiran Dokumen: Memperbaiki worker PDF lokal pdfjs-dist v5 (.min.mjs) dengan preservasi struktur baris/tabel, mempertahankan heading & tabel Markdown pada DOCX/XLSX, mendukung PNG & TXT, menghentikan pengiriman binary PDF/Office sebagai image_url pada DocumentUpload/genai.ts (SNP & Kalender Pendidikan), serta menaruh dokumen lampiran di awal prompt sebagai sumber utama yang menimpa CP bawaan pada Buat Soal (termasuk Kunci & Bahas serta Kartu Soal).",

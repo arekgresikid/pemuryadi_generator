@@ -63,7 +63,11 @@ PRINSIP MUTLAK KUALITAS BUTIR SOAL (TIDAK BOLEH DILANGGAR):
    - Pada soal Pilihan Ganda, distribusikan kunci jawaban secara acak dan merata di seluruh huruf opsi (A, B, C, D — dan E bila 5 opsi). DILARANG menumpuk mayoritas kunci di huruf A atau B.
 4. VERIFIKASI MANDIRI:
    - Pastikan secara objektif hanya ada TEPAT 1 kunci benar pada Pilihan Ganda reguler, semua hitungan matematika/sains 100% presisi, dan gunakan notasi Unicode bersih (x², √, ≤, ≥, ×, ÷) tanpa sintaks LaTeX mentah.
-${ctx.hasReferenceFiles ? `5. PRIORITAS MUTLAK DOKUMEN LAMPIRAN:
+5. ANTI-TEMPLATE VISUAL & SINKRONISASI GAMBAR:
+   - DILARANG KERAS menyalin topik visual klise lintas-mapel (seperti rantai makanan padi-belalang-katak-ular atau grafik titik koordinat kartesius generik) apabila tidak relevan langsung dengan mata pelajaran dan materi yang diminta!
+   - Hanya tulis rujukan visual ("Perhatikan gambar/diagram berikut...") pada nomor soal yang memang ditugaskan memiliki "gambarDeskripsi". Pada nomor tanpa gambar, DILARANG merujuk ke gambar yang tidak ada.
+   - Jangan memaksakan atribut warna bila soal tidak menanyakan warna. Namun SAAT butir soal atau pilihan jawaban memuat warna tertentu, WAJIB cantumkan warna tersebut beserta label teks warna yang sesuai (contoh: teks "Biru") di dalam "gambarDeskripsi".
+${ctx.hasReferenceFiles ? `6. PRIORITAS MUTLAK DOKUMEN LAMPIRAN:
    - Pengguna telah melampirkan dokumen referensi. Jadikan dokumen lampiran sebagai SUMBER OTORITATIF UTAMA untuk materi, konteks, data, istilah, dan struktur. JANGAN menimpa isi dokumen lampiran dengan materi umum di luar lampiran.` : ''}`;
 }
 
