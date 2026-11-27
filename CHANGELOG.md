@@ -2,6 +2,11 @@
 
 Semua riwayat pembaruan (versi) dari aplikasi ini akan dicatat di dalam file ini.
 
+## [5.4.9] - 27 November 2026
+- Full-English Exam Paper di Semua Jenjang (SD, SMP, SMA/MA/SMK) & Semua Tipe Ujian: Menerapkan aturan mutlak 100% Bahasa Inggris (tanpa campur Bahasa Indonesia) pada seluruh teks siswa (stimulus, pertanyaan, opsi, pernyataan True/False, menjodohkan, soal ABK, dan kunci jawaban) terkalibrasi CEFR per fase, sementara pembahasan & kisi-kisi pegangan guru tetap jelas.
+- Lokalisasi Label UI & Cetak Bahasa Inggris: Mengubah header stimulus menjadi 'Read the following text to answer questions number ...' serta header tabel menjadi 'Statement | True | False' pada pratinjau maupun cetakan naskah Bahasa Inggris.
+- Perbaikan Lookup cpData & Penambahan CP Bahasa Inggris Fase A–F: Memperbaiki bug pencarian key cpData di BuatSoal.tsx agar membaca struktur bersarang cpData[mapel][fase] dengan akurat serta melengkapi CP Bahasa Inggris Fase A–F di src/constants.ts.
+
 ## [5.4.8] - 27 November 2026
 - Perbaikan Sebaran Soal Bergambar & Eliminasi Contoh Statis (No. 7 & 12): Menghapus contoh hardcoded (rantai makanan & grafik koordinat kartesius) yang sebelumnya terjiplak ke seluruh mata pelajaran, menggantinya dengan panduan visual dinamis sesuai mapel/materi, melarang rujukan gambar pada nomor tak bergambar, serta menerapkan algoritma sebaran acak-terstratifikasi lintas seluruh bentuk soal yang dipilih.
 - Ilustrasi Soal Berwarna & Sinkronisasi Label Warna: Mengubah gaya ilustrasi default dari hitam-putih paksa menjadi berwarna cerah ala buku teks sekolah (dengan opsi Hitam-Putih / Hemat Tinta tetap tersedia), serta otomatis menyematkan warna akurat dan label teks warna (contoh: 'Biru') apabila soal atau pilihan jawaban memuat warna.

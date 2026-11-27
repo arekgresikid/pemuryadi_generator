@@ -233,6 +233,14 @@ export const cpData: Record<string, any> = {
       C: 'Peserta didik mampu mencari, mengidentifikasi, dan menyintesis informasi dari berbagai jenis teks. Peserta didik mampu menulis teks terstruktur dengan kosakata yang bervariasi.',
       D: 'Peserta didik mampu menganalisis dan mengevaluasi informasi dari berbagai teks. Peserta didik mampu memproduksi teks dengan memperhatikan aspek kebahasaan.'
   },
+  'bahasa-inggris': {
+      A: 'Peserta didik mampu menggunakan bahasa Inggris sederhana (CEFR Pre-A1) untuk berinteraksi dalam situasi sosial dan kelas yang familiar, merespons instruksi lisan dasar, serta memahami kosakata dan teks multimodal sangat sederhana.',
+      B: 'Peserta didik mampu menggunakan bahasa Inggris tingkat dasar (CEFR A1) untuk berkomunikasi tentang diri sendiri, keluarga, dan lingkungan sekitar, serta memahami informasi spesifik dari teks pendek dan dialog sederhana.',
+      C: 'Peserta didik mampu memahami dan merespons teks lisan, tulis, dan visual berbahasa Inggris (CEFR A1–A2) tentang topik familiar sehari-hari, menemukan informasi tersurat maupun tersirat sederhana, serta menyusun kalimat/paragraf singkat terstruktur.',
+      D: 'Peserta didik mampu menggunakan teks lisan, tulis, dan visual berbahasa Inggris (CEFR A2–B1) untuk berinteraksi dan memahami beragam genre teks (Descriptive, Recount, Narrative, Procedure, Announcement/Notice) termasuk ide pokok, makna tersirat, dan fungsi sosial teks.',
+      E: 'Peserta didik mampu menganalisis, mengevaluasi, dan memproduksi beragam teks berbahasa Inggris (CEFR B1) dalam konteks akademik dan kehidupan sehari-hari (Descriptive, Recount, Narrative, Procedure, Analytical Exposition) dengan kohesi dan tata bahasa akurat.',
+      F: 'Peserta didik mampu mengevaluasi argumen, sudut pandang penulis, dan informasi kompleks pada beragam teks akademik serta dunia kerja berbahasa Inggris (CEFR B1–B2: Analytical/Hortatory Exposition, Discussion, Report, News Item) dan memproduksi teks kritis secara efektif.'
+  },
   matematika: {
       A: 'Peserta didik mengenali bilangan cacah sampai 100 dan dapat melakukan penjumlahan dan pengurangan bilangan cacah sampai 20.',
       B: 'Peserta didik memahami operasi hitung bilangan cacah, pecahan sederhana, dan geometri dasar dalam konteks kehidupan sehari-hari.',
@@ -509,6 +517,7 @@ export const pabProfilPelajar: Record<string, string[]> = {
 
 export const mapelNames: Record<string, string> = {
   'bahasa-indonesia': 'Bahasa Indonesia',
+  'bahasa-inggris': 'Bahasa Inggris',
   'matematika': 'Matematika',
   'ipas': 'IPAS',
   'ipa': 'IPA',

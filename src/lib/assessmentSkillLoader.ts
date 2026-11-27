@@ -10,6 +10,7 @@
 
 export interface AssessmentSkillContext {
   jenjang: string;
+  fase?: string;
   mapel: string;
   tipeUjian: string;
   subTipeUjian?: string;
@@ -21,6 +22,27 @@ export interface AssessmentSkillContext {
   hasInklusi?: boolean;
   tarafOlimpiade?: string;
   hasReferenceFiles?: boolean;
+}
+
+export function isEnglishAssessment(ctx: { mapel?: string; tipeUjian?: string; subTipeUjian?: string }): boolean {
+  const m = String(ctx.mapel || '').toLowerCase();
+  const sub = String(ctx.subTipeUjian || '').trim();
+  return m === 'bahasa-inggris' || (ctx.tipeUjian === 'Other' && sub === 'TKA Literasi Bahasa Inggris');
+}
+
+export function getEnglishCEFRBand(jenjang: string, fase?: string): string {
+  const j = (jenjang || '').toUpperCase();
+  const f = (fase || '').toUpperCase();
+  if (j.includes('SMA') || j.includes('SMK') || j.includes('MA') || f === 'E' || f === 'F') {
+    return 'CEFR B1–B2 (Academic & Workplace English: Analytical/Hortatory Exposition, Discussion, Report, Procedure, Narrative, News Item)';
+  }
+  if (j.includes('SMP') || j.includes('MTS') || f === 'D') {
+    return 'CEFR A2–B1 (Junior High English: Descriptive, Recount, Narrative, Procedure, Notice/Announcement, Functional Dialogues)';
+  }
+  if (f === 'C') {
+    return 'CEFR A1–A2 (Upper Elementary English: Short Contextual Dialogues, Daily Activities, Simple Descriptive & Functional Texts)';
+  }
+  return 'CEFR Pre-A1 – A1 (Elementary English: Clear Simple Sentences, Everyday Vocabulary, Short Greetings & Basic Dialogues)';
 }
 
 export function isHOTSSelectionOnly(levels: string[]): boolean {
@@ -46,6 +68,8 @@ export function hasAnyHOTSSelection(levels: string[]): boolean {
 export function buildAssessmentSystemInstruction(ctx: AssessmentSkillContext): string {
   const jenjangUpper = (ctx.jenjang || 'SD').toUpperCase();
   const tipe = ctx.tipeUjian === 'Other' && ctx.subTipeUjian ? `${ctx.tipeUjian} (${ctx.subTipeUjian})` : ctx.tipeUjian;
+  const isEnglish = isEnglishAssessment(ctx);
+  const cefrBand = isEnglish ? getEnglishCEFRBand(ctx.jenjang, ctx.fase) : '';
 
   return `PERAN & OTORITAS:
 Anda adalah Tim Pakar Pengembang Instrumen Asesmen Pendidikan Nasional (Pusmendik Kemendikbudristek & Standar Evaluasi Kurikulum Merdeka) untuk jenjang ${jenjangUpper}, tipe asesmen ${tipe}.
@@ -65,9 +89,13 @@ PRINSIP MUTLAK KUALITAS BUTIR SOAL (TIDAK BOLEH DILANGGAR):
    - Pastikan secara objektif hanya ada TEPAT 1 kunci benar pada Pilihan Ganda reguler, semua hitungan matematika/sains 100% presisi, dan gunakan notasi Unicode bersih (x², √, ≤, ≥, ×, ÷) tanpa sintaks LaTeX mentah.
 5. ANTI-TEMPLATE VISUAL & SINKRONISASI GAMBAR:
    - DILARANG KERAS menyalin topik visual klise lintas-mapel (seperti rantai makanan padi-belalang-katak-ular atau grafik titik koordinat kartesius generik) apabila tidak relevan langsung dengan mata pelajaran dan materi yang diminta!
-   - Hanya tulis rujukan visual ("Perhatikan gambar/diagram berikut...") pada nomor soal yang memang ditugaskan memiliki "gambarDeskripsi". Pada nomor tanpa gambar, DILARANG merujuk ke gambar yang tidak ada.
-   - Jangan memaksakan atribut warna bila soal tidak menanyakan warna. Namun SAAT butir soal atau pilihan jawaban memuat warna tertentu, WAJIB cantumkan warna tersebut beserta label teks warna yang sesuai (contoh: teks "Biru") di dalam "gambarDeskripsi".
-${ctx.hasReferenceFiles ? `6. PRIORITAS MUTLAK DOKUMEN LAMPIRAN:
+   - Hanya tulis rujukan visual (${isEnglish ? '"Look at the picture/diagram..."' : '"Perhatikan gambar/diagram berikut..."'}) pada nomor soal yang memang ditugaskan memiliki "gambarDeskripsi". Pada nomor tanpa gambar, DILARANG merujuk ke gambar yang tidak ada.
+   - Jangan memaksakan atribut warna bila soal tidak menanyakan warna. Namun SAAT butir soal atau pilihan jawaban memuat warna tertentu, WAJIB cantumkan warna tersebut beserta label teks warna yang sesuai (${isEnglish ? 'contoh: label teks "Blue"' : 'contoh: teks "Biru"'}) di dalam "gambarDeskripsi".
+${isEnglish ? `6. STRICT 100% FULL-ENGLISH STUDENT PAPER MANDATE (ALL LEVELS — ZERO INDONESIAN ALLOWED):
+   - Mata pelajaran aktif adalah BAHASA INGGRIS (${jenjangUpper}${ctx.fase ? ` / Fase ${ctx.fase}` : ''} — ${cefrBand}).
+   - SELURUH teks yang dilihat siswa WAJIB 100% dalam BAHASA INGGRIS alami dan gramatikal: "stimulusList" ("judul" & "teks"), "pertanyaan", "opsiTambahan", "pernyataanBenarSalah" ("pernyataan" dalam Bahasa Inggris & "kunci" WAJIB "True" atau "False"), "pasanganMenjodohkan" ("kiri" & "kanan"), "soalABKList", serta "kunci" jawaban!
+   - DILARANG KERAS menyelipkan SATU KATA PUN Bahasa Indonesia ke dalam naskah soal siswa (JANGAN menulis "Perhatikan dialog berikut...", "Bacalah teks...", "Manakah pernyataan yang benar...", "Artikan...", atau terjemahan dalam kurung seperti "(artinya ...)").
+   - HANYA field pegangan guru ("pembahasan" dan tabel "kisiKisi": elemen, tujuanPembelajaran, indikatorSoal) yang boleh ditulis dalam Bahasa Indonesia / Dwibahasa agar mudah dibaca guru.` : ''}${ctx.hasReferenceFiles ? `\n${isEnglish ? '7' : '6'}. PRIORITAS MUTLAK DOKUMEN LAMPIRAN:
    - Pengguna telah melampirkan dokumen referensi. Jadikan dokumen lampiran sebagai SUMBER OTORITATIF UTAMA untuk materi, konteks, data, istilah, dan struktur. JANGAN menimpa isi dokumen lampiran dengan materi umum di luar lampiran.` : ''}`;
 }
 
@@ -147,11 +175,18 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
         `     - Soal Mandiri / Standalone (25%–35%): Soal to-the-point tanpa wacana besar ("stimulusId": ""), seperti hitung cepat KPK/FPB, durasi jam analog, operasi pecahan senilai, atau identifikasi sifat bangun datar.`
     );
   } else if (isTKAInggris) {
+    const cefrBand = getEnglishCEFRBand(ctx.jenjang, ctx.fase);
+    const wordRange =
+      jenjangUpper.includes('SMA') || jenjangUpper.includes('SMK')
+        ? '250–350 kata'
+        : jenjangUpper.includes('SMP')
+        ? '180–250 kata'
+        : '100–160 kata';
     sections.push(
-      `- ARSITEKTUR KHUSUS TKA LITERASI BAHASA INGGRIS (SMA/SMK - CEFR B1/B2):\n` +
-        `  1) WAJIB BERBAHASA INGGRIS PENUH: Seluruh teks bacaan di "stimulusList" ("judul" dan "teks" sepanjang 250–350 kata), kalimat "pertanyaan", "opsiTambahan", dan "pernyataanBenarSalah" WAJIB ditulis dalam Bahasa Inggris akademik/kontekstual setara CEFR B1–B2 (Descriptive, Recount, Narrative, Procedure, Analytical/Hortatory Exposition, atau Discussion text).\n` +
+      `- ARSITEKTUR KHUSUS TKA LITERASI BAHASA INGGRIS (${jenjangUpper} — ${cefrBand}):\n` +
+        `  1) WAJIB 100% FULL ENGLISH (ZERO INDONESIAN): Seluruh teks bacaan di "stimulusList" ("judul" dan "teks" sepanjang ${wordRange}), "pertanyaan", "opsiTambahan", "pernyataanBenarSalah" ("pernyataan" dalam Bahasa Inggris & "kunci" wajib "True"/"False"), "pasanganMenjodohkan", dan "soalABKList" WAJIB ditulis 100% dalam Bahasa Inggris alami sesuai ${cefrBand}. DILARANG ada satu kata pun Bahasa Indonesia di naskah siswa!\n` +
         `  2) KOMPETENSI YANG DIUJI: Mencakup Textual Comprehension (detail eksplisit, klasifikasi), Inferential Comprehension (main idea, implied meaning, communicative purpose, author's tone/attitude, predicting outcomes), dan Evaluation & Appreciation (fact vs opinion, validity of arguments, real-life relevance).\n` +
-        `  3) PEMBAHASAN DWI-BAHASA / JELAS: Bagian "pembahasan" dan "indikatorSoal" ditulis jelas (boleh menggunakan Bahasa Indonesia dengan kutipan bukti kalimat Bahasa Inggris dari teks).`
+        `  3) PEMBAHASAN & KISI-KISI PEGANGAN GURU: Bagian "pembahasan" dan "indikatorSoal" boleh ditulis dalam Bahasa Indonesia / Dwibahasa dengan kutipan bukti kalimat Bahasa Inggris dari teks.`
     );
   } else if (isSulingjar) {
     sections.push(
@@ -277,6 +312,24 @@ export function buildRuntimeAssessmentSkillPrompt(ctx: AssessmentSkillContext): 
   } else if (jenjangUpper === 'SMK' && !isSurvey) {
     sections.push(
       `- KONTEKS KEJURUAN SMK (DUDI): Kaitkan studi kasus soal dengan dunia kerja/industri, penerapan SOP, analisis keselamatan kerja (K3), atau troubleshooting praktis sesuai konteks mata pelajaran.`
+    );
+  }
+
+  if (isEnglishAssessment(ctx) && !isTKAInggris) {
+    const cefrBand = getEnglishCEFRBand(ctx.jenjang, ctx.fase);
+    sections.push(
+      `- ATURAN MUTLAK BAHASA NASKAH SOAL BAHASA INGGRIS (${jenjangUpper}${ctx.fase ? ` / Fase ${ctx.fase}` : ''} — ${cefrBand}):\n` +
+        `  * 100% FULL ENGLISH (ZERO INDONESIAN IN STUDENT PAPER): Seluruh "stimulusList" ("judul", "teks"), "pertanyaan", "opsiTambahan", "pernyataanBenarSalah" ("pernyataan" dalam Bahasa Inggris & "kunci" wajib "True" atau "False"), "pasanganMenjodohkan" ("kiri", "kanan"), "soalABKList", serta "kunci" jawaban WAJIB 100% menggunakan BAHASA INGGRIS yang natural dan sesuai tingkat ${cefrBand}.\n` +
+        `  * DILARANG KERAS menyelipkan kalimat pengantar Bahasa Indonesia ("Perhatikan dialog berikut...", "Bacalah teks di bawah ini...", "Manakah jawaban yang tepat...", "Artikan ke dalam bahasa Indonesia...") ataupun terjemahan dalam kurung "(artinya ...)" pada soal maupun opsi!\n` +
+        `  * HANYA bagian pegangan guru ("pembahasan" & kisi-kisi) yang boleh berbahasa Indonesia/dwibahasa.`
+    );
+  } else if (ctx.mapel === 'bahasa-arab') {
+    sections.push(
+      `- ATURAN BAHASA NASKAH SOAL BAHASA ARAB (${jenjangUpper}): Gunakan teks Arab asli (Arabic script) berharakat lengkap dan jelas untuk wacana, dialog, kalimat pertanyaan, dan pilihan jawaban Bahasa Arab tanpa membocorkan terjemahan di samping opsi kecuali soal secara khusus menguji terjemahan.`
+    );
+  } else if (String(ctx.mapel || '').startsWith('mulok-bahasa-')) {
+    sections.push(
+      `- ATURAN BAHASA NASKAH SOAL MUATAN LOKAL BAHASA DAERAH (${jenjangUpper}): Gunakan ragam bahasa daerah target secara autentik dan santun pada teks bacaan, dialog, dan kutipan soal sesuai unggah-ungguh/tata krama bahasa daerah tersebut.`
     );
   }
 

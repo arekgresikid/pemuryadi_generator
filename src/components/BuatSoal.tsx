@@ -15,7 +15,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import LogoUploader from './LogoUploader';
 import LiveQuizOrchestrator from './LiveQuizOrchestrator';
 import { ReferenceFile, REF_MAX_FILES, REF_ACCEPT, processReferenceFile, buildContentsWithReferences } from '../utils/referenceFiles';
-import { buildRuntimeAssessmentSkillPrompt, buildAssessmentSystemInstruction } from '../lib/assessmentSkillLoader';
+import { buildRuntimeAssessmentSkillPrompt, buildAssessmentSystemInstruction, isEnglishAssessment } from '../lib/assessmentSkillLoader';
 
 export default function BuatSoal() {
   const { profile } = useAuth();
@@ -470,8 +470,10 @@ export default function BuatSoal() {
   }, [formData.jenjang, formData.fase]);
 
   const getCP = () => {
-    const key = `${formData.jenjang}-${formData.mapel}-${formData.fase}`;
-    return cpData[key] || 'Capaian Pembelajaran belum tersedia untuk kombinasi ini.';
+    const nested = cpData[formData.mapel]?.[formData.fase];
+    if (nested) return nested;
+    const flatKey = `${formData.jenjang}-${formData.mapel}-${formData.fase}`;
+    return cpData[flatKey] || 'Capaian Pembelajaran belum tersedia untuk kombinasi ini.';
   };
 
   const parseAIJson = (rawText: string) => {
@@ -562,13 +564,13 @@ export default function BuatSoal() {
       if (formData.tipeUjian === 'Other') {
         if (formData.subTipeUjian === 'TKA Literasi') {
           mapelLabel = 'Bahasa Indonesia (TKA Literasi Membaca)';
-          cp = cpData[`${formData.jenjang}-bahasa-indonesia-${formData.fase}`] || cp;
+          cp = cpData['bahasa-indonesia']?.[formData.fase] || cpData[`${formData.jenjang}-bahasa-indonesia-${formData.fase}`] || cp;
         } else if (formData.subTipeUjian === 'TKA Numerasi') {
           mapelLabel = 'Matematika (TKA Numerasi)';
-          cp = cpData[`${formData.jenjang}-matematika-${formData.fase}`] || cp;
+          cp = cpData['matematika']?.[formData.fase] || cpData[`${formData.jenjang}-matematika-${formData.fase}`] || cp;
         } else if (formData.subTipeUjian === 'TKA Literasi Bahasa Inggris') {
-          mapelLabel = 'Bahasa Inggris (TKA Literasi Bahasa Inggris SMA/SMK)';
-          cp = cpData[`${formData.jenjang}-bahasa-inggris-${formData.fase}`] || cp;
+          mapelLabel = `Bahasa Inggris (TKA Literasi Bahasa Inggris ${jenjangLabel})`;
+          cp = cpData['bahasa-inggris']?.[formData.fase] || cpData[`${formData.jenjang}-bahasa-inggris-${formData.fase}`] || cp;
         } else if (formData.subTipeUjian === 'TKA Survei Lingkungan Belajar') {
           mapelLabel = 'Survei Lingkungan Belajar (Sulingjar)';
           cp = 'Instrumen Evaluasi Iklim Keamanan, Kebinekaan, Inklusivitas, Kepemimpinan Instruksional, dan Kualitas Pembelajaran Satuan Pendidikan (Standar Pusmendik).';
@@ -577,6 +579,12 @@ export default function BuatSoal() {
           cp = 'Instrumen Asesmen Kematangan Karakter, Dilema Moral/Etika (SJT), Integritas, Kebinekaan Global, Gotong Royong, Kemandirian, Penalaran Kritis, dan Kreativitas.';
         }
       }
+
+      const isEnglishExam = isEnglishAssessment({
+        mapel: formData.mapel,
+        tipeUjian: formData.tipeUjian,
+        subTipeUjian: formData.subTipeUjian,
+      });
 
       const kerangkaTaksonomiLabel = formData.kerangkaTaksonomi === 'Bloom'
         ? 'Taksonomi Bloom'
@@ -647,6 +655,7 @@ export default function BuatSoal() {
 
           const skillCtx = {
             jenjang: formData.jenjang,
+            fase: formData.fase,
             mapel: formData.mapel,
             tipeUjian: formData.tipeUjian,
             subTipeUjian: formData.subTipeUjian,
@@ -1069,15 +1078,16 @@ Berikan output dalam format JSON murni:
               `  * NOMOR TARGET BERGAMBAR PADA BATCH INI: Tepat ${alloc.totalBatchGambar} soal yaitu [${daftarNomorTarget}].\n` +
               `  * SEBARAN WAJIB: Isi field "gambarDeskripsi" HANYA dan WAJIB pada nomor-nomor target di atas sehingga soal bergambar tersebar merata di setiap bentuk/jenis soal yang dipilih! Untuk nomor selain daftar tersebut, WAJIB biarkan "gambarDeskripsi": "" kosong dan DILARANG menulis kalimat "Perhatikan gambar/bagan/grafik berikut" pada soal yang tidak bergambar!\n` +
               `  * RELEVANSI MAPEL & LARANGAN CONTOH STATIS: Konsep visual WAJIB khusus untuk ${mapelLabel} (${jenisVisualPanduan}). DILARANG KERAS membuat soal rantai makanan (padi-belalang-katak-ular) atau grafik titik koordinat kartesius generik apabila tidak relevan langsung dengan mata pelajaran ${mapelLabel} dan materi "${formData.materi || 'yang dipilih'}"! Variasikan jenis ilustrasi antar-nomor.\n` +
-              `  * SINKRONISASI DATA & ATURAN WARNA PADA GAMBAR: Tulis "gambarDeskripsi" (dalam bahasa Inggris yang konkret & lengkap) memuat seluruh objek dan angka/ukuran yang dirujuk soal (misal ukuran sisi "25 m", "16 m", atau nilai diagram batang). JANGAN memaksakan atribut warna jika soal tidak menanyakan warna; NAMUN SAAT butir soal atau pilihan jawaban memuat/menanyakan warna tertentu, WAJIB tuliskan warna spesifik tersebut secara tegas di "gambarDeskripsi" beserta label teks warna yang sesuai (contoh: label teks "Biru") agar gambar hasil generate 100% menampilkan warna yang sinkron dengan pilihan jawaban.`;
+              `  * SINKRONISASI DATA & ATURAN WARNA PADA GAMBAR: Tulis "gambarDeskripsi" (dalam bahasa Inggris yang konkret & lengkap) memuat seluruh objek dan angka/ukuran yang dirujuk soal (misal ukuran sisi "25 m", "16 m", atau nilai diagram batang). JANGAN memaksakan atribut warna jika soal tidak menanyakan warna; NAMUN SAAT butir soal atau pilihan jawaban memuat/menanyakan warna tertentu, WAJIB tuliskan warna spesifik tersebut secara tegas di "gambarDeskripsi" beserta label teks warna yang sesuai (${isEnglishExam ? 'contoh: label teks "Blue" dalam Bahasa Inggris' : 'contoh: label teks "Biru"'}) agar gambar hasil generate 100% menampilkan warna yang sinkron dengan pilihan jawaban.`;
           } else {
-            extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "" dan jangan merujuk gambar butir yang tidak ada.' : 'Karena tidak ada soal bergambar yang diminta pada batch ini, biarkan field "gambarDeskripsi": "" kosong pada seluruh butir soal dan DILARANG menulis "Perhatikan gambar/bagan berikut".'}`;
+            extraInstructions += `\n- ATURAN GAMBAR & VISUAL: ${useStimulus ? 'Utamakan ilustrasi pada "stimulusList" bila diperlukan oleh wacana/infografis. Untuk butir soal individual, biarkan "gambarDeskripsi": "" dan jangan merujuk gambar butir yang tidak ada.' : `Karena tidak ada soal bergambar yang diminta pada batch ini, biarkan field "gambarDeskripsi": "" kosong pada seluruh butir soal dan DILARANG menulis ${isEnglishExam ? '"Look at the picture/diagram below"' : '"Perhatikan gambar/bagan berikut"'}.`}`;
           }
 
           extraInstructions += `\n- NOTASI MATEMATIKA BERSIH (UNICODE): Gunakan notasi matematika standar Indonesia dan simbol Unicode yang bersih (contoh: 1/a + 1/b, x², √x, ±, ≥, ≤, ×, ÷). DILARANG KERAS mengeluarkan sintaks LaTeX mentah seperti \\[ ... \\], \\frac{a}{b}, atau tanda dolar $ yang merusak tampilan web dan cetak.`;
 
           const skillCtx = {
             jenjang: formData.jenjang,
+            fase: formData.fase,
             mapel: formData.mapel,
             tipeUjian: formData.tipeUjian,
             subTipeUjian: formData.subTipeUjian,
@@ -1109,13 +1119,15 @@ Berikan output dalam format JSON murni:
 
           if (hasBenarSalah || hasKompleks || useStimulus) {
             extraInstructions += `\n- FORMAT KHUSUS BENTUK SOAL:
-  1) BENAR / SALAH: Untuk butir soal Benar/Salah, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}, {"pernyataan": "...", "kunci": "Salah"}]. Berikan 2–4 pernyataan bermakna.
+  1) ${isEnglishExam ? 'TRUE / FALSE (BENAR / SALAH): Untuk butir soal True/False, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...(in English)", "kunci": "True"}, {"pernyataan": "...(in English)", "kunci": "False"}]. Berikan 2–4 pernyataan bermakna 100% dalam Bahasa Inggris.' : 'BENAR / SALAH: Untuk butir soal Benar/Salah, WAJIB mengisi array "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}, {"pernyataan": "...", "kunci": "Salah"}]. Berikan 2–4 pernyataan bermakna.'}
   2) PILIHAN GANDA KOMPLEKS (LEBIH DARI 1 JAWABAN BENAR): Tulis opsi lengkap di "opsiTambahan" (contoh: ["A. ...", "B. ...", "C. ...", "D. ..."]).
   3) MENJODOHKAN: Isi array "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}].
   4) PILIHAN GANDA: Isi 4-5 pilihan di "opsiTambahan" ("A. ...", "B. ...", dst).`;
           }
 
-          if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
+          if (isEnglishExam) {
+            extraInstructions += `\n- WAJIB 100% FULL ENGLISH (ZERO INDONESIAN IN STUDENT PAPER): Ini adalah ujian BAHASA INGGRIS untuk jenjang ${jenjangLabel} (Fase ${formData.fase}). SELURUH "stimulusList" ("judul" & "teks"), "pertanyaan", "opsiTambahan", "pernyataanBenarSalah" ("pernyataan" Inggris & "kunci" = "True"/"False"), "pasanganMenjodohkan", "soalABKList", serta "kunci" jawaban WAJIB 100% berbahasa Inggris alami tanpa satu kata pun Bahasa Indonesia (larangan keras menyisipkan "Perhatikan dialog...", "Bacalah teks...", "Manakah...", atau terjemahan dalam kurung). HANYA field "pembahasan" dan "indikatorSoal" yang boleh berbahasa Indonesia/dwibahasa untuk pegangan guru.`;
+          } else if (['bahasa-arab', 'al-quran-hadis', 'akidah-akhlak', 'fikih', 'ski'].includes(formData.mapel)) {
             extraInstructions += `\n- BAHASA ARAB: Karena mata pelajaran ini berbasis PAI/Bahasa Arab, WAJIB gunakan teks Arab asli (Arabic script) berharakat untuk setiap ayat, hadis, kosakata, atau naskah Arab yang diperlukan.`;
           }
 
@@ -1180,7 +1192,7 @@ Berikan output dalam format JSON murni:
       "stimulusId": "${useStimulus ? 'S1 atau kosong' : ''}", 
       "pertanyaan": "...", 
       "opsiTambahan": ["A. ...", "B. ..."], 
-      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "Benar"}], 
+      "pernyataanBenarSalah": [{"pernyataan": "...", "kunci": "${isEnglishExam ? 'True' : 'Benar'}"}], 
       "pasanganMenjodohkan": [{"kiri": "...", "kanan": "..."}],${generateFullAllInOne ? `
       "kunci": "...", 
       "pembahasan": "...",
@@ -1336,8 +1348,15 @@ Berikan output dalam format JSON murni:
           };
         });
 
+        const isEnglishKunci = isEnglishAssessment({
+          mapel: resultSoal.meta?.mapel,
+          tipeUjian: resultSoal.meta?.tipeUjian,
+          subTipeUjian: resultSoal.meta?.subTipeUjian,
+        });
+
         const prompt = `Buatkan Kunci Jawaban, Pembahasan ringkas & logis, serta Skor untuk daftar soal ${resultSoal.meta?.mapelLabel || ''} (${resultSoal.meta?.jenjangLabel || ''}, ${resultSoal.meta?.tipeUjian || ''}) berikut.
 Gunakan notasi matematika standar Indonesia dan simbol Unicode bersih (x², √, ≤, ≥, ÷) tanpa sintaks LaTeX mentah.
+${isEnglishKunci ? 'PENTING (BAHASA INGGRIS): Tulis seluruh field "kunci" dalam Bahasa Inggris yang tepat (termasuk "True" / "False" untuk soal Benar/Salah dan jawaban isian/uraian dalam Bahasa Inggris). Bagian "pembahasan" boleh ditulis dalam Bahasa Indonesia / Dwibahasa dengan kutipan bukti kalimat Bahasa Inggris agar jelas bagi guru.' : ''}
 
 DAFTAR SOAL REGULER:
 ${JSON.stringify(soalPayload)}
@@ -1786,6 +1805,11 @@ Berikan output JSON murni sesuai skema.`;
   const renderSoalPrint = (type: 'naskah' | 'kunci' | 'kartu') => {
     if (!resultSoal || (!resultSoal.soalList && !resultSoal.soalABKList)) return '';
     const { meta, soalList = [], soalABKList = [] } = resultSoal;
+    const isEnglishPrint = isEnglishAssessment({
+      mapel: meta?.mapel,
+      tipeUjian: meta?.tipeUjian,
+      subTipeUjian: meta?.subTipeUjian,
+    });
     const isTwoCol = type === 'naskah' && (formData.layoutCetak || meta?.layoutCetak || '1-kolom') === '2-kolom';
     const stimulusList: any[] = Array.isArray(resultSoal.stimulusList) ? resultSoal.stimulusList : [];
     const isKompleks = (s: any) => /kompleks/i.test(s?.jenisSoal || '');
@@ -1800,7 +1824,7 @@ Berikan output JSON murni sesuai skema.`;
       if (i > 0 && soalList[i - 1]?.stimulusId === s.stimulusId) return '';
       return `
         <div class="stimulus-box-print">
-          <div style="font-weight: bold; margin-bottom: 3px;">Bacalah informasi berikut untuk menjawab soal nomor ${stimulusRentang(s.stimulusId)}.</div>
+          <div style="font-weight: bold; margin-bottom: 3px;">${isEnglishPrint ? `Read the following text to answer questions number ${stimulusRentang(s.stimulusId)}.` : `Bacalah informasi berikut untuk menjawab soal nomor ${stimulusRentang(s.stimulusId)}.`}</div>
           ${st.judul ? `<div style="text-align: center; font-weight: bold; margin-bottom: 4px;">${st.judul}</div>` : ''}
           ${st.gambarUrl ? `<img src="${st.gambarUrl}" style="float: right; max-width: ${isTwoCol ? '3.4cm' : '4.6cm'}; max-height: ${isTwoCol ? '3.4cm' : '4.2cm'}; object-fit: contain; margin: 0 0 4px 8px; border: 1px solid #ccc; background: #fff;" />` : ''}
           <div style="white-space: pre-wrap; text-align: justify;">${st.teks || ''}</div>
@@ -1815,7 +1839,7 @@ Berikan output JSON murni sesuai skema.`;
     };
     const benarSalahPrint = (s: any) => (Array.isArray(s?.pernyataanBenarSalah) && s.pernyataanBenarSalah.length > 0) ? `
       <table style="width: 100%; margin: 3px 0 4px; font-size: 9.5pt;">
-        <thead><tr><th>Pernyataan</th><th style="width: 44px;">Benar</th><th style="width: 44px;">Salah</th></tr></thead>
+        <thead><tr><th>${isEnglishPrint ? 'Statement' : 'Pernyataan'}</th><th style="width: 44px;">${isEnglishPrint ? 'True' : 'Benar'}</th><th style="width: 44px;">${isEnglishPrint ? 'False' : 'Salah'}</th></tr></thead>
         <tbody>${s.pernyataanBenarSalah.map((p: any, k: number) => `<tr><td style="padding: 2px 5px;">${String.fromCharCode(65 + k)}. ${p.pernyataan}</td><td style="text-align: center; padding: 2px;">○</td><td style="text-align: center; padding: 2px;">○</td></tr>`).join('')}</tbody>
       </table>` : '';
 
@@ -3108,7 +3132,13 @@ Berikan output JSON murni sesuai skema.`;
               )}
 
               {activeSubTab === 'naskah' && (
-                resultSoal && resultSoal.soalList ? (
+                resultSoal && resultSoal.soalList ? (() => {
+                  const isEnglishUI = isEnglishAssessment({
+                    mapel: resultSoal.meta?.mapel,
+                    tipeUjian: resultSoal.meta?.tipeUjian,
+                    subTipeUjian: resultSoal.meta?.subTipeUjian,
+                  });
+                  return (
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="font-bold text-indigo-600 text-lg border-b border-indigo-200 pb-2 mb-4 mt-8">A. NASKAH SOAL (REGULER)</h3>
                     {resultSoal.soalList.map((s: any, i: number) => (
@@ -3120,7 +3150,9 @@ Berikan output JSON murni sesuai skema.`;
                         const rentang = nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]}` : `${nums[0] || ''}`;
                         return (
                           <div className="p-5 border border-amber-200 bg-amber-50/40 rounded-xl">
-                            <p className="text-sm font-bold text-gray-800 mb-2">Bacalah teks berikut untuk menjawab soal nomor {rentang}.</p>
+                            <p className="text-sm font-bold text-gray-800 mb-2">
+                              {isEnglishUI ? `Read the following text to answer questions number ${rentang}.` : `Bacalah teks berikut untuk menjawab soal nomor ${rentang}.`}
+                            </p>
                             <h4 className="text-center font-bold text-gray-900 text-base mb-3">{st.judul}</h4>
                             <div className="flow-root">
                               {(st.gambarDeskripsi || st.gambarUrl) && (
@@ -3189,9 +3221,9 @@ Berikan output JSON murni sesuai skema.`;
                             <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
                               <thead>
                                 <tr className="bg-gray-100">
-                                  <th className="border border-gray-300 px-3 py-1.5 text-left">Pernyataan</th>
-                                  <th className="border border-gray-300 px-3 py-1.5 w-16">Benar</th>
-                                  <th className="border border-gray-300 px-3 py-1.5 w-16">Salah</th>
+                                  <th className="border border-gray-300 px-3 py-1.5 text-left">{isEnglishUI ? 'Statement' : 'Pernyataan'}</th>
+                                  <th className="border border-gray-300 px-3 py-1.5 w-16">{isEnglishUI ? 'True' : 'Benar'}</th>
+                                  <th className="border border-gray-300 px-3 py-1.5 w-16">{isEnglishUI ? 'False' : 'Salah'}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -3254,9 +3286,9 @@ Berikan output JSON murni sesuai skema.`;
                                 <table className="w-full max-w-2xl text-sm text-gray-700 border border-gray-300 bg-white">
                                   <thead>
                                     <tr className="bg-gray-100">
-                                      <th className="border border-gray-300 px-3 py-1.5 text-left">Pernyataan</th>
-                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">Benar</th>
-                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">Salah</th>
+                                      <th className="border border-gray-300 px-3 py-1.5 text-left">{isEnglishUI ? 'Statement' : 'Pernyataan'}</th>
+                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">{isEnglishUI ? 'True' : 'Benar'}</th>
+                                      <th className="border border-gray-300 px-3 py-1.5 w-16 text-center">{isEnglishUI ? 'False' : 'Salah'}</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -3303,7 +3335,8 @@ Berikan output JSON murni sesuai skema.`;
                       </div>
                     )}
                   </div>
-                ) : (
+                  );
+                })() : (
                   <div className="h-full flex flex-col items-center justify-center text-gray-500">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4 border border-gray-300">
                       <List size={32} className="text-slate-600" />
